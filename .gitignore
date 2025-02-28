@@ -1,0 +1,57 @@
+# 🔹 Ignore Virtual Environment (Django)
+venv/
+.env
+backend/env/
+
+# 🔹 Ignore Python Compiled Files
+*.pyc
+*.pyo
+__pycache__/
+
+# 🔹 Ignore Django Migration Files (Except `__init__.py`)
+**/migrations/*.py[cod]
+!**/migrations/__init__.py
+
+# 🔹 Ignore SQLite Database (if using SQLite)
+*.sqlite3
+
+# 🔹 Ignore Logs & Temporary Files
+*.log
+*.bak
+*.swp
+.DS_Store  # macOS system file
+Thumbs.db  # Windows system file
+
+# 🔹 Ignore Node.js Dependencies (React & Vite)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+.vscode/
+
+# 🔹 Ignore Build Files (React & Vite)
+dist/
+out/
+build/
+.cache/
+*.lock
+*.map
+
+# 🔹 Ignore Package Manager Lock Files (Choose One)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 🔹 Ignore TypeScript Build Files (If using TypeScript)
+*.tsbuildinfo
+
+# 🔹 Ignore Static & Media Files (If Django Manages Them)
+staticfiles/
+media/
+
+# 🔹 Ignore Coverage Reports (If using Jest or PyTest)
+coverage/
+jest/
+__snapshots__/
