@@ -4,6 +4,7 @@ import os
 import sys
 from pathlib import Path
 import environ
+from datetime import timedelta
 
 env = environ.Env()
 environ.Env.read_env()
@@ -26,6 +27,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
+# path to all apps that are inside the common 'apps' folder.
 APPS_DIR = BASE_DIR / 'apps'
 sys.path.insert(0, str(APPS_DIR))
 
@@ -36,21 +38,49 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third party apps
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
+    # custom apps.
     'users',
     'community',
     'events',
     'notifications',
+    # Django main page (Home) for initial load (optional).
     'Home',
+
 ]
 
+# Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+# Djanot rest framerword with jwt setup.
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+# JWT Token cutom setup.
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'ALGORITHM': 'HS256',  # Secure hashing algorithm
+
+
+}
+
 MIDDLEWARE = [
+    # Third party middleware added.
     'corsheaders.middleware.CorsMiddleware',
+    # Dajango default middleware.
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,7 +112,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'agri_flow.wsgi.application'
 
 
-# Database
+# Database structure.
 
 DATABASES = {
     'default': {
@@ -96,7 +126,7 @@ DATABASES = {
 }
 
 
-# Password validation
+# Password validation.
 
 AUTH_PASSWORD_VALIDATORS = [
     {
