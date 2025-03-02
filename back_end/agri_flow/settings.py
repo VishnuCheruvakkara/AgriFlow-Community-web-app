@@ -32,6 +32,7 @@ APPS_DIR = BASE_DIR / 'apps'
 sys.path.insert(0, str(APPS_DIR))
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    
     # custom apps.
     'users',
     'community',
@@ -73,6 +75,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'ALGORITHM': 'HS256',  # Secure hashing algorithm
+    "AUTH_COOKIE_SECURE": True,
 
 
 }
@@ -143,6 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Custom user configuration when call "get_user_model()" Tis part will triggered.
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
@@ -163,3 +167,29 @@ STATIC_URL = 'static/'
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#Setup of django cache for otp storage in temporary to avoid multi user login in single-time.
+CACHES={
+    "default":{
+        "BACKEND":"django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION":"otp_cache",
+        "TIMEOUT":300 # OTP expiry time in seconds (5 minutes)
+    }
+}
+
+#smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_USE_TLS =env.bool('EMAIL_USE_TLS',default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER') # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')    
+
+#django jazzmin setup for better ui for django admin.
+JAZZMIN_SETTINGS = {
+    "site_title": "AgriFlow Admin",
+    "site_header": "AgriFlow Admin",
+    "site_brand": "AgriFlow",
+    "welcome_sign": "Welcome to AgriFlow Farmer Community",
+    "copyright": "AgriFlow © 2024",
+}
