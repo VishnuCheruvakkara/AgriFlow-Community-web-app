@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import SignUpLeftSideSection from '../components/Authentication/SignUpLeftSideSection'
+import SignUpLeftSideSection from '../../components/Authentication/SignUpLeftSideSection'
 
 const OTPVerification = () => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
