@@ -66,24 +66,22 @@ REST_FRAMEWORK = {
     ],
 }
 
-# JWT Token cutom setup.
+# JWT Token custom setup.
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'BLACKLIST_AFTER_ROTATION': True, # For blacklist the Refresh-token after logout
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'ALGORITHM': 'HS256',  # Secure hashing algorithm
     "AUTH_COOKIE_SECURE": True,
-
-
 }
 
 MIDDLEWARE = [
     # Third party middleware added.
     'corsheaders.middleware.CorsMiddleware',
-    # Dajango default middleware.
+    # Django default middleware.
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
