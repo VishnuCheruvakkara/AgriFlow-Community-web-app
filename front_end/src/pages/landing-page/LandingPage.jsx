@@ -4,9 +4,9 @@ import { LuCarrot } from "react-icons/lu";
 import { IoChatboxEllipses } from "react-icons/io5";
 import { RiCalendarEventLine } from "react-icons/ri";
 import { IoMdLogIn } from "react-icons/io";
-import FooterLandingPage from '../components/Footer/FooterLandingPage'
+import FooterLandingPage from '../../components/Footer/FooterLandingPage'
 import { Link } from 'react-router-dom';
-import AgriFlowLogoPng from '../assets/images/agriflowlogo.png'
+import AgriFlowLogoPng from '../../assets/images/agriflowlogo.png'
 
 function LandingPage() {
     return (

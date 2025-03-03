@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import LandingPage from '../pages/LandingPage'
-import SignUpPage from '../pages/SignUpPage'
-import LoginPage from '../pages/LoginPage'
-import OtpPage from '../pages/SignUpOtpPage' 
+import LandingPage from '../pages/landing-page/LandingPage'
+import SignUpPage from '../pages/authentication/SignUpPage'
+import LoginPage from '../pages/authentication/LoginPage'
+import OtpPage from '../pages/authentication/SignUpOtpPage' 
 
 const AppRoutes = () => {
     return (
