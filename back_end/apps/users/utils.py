@@ -9,7 +9,7 @@ def generate_otp_and_send_email(email):
     otp = str(random.randint(100000, 999999))
 
     # Store OTP in cache for 5 minutes
-    cache.set(f"otp_{email}", otp, timeout=300)
+    cache.set(f"otp_{email}", otp, timeout=1200)  # just for testing purpost I set that as 1 hour  
 
     try:
         send_mail(
