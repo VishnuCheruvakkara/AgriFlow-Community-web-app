@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import SignUpLeftSideSection from '../../components/Authentication/SignUpLeftSideSection'
+import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance";
 
 const SignUp = () => {
+    const navigate = useNavigate(); //React Router's navigation function
+    // For show paassword
     const [showPassword, setShowPassword] = useState(false);
+
+    // For show confirmpassword 
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // State for Collect form data 
     const [formData, setFormData] = useState({
-        fullName: '',
+        username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        password2: ''
     });
 
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+  
+
+    // Add inputed data into the State 'formData'
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -19,16 +31,25 @@ const SignUp = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    // works while submit a form 
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            alert("Passwords don't match!");
-            return;
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await BaseAxiosInstance.post("/users/register/", formData);
+            console.log("Registration Successful:", response.data);
+            // Handle success 
+            navigate("/otp-page", { state: { email: formData.email } });
+
+        } catch (error) {
+            setError(error.response?.data?.message || "Something went wrong");
+            console.error("Registration Error:", error);
+        } finally {
+            setLoading(false);
         }
-        // Send OTP to email
-        console.log("Sending OTP to", formData.email);
-        // Navigate to OTP verification page
-        window.location.href = "/verify-otp";
+        
     };
 
     return (
@@ -80,8 +101,8 @@ const SignUp = () => {
                                     </span>
                                     <input
                                         type="text"
-                                        name="fullName"
-                                        value={formData.fullName}
+                                        name="username"
+                                        value={formData.username}
                                         onChange={handleChange}
                                         className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                         placeholder="John Smith"
@@ -158,7 +179,7 @@ const SignUp = () => {
                                     </span>
                                     <input
                                         type={showConfirmPassword ? "text" : "password"}
-                                        name="confirmPassword"
+                                        name="password2"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
                                         className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -195,14 +216,14 @@ const SignUp = () => {
                                     I agree to the <a href="#" className="text-green-600 hover:underline">Terms of Service</a> and <a href="#" className="text-green-600 hover:underline">Privacy Policy</a>
                                 </label>
                             </div>
-                            <Link to='/otp-page'>
+                          
                                 <button
                                     type="submit"
                                     className="mt-5 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                                 >
                                     Create Account
                                 </button>
-                            </Link>
+                           
 
                         </form>
 
