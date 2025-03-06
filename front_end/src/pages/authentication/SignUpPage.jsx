@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link,useNavigate } from 'react-router-dom';
 import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance";
+//import google auth button 
+import GoogleLoginButton from '../../components/Authentication/GoogleAuthButton';
+
 
 const SignUp = () => {
     const navigate = useNavigate(); //React Router's navigation function
@@ -65,14 +68,8 @@ const SignUp = () => {
                         <p className="text-gray-600 text-center mb-8">Create your account to get started</p>
 
                         <div className="space-y-4 mb-6">
-                            
-                            <button
-                                className="w-full flex items-center justify-center gap-2 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 text-red-500">
-                                    <path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z" />
-                                </svg>
-                                <span>Sign up with Google</span>
-                            </button>
+                            {/* google auth button here  */}
+                            <GoogleLoginButton />
 
                             <button className="w-full flex items-center justify-center gap-2 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 text-green-600">

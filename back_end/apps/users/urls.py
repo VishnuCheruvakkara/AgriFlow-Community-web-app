@@ -1,5 +1,6 @@
-from django.urls import path 
+from django.urls import path,include
 from .views import RegisterView,VerifyOTPView,LogoutView
+from .views import GoogleLoginView
 
 
 urlpatterns = [
@@ -7,7 +8,9 @@ urlpatterns = [
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
     path('logout/',LogoutView.as_view(),name='logout'),
 
-    #for google based authentication  
-  
+    #for google based authentication : Google OAuth Login
+    path('google-login/', GoogleLoginView.as_view(), name='google_login'),
+    
+
     
 ]

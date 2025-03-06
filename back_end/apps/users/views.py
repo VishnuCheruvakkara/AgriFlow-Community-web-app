@@ -14,6 +14,9 @@ from .serializers import RegisterSerializer, VerifyOTPSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
+
 
 
 User = get_user_model()
@@ -135,4 +138,82 @@ class LogoutView(APIView):
 
 ###################  Google authentication ####################
 
+class GoogleLoginView(APIView):
+    """Google OAuth2 Login API"""
+    
+    def post(self, request):
+        """
+        Handles Google login/signup.
+        - Verifies the Google token.
+        - Creates/Retrieves the user.
+        - Generates JWT tokens.
+        """
+        google_token = request.data.get("token")
 
+        if not google_token:
+            return Response(
+                {"error": "Google authentication token is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            # Verify Google token and get user info
+            google_info = id_token.verify_oauth2_token(
+                google_token, google_requests.Request(), settings.GOOGLE_CLIENT_ID
+            )
+
+            email = google_info.get("email")
+            name = google_info.get("name")
+
+            if not email:
+                return Response(
+                    {"error": "Invalid Google account, email not found"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Check if the user already exists
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={"username": name, "is_verified": True, "is_active": True}
+            )
+
+            # Generate JWT tokens
+            access_token, refresh_token = generate_tokens(user)
+
+            # User response data
+            user_data = {
+                "id": user.id,
+                "name": user.username,
+                "email": user.email,
+            }
+
+            # Response with access token & user details
+            response = Response(
+                {
+                    "message": "Google authentication successful",
+                    "access_token": access_token,
+                    "user": user_data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+            # Set refresh token in HTTP-only cookie
+            response.set_cookie(
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,
+                secure=True,
+                samesite="Lax",
+                max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+            )
+
+            return response
+
+        except ValueError:
+            return Response(
+                {"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
