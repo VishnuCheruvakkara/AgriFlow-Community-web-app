@@ -2,7 +2,7 @@
 //Store setup in redux with redux tool-kit
 
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./features/AuthSlice";
+import authReducer from "./slices/AuthSlice";
 //persistor setup 
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";

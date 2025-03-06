@@ -43,7 +43,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_celery_beat', #task run automatically
+    #for social auth setup 
+    'social_django',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
     
+
     # custom apps.
     'users',
     'community',
@@ -175,7 +181,7 @@ CACHES={
     }
 }
 
-#smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.
+########################### smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.  ###########################
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
@@ -183,7 +189,7 @@ EMAIL_USE_TLS =env.bool('EMAIL_USE_TLS',default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER') # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')    
 
-#django jazzmin setup for better ui for django admin.
+####################### django jazzmin setup for better ui for django admin.  ##########################33
 JAZZMIN_SETTINGS = {
     "site_title": "AgriFlow Admin",
     "site_header": "AgriFlow Admin",
@@ -191,3 +197,15 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to AgriFlow Farmer Community",
     "copyright": "AgriFlow © 2024",
 }
+
+
+#################### goole authentication setup  ####################
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Google OAuth credentials
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('GOOGLE_CLIENT_SECRET')

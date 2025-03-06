@@ -6,7 +6,8 @@ from django.db import models
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=45, unique=False, blank=True, null=True)  # Make it optional
-
+    is_verified = models.BooleanField(default=False)  # New field to track OTP verification
+    
     USERNAME_FIELD='email'
     REQUIRED_FIELDS=['username']
 

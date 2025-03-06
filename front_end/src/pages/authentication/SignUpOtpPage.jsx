@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import SignUpLeftSideSection from '../../components/Authentication/SignUpLeftSideSection'
+import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance"; 
+// redux set up 
+import { useDispatch } from 'react-redux'
+import { loginSuccess } from '../../redux/slices/AuthSlice';
 
 const OTPVerification = () => {
+    const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -168,35 +172,47 @@ const OTPVerification = () => {
         startNewTimer();
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
             alert("Please enter a complete 6-digit OTP");
             return;
         }
+        try {
+            const response = await BaseAxiosInstance.post("/users/verify-otp/", {
+                email: email, // Email from state
+                otp:otpValue // OTP entered by the user
+            });
 
-        // Implement verify OTP logic here
-        console.log("Verifying OTP:", otpValue);
+            // Extract user data and token from the response
+            const { user, access_token } = response.data;
+            // Dispatch loginSuccess action to store user data in Redux
+            dispatch(loginSuccess({ user, token: access_token }));
 
-        // On successful verification, clear the timer status from localStorage
-        localStorage.removeItem("otpTimerStatus");
+            // Remove OTP timer status from local storage
+            localStorage.removeItem("otpTimerStatus");
 
-        // Navigate to next page (e.g., dashboard)
-        // navigate('/dashboard');
+
+            // Navigate to the home/dashboard after successful OTP verification
+            navigate("/user-dash-board");
+
+
+        } catch (error) {
+            console.error("OTP verification failed :", error.response?.data || error.message);
+            console.log("Email was int this format",email)
+        }
     };
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-            {/* Left side image panel */}
-            <SignUpLeftSideSection />
 
             {/* Right side OTP panel */}
-            <div className="w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
-                <div className="bg-white flex justify-center items-center p-6 lg:p-12 ">
-                    <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl w-full max-w-md">
+            <div className="bg-white w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
+                <div className=" flex justify-center items-center p-6 h-screen ">
+                    <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl  px-20 max-w-md">
                         {/* Mobile logo (visible only on small screens) */}
-                        <div className="md:hidden flex justify-center mb-8">
+                        <div className="lg:hidden flex justify-center mb-8">
                             <img src="/api/placeholder/80/80" alt="AgriFlow logo" className="w-16 h-16" />
                         </div>
 
@@ -204,7 +220,6 @@ const OTPVerification = () => {
                         <p className="text-gray-600 text-center mb-8">
                             We've sent a verification code to <br/>{formatEmail(email || 'The entered E-mail address.')}
                         </p>
-
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="flex flex-col items-center">
                                 <div className="flex justify-center space-x-2 w-full">
@@ -228,7 +243,7 @@ const OTPVerification = () => {
                                         type="button"
                                         onClick={handleResendOTP}
                                         disabled={isResendDisabled}
-                                        className={`ml-1 font-medium ${isResendDisabled ? 'text-gray-400' : 'text-green-800 hover:underline'}`}
+                                        className={`ml-1 font-medium ${isResendDisabled ? 'text-gray-400' : 'text-green-600 hover:underline'}`}
                                     >
                                         {isResendDisabled ? `Resend in ${formatTime(timer)}` : 'Resend OTP'}
                                     </button>
