@@ -44,12 +44,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-   
-    #for google OAuth setup 
+
+    # for google OAuth setup
     'social_django',  # Google OAuth
     'rest_framework.authtoken',
     'dj_rest_auth',  # Authentication package
-
 
     # custom apps.
     'users',
@@ -78,7 +77,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True, # For blacklist the Refresh-token after logout
+    'BLACKLIST_AFTER_ROTATION': True,  # For blacklist the Refresh-token after logout
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'ALGORITHM': 'HS256',  # Secure hashing algorithm
@@ -175,12 +174,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#Setup of django cache for otp storage in temporary to avoid multi user login in single-time.
-CACHES={
-    "default":{
-        "BACKEND":"django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION":"otp_cache",
-        "TIMEOUT":300 # OTP expiry time in seconds (5 minutes)
+# Setup of django cache for otp storage in temporary to avoid multi user login in single-time.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "otp_cache",
+        "TIMEOUT": 300  # OTP expiry time in seconds (5 minutes)
     }
 }
 
@@ -188,11 +187,11 @@ CACHES={
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_TLS =env.bool('EMAIL_USE_TLS',default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER') # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')    
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
-####################### django jazzmin setup for better ui for django admin.  ##########################33
+# django jazzmin setup for better ui for django admin.  ##########################33
 JAZZMIN_SETTINGS = {
     "site_title": "AgriFlow Admin",
     "site_header": "AgriFlow Admin",
@@ -209,8 +208,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # Default auth backend
 )
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env("GOOGLE_CLIENT_ID")  
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env("GOOGLE_CLIENT_SECRET")  
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 
 # Allow automatic user creation on OAuth login
@@ -227,5 +226,4 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 # Login redirect after successful authentication
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+GOOGLE_REDIRECT_URI = 'http://127.0.0.1:8000/users/auth/callback/'

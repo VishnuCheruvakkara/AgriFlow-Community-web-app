@@ -2,14 +2,12 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const GoogleLoginButton = () => {
-    const navigate = useNavigate();
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectUri = encodeURIComponent(import.meta.env.VITE_GOOGLE_REDIRECT_URI); // Encode URI
+    const scope = encodeURIComponent("openid email profile"); // Encode scope
 
     // Function to redirect to Google OAuth 2.0 Login
     const handleGoogleLogin = () => {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-        const redirectUri = encodeURIComponent(import.meta.env.VITE_GOOGLE_REDIRECT_URI); // Encode URI
-        const scope = encodeURIComponent("openid email profile"); // Encode scope
-
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth
             ?client_id=${clientId}
             &redirect_uri=${redirectUri}
@@ -17,7 +15,6 @@ const GoogleLoginButton = () => {
             &scope=${scope}
             &access_type=offline
             &prompt=consent`.replace(/\s+/g, ''); // Remove spaces
-
         window.location.href = googleAuthUrl; // Redirect user to Google Login
     };
 
@@ -36,5 +33,6 @@ const GoogleLoginButton = () => {
         </button>
     );
 };
+
 
 export default GoogleLoginButton;
