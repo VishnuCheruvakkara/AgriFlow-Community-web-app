@@ -1,38 +1,51 @@
-import { useEffect } from "react";
+import React from "react";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { loginSuccess } from "../../redux/slices/AuthSlice"
 
-const GoogleLoginButton = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const redirectUri = encodeURIComponent(import.meta.env.VITE_GOOGLE_REDIRECT_URI); // Encode URI
-    const scope = encodeURIComponent("openid email profile"); // Encode scope
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-    // Function to redirect to Google OAuth 2.0 Login
-    const handleGoogleLogin = () => {
-        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth
-            ?client_id=${clientId}
-            &redirect_uri=${redirectUri}
-            &response_type=code
-            &scope=${scope}
-            &access_type=offline
-            &prompt=consent`.replace(/\s+/g, ''); // Remove spaces
-        window.location.href = googleAuthUrl; // Redirect user to Google Login
+const GoogleAuthButton = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleSuccess = async (credentialResponse) => {
+        try {
+            const { credential } = credentialResponse; // Get the Google token
+            const response = await axios.post("http://127.0.0.1:8000/users/auth/callback/", {
+                token: credential,
+            });
+
+            const { user, access_token } = response.data; // Extract user & token
+            
+            // Store token in local storage
+            localStorage.setItem("access", access_token);
+
+            // Dispatch Redux action to store user data
+            dispatch(loginSuccess({ user, token: access_token }));
+
+            // Navigate to the user dashboard
+            navigate("/user-dash-board");
+            
+        } catch (error) {
+            console.error("Google Auth Failed", error);
+        }
+    };
+
+    const handleFailure = () => {
+        console.error("Google Login Failed");
     };
 
     return (
-        <button
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition"
-            onClick={handleGoogleLogin} // Redirect on click
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 text-red-500">
-                <path
-                    fill="currentColor"
-                    d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"
-                />
-            </svg>
-            <span>Sign up with Google</span>
-        </button>
+        <GoogleOAuthProvider clientId={clientId}>
+            <GoogleLogin
+                onSuccess={handleSuccess}
+                onError={handleFailure}
+            />
+        </GoogleOAuthProvider>
     );
 };
 
-
-export default GoogleLoginButton;
+export default GoogleAuthButton;

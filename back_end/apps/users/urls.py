@@ -1,6 +1,6 @@
 from django.urls import path,include
 from .views import RegisterView,VerifyOTPView,LogoutView
-from .views import GoogleLoginView,GoogleAuthCallbackView
+from .views import GoogleAuthCallbackView
 
 
 urlpatterns = [
@@ -10,8 +10,5 @@ urlpatterns = [
 
     #for google based authentication : Google OAuth Login
     path("auth/callback/", GoogleAuthCallbackView.as_view(), name="google_callback"),
-    path('google-login/', GoogleLoginView.as_view(), name='google_login'),
-    
 
-    
 ]
