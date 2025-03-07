@@ -19,7 +19,7 @@ const GoogleAuthButton = () => {
             });
 
             const { user, access_token } = response.data; // Extract user & token
-            
+
             // Store token in local storage
             localStorage.setItem("access", access_token);
 
@@ -28,7 +28,7 @@ const GoogleAuthButton = () => {
 
             // Navigate to the user dashboard
             navigate("/user-dash-board");
-            
+
         } catch (error) {
             console.error("Google Auth Failed", error);
         }
@@ -43,6 +43,11 @@ const GoogleAuthButton = () => {
             <GoogleLogin
                 onSuccess={handleSuccess}
                 onError={handleFailure}
+                theme="fill"   // or "filled_black"
+                size="large"      // or "medium", "small"
+                text="continue_with" // or "continue_with", "signup_with"
+                logo_alignment="center"
+                  
             />
         </GoogleOAuthProvider>
     );
