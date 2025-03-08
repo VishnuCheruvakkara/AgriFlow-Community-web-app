@@ -20,17 +20,17 @@ const GoogleAuthButton = () => {
                 token: credential,
             });
 
-            
+
             console.log("Backend Response:", response.data); // Debugging
 
             const { user, access_token } = response.data; // Extract user & token
-
+            console.log(user)
             // Store token in local storage
             localStorage.setItem("access", access_token);
 
             // Dispatch Redux action to store user data
             dispatch(loginSuccess({ user, token: access_token }));
-            showToast(`Welcome ${user.username}! Login successful`,"success")
+            showToast(`Welcome ${user.first_name} ! Login successful`,"success")
             
             // Navigate to the user dashboard
             navigate("/user-dash-board");

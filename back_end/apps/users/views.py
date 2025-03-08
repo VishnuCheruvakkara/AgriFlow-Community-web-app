@@ -19,7 +19,6 @@ from google.oauth2 import id_token
 import requests  # Import the requests library
 
 
-
 User = get_user_model()
 
 
@@ -29,17 +28,40 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
+            print("success")
+            print(serializer.validated_data)  # Returns cleaned data
+        else:
+            print("errororroro")
+            print(serializer.errors)
+        if serializer.is_valid():
             validated_data = serializer.validated_data
             email = validated_data['email']
 
-            # Create user with is_active=False and is_verified=False
-            user = User.objects.create_user(
-                email=email,
-                username=validated_data['username'],
-                password=validated_data['password'],
-                is_active=False,   # User cannot log in before verification
-                is_verified=False,  # Mark as not verified by OTP
-            )
+            try:
+                user = User.objects.get(email=email)
+                if user.is_verified:
+                    return Response(
+                        {"error": "Email already exists and is verified. Please log in."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                   
+                else:
+                    # Generate OTP and send email (Controlled in utils.py)
+                    generate_otp_and_send_email(email)
+                    return Response(
+                    {"message": "OTP re-sent to your email. Please verify."},
+                    status=status.HTTP_200_OK
+                )
+
+            except User.DoesNotExist:
+                # Create user with is_active=False and is_verified=False
+                user = User.objects.create_user(
+                    email=email,
+                    username=validated_data['username'],
+                    password=validated_data['password'],
+                    is_active=False,   # User cannot log in before verification
+                    is_verified=False,  # Mark as not verified by OTP
+                )
 
             # Generate OTP and send email (Controlled in utils.py)
             generate_otp_and_send_email(email)
@@ -90,9 +112,9 @@ class VerifyOTPView(APIView):
             # Set access token in the response to handle that with redux state+local storage.
             response = Response(
                 {"message": "User registered succesfully!",
-                "access_token": access_token,
-                "user":user_data,
-                },
+                 "access_token": access_token,
+                 "user": user_data,
+                 },
                 status=status.HTTP_201_CREATED
             )
             # Set refresh token in the HTTP-only cookie
@@ -103,7 +125,8 @@ class VerifyOTPView(APIView):
                 secure=True,
                 samesite="Lax",
                 # Directly fetch & convert
-                max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+                max_age=int(
+                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
             return response
 
@@ -139,6 +162,7 @@ class LogoutView(APIView):
 
 ###################  Google authentication ####################
 
+
 class GoogleAuthCallbackView(APIView):
     """Handles Google OAuth callback, verifies the token, and returns JWT access/refresh tokens."""
 
@@ -157,6 +181,7 @@ class GoogleAuthCallbackView(APIView):
             # Extract user info
             email = google_info.get("email")
             name = google_info.get("name")
+            first_name = google_info.get("given_name")
 
             if not email:
                 return Response({"error": "Invalid token: No email found"}, status=status.HTTP_400_BAD_REQUEST)
@@ -182,7 +207,8 @@ class GoogleAuthCallbackView(APIView):
                     "user": {
                         "id": user.id,
                         "name": user.username,
-                        "email": user.email
+                        "email": user.email,
+                        "first_name": first_name
                     },
                 },
                 status=status.HTTP_200_OK,
@@ -195,7 +221,8 @@ class GoogleAuthCallbackView(APIView):
                 httponly=True,
                 secure=True,
                 samesite="Lax",
-                max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+                max_age=int(
+                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
 
             return response

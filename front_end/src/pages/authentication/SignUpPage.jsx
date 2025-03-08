@@ -6,6 +6,10 @@ import GoogleLoginButton from '../../components/Authentication/GoogleAuthButton'
 //icont added 
 import { FaWhatsapp } from "react-icons/fa";
 
+// testing toast here 
+// import TestToast from '../../components/toast-notification/TestToast'
+import { showToast } from "../../components/toast-notification/CustomToast"
+
 const SignUp = () => {
     const navigate = useNavigate(); //React Router's navigation function
     // For show paassword
@@ -43,12 +47,14 @@ const SignUp = () => {
         try {
             const response = await BaseAxiosInstance.post("/users/register/", formData);
             console.log("Registration Successful:", response.data);
+            showToast("An OTP has been sent to your email for verification.","success")
             // Handle success 
             navigate("/otp-page", { state: { email: formData.email } });
 
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
             console.error("Registration Error:", error);
+            showToast("Registration failed! Please check your details and try again !","error")
         } finally {
             setLoading(false);
         }
@@ -76,6 +82,10 @@ const SignUp = () => {
                             <FaWhatsapp className="text-2xl text-green-600"/>
                                 <span>Continue with WhatsApp</span>
                             </button>
+
+                            {/* testing all toast 
+                            <TestToast/> */}
+
                         </div>
 
                         <div className="relative my-6">
@@ -101,8 +111,8 @@ const SignUp = () => {
                                         name="username"
                                         value={formData.username}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                        placeholder="John Smith"
+                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        placeholder="Enter you name"
                                         required
                                     />
                                 </div>
@@ -122,7 +132,7 @@ const SignUp = () => {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="your@email.com"
                                         required
                                     />
@@ -142,7 +152,7 @@ const SignUp = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -179,7 +189,7 @@ const SignUp = () => {
                                         name="password2"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="••••••••"
                                         required
                                     />

@@ -1,6 +1,6 @@
 // src/components/ToastNotifications.js
 import React from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast,Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ToastNotifications = () => {
@@ -9,13 +9,15 @@ const ToastNotifications = () => {
             <ToastContainer 
                 position="top-center"
                 autoClose={5000}
-                hideProgressBar={false}
+                hideProgressBar={true}
                 newestOnTop={true}
                 closeOnClick
                 rtl={false}
-                pauseOnFocusLoss
-                draggable
                 pauseOnHover
+                transition={Slide}
+                closeButton={false}
+                toastClassName="border border-gray-300 "
+              
             />
         </>
     );

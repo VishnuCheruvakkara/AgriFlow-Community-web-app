@@ -4,6 +4,7 @@ import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance";
 // redux set up 
 import { useDispatch } from 'react-redux'
 import { loginSuccess } from '../../redux/slices/AuthSlice';
+import { showToast } from '../../components/toast-notification/CustomToast';
 
 const OTPVerification = () => {
     const dispatch = useDispatch();
@@ -176,7 +177,7 @@ const OTPVerification = () => {
         e.preventDefault();
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
-            alert("Please enter a complete 6-digit OTP");
+            showToast("Please enter a complete 6-digit OTP","warn");
             return;
         }
         try {
@@ -192,15 +193,15 @@ const OTPVerification = () => {
 
             // Remove OTP timer status from local storage
             localStorage.removeItem("otpTimerStatus");
-
-
+            //Toast message for success login
+            showToast(`Welcome ${user.name} ! Login successful`,"success")
             // Navigate to the home/dashboard after successful OTP verification
             navigate("/user-dash-board");
 
 
         } catch (error) {
             console.error("OTP verification failed :", error.response?.data || error.message);
-            console.log("Email was int this format",email)
+            showToast(error.response.data?.otp[0], "error");
         }
     };
 
