@@ -29,10 +29,7 @@ const Login = () => {
             // Extract user data and token from the response
             const { user, access_token } = response.data;
             // Dispatch loginSuccess action to store user data in Redux
-            dispatch(loginSuccess({ user, token: access_token }));
-
-            // Remove OTP timer status from local storage
-            localStorage.removeItem("otpTimerStatus");
+            dispatch(loginSuccess({ user,token: access_token }));
             //Toast message for success login
             showToast(`Welcome ${user.name} ! Login successful`,"success")
             // Navigate to the home/dashboard after successful OTP verification

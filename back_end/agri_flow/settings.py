@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 
 ]
 
+CORS_ALLOW_CREDENTIALS = True 
 # Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",

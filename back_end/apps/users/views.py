@@ -21,7 +21,6 @@ from google.oauth2 import id_token
 
 User = get_user_model()
 
-
 ################################## User Login  ##################################
 
 class LoginView(APIView):
@@ -81,12 +80,6 @@ class RegisterView(APIView):
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            print("success")
-            print(serializer.validated_data)  # Returns cleaned data
-        else:
-            print("errororroro")
-            print(serializer.errors)
         if serializer.is_valid():
             validated_data = serializer.validated_data
             email = validated_data['email']
