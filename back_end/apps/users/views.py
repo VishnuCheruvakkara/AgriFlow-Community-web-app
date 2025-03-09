@@ -1,7 +1,7 @@
 
 from django.core.cache import cache
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model,authenticate
 # import from rest_frameworks library
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,17 +10,71 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 # import file from users folder
-from .serializers import RegisterSerializer, VerifyOTPSerializer
+from .serializers import LoginSerializer,RegisterSerializer, VerifyOTPSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
-import requests  # Import the requests library
+
 
 
 User = get_user_model()
 
+
+################################## User Login  ##################################
+
+class LoginView(APIView):
+    """JWT based login"""
+    def post(self,request):
+        serializer=LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            email=serializer.validated_data["email"]
+            password=serializer.validated_data["password"]
+
+            #Authenticate the user 
+            user=authenticate(request,username=email,password=password)
+            if not user:
+                return Response(
+                    {"error":"Invalid email or password !"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            # Generate JWT token (Controlled from services.py)
+            access_token, refresh_token = generate_tokens(user)
+
+            # include users details in response
+            user_data = {
+                "id": user.id,
+                "name": user.username,
+                "email": user.email,
+            }
+
+            # Set access token in the response to handle that with redux state+local storage.
+            response = Response(
+                {"message": "User Sigin succesfully!",
+                 "access_token": access_token,
+                 "user": user_data,
+                 },
+                status=status.HTTP_201_CREATED
+            )
+            # Set refresh token in the HTTP-only cookie
+            response.set_cookie(
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,  # Prevents JavaScript access for security
+                secure=True,
+                samesite="Lax",
+                # Directly fetch & convert
+                max_age=int(
+                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+            )
+            return response
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+##################################  User Registration   ###################################
 
 class RegisterView(APIView):
     """User Registration API with OTP Generation"""
@@ -72,7 +126,7 @@ class RegisterView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+#####################################  Otp verification  #########################
 class VerifyOTPView(APIView):
     """OTP Verification API"""
 
@@ -132,7 +186,7 @@ class VerifyOTPView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+############################## Logout ###########################3
 class LogoutView(APIView):
     """Logout API to blacklist refresh token and remove cookie"""
     permission_classes = [IsAuthenticated]
@@ -231,3 +285,5 @@ class GoogleAuthCallbackView(APIView):
             return Response({"error": "Invalid token", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+

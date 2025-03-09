@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import GoogleAuthButton from '../../components/Authentication/GoogleAuthButton';
-
+import BaseAxiosInstance from '../../axios-center/BaseAxiosInstance';
+import { showToast } from '../../components/toast-notification/CustomToast';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../redux/slices/AuthSlice';
 
 const Login = () => {
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
@@ -17,10 +22,26 @@ const Login = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Login with:", formData);
-        // Handle login logic here
+        try {
+            const response = await BaseAxiosInstance.post("/users/login/", formData)
+            // Extract user data and token from the response
+            const { user, access_token } = response.data;
+            // Dispatch loginSuccess action to store user data in Redux
+            dispatch(loginSuccess({ user, token: access_token }));
+
+            // Remove OTP timer status from local storage
+            localStorage.removeItem("otpTimerStatus");
+            //Toast message for success login
+            showToast(`Welcome ${user.name} ! Login successful`,"success")
+            // Navigate to the home/dashboard after successful OTP verification
+            navigate("/user-dash-board");
+
+        } catch (error) {
+                console.error("Login failed:", error.response?.data || error.message);
+                showToast("Login failed", "error");
+        }
     };
 
     return (

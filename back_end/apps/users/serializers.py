@@ -4,6 +4,14 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+################################ User Login  ################################3
+
+class LoginSerializer(serializers.Serializer):
+    """Serializer for user login"""
+    email=serializers.EmailField()
+    password=serializers.CharField( write_only=True,required=True)
+
+################################## User registration ####################################
 
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True, label="Confirm Password")
@@ -31,6 +39,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField()  #To override over the normaml serializer validation of email (For is_verified=False users)
 
+####################################  Otp verification ########################################
+
 class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
@@ -47,3 +57,4 @@ class VerifyOTPSerializer(serializers.Serializer):
             raise serializers.ValidationError({"otp":"Invalid or expired OTP!"})
         
         return data 
+
