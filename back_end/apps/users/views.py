@@ -182,7 +182,7 @@ class VerifyOTPView(APIView):
 ############################## Logout ###########################3
 class LogoutView(APIView):
     """Logout API to blacklist refresh token and remove cookie"""
-    permission_classes = [IsAuthenticated]
+   
 
     def post(self, request):
         try:

@@ -1,6 +1,6 @@
 
 import { Outlet } from "react-router-dom";
-import LeftSidebar from "../../components/Authentication/SignUpLeftSideSection";
+import LeftSidebar from "../components/Authentication/SignUpLeftSideSection";
 
 const AuthLayout = () => {
     return (

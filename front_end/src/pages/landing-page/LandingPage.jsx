@@ -3,8 +3,7 @@ import { FaUserCheck } from "react-icons/fa6";
 import { LuCarrot } from "react-icons/lu";
 import { IoChatboxEllipses } from "react-icons/io5";
 import { RiCalendarEventLine } from "react-icons/ri";
-import { IoMdLogIn } from "react-icons/io";
-import FooterLandingPage from '../../components/Footer/FooterLandingPage'
+import FooterLandingPage from '../../components/landing-page/FooterLandingPage'
 import { Link } from 'react-router-dom';
 import AgriFlowLogoPng from '../../assets/images/agriflowlogo.png'
 
@@ -19,15 +18,7 @@ function LandingPage() {
                             <img src={AgriFlowLogoPng} alt="AgriFlow Logo" className="w-16 h-16" />
                             <span className="text-lime-700 text-2xl font-bold">Agri<span className="text-green-800">Flow</span></span>
                         </div>
-                        <div className="hidden md:flex items-center space-x-4">
-                            <a
-                                href="signup.html"
-                                className="flex border-2 border-green-700  items-center space-x-2  hover:text-white text-green-700 px-6 py-3 text-bold rounded-md hover:bg-green-700 transition duration-700 font-bold"
-                            >
-                                <IoMdLogIn className="text-2xl" />
-                                <span>Sign In</span>
-                            </a>
-                        </div>
+                        
                     </div>
                 </div>
             </nav>

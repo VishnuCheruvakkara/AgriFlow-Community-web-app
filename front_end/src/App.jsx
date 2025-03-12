@@ -1,12 +1,16 @@
 import React from 'react'
-import AppRoutes from './routes/routes'
+import { BrowserRouter } from 'react-router-dom'
+import RoutesConfig from './routes/RoutesConfig'
 import ToastNotifications from './components/toast-notification/CustomToast'
 
 function App() {
   return (
     <div>
-      <ToastNotifications />
-      <AppRoutes />
+      <BrowserRouter>
+        <ToastNotifications />
+        {/* react routes configuration main jsx file */}
+        <RoutesConfig />
+      </BrowserRouter>
     </div>
   )
 }

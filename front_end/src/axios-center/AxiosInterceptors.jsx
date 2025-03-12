@@ -1,15 +1,19 @@
 
 import BaseAxiosInstance from './BaseAxiosInstance';
-
+import store from '../redux/Store';
 
 // Request Interceptor
 BaseAxiosInstance.interceptors.request.use(
     (config) => {
+        console.log("Interceptor Running - Request");
         // Attach token if available
-        const token = localStorage.getItem("authToken");
+        const state = store.getState(); //Get all the redux state 
+        const token = state.auth.token; //from the state , extracted the required {access token}
+        console.log("here controlll L ",token)
         if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
+            config.headers["Authorization"] = `Bearer ${token.replace(/"/g,'')}`; //Removeing extra quote if presnt in the token 
         }
+        console.log("Request Headers: ", config.headers); // Debugging
         return config;
     },
     (error) => {

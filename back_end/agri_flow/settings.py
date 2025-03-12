@@ -73,7 +73,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-# JWT Token custom setup.
+#################### JWT Token custom setup. ############################
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -85,6 +85,7 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_SECURE": True,
 }
 
+###################  Middle ware setup #####################################
 MIDDLEWARE = [
     # Third party middleware added.
     'corsheaders.middleware.CorsMiddleware',
@@ -192,7 +193,7 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
-# django jazzmin setup for better ui for django admin.  ##########################33
+############################## django jazzmin setup for better ui for django admin.  #########################
 JAZZMIN_SETTINGS = {
     "site_title": "AgriFlow Admin",
     "site_header": "AgriFlow Admin",

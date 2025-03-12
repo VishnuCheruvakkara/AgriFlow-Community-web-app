@@ -18,11 +18,11 @@ const store = configureStore({
     reducer: {
         auth: persistedAuthReducer,
     },
-    middleware: (getDefaultMiddleware) => 
+    middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: false, //Optional: Suppresses warnings
         }),
-})
+});
 
 export const persistor = persistStore(store); //Create persistor
 export default store;
