@@ -1,7 +1,7 @@
 
 from django.core.cache import cache
 from django.conf import settings
-from django.contrib.auth import get_user_model,authenticate
+from django.contrib.auth import get_user_model, authenticate
 # import from rest_frameworks library
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,37 +10,40 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 # import file from users folder
-from .serializers import LoginSerializer,RegisterSerializer, VerifyOTPSerializer
+from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
-
+######### for refresh token view ##############
+from rest_framework.permissions import AllowAny
 
 
 User = get_user_model()
 
 ################################## User Login  ##################################
 
+
 class LoginView(APIView):
     """JWT based login"""
-    def post(self,request):
-        serializer=LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            email=serializer.validated_data["email"]
-            password=serializer.validated_data["password"]
 
-            #Authenticate the user 
-            user=authenticate(request,username=email,password=password)
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data["email"]
+            password = serializer.validated_data["password"]
+
+            # Authenticate the user
+            user = authenticate(request, username=email, password=password)
             if not user:
                 return Response(
-                    {"error":"Invalid email or password !"},
+                    {"error": "Invalid email or password !"},
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
 
             # Generate JWT token (Controlled from services.py)
-            access_token, refresh_token = generate_tokens(user)
+            refresh_token,access_token = generate_tokens(user)
 
             # include users details in response
             user_data = {
@@ -57,19 +60,17 @@ class LoginView(APIView):
                  },
                 status=status.HTTP_201_CREATED
             )
-            # Set refresh token in the HTTP-only cookie
             response.set_cookie(
                 key="refresh_token",
                 value=refresh_token,
-                httponly=True,  # Prevents JavaScript access for security
-                secure=True,
-                samesite="Lax",
-                # Directly fetch & convert
+                httponly=True,
+                secure=True, # Change in production as True.
+                samesite="None", # Change as None in production.
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
             return response
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -91,7 +92,7 @@ class RegisterView(APIView):
                         {"error": "Email already exists and is verified. Please log in."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                   
+
                 else:
                     # Generate OTP and send email (Controlled in utils.py)
                     generate_otp_and_send_email(email)
@@ -120,6 +121,8 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #####################################  Otp verification  #########################
+
+
 class VerifyOTPView(APIView):
     """OTP Verification API"""
 
@@ -147,7 +150,7 @@ class VerifyOTPView(APIView):
             cache.delete(f"otp_{email}")
 
             # Generate JWT token (Controlled from services.py)
-            access_token, refresh_token = generate_tokens(user)
+            refresh_token,access_token = generate_tokens(user)
 
             # include users details in response
             user_data = {
@@ -168,10 +171,9 @@ class VerifyOTPView(APIView):
             response.set_cookie(
                 key="refresh_token",
                 value=refresh_token,
-                httponly=True,  # Prevents JavaScript access for security
-                secure=True,
-                samesite="Lax",
-                # Directly fetch & convert
+                httponly=True,
+                secure=True, # Change in production as True.
+                samesite="None", # Change as None in production.
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
@@ -179,14 +181,17 @@ class VerifyOTPView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-############################## Logout ###########################3
+####################### Logout ##########################
+
+
 class LogoutView(APIView):
     """Logout API to blacklist refresh token and remove cookie"""
-   
 
     def post(self, request):
         try:
+            print("COOOOkies::::",request.COOKIES)
             refresh_token = request.COOKIES.get("refresh_token")
+            print("refreh____token  ::", refresh_token)
             if not refresh_token:
                 return Response({"error": "No refresh token found!"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -244,7 +249,20 @@ class GoogleAuthCallbackView(APIView):
             )
 
             # Generate JWT tokens
-            access_token, refresh_token = generate_tokens(user)
+            refresh_token,access_token = generate_tokens(user)
+            print("access_token:", access_token)
+            print("refresh_token:", refresh_token)
+
+            from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+
+
+            try:
+                decoded_access = AccessToken(access_token)
+                decoded_refresh = RefreshToken(refresh_token)
+                print("Access Token:", decoded_access.payload)
+                print("Refresh Token:", decoded_refresh.payload)
+            except Exception as e:
+                print("Invalid Token:", str(e))
 
             # Prepare response
             response = Response(
@@ -266,11 +284,14 @@ class GoogleAuthCallbackView(APIView):
                 key="refresh_token",
                 value=refresh_token,
                 httponly=True,
-                secure=True,
-                samesite="Lax",
+                secure=True, # Change in production as True.
+                samesite="None", # Change as None in production.
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
+            print("Refresh Token Set:", refresh_token)
+            refresh_token = request.COOKIES.get("refresh_token")
+            print("refreh____token  ::", refresh_token)
 
             return response
 
@@ -280,3 +301,30 @@ class GoogleAuthCallbackView(APIView):
             return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+############################ Tokern creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
+
+class RefreshTokenView(APIView):
+    permission_classes = [AllowAny] #required 
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh_token')  # Get refresh token from cookies
+        print("RefreshTokenView",refresh_token)
+        if not refresh_token:
+            return Response(
+                {'message': 'Refresh token not found!'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+            refresh = RefreshToken(refresh_token)  # Decode and validate refresh token
+            access_token = str(refresh.access_token)  # Generate new access token
+
+            return Response(
+                {'access': access_token},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {'message': 'Invalid or expired refresh token!'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )

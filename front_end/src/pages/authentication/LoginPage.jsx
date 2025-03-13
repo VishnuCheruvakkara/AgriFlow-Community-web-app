@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link,useNavigate } from 'react-router-dom';
 import GoogleAuthButton from '../../components/Authentication/GoogleAuthButton';
-import BaseAxiosInstance from '../../axios-center/BaseAxiosInstance';
+import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance';
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../redux/slices/AuthSlice';
@@ -25,7 +25,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await BaseAxiosInstance.post("/users/login/", formData)
+            const response = await PublicAxiosInstance.post("/users/login/", formData)
             // Extract user data and token from the response
             const { user, access_token } = response.data;
             // Dispatch loginSuccess action to store user data in Redux

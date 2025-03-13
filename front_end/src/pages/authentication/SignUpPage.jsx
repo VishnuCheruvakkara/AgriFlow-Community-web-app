@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link,useNavigate } from 'react-router-dom';
-import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance";
+import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 //import google auth button 
 import GoogleLoginButton from '../../components/Authentication/GoogleAuthButton';
 //icont added 
@@ -45,7 +45,7 @@ const SignUp = () => {
         setError(null);
 
         try {
-            const response = await BaseAxiosInstance.post("/users/register/", formData);
+            const response = await PublicAxiosInstance.post("/users/register/", formData);
             console.log("Registration Successful:", response.data);
             showToast("An OTP has been sent to your email for verification.","success")
             // Handle success 

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
 
     # for google OAuth setup
     'social_django',  # Google OAuth
@@ -60,9 +61,13 @@ INSTALLED_APPS = [
 
 ]
 
-CORS_ALLOW_CREDENTIALS = True 
+CORS_ALLOW_CREDENTIALS = True
 # Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 
@@ -75,15 +80,20 @@ REST_FRAMEWORK = {
 
 #################### JWT Token custom setup. ############################
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,  # For blacklist the Refresh-token after logout
+    'BLACKLIST_AFTER_ROTATION': True,
+
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'ALGORITHM': 'HS256',  # Secure hashing algorithm
-    "AUTH_COOKIE_SECURE": True,
+
 }
+# Extra setup for Cookies
+AUTH_COOKIE_SECURE = True  # Change to True in production || Required for SameSite=None to work
+AUTH_COOKIE_HTTP_ONLY = True  # Prevent JavaScript from accessing the cookie
+AUTH_COOKIE_SAMESITE = "None"  # Required for cross-site cookies
 
 ###################  Middle ware setup #####################################
 MIDDLEWARE = [
@@ -97,7 +107,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
+    # Google authentication middleware
     'social_django.middleware.SocialAuthExceptionMiddleware',
 
 ]

@@ -1,12 +1,11 @@
 import React from "react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../redux/slices/AuthSlice"
 import { showToast } from "../toast-notification/CustomToast"
 
-import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance";
+import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -18,10 +17,9 @@ const GoogleAuthButton = () => {
     const handleSuccess = async (credentialResponse) => {
         try {
             const { credential } = credentialResponse; // Get the Google token
-            const response = await BaseAxiosInstance.post("/users/auth/callback/", {
+            const response = await PublicAxiosInstance.post("/users/auth/callback/", {
                 token: credential,
             });
-
 
             console.log("Backend Response:", response.data); // Debugging
 

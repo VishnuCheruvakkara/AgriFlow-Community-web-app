@@ -2,11 +2,16 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, } from 'react-icons/fa';
 //importing base axios instance for axios set up through the AxiosInterceptors
-import BaseAxiosInstance from '../../axios-center/BaseAxiosInstance';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 //import from react-redux 
 import { useDispatch } from 'react-redux';
 //import from redux-auth-slice 
 import { logout } from '../../redux/slices/AuthSlice'
+// persitor imported from the redux store to purge the data in the local storage
+import { persistor } from '../../redux/Store';
+//
+import { showToast } from '../toast-notification/CustomToast';
+
 
 
 function SideBar() {
@@ -15,16 +20,23 @@ function SideBar() {
 
     const handleLogout = async () => {
         try {
-            await BaseAxiosInstance.post("/users/logout/");
+            console.log("Attempting logout...");
+
+            await AuthenticatedAxiosInstance.post("/users/logout/");
             //clear userdata and accesstoken details from the localstorage through the redux-persistor
+            console.log("Hoooooo")
             dispatch(logout());
+    
             await persistor.purge(); //Clear the persisted state
+            showToast(`logout successful`,"success")
             //Redirect to the login page
             navigate("/login")
+            console.log("The end")
 
         } catch (error) {
             console.log("logout failed:", error);
-            console.log(error.message)
+            showToast(`logout failed`,"error")
+         
         }
     }
 

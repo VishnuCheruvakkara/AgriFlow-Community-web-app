@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import BaseAxiosInstance from "../../axios-center/BaseAxiosInstance"; 
+import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 // redux set up 
 import { useDispatch } from 'react-redux'
 import { loginSuccess } from '../../redux/slices/AuthSlice';
@@ -23,7 +23,7 @@ const OTPVerification = () => {
             setEmail(location.state.email);
         }
     }, [location.state]);
-    
+
     useEffect(() => {
         // Focus the first input field
         inputRefs[0].current.focus();
@@ -112,8 +112,8 @@ const OTPVerification = () => {
         if (!domain) return email;
         return `${username.substring(0, 3)}${"*".repeat(username.length - 3)}@${domain}`;
     };
-    
-   
+
+
     // Function to format timer in MM:SS format
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60);
@@ -177,13 +177,13 @@ const OTPVerification = () => {
         e.preventDefault();
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
-            showToast("Please enter a complete 6-digit OTP","warn");
+            showToast("Please enter a complete 6-digit OTP", "warn");
             return;
         }
         try {
-            const response = await BaseAxiosInstance.post("/users/verify-otp/", {
+            const response = await PublicAxiosInstance.post("/users/verify-otp/", {
                 email: email, // Email from state
-                otp:otpValue // OTP entered by the user
+                otp: otpValue // OTP entered by the user
             });
 
             // Extract user data and token from the response
@@ -194,7 +194,7 @@ const OTPVerification = () => {
             // Remove OTP timer status from local storage
             localStorage.removeItem("otpTimerStatus");
             //Toast message for success login
-            showToast(`Welcome ${user.name} ! Login successful`,"success")
+            showToast(`Welcome ${user.name} ! Login successful`, "success")
             // Navigate to the home/dashboard after successful OTP verification
             navigate("/user-dash-board");
 
@@ -219,7 +219,7 @@ const OTPVerification = () => {
 
                         <h2 className="text-2xl font-bold text-center text-green-700 mb-2">Verify Your Email</h2>
                         <p className="text-gray-600 text-center mb-8">
-                            We've sent a verification code to <br/>{formatEmail(email || 'The entered E-mail address.')}
+                            We've sent a verification code to <br />{formatEmail(email || 'The entered E-mail address.')}
                         </p>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="flex flex-col items-center">
