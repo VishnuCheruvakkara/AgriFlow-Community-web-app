@@ -183,34 +183,33 @@ class VerifyOTPView(APIView):
 
 ####################### Logout ##########################
 
-
 class LogoutView(APIView):
-    """Logout API to blacklist refresh token and remove cookie"""
+    """Logout API to remove refresh token and clear cookies"""
+    permission_classes = [AllowAny]  # Allow all users to call logout
 
     def post(self, request):
         try:
-            print("COOOOkies::::",request.COOKIES)
             refresh_token = request.COOKIES.get("refresh_token")
-            print("refreh____token  ::", refresh_token)
-            if not refresh_token:
-                return Response({"error": "No refresh token found!"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Blacklist the token
-            refresh = RefreshToken(refresh_token)
-            # For blacklisting SIMPLE_JWT['BLACKLIST_AFTER_ROTATION'] = True was present in the settings.py
-            refresh.blacklist()
+            # Blacklist refresh token if exists
+            if refresh_token:
+                try:
+                    refresh = RefreshToken(refresh_token)
+                    refresh.blacklist()
+                except Exception:
+                    pass  # Ignore if already invalid
 
             # Create response
-            response = Response(
-                {"message": "Successfully logged out!"}, status=status.HTTP_200_OK)
+            response = Response({"message": "Successfully logged out!"}, status=status.HTTP_200_OK)
 
-            # Remove the refresh token cookie
+            # Remove cookies
             response.delete_cookie("refresh_token")
 
             return response
 
-        except TokenError:
-            return Response({"error": "Invalid token or already logged out"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({"message": "Logout failed"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 ###################  Google authentication ####################
 
@@ -301,7 +300,7 @@ class GoogleAuthCallbackView(APIView):
             return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-############################ Tokern creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
+############################ Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
 
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny] #required 

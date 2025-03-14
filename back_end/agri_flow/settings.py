@@ -61,6 +61,14 @@ INSTALLED_APPS = [
 
 ]
 
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
+    'withcredentials',  # <-- Add this line
+]
+
+
 CORS_ALLOW_CREDENTIALS = True
 # Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
@@ -78,6 +86,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+
 #################### JWT Token custom setup. ############################
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
@@ -88,7 +97,6 @@ SIMPLE_JWT = {
 
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-
 }
 # Extra setup for Cookies
 AUTH_COOKIE_SECURE = True  # Change to True in production || Required for SameSite=None to work

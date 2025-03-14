@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, } from 'react-icons/fa';
 //importing base axios instance for axios set up through the AxiosInterceptors
-import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
+import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
 import { useDispatch } from 'react-redux';
 //import from redux-auth-slice 
@@ -22,7 +22,7 @@ function SideBar() {
         try {
             console.log("Attempting logout...");
 
-            await AuthenticatedAxiosInstance.post("/users/logout/");
+            await PublicAxiosInstance.post("/users/logout/");
             //clear userdata and accesstoken details from the localstorage through the redux-persistor
             console.log("Hoooooo")
             dispatch(logout());
