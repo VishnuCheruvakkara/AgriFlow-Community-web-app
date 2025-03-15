@@ -9,7 +9,7 @@ import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpi
 import { useDispatch } from 'react-redux';
 
 const ForgotPasswordOTP = () => {
-    const dispatch=useDispatch()
+    const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -26,6 +26,47 @@ const ForgotPasswordOTP = () => {
         }
     }, [location.state])
 
+
+    useEffect(() => {
+        // Focus the first input field
+        inputRefs[0].current.focus();
+
+        // Check if there's a record of timer status in localStorage
+        const timerStatusJSON = localStorage.getItem("otpTimerStatus");
+
+        if (timerStatusJSON) {
+            const timerStatus = JSON.parse(timerStatusJSON);
+
+            // If the timer was active when the page was last open
+            if (timerStatus.isActive) {
+                const expiryTimestamp = parseInt(timerStatus.expiryTime, 10);
+                const currentTime = Date.now();
+                const remainingTime = Math.floor((expiryTimestamp - currentTime) / 1000);
+
+                if (remainingTime > 0) {
+                    // Timer still valid
+                    setTimer(remainingTime);
+                    setIsResendDisabled(true);
+                } else {
+                    // Timer expired, don't restart it automatically
+                    localStorage.setItem("otpTimerStatus", JSON.stringify({
+                        isActive: false,
+                        expiryTime: 0
+                    }));
+                    setTimer(0);
+                    setIsResendDisabled(false);
+                }
+            } else {
+                // Timer was already expired, don't restart it
+                setTimer(0);
+                setIsResendDisabled(false);
+            }
+        } else {
+            // First time visiting the page, start a new timer
+            startNewTimer();
+        }
+    }, []);
+
     useEffect(() => {
         // Start countdown if timer is greater than 0
         if (timer > 0) {
@@ -34,6 +75,13 @@ const ForgotPasswordOTP = () => {
                     if (prevTimer <= 1) {
                         clearInterval(intervalId);
                         setIsResendDisabled(false);
+
+                        // Update timer status in localStorage
+                        localStorage.setItem("otpTimerStatus", JSON.stringify({
+                            isActive: false,
+                            expiryTime: 0
+                        }));
+
                         return 0;
                     }
                     return prevTimer - 1;
@@ -47,9 +95,19 @@ const ForgotPasswordOTP = () => {
 
     const startNewTimer = () => {
         const durationInSeconds = 5 * 60; // 5 minutes
+        const expiryTime = Date.now() + (durationInSeconds * 1000);
+
+        // Store timer status in localStorage
+        localStorage.setItem("otpTimerStatus", JSON.stringify({
+            isActive: true,
+            expiryTime: expiryTime.toString()
+        }));
+
+        // Update state
         setTimer(durationInSeconds);
         setIsResendDisabled(true);
     };
+
 
     // Function to format the email
     const formatEmail = (email) => {
@@ -104,13 +162,20 @@ const ForgotPasswordOTP = () => {
         inputRefs[nextIndex]?.current.focus();
     };
 
+
     const handleResendOTP = async () => {
         try {
-            await PublicAxiosInstance.post("/users/forgot-password/", {
-                email: email
+            console.log("Resending OTP...");
+
+            // Make an API call to resend OTP
+            const response = await PublicAxiosInstance.post("/users/resend-otp/", {
+                email: email,  // Replace with the actual email from state/context
             });
 
-            showToast("OTP resent successfully", "success");
+            // Show success message
+            console.log(response.data.message);
+
+            showToast("OTP has been resent to your entered email.", "success");
 
             // Reset OTP fields
             setOtp(['', '', '', '', '', '']);
@@ -120,8 +185,9 @@ const ForgotPasswordOTP = () => {
 
             // Start a new timer
             startNewTimer();
+
         } catch (error) {
-            console.error("Failed to resend OTP:", error.response?.data || error.message);
+            console.error("Error resending OTP:", error.response?.data || error.message);
             showToast(error.response?.data?.message || "Failed to resend OTP", "error");
         }
     };
@@ -142,8 +208,11 @@ const ForgotPasswordOTP = () => {
             // Verify OTP
             const response = await PublicAxiosInstance.post("/users/forgot-password-otp-verification/", {
                 email: email,
-                otp: otpValue
+                otp: otpValue,
             });
+
+            // Remove OTP timer status from local storage
+            localStorage.removeItem("otpTimerStatus");
 
             showToast("OTP verified successfully", "success");
 
@@ -204,15 +273,13 @@ const ForgotPasswordOTP = () => {
                             </div>
 
                             <ButtonLoader
-                                buttonId= "forgotPasswordOTP"
+                                buttonId="forgotPasswordOTP"
                                 type="submit"
                                 className="w-3/4 mx-auto block bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
 
                                 Verify & Continue
                             </ButtonLoader>
-
-
 
                             <div className="text-center">
                                 <p className="text-gray-600">
@@ -221,7 +288,6 @@ const ForgotPasswordOTP = () => {
                                     </Link>
                                 </p>
                             </div>
-
 
                         </form>
                     </div>

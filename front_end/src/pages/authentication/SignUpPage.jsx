@@ -32,9 +32,6 @@ const SignUp = () => {
         password2: ''
     });
 
-   
-
-
     // Add inputed data into the State 'formData'
     const handleChange = (e) => {
         setFormData({

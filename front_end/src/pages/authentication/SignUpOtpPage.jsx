@@ -9,7 +9,7 @@ import { showToast } from '../../components/toast-notification/CustomToast';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 //import the button loader 
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
-import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 
 const OTPVerification = () => {
     const dispatch = useDispatch();
@@ -164,19 +164,36 @@ const OTPVerification = () => {
         inputRefs[nextIndex]?.current.focus();
     };
 
-    const handleResendOTP = () => {
-        // Implement resend OTP logic here
-        console.log("Resending OTP...");
 
-        // Reset OTP fields
-        setOtp(['', '', '', '', '', '']);
+    const handleResendOTP = async () => {
+        try {
+            console.log("Resending OTP...");
 
-        // Focus the first input
-        inputRefs[0].current.focus();
+            // Make an API call to resend OTP
+            const response = await PublicAxiosInstance.post("/users/resend-otp/", {
+                email: email,  // Replace with the actual email from state/context
+            });
 
-        // Start a new timer
-        startNewTimer();
+            // Show success message
+            console.log(response.data.message);
+
+            showToast("OTP has been resent to your entered email.", "success");
+
+            // Reset OTP fields
+            setOtp(['', '', '', '', '', '']);
+
+            // Focus the first input
+            inputRefs[0].current.focus();
+
+            // Start a new timer
+            startNewTimer();
+
+        } catch (error) {
+            console.error("Error resending OTP:", error.response?.data || error.message);
+            showToast(error.response?.data?.message || "Failed to resend OTP", "error");
+        }
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -210,7 +227,7 @@ const OTPVerification = () => {
 
         } catch (error) {
             console.error("OTP verification failed :", error.response?.data || error.message);
-            showToast(error.response.data?.otp[0], "error");
+            showToast(error.response.data?.otp[0]||"Invalid OTP.", "error");
         }
         finally {
             dispatch(hideButtonLoader(buttonId))  //Hide loader after process
@@ -224,7 +241,7 @@ const OTPVerification = () => {
             <div className="bg-white w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
                 <div className=" flex justify-center items-center p-6 h-screen ">
                     <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl  px-20 max-w-md">
-                       
+
                         {/* Mobile logo (visible only on small screens) */}
                         <div className="lg:hidden flex justify-center mb-2">
                             <img src={agriFlowLogo} alt="AgriFlow logo" className="w-20 " />

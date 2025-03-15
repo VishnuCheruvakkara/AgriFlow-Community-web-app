@@ -374,5 +374,17 @@ class ForgotPasswordSetNewView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+###################################  Resend OTP set-up ##############################
 
+class ResendOTPView(APIView):
+    """Handles OTP resending for user authentication"""
+    def post(self,request):
+        email=request.data.get("email")
+        if not email:
+            return Response({"error":"Email is required"},status=status.HTTP_400_BAD_REQUEST)
+
+        # Call the exisiting function to generate and send OTP
+        generate_otp_and_send_email(email,email_type = "registration")
+
+        return Response({"message":"OTP has been resent successfully"},status=status.HTTP_200_OK)
             
