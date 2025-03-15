@@ -250,6 +250,9 @@ const SignUp = () => {
                                 </label>
                             </div>
 
+
+                            
+
                             <button
                                 type="submit"
                                 className="mt-5 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"

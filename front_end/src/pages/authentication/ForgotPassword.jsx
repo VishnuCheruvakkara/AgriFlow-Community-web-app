@@ -95,7 +95,7 @@ const ForgotPassword = () => {
                             Remember your password? <Link to="/login" className="text-green-600 font-medium hover:underline">Sign in</Link>
                         </p>
 
-                        <Link to="/forgot-password-otp">Next</Link>
+                     
                       
                        
                     </div>

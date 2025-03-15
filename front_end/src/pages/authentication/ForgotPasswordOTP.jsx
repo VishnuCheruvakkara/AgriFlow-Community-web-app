@@ -209,7 +209,7 @@ const ForgotPasswordOTP = () => {
                                 </p>
                             </div>
 
-                            <Link to="/forgot-password-new">Next</Link>
+                          
                         </form>
                     </div>
                 </div>
