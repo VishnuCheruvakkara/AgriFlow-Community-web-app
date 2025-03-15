@@ -6,9 +6,7 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
 # import file from users folder
 from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer
 from .utils import generate_otp_and_send_email
@@ -18,7 +16,9 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 ######### for refresh token view ##############
 from rest_framework.permissions import AllowAny
-
+######### for Forget password section ##############
+from .serializers import ForgotPasswordSerialzier,ForgotPasswordVerifyOTPSerializer,ForgotPasswordSetSerializer
+from django.contrib.auth.hashers import make_password
 
 User = get_user_model()
 
@@ -95,7 +95,7 @@ class RegisterView(APIView):
 
                 else:
                     # Generate OTP and send email (Controlled in utils.py)
-                    generate_otp_and_send_email(email)
+                    generate_otp_and_send_email(email, email_type = "registration")
                     return Response(
                     {"message": "OTP re-sent to your email. Please verify."},
                     status=status.HTTP_200_OK
@@ -327,3 +327,52 @@ class RefreshTokenView(APIView):
                 {'message': 'Invalid or expired refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+
+##################################################  Forgot password section #####################################
+
+#=============================================== Forgot password email request view ============================
+class ForgotPasswordView(APIView):
+    def post(self,request):
+        serializer = ForgotPasswordSerialzier(data=request.data)
+        if serializer.is_valid():
+            email=serializer.validated_data['email']
+            # Generate OTP and send email (Controlled in utils.py)
+            generate_otp_and_send_email(email,email_type = "forgot_password")
+
+            return Response({"message":"OTP sent to you email"},status=status.HTTP_200_OK)
+        return Response(serializer.error,status=status.HTTP_400_BAD_REQUEST)
+    
+#============================================= Forgot password OTP Verifcation View =====================================
+
+class ForgotPasswordOTPVerifyView(APIView):
+    def post(self,request):
+        serializer=ForgotPasswordVerifyOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response({"message":"OTP verified successfully"},status=status.HTTP_200_OK)
+        return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)
+
+#===========================================  Set new password after OTP verifiction View ====================================
+
+class ForgotPasswordSetNewView(APIView):
+    def post(self,request):
+        serializer=ForgotPasswordSetSerializer(data=request.data)
+        if serializer.is_valid():
+            email=serializer.validated_data['email']
+            new_password=serializer.validated_data['new_password']
+            #Find user email
+            user=User.objects.filter(email=email,is_verified=True).first()
+            if not user:
+                return Response({"error":"User not found."},status=status.HTTP_404_NOT_FOUND)
+            
+            #update password with upcomming password
+            user.password=make_password(new_password)
+            user.save()
+
+            return Response({"message": "Password reset successful!"}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+            

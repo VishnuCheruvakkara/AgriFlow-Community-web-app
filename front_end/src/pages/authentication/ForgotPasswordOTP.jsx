@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate,useLocation } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
-// redux set up 
-import { useDispatch } from 'react-redux'
-import { loginSuccess } from '../../redux/slices/AuthSlice';
 import { showToast } from '../../components/toast-notification/CustomToast';
-//import logo
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 
-const OTPVerification = () => {
-    const dispatch = useDispatch();
+const ForgotPasswordOTP = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [timer, setTimer] = useState(0);
+    const [timer, setTimer] = useState(300); // 5 minutes
     const [isResendDisabled, setIsResendDisabled] = useState(true);
-    const [email, setEmail] = useState(''); // This would be passed from previous screen
+    const [email, setEmail] = useState('');
 
     // Create refs for each input
     const inputRefs = Array(6).fill(0).map(() => React.createRef());
@@ -24,47 +19,7 @@ const OTPVerification = () => {
         if (location.state?.email) {
             setEmail(location.state.email);
         }
-    }, [location.state]);
-
-    useEffect(() => {
-        // Focus the first input field
-        inputRefs[0].current.focus();
-
-        // Check if there's a record of timer status in localStorage
-        const timerStatusJSON = localStorage.getItem("otpTimerStatus");
-
-        if (timerStatusJSON) {
-            const timerStatus = JSON.parse(timerStatusJSON);
-
-            // If the timer was active when the page was last open
-            if (timerStatus.isActive) {
-                const expiryTimestamp = parseInt(timerStatus.expiryTime, 10);
-                const currentTime = Date.now();
-                const remainingTime = Math.floor((expiryTimestamp - currentTime) / 1000);
-
-                if (remainingTime > 0) {
-                    // Timer still valid
-                    setTimer(remainingTime);
-                    setIsResendDisabled(true);
-                } else {
-                    // Timer expired, don't restart it automatically
-                    localStorage.setItem("otpTimerStatus", JSON.stringify({
-                        isActive: false,
-                        expiryTime: 0
-                    }));
-                    setTimer(0);
-                    setIsResendDisabled(false);
-                }
-            } else {
-                // Timer was already expired, don't restart it
-                setTimer(0);
-                setIsResendDisabled(false);
-            }
-        } else {
-            // First time visiting the page, start a new timer
-            startNewTimer();
-        }
-    }, []);
+    },[location.state])
 
     useEffect(() => {
         // Start countdown if timer is greater than 0
@@ -74,13 +29,6 @@ const OTPVerification = () => {
                     if (prevTimer <= 1) {
                         clearInterval(intervalId);
                         setIsResendDisabled(false);
-
-                        // Update timer status in localStorage
-                        localStorage.setItem("otpTimerStatus", JSON.stringify({
-                            isActive: false,
-                            expiryTime: 0
-                        }));
-
                         return 0;
                     }
                     return prevTimer - 1;
@@ -94,15 +42,6 @@ const OTPVerification = () => {
 
     const startNewTimer = () => {
         const durationInSeconds = 5 * 60; // 5 minutes
-        const expiryTime = Date.now() + (durationInSeconds * 1000);
-
-        // Store timer status in localStorage
-        localStorage.setItem("otpTimerStatus", JSON.stringify({
-            isActive: true,
-            expiryTime: expiryTime.toString()
-        }));
-
-        // Update state
         setTimer(durationInSeconds);
         setIsResendDisabled(true);
     };
@@ -114,7 +53,6 @@ const OTPVerification = () => {
         if (!domain) return email;
         return `${username.substring(0, 3)}${"*".repeat(username.length - 3)}@${domain}`;
     };
-
 
     // Function to format timer in MM:SS format
     const formatTime = (time) => {
@@ -161,70 +99,69 @@ const OTPVerification = () => {
         inputRefs[nextIndex]?.current.focus();
     };
 
-    const handleResendOTP = () => {
-        // Implement resend OTP logic here
-        console.log("Resending OTP...");
+    const handleResendOTP = async () => {
+        try {
+            await PublicAxiosInstance.post("/users/forgot-password/", {
+                email: email
+            });
 
-        // Reset OTP fields
-        setOtp(['', '', '', '', '', '']);
+            showToast("OTP resent successfully", "success");
 
-        // Focus the first input
-        inputRefs[0].current.focus();
+            // Reset OTP fields
+            setOtp(['', '', '', '', '', '']);
 
-        // Start a new timer
-        startNewTimer();
+            // Focus the first input
+            inputRefs[0].current.focus();
+
+            // Start a new timer
+            startNewTimer();
+        } catch (error) {
+            console.error("Failed to resend OTP:", error.response?.data || error.message);
+            showToast(error.response?.data?.message || "Failed to resend OTP", "error");
+        }
     };
 
-    const handleSubmit = async (e) => {
+    const handleVerifyOTP = async (e) => {
         e.preventDefault();
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
             showToast("Please enter a complete 6-digit OTP", "warn");
             return;
         }
+        
         try {
-            const response = await PublicAxiosInstance.post("/users/verify-otp/", {
-                email: email, // Email from state
-                otp: otpValue // OTP entered by the user
+            // Verify OTP
+            const response = await PublicAxiosInstance.post("/users/forgot-password-otp-verification/", {
+                email: email,
+                otp: otpValue
             });
 
-            // Extract user data and token from the response
-            const { user, access_token } = response.data;
-            // Dispatch loginSuccess action to store user data in Redux
-            dispatch(loginSuccess({ user, token: access_token }));
+            showToast("OTP verified successfully", "success");
 
-            // Remove OTP timer status from local storage
-            localStorage.removeItem("otpTimerStatus");
-            //Toast message for success login
-            showToast(`Welcome ${user.name} ! Login successful`, "success")
-            // Navigate to the home/dashboard after successful OTP verification
-            navigate("/user-dash-board");
-
-
+            // Navigate to reset password page with email and OTP
+            navigate('/forgot-password-new', { state: { email } });
         } catch (error) {
-            console.error("OTP verification failed :", error.response?.data || error.message);
-            showToast(error.response.data?.otp[0], "error");
+            console.error("OTP verification failed:", error.response?.data || error.message);
+            showToast(error.response?.data?.message || "Invalid OTP. Please try again", "error");
         }
     };
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-
-            {/* Right side OTP panel */}
+            {/* OTP verification panel */}
             <div className="bg-white w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
-                <div className=" flex justify-center items-center p-6 h-screen ">
-                    <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl  px-20 max-w-md">
-                       
-                        {/* Mobile logo (visible only on small screens) */}
+                <div className="flex justify-center items-center p-6 h-screen">
+                    <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl px-4 sm:px-8 w-full max-w-md">
+                        {/*  Mobile logo (visible only on small screens) */}
                         <div className="lg:hidden flex justify-center mb-2">
                             <img src={agriFlowLogo} alt="AgriFlow logo" className="w-20 " />
                         </div>
 
                         <h2 className="text-2xl font-bold text-center text-green-700 mb-2">Verify Your Email</h2>
                         <p className="text-gray-600 text-center mb-8">
-                            We've sent a verification code to <br />{formatEmail(email || 'The entered E-mail address.')}
+                            We've sent a verification code to <br />{formatEmail(email)}
                         </p>
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleVerifyOTP} className="space-y-6">
                             <div className="flex flex-col items-center">
                                 <div className="flex justify-center space-x-2 w-full">
                                     {otp.map((digit, index) => (
@@ -256,18 +193,23 @@ const OTPVerification = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
+                                className="w-3/4 mx-auto block bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
+
                                 Verify & Continue
                             </button>
 
+
+
                             <div className="text-center">
                                 <p className="text-gray-600">
-                                    <Link to="/sign-up" className="text-green-600 font-medium hover:underline">
+                                    <Link to="/forgot-password" className="text-green-600 font-medium hover:underline">
                                         Change email address
                                     </Link>
                                 </p>
                             </div>
+
+                            <Link to="/forgot-password-new">Next</Link>
                         </form>
                     </div>
                 </div>
@@ -276,4 +218,4 @@ const OTPVerification = () => {
     );
 };
 
-export default OTPVerification;
+export default ForgotPasswordOTP;

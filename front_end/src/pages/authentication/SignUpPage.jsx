@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 //import google auth button 
 import GoogleLoginButton from '../../components/Authentication/GoogleAuthButton';
 //icont added 
 import { FaWhatsapp } from "react-icons/fa";
-
-// testing toast here 
 // import TestToast from '../../components/toast-notification/TestToast'
 import { showToast } from "../../components/toast-notification/CustomToast"
+//import logo 
+import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 
 const SignUp = () => {
     const navigate = useNavigate(); //React Router's navigation function
@@ -28,7 +28,7 @@ const SignUp = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-  
+
 
     // Add inputed data into the State 'formData'
     const handleChange = (e) => {
@@ -47,21 +47,21 @@ const SignUp = () => {
         try {
             const response = await PublicAxiosInstance.post("/users/register/", formData);
             console.log("Registration Successful:", response.data);
-            showToast("An OTP has been sent to your email for verification.","success")
+            showToast("An OTP has been sent to your email for verification.", "success")
             // Handle success 
             navigate("/otp-page", { state: { email: formData.email } });
 
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
             console.error("Registration Error:", error);
-            showToast("Registration failed! Please check your details and try again !","error")
+            showToast("Registration failed! Please check your details and try again !", "error")
         } finally {
             setLoading(false);
         }
-        
+
     };
 
-   
+
     return (
         <div className="h-screen flex flex-col md:flex-row bg-gray-50">
 
@@ -69,7 +69,11 @@ const SignUp = () => {
             <div className="w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
                 <div className="bg-white flex justify-center items-center p-6 lg:p-12 ">
                     <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl w-full max-w-md">
+
                         {/* Mobile logo (visible only on small screens) */}
+                        <div className="lg:hidden flex justify-center mb-2">
+                            <img src={agriFlowLogo} alt="AgriFlow logo" className="w-20 " />
+                        </div>
 
                         <h2 className="text-2xl font-bold text-center text-green-700 mb-2">Welcome to AgriFlow</h2>
                         <p className="text-gray-600 text-center mb-8">Create your account to get started</p>
@@ -79,7 +83,7 @@ const SignUp = () => {
                             <GoogleLoginButton />
 
                             <button className="w-full text-sm flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-l hover:bg-gray-50 transition">
-                            <FaWhatsapp className="text-2xl text-green-600"/>
+                                <FaWhatsapp className="text-2xl text-green-600" />
                                 <span>Continue with WhatsApp</span>
                             </button>
 
@@ -212,25 +216,47 @@ const SignUp = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-start">
-                                <input
-                                    type="checkbox"
-                                    id="terms"
-                                    className="mt-1 h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
-                                    required
-                                />
-                                <label htmlFor="terms" className="ml-2 block text-sm text-gray-600">
-                                    I agree to the <a href="#" className="text-green-600 hover:underline">Terms of Service</a> and <a href="#" className="text-green-600 hover:underline">Privacy Policy</a>
+                            <div className="flex items-center space-x-2">
+                                <label htmlFor="ripple-on" className="relative flex cursor-pointer items-center rounded-full p-2">
+                                    <input
+                                        id="ripple-on"
+                                        type="checkbox"
+                                        className="peer relative h-5 w-5 cursor-pointer appearance-none rounded-full border border-green-600 shadow-sm transition-all before:absolute before:top-2/4 before:left-2/4 before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-green-400 before:opacity-0 before:transition-opacity checked:border-green-600 checked:bg-green-600 checked:before:bg-green-400 hover:before:opacity-10"
+                                        required
+                                    />
+                                    <span className="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-3.5 w-3.5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            stroke="currentColor"
+                                            strokeWidth="1"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clipRule="evenodd"
+                                            ></path>
+                                        </svg>
+                                    </span>
+                                </label>
+
+                                <label htmlFor="ripple-on" className="cursor-pointer text-sm text-gray-600">
+                                    I agree to the
+                                    <a href="#" className="text-green-600 hover:underline"> Terms of Service </a>
+                                    and
+                                    <a href="#" className="text-green-600 hover:underline"> Privacy Policy</a>
                                 </label>
                             </div>
-                          
-                                <button
-                                    type="submit"
-                                    className="mt-5 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
-                                >
-                                    Create Account
-                                </button>
-                           
+
+                            <button
+                                type="submit"
+                                className="mt-5 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
+                            >
+                                Create Account
+                            </button>
+
 
                         </form>
 

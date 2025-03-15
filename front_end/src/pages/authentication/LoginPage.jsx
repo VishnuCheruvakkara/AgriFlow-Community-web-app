@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import GoogleAuthButton from '../../components/Authentication/GoogleAuthButton';
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance';
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../redux/slices/AuthSlice';
+import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 
 const Login = () => {
     const dispatch = useDispatch()
@@ -29,15 +30,15 @@ const Login = () => {
             // Extract user data and token from the response
             const { user, access_token } = response.data;
             // Dispatch loginSuccess action to store user data in Redux
-            dispatch(loginSuccess({ user,token: access_token }));
+            dispatch(loginSuccess({ user, token: access_token }));
             //Toast message for success login
-            showToast(`Welcome ${user.name} ! Login successful`,"success")
+            showToast(`Welcome ${user.name} ! Login successful`, "success")
             // Navigate to the home/dashboard after successful OTP verification
             navigate("/user-dash-board");
 
         } catch (error) {
-                console.error("Login failed:", error.response?.data || error.message);
-                showToast("Login failed", "error");
+            console.error("Login failed:", error.response?.data || error.message);
+            showToast("Login failed", "error");
         }
     };
 
@@ -50,13 +51,15 @@ const Login = () => {
                 <div className="bg-white flex justify-center items-center p-6 lg:p-12 ">
                     <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl w-full max-w-md">
                         {/* Mobile logo (visible only on small screens) */}
-
+                        <div className="lg:hidden flex justify-center mb-2">
+                            <img src={agriFlowLogo} alt="AgriFlow logo" className="w-20 " />
+                        </div>
                         <h2 className="text-2xl font-bold text-center text-green-700 mb-2">Welcome to AgriFlow</h2>
                         <p className="text-gray-600 text-center mb-8">Sign in to your account </p>
 
                         <div className="space-y-4 mb-6">
                             {/* google sighn in  */}
-                            <GoogleAuthButton/>
+                            <GoogleAuthButton />
                         </div>
 
                         <div className="relative my-6">
@@ -129,17 +132,12 @@ const Login = () => {
                                 <p className="text-sm text-gray-500 mt-1">Must be at least 8 characters</p>
                             </div>
 
-                            <div className="flex items-start">
-                                <input
-                                    type="checkbox"
-                                    id="terms"
-                                    className="mt-1 h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
-                                    required
-                                />
-                                <label htmlFor="terms" className="ml-2 block text-sm text-gray-600">
-                                    Remember me !
-                                </label>
+                            <div className="flex justify-end">
+                                <Link to='/forgot-password' className="text-md text-gray-600 hover:text-green-600 transition duration-200 ease-in-out hover:underline">
+                                    Forgot password?
+                                </Link>
                             </div>
+
 
                             <button
                                 type="submit"
