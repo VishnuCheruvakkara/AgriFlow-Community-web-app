@@ -6,6 +6,9 @@ import { showToast } from '../../components/toast-notification/CustomToast';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../redux/slices/AuthSlice';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
+//import the common button loader and redux reducers
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader'
+import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 
 const Login = () => {
     const dispatch = useDispatch()
@@ -25,6 +28,10 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const buttonId = "loginButton";
+        dispatch(showButtonLoader(buttonId)); //show-loader
+
         try {
             const response = await PublicAxiosInstance.post("/users/login/", formData)
             // Extract user data and token from the response
@@ -39,6 +46,9 @@ const Login = () => {
         } catch (error) {
             console.error("Login failed:", error.response?.data || error.message);
             showToast("Login failed", "error");
+        }
+        finally {
+            dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
         }
     };
 
@@ -139,12 +149,13 @@ const Login = () => {
                             </div>
 
 
-                            <button
+                            <ButtonLoader
+                                buttonId="loginButton"
                                 type="submit"
                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
                                 Sign In
-                            </button>
+                            </ButtonLoader>
                         </form>
 
                         <p className="mt-6 text-center text-gray-600">

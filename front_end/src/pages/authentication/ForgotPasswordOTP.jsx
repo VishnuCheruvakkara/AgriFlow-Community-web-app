@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate,useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 import { showToast } from '../../components/toast-notification/CustomToast';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
+//import the common button loader and redux reducers
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { useDispatch } from 'react-redux';
 
 const ForgotPasswordOTP = () => {
+    const dispatch=useDispatch()
     const location = useLocation();
     const navigate = useNavigate();
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -19,7 +24,7 @@ const ForgotPasswordOTP = () => {
         if (location.state?.email) {
             setEmail(location.state.email);
         }
-    },[location.state])
+    }, [location.state])
 
     useEffect(() => {
         // Start countdown if timer is greater than 0
@@ -123,12 +128,16 @@ const ForgotPasswordOTP = () => {
 
     const handleVerifyOTP = async (e) => {
         e.preventDefault();
+
+        const buttonId = "forgotPasswordOTP"
+        dispatch(showButtonLoader(buttonId)) //showloader
+
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
             showToast("Please enter a complete 6-digit OTP", "warn");
             return;
         }
-        
+
         try {
             // Verify OTP
             const response = await PublicAxiosInstance.post("/users/forgot-password-otp-verification/", {
@@ -143,6 +152,9 @@ const ForgotPasswordOTP = () => {
         } catch (error) {
             console.error("OTP verification failed:", error.response?.data || error.message);
             showToast(error.response?.data?.message || "Invalid OTP. Please try again", "error");
+        }
+        finally {
+            dispatch(hideButtonLoader(buttonId)); //Hide loader after process
         }
     };
 
@@ -191,13 +203,14 @@ const ForgotPasswordOTP = () => {
                                 </p>
                             </div>
 
-                            <button
+                            <ButtonLoader
+                                buttonId= "forgotPasswordOTP"
                                 type="submit"
                                 className="w-3/4 mx-auto block bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
 
                                 Verify & Continue
-                            </button>
+                            </ButtonLoader>
 
 
 
@@ -209,7 +222,7 @@ const ForgotPasswordOTP = () => {
                                 </p>
                             </div>
 
-                          
+
                         </form>
                     </div>
                 </div>

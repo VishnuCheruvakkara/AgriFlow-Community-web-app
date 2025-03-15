@@ -7,6 +7,9 @@ import { loginSuccess } from '../../redux/slices/AuthSlice';
 import { showToast } from '../../components/toast-notification/CustomToast';
 //import logo
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
+//import the button loader 
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
+import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 
 const OTPVerification = () => {
     const dispatch = useDispatch();
@@ -177,6 +180,10 @@ const OTPVerification = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const buttonId = "loginButton"
+        dispatch(showButtonLoader(buttonId))//showloader
+
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
             showToast("Please enter a complete 6-digit OTP", "warn");
@@ -204,6 +211,9 @@ const OTPVerification = () => {
         } catch (error) {
             console.error("OTP verification failed :", error.response?.data || error.message);
             showToast(error.response.data?.otp[0], "error");
+        }
+        finally {
+            dispatch(hideButtonLoader(buttonId))  //Hide loader after process
         }
     };
 
@@ -254,12 +264,13 @@ const OTPVerification = () => {
                                 </p>
                             </div>
 
-                            <button
+                            <ButtonLoader
+                                buttonId="loginButton"
                                 type="submit"
                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
                                 Verify & Continue
-                            </button>
+                            </ButtonLoader>
 
                             <div className="text-center">
                                 <p className="text-gray-600">

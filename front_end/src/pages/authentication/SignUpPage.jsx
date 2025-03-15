@@ -9,8 +9,14 @@ import { FaWhatsapp } from "react-icons/fa";
 import { showToast } from "../../components/toast-notification/CustomToast"
 //import logo 
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
+//import the common button loader and redux reducers
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
+import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { useDispatch } from 'react-redux';
 
 const SignUp = () => {
+    const dispatch = useDispatch();
+
     const navigate = useNavigate(); //React Router's navigation function
     // For show paassword
     const [showPassword, setShowPassword] = useState(false);
@@ -26,8 +32,7 @@ const SignUp = () => {
         password2: ''
     });
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+   
 
 
     // Add inputed data into the State 'formData'
@@ -41,8 +46,9 @@ const SignUp = () => {
     // works while submit a form 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
+
+        const buttonId = "signUpButton"
+        dispatch(showButtonLoader(buttonId)) //showloader
 
         try {
             const response = await PublicAxiosInstance.post("/users/register/", formData);
@@ -52,11 +58,11 @@ const SignUp = () => {
             navigate("/otp-page", { state: { email: formData.email } });
 
         } catch (error) {
-            setError(error.response?.data?.message || "Something went wrong");
+            console.log(error.response?.data?.message || "Something went wrong");
             console.error("Registration Error:", error);
             showToast("Registration failed! Please check your details and try again !", "error")
         } finally {
-            setLoading(false);
+            dispatch(hideButtonLoader(buttonId)); //Hide loader after process
         }
 
     };
@@ -253,12 +259,13 @@ const SignUp = () => {
 
                             
 
-                            <button
+                            <ButtonLoader
+                                buttonId="signUpButton"
                                 type="submit"
                                 className="mt-5 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
                                 Create Account
-                            </button>
+                            </ButtonLoader>
 
 
                         </form>

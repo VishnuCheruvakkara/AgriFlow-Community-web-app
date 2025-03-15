@@ -3,8 +3,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 import { showToast } from '../../components/toast-notification/CustomToast';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png';
+//import the common button loader and redux reducers
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { useDispatch } from 'react-redux';
 
 const SetNewPassword = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     const [email, setEmail] = useState();
@@ -34,6 +39,9 @@ const SetNewPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const buttonId = "forgotPasswordSetNew"
+        dispatch(showButtonLoader(buttonId)) //showloader
 
         // Validate passwords
         if (!formData.password) {
@@ -68,7 +76,7 @@ const SetNewPassword = () => {
             console.error("Failed to reset password:", error.response?.data || error.message);
             showToast(error.response?.data?.message || "Failed to reset password", "error");
         } finally {
-            setIsLoading(false);
+            dispatch(hideButtonLoader(buttonId)); //Hide loader after process
         }
     };
 
@@ -166,23 +174,14 @@ const SetNewPassword = () => {
                                 </div>
                             </div>
 
-                            <button
+                            <ButtonLoader
+                                buttonId="forgotPasswordSetNew"
                                 type="submit"
                                 disabled={isLoading}
                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg flex justify-center items-center"
                             >
-                                {isLoading ? (
-                                    <>
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Updating...
-                                    </>
-                                ) : (
-                                    "Reset Password"
-                                )}
-                            </button>
+                            Reset Password
+                            </ButtonLoader>
                         </form>
 
                         <p className="mt-6 text-center text-gray-600">
