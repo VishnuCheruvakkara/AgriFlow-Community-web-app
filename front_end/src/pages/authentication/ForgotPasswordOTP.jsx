@@ -255,7 +255,7 @@ const ForgotPasswordOTP = () => {
                                             onChange={(e) => handleChange(index, e)}
                                             onKeyDown={(e) => handleKeyDown(index, e)}
                                             onPaste={index === 0 ? handlePaste : null} // Only attach paste handler to first input
-                                            className="w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                            className="bg-white text-black w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         />
                                     ))}
                                 </div>

@@ -85,7 +85,7 @@ const SignUp = () => {
                             {/* google auth button here  */}
                             <GoogleLoginButton />
 
-                            <button className="w-full text-sm flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-l hover:bg-gray-50 transition">
+                            <button className="w-full text-sm flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-l hover:bg-gray-50 transition text-black">
                                 <FaWhatsapp className="text-2xl text-green-600" />
                                 <span>Continue with WhatsApp</span>
                             </button>
@@ -118,7 +118,7 @@ const SignUp = () => {
                                         name="username"
                                         value={formData.username}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className=" bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="Enter you name"
                                         required
                                     />
@@ -139,7 +139,7 @@ const SignUp = () => {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className=" bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="your@email.com"
                                         required
                                     />
@@ -159,7 +159,7 @@ const SignUp = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className="bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="••••••••"
                                         required
                                     />
@@ -196,7 +196,7 @@ const SignUp = () => {
                                         name="password2"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
-                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className="bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
                                         placeholder="••••••••"
                                         required
                                     />
