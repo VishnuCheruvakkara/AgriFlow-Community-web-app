@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance';
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../redux/slices/AuthSlice';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png';
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 // logo and images 
 import AgriFlowWhiteLogo from '../../assets/images/agriflowwhite.png'
+import { adminLoginSuccess } from '../../redux/slices/AdminAuthSlice';
 
 const AdminLogin = () => {
     const dispatch = useDispatch();
@@ -42,7 +42,8 @@ const AdminLogin = () => {
                 return;
             }
 
-            dispatch(loginSuccess({ user, token: access_token }));
+            dispatch(adminLoginSuccess({ admin:user, token: access_token }));
+
             showToast(`Welcome ${user.name}! Login successful`, "success");
             navigate("/admin-dash-board");
         } catch (error) {

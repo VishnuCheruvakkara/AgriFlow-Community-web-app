@@ -420,7 +420,7 @@ class AdminLoginView(APIView):
 
             # Set refresh token as HTTP-only cookie
             response.set_cookie(
-                key="refresh_token",
+                key="admin_refresh_token",
                 value=refresh_token,
                 httponly=True,
                 secure=True,  # Change to True in production
