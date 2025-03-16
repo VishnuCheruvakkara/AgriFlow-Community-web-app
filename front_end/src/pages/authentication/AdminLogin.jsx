@@ -33,18 +33,18 @@ const AdminLogin = () => {
         dispatch(showButtonLoader(buttonId));
 
         try {
-            const response = await PublicAxiosInstance.post("/admin/login/", formData);
+            const response = await PublicAxiosInstance.post("/users/admin/login/", formData);
             const { user, access_token } = response.data;
 
             // Verify admin role before proceeding
-            if (user.role !== 'admin') {
+            if (!user.is_admin) {
                 showToast("Access denied. Admin privileges required.", "error");
                 return;
             }
 
-            dispatch(loginSuccess({ user, token: access_token, isAdmin: true }));
-            showToast(`Welcome Admin ${user.name}! Login successful`, "success");
-            navigate("/admin-dashboard");
+            dispatch(loginSuccess({ user, token: access_token }));
+            showToast(`Welcome ${user.name}! Login successful`, "success");
+            navigate("/admin-dash-board");
         } catch (error) {
             console.error("Admin login failed:", error.response?.data || error.message);
             showToast("Admin login failed. Please check your credentials.", "error");
@@ -56,7 +56,7 @@ const AdminLogin = () => {
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
             {/* Left side - Brand Panel */}
-            <div className="hidden lg:flex lg:w-1/2 bg-green-600 flex-col justify-center items-center p-12 fixed h-screen top-0 left-0 relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-green-600 flex-col justify-center items-center p-12 fixed h-screen top-0 left-0 overflow-hidden">
                 {/* Background Image with Overlay */}
                 <div
                     className="absolute inset-0 bg-cover bg-center"

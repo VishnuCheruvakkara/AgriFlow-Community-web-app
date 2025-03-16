@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer
+from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer,AdminLoginSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -388,3 +388,46 @@ class ResendOTPView(APIView):
 
         return Response({"message":"OTP has been resent successfully"},status=status.HTTP_200_OK)
             
+###############################  Admin Login View for authentication  ###########################3
+
+
+class AdminLoginView(APIView):
+    """JWT-based Admin Login"""
+
+    def post(self, request):
+        serializer = AdminLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            admin_user = serializer.validated_data["user"]
+
+            # Generate JWT tokens
+            refresh_token, access_token = generate_tokens(admin_user)
+
+            admin_data={
+                "id": admin_user.id,
+                "name": admin_user.username,
+                "email": admin_user.email,
+                "is_admin": admin_user.is_staff,  
+            }
+
+            response = Response(
+                {
+                    "message": "Admin Login Successful!",
+                    "access_token": access_token,
+                    "user": admin_data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+            # Set refresh token as HTTP-only cookie
+            response.set_cookie(
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,
+                secure=True,  # Change to True in production
+                samesite="None",  # Change to None in production
+                max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+            )
+
+            return response
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

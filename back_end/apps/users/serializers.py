@@ -3,6 +3,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 #for inbuild password validation
 from django.contrib.auth.password_validation import validate_password
+#To authenticate the user 
+from django.contrib.auth import authenticate
 
 User = get_user_model()
 
@@ -110,3 +112,27 @@ class ForgotPasswordSetSerializer(serializers.Serializer):
         validate_password(data['new_password'])
 
         return data
+
+######################################   For admin related authentiation serializers  ##############################3
+
+class AdminLoginSerializer(serializers.Serializer):
+    """Serializer for admin login"""
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        email = data.get("email")
+        password = data.get("password")
+
+        # Authenticate user
+        user = authenticate(username=email, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid email or password!")
+
+        # Ensure only admins can log in
+        if not user.is_staff:
+            raise serializers.ValidationError("Access denied. Admin privileges required.")
+
+        return {
+            "user": user # Return the actual User instance
+        }
