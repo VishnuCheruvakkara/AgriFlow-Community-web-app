@@ -20,6 +20,9 @@ from rest_framework.permissions import AllowAny
 from .serializers import ForgotPasswordSerialzier,ForgotPasswordVerifyOTPSerializer,ForgotPasswordSetSerializer
 from django.contrib.auth.hashers import make_password
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 User = get_user_model()
 
 ################################## User Login  ##################################
@@ -431,3 +434,29 @@ class AdminLoginView(APIView):
             return response
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#====================  Admin logout view ======================
+    
+    
+class AdminLogoutView(APIView):
+    """Admin Logout API to remove refresh token and clear cookies"""
+    permission_classes = [AllowAny]  # Allow logout without authentication
+
+    def post(self, request):
+        try:
+            admin_refresh_token = request.COOKIES.get("admin_refresh_token")
+
+            if admin_refresh_token:
+                try:
+                    refresh = RefreshToken(admin_refresh_token)
+                    refresh.blacklist()
+                except Exception:
+                    pass  # Ignore if already invalid
+
+            response = Response({"message": "Admin successfully logged out!"}, status=status.HTTP_200_OK)
+            response.delete_cookie("admin_refresh_token")
+
+            return response
+
+        except Exception:
+            return Response({"message": "Admin logout failed"}, status=status.HTTP_400_BAD_REQUEST)

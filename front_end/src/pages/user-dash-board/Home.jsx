@@ -3,12 +3,6 @@ import React from 'react'
 import { FaCloudSun, FaPlus, FaEllipsisH } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 
-// // Cutom import of breaked componets
-// import NavBar from '../../components/user-dash-board/NavBar';
-// import SideBar from '../../components/user-dash-board/SideBar'
-// import Footer from '../../components/user-dash-board/Footer'
-// import MobileNavBar from '../../components/user-dash-board/MobileNavBar'
-
 function Home() {
   return (
     <>
@@ -29,7 +23,7 @@ function Home() {
                     <input
                       type="text"
                       placeholder="Share something with the community..."
-                      className="w-full p-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500"
+                      className="bg-white text-black w-full p-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500"
                     />
                     <div className="flex justify-between mt-3">
                       <div className="flex space-x-2">

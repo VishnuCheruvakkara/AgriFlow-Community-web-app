@@ -9,7 +9,7 @@ function NavBar() {
                     <div className="flex items-center justify-between h-16">
                         {/* Logo and Brand */}
                         <div className="flex items-center">
-                            <span className="text-xl font-bold">FarmConnect</span>
+                            <span className="text-xl font-bold">AgriFlow</span>
                         </div>
 
                         {/* Search Bar */}

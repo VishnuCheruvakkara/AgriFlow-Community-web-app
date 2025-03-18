@@ -45,7 +45,7 @@ const AdminLogin = () => {
             dispatch(adminLoginSuccess({ admin:user, token: access_token }));
 
             showToast(`Welcome ${user.name}! Login successful`, "success");
-            navigate("/admin-dash-board");
+            navigate("/admin");
         } catch (error) {
             console.error("Admin login failed:", error.response?.data || error.message);
             showToast("Admin login failed. Please check your credentials.", "error");
@@ -55,20 +55,20 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+        <div className="min-h-screen flex flex-col md:flex-row bg-white">
             {/* Left side - Brand Panel */}
-            <div className="hidden lg:flex lg:w-1/2 bg-green-600 flex-col justify-center items-center p-12 fixed h-screen top-0 left-0 overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-green-600 flex-col justify-center items-center p-12 fixed  top-0 left-0 overflow-hidden h-screen">
                 {/* Background Image with Overlay */}
                 <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
                         backgroundImage: "url('/images/admin-login-background.jpg')",
-                        filter: "brightness(0.9)"
+                       
                     }}
                 ></div>
 
                 {/* Additional dark overlay for text readability */}
-                <div className="absolute inset-0 bg-black opacity-40"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
                 {/* Content */}
                 <div className="relative z-10 text-center">
@@ -96,7 +96,7 @@ const AdminLogin = () => {
 
             {/* Right side form panel */}
             <div className="w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
-                <div className="bg-white flex justify-center items-center p-6 lg:p-12">
+                <div className="bg-white flex justify-center items-center p-6 lg:p-12 h-screen">
                     <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl w-full max-w-md">
                         {/* Mobile logo (visible only on small screens) */}
                         <div className="lg:hidden flex justify-center mb-2">
@@ -136,7 +136,7 @@ const AdminLogin = () => {
                                         value={formData.email}
                                         onChange={handleChange}
                                         className="bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
-                                        placeholder="admin@agriflow.com"
+                                        placeholder="Enter Email"
                                         required
                                     />
                                 </div>

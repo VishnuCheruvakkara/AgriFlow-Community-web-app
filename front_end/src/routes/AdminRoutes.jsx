@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import AdminLayout from '../layout/AdminLayout'
 import DashboardPage from '../pages/admin-dash-board/DashboardPage'
 import UsersPage from '../pages/admin-dash-board/UserPage'
-import OrdersPage from '../pages/admin-dash-board/Orderspage'
+import ProductsPage from '../pages/admin-dash-board/ProductsPage'
 
 function AdminRoutes() {
     return (
@@ -12,8 +12,8 @@ function AdminRoutes() {
 
             <Route element={<AdminLayout />}>
                 <Route path="/" element={<DashboardPage />} />
-                <Route path="users" element={<UsersPage />} />
-                <Route path="orders" element={<OrdersPage />} />
+                <Route path="/users-management" element={<UsersPage />} />
+                <Route path="/products-management" element={<ProductsPage />} />
             </Route>
 
         </Routes>

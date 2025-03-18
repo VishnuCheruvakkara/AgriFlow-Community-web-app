@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginView
+from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginView,AdminLogoutView
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
 
@@ -14,6 +14,8 @@ urlpatterns = [
     path("admin/login/", AdminLoginView.as_view(), name="admin-login"),
     #resend OTP 
     path('resend-otp/',ResendOTPView.as_view(),name='resend_otp'),
+    #=============admin logout ===================
+    path('admin/logout/',AdminLogoutView.as_view(),name='admin-logout'),
 
     ############### forget password urls
     path('forgot-password/',ForgotPasswordView.as_view(),name='forgot-password'),

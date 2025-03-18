@@ -11,23 +11,27 @@ import AdminLogin from "../pages/authentication/AdminLogin"
 //lay out section 
 import AuthLayout from '../layout/AuthLayout'
 
+// Import PublicRoute to prevent logged-in users from accessing auth pages
+import PublicProtectedRoute from "./RoutesProtection/PublicProtectedRoute"
+
 const AuthenticationRoutes = () => {
     return (
 
         <Routes>
-            {/* Landing Page Route */}
-            <Route path='/' element={<LandingPage />} />
-             {/* admin login page here */}
-             <Route path='/admin-login' element={ <AdminLogin/>} />
-            {/* Authentication Routes inside AuthLayout */}
-            <Route element={<AuthLayout />}>
-                <Route path="/sign-up" element={<SignUpPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/otp-page" element={<OtpPage />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/forgot-password-otp" element={<ForgotPasswordOTP />} />
-                <Route path="/forgot-password-new" element={<ForgotPasswordNew />} />
-               
+            <Route element={<PublicProtectedRoute />}>
+                {/* Landing Page Route */}
+                <Route path='/' element={<LandingPage />} />
+                {/* admin login page here */}
+                <Route path='/admin-login' element={<AdminLogin />} />
+                {/* Authentication Routes inside AuthLayout */}
+                <Route element={<AuthLayout />}>
+                    <Route path="/sign-up" element={<SignUpPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/otp-page" element={<OtpPage />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/forgot-password-otp" element={<ForgotPasswordOTP />} />
+                    <Route path="/forgot-password-new" element={<ForgotPasswordNew />} />
+                </Route>
             </Route>
         </Routes>
     )

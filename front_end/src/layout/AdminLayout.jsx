@@ -1,18 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/admin-dash-board/Sidebar";
 import Navbar from "../components/admin-dash-board/Navbar";
 
 const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleSidebarToggle = (isOpen) => {
+    setSidebarOpen(isOpen);
+  };
+
   return (
-    <div className="flex min-h-screen bg-base-200">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+    <div className="flex min-h-screen bg-base-200 bg-slate-100">
+      {/* Main content - always starts at left edge when sidebar is closed */}
+      <div className="flex-1 flex flex-col ml-20">
         <Navbar />
         <div className="p-6">
           <Outlet /> {/* Page Content */}
         </div>
       </div>
+      
+      {/* Sidebar - positioned with fixed, overlaps content when open */}
+      <Sidebar onToggle={handleSidebarToggle} />
+      
+      {/* Optional overlay when sidebar is open */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-30 z-30"
+          onClick={() => handleSidebarToggle(false)}
+        ></div>
+      )}
     </div>
   );
 };

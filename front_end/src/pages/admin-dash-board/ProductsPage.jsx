@@ -1,6 +1,6 @@
 import React from "react";
 
-const OrdersPage = () => {
+const ProductsPage = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold text-accent">Order Management</h2>
@@ -13,4 +13,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default ProductsPage;
