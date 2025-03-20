@@ -23,7 +23,6 @@ from django.utils.timezone import now
 from django.contrib.sessions.models import Session
 
 
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
 User = get_user_model()
 
