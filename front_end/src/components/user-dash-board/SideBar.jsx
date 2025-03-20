@@ -11,6 +11,7 @@ import { logout } from '../../redux/slices/AuthSlice'
 import { persistor } from '../../redux/Store';
 //
 import { showToast } from '../toast-notification/CustomToast';
+import { Link } from 'react-router-dom';
 
 
 
@@ -20,18 +21,18 @@ function SideBar() {
 
     const handleLogout = async () => {
         try {
-            console.log("Attempting logout...");
+            
 
             await PublicAxiosInstance.post("/users/logout/");
             //clear userdata and accesstoken details from the localstorage through the redux-persistor
-            console.log("Hoooooo")
+          
             dispatch(logout());
     
             await persistor.purge(); //Clear the persisted state
             showToast(`logout successful`,"success")
             //Redirect to the login page
             navigate("/login")
-            console.log("The end")
+         
 
         } catch (error) {
             console.log("logout failed:", error);
@@ -63,10 +64,10 @@ function SideBar() {
                         </a>
                     </li>
                     <li className="mb-1">
-                        <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
+                        <Link to="/farmer-profile" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaUser className="text-xl" />
                             <span>My Profile</span>
-                        </a>
+                        </Link>
                     </li>
                     <li className="mb-1">
                         <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">

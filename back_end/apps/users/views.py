@@ -19,9 +19,10 @@ from rest_framework.permissions import AllowAny
 ######### for Forget password section ##############
 from .serializers import ForgotPasswordSerialzier,ForgotPasswordVerifyOTPSerializer,ForgotPasswordSetSerializer
 from django.contrib.auth.hashers import make_password
+from django.utils.timezone import now
+from django.contrib.sessions.models import Session
 
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
 User = get_user_model()
 
@@ -358,21 +359,47 @@ class ForgotPasswordOTPVerifyView(APIView):
 #===========================================  Set new password after OTP verifiction View ====================================
 
 class ForgotPasswordSetNewView(APIView):
-    def post(self,request):
-        serializer=ForgotPasswordSetSerializer(data=request.data)
+    """API for resetting password and blacklisting old refresh tokens"""
+
+    def put(self, request):
+        serializer = ForgotPasswordSetSerializer(data=request.data)
         if serializer.is_valid():
-            email=serializer.validated_data['email']
-            new_password=serializer.validated_data['new_password']
-            #Find user email
-            user=User.objects.filter(email=email,is_verified=True).first()
+            email = serializer.validated_data['email']
+            new_password = serializer.validated_data['new_password']
+
+            # Find user by email
+            user = User.objects.filter(email=email, is_verified=True).first()
             if not user:
-                return Response({"error":"User not found."},status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
             
-            #update password with upcomming password
-            user.password=make_password(new_password)
+            # Blacklist refresh token stored in cookies (if any)
+            refresh_token = request.COOKIES.get("refresh_token")
+            if refresh_token:
+                try:
+                    refresh = RefreshToken(refresh_token)
+                    refresh.blacklist()  # Blacklist the token
+                except Exception:
+                    pass  # Ignore if already blacklisted
+
+            # Update password with new password
+            user.password = make_password(new_password)
             user.save()
 
-            return Response({"message": "Password reset successful!"}, status=status.HTTP_200_OK)
+            # Remove all active sessions for this user (force logout everywhere)
+            sessions = Session.objects.filter(expire_date__gte=now())
+            for session in sessions:
+                data = session.get_decoded()
+                if str(data.get('_auth_user_id')) == str(user.id):
+                    session.delete()  # Remove session
+
+            # Create response and remove refresh token from cookies
+            response = Response(
+                {"message": "Password reset successful! Please log in with your new password."},
+                status=status.HTTP_200_OK
+            )
+            response.delete_cookie("refresh_token")  # Remove refresh token from cookies
+            
+            return response
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

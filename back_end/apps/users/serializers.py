@@ -1,8 +1,11 @@
+import re
 from django.core.cache import cache
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 #for inbuild password validation
 from django.contrib.auth.password_validation import validate_password
+#for inbuild email validation
+from django.core.validators import EmailValidator
 #To authenticate the user 
 from django.contrib.auth import authenticate
 
@@ -19,6 +22,7 @@ class LoginSerializer(serializers.Serializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True, label="Confirm Password")
+    email = serializers.EmailField(validators=[EmailValidator(message="Enter a valid email address.")])  
 
     class Meta:
         model = User
@@ -30,16 +34,50 @@ class RegisterSerializer(serializers.ModelSerializer):
         if data['password'] != data['password2']:
             raise serializers.ValidationError({"password": "Passwords do not match!"})
         return data
+ 
+    def validate_password(self, password):
+        """Custom password validation with industry standards."""
+        if len(password) < 8:
+            raise serializers.ValidationError({"password": "Password must be at least 8 characters long."})
+
+        if not re.search(r'[A-Z]', password):
+            raise serializers.ValidationError({"password": "Password must contain at least one uppercase letter."})
+
+        if not re.search(r'[a-z]', password):
+            raise serializers.ValidationError({"password": "Password must contain at least one lowercase letter."})
+
+        if not re.search(r'\d', password):
+            raise serializers.ValidationError({"password": "Password must contain at least one digit."})
+
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            raise serializers.ValidationError({"password": "Password must contain at least one special character."})
+
+        if ' ' in password:
+            raise serializers.ValidationError({"password": "Password cannot contain spaces."})
+
+        return password
+
 
     def validate_email(self, value):
         """Manually check if email exists but allow unverified users"""
         user = User.objects.filter(email=value).first()
         if user:
             if user.is_verified:
-                raise serializers.ValidationError("Email already verified. Please log in.")
+                raise serializers.ValidationError("Enter a valid email address")
             else:
                 return value  # Allow the user to proceed if unverified
         return value  # Allow new users
+
+    def validate_username(self, value):
+        """Ensure username contains only letters (uppercase/lowercase) and spaces"""
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already taken. Please choose another one.")
+        
+        if not re.match(r'^[A-Za-z ]+$', value):
+            raise serializers.ValidationError("Username can only contain letters and spaces. No numbers or special characters allowed.")
+
+        return value
+
 
     email = serializers.EmailField()  #To override over the normaml serializer validation of email (For is_verified=False users)
 

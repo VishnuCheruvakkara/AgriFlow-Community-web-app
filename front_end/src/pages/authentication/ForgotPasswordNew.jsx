@@ -6,7 +6,10 @@ import agriFlowLogo from '../../assets/images/agriflowlogo.png';
 //import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+//import for redux authSlice access after password reset enusere that user JWT credentials are deleted or not!
 import { useDispatch } from 'react-redux';
+import { logout } from '../../redux/slices/AuthSlice'
+
 
 const SetNewPassword = () => {
     const dispatch = useDispatch();
@@ -49,7 +52,7 @@ const SetNewPassword = () => {
             return;
         }
 
-        if (formData.password.length < 7) {
+        if (formData.password.length <= 8) {
             showToast("Password must be at least 8 characters long", "warn");
             return;
         }
@@ -62,11 +65,13 @@ const SetNewPassword = () => {
         setIsLoading(true);
         try {
             // Call API to reset password
-            const response = await PublicAxiosInstance.post("/users/forgot-password-set-new-password/", {
+            const response = await PublicAxiosInstance.put("/users/forgot-password-set-new-password/", {
                 email: email,
                 new_password: formData.password,
                 confirm_password: formData.confirmPassword,
             });
+
+            dispatch(logout());
 
             showToast("Password reset successful!,Sign in with new password", "success");
 

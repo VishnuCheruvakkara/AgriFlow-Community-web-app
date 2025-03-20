@@ -11,11 +11,13 @@ import { showToast } from "../../components/toast-notification/CustomToast"
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 //import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
-import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
 
 const SignUp = () => {
     const dispatch = useDispatch();
+    //To show the Errors under respective fields 
+    const [errors, setErrors] = useState({});
 
     const navigate = useNavigate(); //React Router's navigation function
     // For show paassword
@@ -55,15 +57,14 @@ const SignUp = () => {
             navigate("/otp-page", { state: { email: formData.email } });
 
         } catch (error) {
-            console.log(error.response?.data?.message || "Something went wrong");
-            console.error("Registration Error:", error);
-            showToast("Registration failed! Please check your details and try again !", "error")
+            if (error.response && error.response.data) {
+                showToast("Registration failed! Please check your details and try again!", "error");
+                setErrors(error.response.data); // Store backend errors in state
+            } 
         } finally {
             dispatch(hideButtonLoader(buttonId)); //Hide loader after process
         }
-
     };
-
 
     return (
         <div className="h-screen flex flex-col md:flex-row bg-gray-50">
@@ -118,11 +119,13 @@ const SignUp = () => {
                                         name="username"
                                         value={formData.username}
                                         onChange={handleChange}
-                                        className=" bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.username ? " focus:ring-red-500" : "focus:ring-green-500"
+                                            } transition duration-500 ease-in-out`}
                                         placeholder="Enter you name"
                                         required
                                     />
                                 </div>
+                                {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                             </div>
 
                             <div>
@@ -139,11 +142,13 @@ const SignUp = () => {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className=" bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.email ? " focus:ring-red-500" : "focus:ring-green-500"
+                                            } transition duration-500 ease-in-out`}
                                         placeholder="your@email.com"
                                         required
                                     />
                                 </div>
+                                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                             </div>
 
                             <div>
@@ -159,7 +164,8 @@ const SignUp = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.password ? " focus:ring-red-500" : "focus:ring-green-500"
+                                            } transition duration-500 ease-in-out`}
                                         placeholder="••••••••"
                                         required
                                     />
@@ -180,6 +186,10 @@ const SignUp = () => {
                                         )}
                                     </span>
                                 </div>
+                                {errors.password?.password && (
+                                    <p className="text-sm text-red-500 mt-1">{errors.password.password}</p>
+                                )}
+
                                 <p className="text-sm text-gray-500 mt-1">Must be at least 8 characters</p>
                             </div>
 
@@ -196,7 +206,8 @@ const SignUp = () => {
                                         name="password2"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
-                                        className="bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.password ? " focus:ring-red-500" : "focus:ring-green-500"
+                                            } transition duration-500 ease-in-out`}
                                         placeholder="••••••••"
                                         required
                                     />
@@ -254,7 +265,7 @@ const SignUp = () => {
                             </div>
 
 
-                            
+
 
                             <ButtonLoader
                                 buttonId="signUpButton"
