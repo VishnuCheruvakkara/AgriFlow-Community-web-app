@@ -12,6 +12,7 @@ import { logout } from '../../redux/slices/AuthSlice'
 
 
 const SetNewPassword = () => {
+    const [errors, setErrors] = useState({});
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -44,23 +45,8 @@ const SetNewPassword = () => {
         e.preventDefault();
 
         const buttonId = "forgotPasswordSetNew"
+
         dispatch(showButtonLoader(buttonId)) //showloader
-
-        // Validate passwords
-        if (!formData.password) {
-            showToast("Please enter your new password", "warn");
-            return;
-        }
-
-        if (formData.password.length <= 8) {
-            showToast("Password must be at least 8 characters long", "warn");
-            return;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            showToast("Passwords do not match", "warn");
-            return;
-        }
 
         setIsLoading(true);
         try {
@@ -78,8 +64,9 @@ const SetNewPassword = () => {
             // Navigate to login page
             navigate("/login");
         } catch (error) {
-            console.error("Failed to reset password:", error.response?.data || error.message);
-            showToast(error.response?.data?.message || "Failed to reset password", "error");
+            console.error("Failed to reset password:", error.response?.data?.non_field_errors);
+            showToast("Failed to reset password", "error");
+            setErrors(error.response?.data)
         } finally {
             dispatch(hideButtonLoader(buttonId)); //Hide loader after process
         }
@@ -115,7 +102,8 @@ const SetNewPassword = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className=" bg-white text-black w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors ? " focus:ring-red-500" : "focus:ring-green-500"
+                                            } transition duration-500 ease-in-out`}
                                         placeholder="Enter new password"
                                         required
                                     />
@@ -138,7 +126,10 @@ const SetNewPassword = () => {
                                         )}
                                     </button>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long</p>
+                                {errors.new_password && errors.new_password.map((error, index) => (
+                                    <p key={index} className="text-sm text-red-500 mt-1">{error}</p>
+                                ))}
+                                <p className="text-sm text-gray-500 mt-1">Password must be at least 8 characters long</p>
                             </div>
 
                             <div>
@@ -154,7 +145,8 @@ const SetNewPassword = () => {
                                         name="confirmPassword"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
-                                        className=" bg-white text-black last-of-type:w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                        className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors ? " focus:ring-red-500" : "focus:ring-green-500"
+                                            } transition duration-500 ease-in-out`}
                                         placeholder="Confirm new password"
                                         required
                                     />
@@ -185,7 +177,7 @@ const SetNewPassword = () => {
                                 disabled={isLoading}
                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg flex justify-center items-center"
                             >
-                            Reset Password
+                                Reset Password
                             </ButtonLoader>
                         </form>
 

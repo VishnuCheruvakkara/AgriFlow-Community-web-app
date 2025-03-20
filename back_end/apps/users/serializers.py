@@ -69,15 +69,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value  # Allow new users
 
     def validate_username(self, value):
-        """Ensure username contains only letters (uppercase/lowercase) and spaces"""
+
+        """Ensure username contains only letters (uppercase/lowercase) and spaces, and has at least 4 characters"""
+        # Remove leading and trailing spaces
+        value = value.strip()
+
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Username already taken. Please choose another one.")
+        
+        if len(value) < 4:
+            raise serializers.ValidationError("Username must be at least 4 characters long.")
         
         if not re.match(r'^[A-Za-z ]+$', value):
             raise serializers.ValidationError("Username can only contain letters and spaces. No numbers or special characters allowed.")
 
         return value
-
 
     email = serializers.EmailField()  #To override over the normaml serializer validation of email (For is_verified=False users)
 
@@ -138,19 +144,42 @@ class ForgotPasswordVerifyOTPSerializer(serializers.Serializer):
 #=============================  Forgot passwort set new password after otp verification =================================
 
 class ForgotPasswordSetSerializer(serializers.Serializer):
-    email=serializers.EmailField()
-    new_password=serializers.CharField(write_only=True)
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
-    def validate(self,data):
-        if data['new_password'] != data['confirm_password'] :
-            raise serializers.ValidationError({"confirm_password":"Password do not match."})
-  
-        # Validate password strength
-        validate_password(data['new_password'])
+    def validate_new_password(self, password):
+        """Custom password validation with industry standards."""
+        if len(password) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
 
-        return data
+        if not re.search(r'[A-Z]', password):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
 
+        if not re.search(r'[a-z]', password):
+            raise serializers.ValidationError("Password must contain at least one lowercase letter.")
+
+        if not re.search(r'\d', password):
+            raise serializers.ValidationError("Password must contain at least one digit.")
+
+        if not re.search(r'[!@#$%^&*(),.?\":{}|<>]', password):
+            raise serializers.ValidationError("Password must contain at least one special character.")
+
+        if ' ' in password:
+            raise serializers.ValidationError("Password cannot contain spaces.")
+
+        return password
+
+    def validate_confirm_password(self, confirm_password):
+        """Validate confirm_password field separately to ensure it matches new_password."""
+        new_password = self.initial_data.get("new_password")
+
+        if new_password and confirm_password != new_password:
+            raise serializers.ValidationError("Passwords do not match.")
+
+        return confirm_password
+
+    
 ######################################   For admin related authentiation serializers  ##############################3
 
 class AdminLoginSerializer(serializers.Serializer):

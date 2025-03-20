@@ -37,8 +37,7 @@ const ForgotPassword = () => {
             // Navigate to OTP verification page with email
             navigate("/forgot-password-otp", { state: { email } });
         } catch (error) {
-            console.error("Failed to send reset email:", error.response?.data || error.message);
-            showToast(error.response?.data?.message || "Failed to send reset email", "error");
+            showToast(error.response?.data?.email[0] || "Failed to send reset email", "error");
         } finally {
             dispatch(hideButtonLoader(buttonId)); //Hide loader after process
         }

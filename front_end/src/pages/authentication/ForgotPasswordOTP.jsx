@@ -9,6 +9,7 @@ import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpi
 import { useDispatch } from 'react-redux';
 
 const ForgotPasswordOTP = () => {
+    const [otpError, setOtpError] = useState(false);
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
@@ -170,8 +171,9 @@ const ForgotPasswordOTP = () => {
             // Make an API call to resend OTP
             const response = await PublicAxiosInstance.post("/users/resend-otp/", {
                 email: email,  // Replace with the actual email from state/context
+                email_type: "forgot_password",  // Pass email_type explicitly
             });
-
+            setOtpError(false); 
             // Show success message
             console.log(response.data.message);
 
@@ -201,6 +203,7 @@ const ForgotPasswordOTP = () => {
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
             showToast("Please enter a complete 6-digit OTP", "warn");
+            dispatch(hideButtonLoader(buttonId)); 
             return;
         }
 
@@ -220,7 +223,8 @@ const ForgotPasswordOTP = () => {
             navigate('/forgot-password-new', { state: { email } });
         } catch (error) {
             console.error("OTP verification failed:", error.response?.data || error.message);
-            showToast(error.response?.data?.message || "Invalid OTP. Please try again", "error");
+            showToast(error.response?.data?.otp[0] || "OTP expired or invalid. Request a new one.", "error");
+            setOtpError(true); 
         }
         finally {
             dispatch(hideButtonLoader(buttonId)); //Hide loader after process
@@ -255,7 +259,8 @@ const ForgotPasswordOTP = () => {
                                             onChange={(e) => handleChange(index, e)}
                                             onKeyDown={(e) => handleKeyDown(index, e)}
                                             onPaste={index === 0 ? handlePaste : null} // Only attach paste handler to first input
-                                            className="bg-white text-black w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                            className={`bg-white text-black w-12 h-14 text-center text-xl font-semibold border rounded-lg focus:outline-none transition duration-500 ease-in-out ${otpError ? "focus:ring-2 focus:ring-red-500" : "border-gray-300 focus:ring-2 focus:ring-green-500"
+                                                }`}
                                         />
                                     ))}
                                 </div>

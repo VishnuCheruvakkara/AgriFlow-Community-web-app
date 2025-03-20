@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer,AdminLoginSerializer
+from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -17,10 +17,11 @@ from google.oauth2 import id_token
 ######### for refresh token view ##############
 from rest_framework.permissions import AllowAny
 ######### for Forget password section ##############
-from .serializers import ForgotPasswordSerialzier,ForgotPasswordVerifyOTPSerializer,ForgotPasswordSetSerializer
+from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerializer, ForgotPasswordSetSerializer
 from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.contrib.sessions.models import Session
+
 
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
@@ -47,7 +48,7 @@ class LoginView(APIView):
                 )
 
             # Generate JWT token (Controlled from services.py)
-            refresh_token,access_token = generate_tokens(user)
+            refresh_token, access_token = generate_tokens(user)
 
             # include users details in response
             user_data = {
@@ -68,8 +69,8 @@ class LoginView(APIView):
                 key="refresh_token",
                 value=refresh_token,
                 httponly=True,
-                secure=True, # Change in production as True.
-                samesite="None", # Change as None in production.
+                secure=True,  # Change in production as True.
+                samesite="None",  # Change as None in production.
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
@@ -99,11 +100,12 @@ class RegisterView(APIView):
 
                 else:
                     # Generate OTP and send email (Controlled in utils.py)
-                    generate_otp_and_send_email(email, email_type = "registration")
+                    generate_otp_and_send_email(
+                        email, email_type="registration")
                     return Response(
-                    {"message": "OTP re-sent to your email. Please verify."},
-                    status=status.HTTP_200_OK
-                )
+                        {"message": "OTP re-sent to your email. Please verify."},
+                        status=status.HTTP_200_OK
+                    )
 
             except User.DoesNotExist:
                 # Create user with is_active=False and is_verified=False
@@ -154,7 +156,7 @@ class VerifyOTPView(APIView):
             cache.delete(f"otp_{email}")
 
             # Generate JWT token (Controlled from services.py)
-            refresh_token,access_token = generate_tokens(user)
+            refresh_token, access_token = generate_tokens(user)
 
             # include users details in response
             user_data = {
@@ -176,8 +178,8 @@ class VerifyOTPView(APIView):
                 key="refresh_token",
                 value=refresh_token,
                 httponly=True,
-                secure=True, # Change in production as True.
-                samesite="None", # Change as None in production.
+                secure=True,  # Change in production as True.
+                samesite="None",  # Change as None in production.
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
@@ -186,6 +188,7 @@ class VerifyOTPView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ####################### Logout ##########################
+
 
 class LogoutView(APIView):
     """Logout API to remove refresh token and clear cookies"""
@@ -204,7 +207,8 @@ class LogoutView(APIView):
                     pass  # Ignore if already invalid
 
             # Create response
-            response = Response({"message": "Successfully logged out!"}, status=status.HTTP_200_OK)
+            response = Response(
+                {"message": "Successfully logged out!"}, status=status.HTTP_200_OK)
 
             # Remove cookies
             response.delete_cookie("refresh_token")
@@ -213,7 +217,7 @@ class LogoutView(APIView):
 
         except Exception:
             return Response({"message": "Logout failed"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
 
 ###################  Google authentication ####################
 
@@ -252,12 +256,11 @@ class GoogleAuthCallbackView(APIView):
             )
 
             # Generate JWT tokens
-            refresh_token,access_token = generate_tokens(user)
+            refresh_token, access_token = generate_tokens(user)
             print("access_token:", access_token)
             print("refresh_token:", refresh_token)
 
             from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-
 
             try:
                 decoded_access = AccessToken(access_token)
@@ -287,8 +290,8 @@ class GoogleAuthCallbackView(APIView):
                 key="refresh_token",
                 value=refresh_token,
                 httponly=True,
-                secure=True, # Change in production as True.
-                samesite="None", # Change as None in production.
+                secure=True,  # Change in production as True.
+                samesite="None",  # Change as None in production.
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
@@ -307,11 +310,12 @@ class GoogleAuthCallbackView(APIView):
 ############################ Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
 
 class RefreshTokenView(APIView):
-    permission_classes = [AllowAny] #required 
+    permission_classes = [AllowAny]  # required
 
     def post(self, request):
-        refresh_token = request.COOKIES.get('refresh_token')  # Get refresh token from cookies
-        print("RefreshTokenView",refresh_token)
+        refresh_token = request.COOKIES.get(
+            'refresh_token')  # Get refresh token from cookies
+        print("RefreshTokenView", refresh_token)
         if not refresh_token:
             return Response(
                 {'message': 'Refresh token not found!'},
@@ -319,8 +323,10 @@ class RefreshTokenView(APIView):
             )
 
         try:
-            refresh = RefreshToken(refresh_token)  # Decode and validate refresh token
-            access_token = str(refresh.access_token)  # Generate new access token
+            # Decode and validate refresh token
+            refresh = RefreshToken(refresh_token)
+            # Generate new access token
+            access_token = str(refresh.access_token)
 
             return Response(
                 {'access': access_token},
@@ -335,29 +341,29 @@ class RefreshTokenView(APIView):
 
 ##################################################  Forgot password section #####################################
 
-#=============================================== Forgot password email request view ============================
+# =============================================== Forgot password email request view ============================
 class ForgotPasswordView(APIView):
-    def post(self,request):
+    def post(self, request):
         serializer = ForgotPasswordSerialzier(data=request.data)
         if serializer.is_valid():
-            email=serializer.validated_data['email']
+            email = serializer.validated_data['email']
             # Generate OTP and send email (Controlled in utils.py)
-            generate_otp_and_send_email(email,email_type = "forgot_password")
+            generate_otp_and_send_email(email, email_type="forgot_password")
 
-            return Response({"message":"OTP sent to you email"},status=status.HTTP_200_OK)
-        return Response(serializer.error,status=status.HTTP_400_BAD_REQUEST)
-    
-#============================================= Forgot password OTP Verifcation View =====================================
+            return Response({"message": "OTP sent to you email"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# ============================================= Forgot password OTP Verifcation View =====================================
 
 class ForgotPasswordOTPVerifyView(APIView):
-    def post(self,request):
-        serializer=ForgotPasswordVerifyOTPSerializer(data=request.data)
+    def post(self, request):
+        serializer = ForgotPasswordVerifyOTPSerializer(data=request.data)
         if serializer.is_valid():
-            return Response({"message":"OTP verified successfully"},status=status.HTTP_200_OK)
-        return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-#===========================================  Set new password after OTP verifiction View ====================================
-
+# ===========================================  Set new password after OTP verifiction View ====================================
+    
 class ForgotPasswordSetNewView(APIView):
     """API for resetting password and blacklisting old refresh tokens"""
 
@@ -371,7 +377,7 @@ class ForgotPasswordSetNewView(APIView):
             user = User.objects.filter(email=email, is_verified=True).first()
             if not user:
                 return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-            
+
             # Blacklist refresh token stored in cookies (if any)
             refresh_token = request.COOKIES.get("refresh_token")
             if refresh_token:
@@ -392,13 +398,15 @@ class ForgotPasswordSetNewView(APIView):
                 if str(data.get('_auth_user_id')) == str(user.id):
                     session.delete()  # Remove session
 
+            
             # Create response and remove refresh token from cookies
             response = Response(
                 {"message": "Password reset successful! Please log in with your new password."},
                 status=status.HTTP_200_OK
             )
-            response.delete_cookie("refresh_token")  # Remove refresh token from cookies
-            
+            # Remove refresh token from cookies
+            response.delete_cookie("refresh_token")
+
             return response
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -408,18 +416,20 @@ class ForgotPasswordSetNewView(APIView):
 
 class ResendOTPView(APIView):
     """Handles OTP resending for user authentication"""
-    def post(self,request):
-        email=request.data.get("email")
+
+    def post(self, request):
+        email = request.data.get("email")
+        # Default to "registration"
+        email_type = request.data.get("email_type", "registration")
         if not email:
-            return Response({"error":"Email is required"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Call the exisiting function to generate and send OTP
-        generate_otp_and_send_email(email,email_type = "registration")
+        # Call the existing function to generate and send OTP with the given email_type
+        generate_otp_and_send_email(email, email_type=email_type)
 
-        return Response({"message":"OTP has been resent successfully"},status=status.HTTP_200_OK)
-            
-###############################  Admin Login View for authentication  ###########################3
+        return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
 
+# Admin Login View for authentication  ###########################3
 
 class AdminLoginView(APIView):
     """JWT-based Admin Login"""
@@ -432,11 +442,11 @@ class AdminLoginView(APIView):
             # Generate JWT tokens
             refresh_token, access_token = generate_tokens(admin_user)
 
-            admin_data={
+            admin_data = {
                 "id": admin_user.id,
                 "name": admin_user.username,
                 "email": admin_user.email,
-                "is_admin": admin_user.is_staff,  
+                "is_admin": admin_user.is_staff,
             }
 
             response = Response(
@@ -455,16 +465,16 @@ class AdminLoginView(APIView):
                 httponly=True,
                 secure=True,  # Change to True in production
                 samesite="None",  # Change to None in production
-                max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+                max_age=int(
+                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
 
             return response
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#====================  Admin logout view ======================
-    
-    
+
+# ====================  Admin logout view ======================
+
 class AdminLogoutView(APIView):
     """Admin Logout API to remove refresh token and clear cookies"""
     permission_classes = [AllowAny]  # Allow logout without authentication
@@ -480,7 +490,8 @@ class AdminLogoutView(APIView):
                 except Exception:
                     pass  # Ignore if already invalid
 
-            response = Response({"message": "Admin successfully logged out!"}, status=status.HTTP_200_OK)
+            response = Response(
+                {"message": "Admin successfully logged out!"}, status=status.HTTP_200_OK)
             response.delete_cookie("admin_refresh_token")
 
             return response

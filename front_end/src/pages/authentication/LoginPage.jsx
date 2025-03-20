@@ -45,7 +45,7 @@ const Login = () => {
 
         } catch (error) {
             console.error("Login failed:", error.response?.data || error.message);
-            showToast("Login failed", "error");
+            showToast("Incorrect Email or Password, Try again.", "error");
         }
         finally {
             dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
