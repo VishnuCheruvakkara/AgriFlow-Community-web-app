@@ -58,13 +58,13 @@ function SideBar() {
                 {/* Sidebar navigation */}
                 <ul className="p-2">
                     <li className="mb-1">
-                        <a href="#" className="flex items-center space-x-3 p-3 rounded-lg bg-green-100 text-green-700 font-medium">
+                        <Link to="/user-dash-board/" className="flex items-center space-x-3 p-3 rounded-lg bg-green-100 text-green-700 font-medium">
                             <FaHome className="text-xl" />
                             <span>Home</span>
-                        </a>
+                        </Link>
                     </li>
                     <li className="mb-1">
-                        <Link to="/farmer-profile" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
+                        <Link to="/user-dash-board/farmer-profile/" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaUser className="text-xl" />
                             <span>My Profile</span>
                         </Link>

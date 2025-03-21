@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
+    #====== for cloudinary ======#
+    'cloudinary_storage',
+    'cloudinary',
 
     # for google OAuth setup
     'social_django',  # Google OAuth
@@ -86,8 +89,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-
 #################### JWT Token custom setup. ############################
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -99,7 +102,8 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
 # Extra setup for Cookies
-AUTH_COOKIE_SECURE = True  # Change to True in production || Required for SameSite=None to work
+# Change to True in production || Required for SameSite=None to work
+AUTH_COOKIE_SECURE = True
 AUTH_COOKIE_HTTP_ONLY = True  # Prevent JavaScript from accessing the cookie
 AUTH_COOKIE_SAMESITE = "None"  # Required for cross-site cookies
 
@@ -247,3 +251,14 @@ SOCIAL_AUTH_PIPELINE = (
 
 # Login redirect after successful authentication
 GOOGLE_REDIRECT_URI = 'http://127.0.0.1:8000/users/auth/callback/'
+
+################### Cloudinary configuration for meadia-files access  ##########################
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': env('CLOUDINARY_API_KEY'),
+    'API_SECRET': env('CLOUDINARY_API_SECRET'),
+    'SECURE': True,  # Ensures HTTPS for file access
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
