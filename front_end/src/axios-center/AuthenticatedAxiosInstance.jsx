@@ -29,6 +29,7 @@ AuthenticatedAxiosInstance.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+            console.log("🔄 Access token expired. Attempting to refresh...");
 
             originalRequest._retry = true; // Prevent infinite loops
 
@@ -40,7 +41,7 @@ AuthenticatedAxiosInstance.interceptors.response.use(
                 );
 
                 if (data.access) {
-                   
+                    console.log("✅ New access token received:", data.access);
 
                     // Store the new token in Redux
                 store.dispatch(loginSuccess({ token: data.access }));
@@ -52,6 +53,7 @@ AuthenticatedAxiosInstance.interceptors.response.use(
                     return axios(originalRequest);
                 }
             } catch (refreshError) {
+                console.error("❌ Failed to refresh token:", refreshError.response?.data);
 
                 // Handle refresh failure (Logout user)
                 store.dispatch(logout());
