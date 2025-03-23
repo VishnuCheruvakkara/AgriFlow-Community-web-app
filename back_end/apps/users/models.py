@@ -13,6 +13,9 @@ class Address(models.Model):
     local_address = models.CharField(max_length=255, null=True, blank=True, help_text="User's home or farm address")
     location_address = models.CharField(max_length=255, null=True, blank=True, help_text="User's general location (e.g., city, town)")
 
+    class Meta:
+        app_label = 'users' 
+        
     def __str__(self):
         return f"{self.name}"
 

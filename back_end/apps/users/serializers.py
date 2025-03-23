@@ -8,6 +8,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.validators import EmailValidator
 #To authenticate the user 
 from django.contrib.auth import authenticate
+#User profile updation 
+
 
 User = get_user_model()
 
@@ -203,3 +205,38 @@ class AdminLoginSerializer(serializers.Serializer):
         return {
             "user": user # Return the actual User instance
         }
+
+########################  User proile updation section serilizes #######################
+#=========================== User profile updation ========================#
+
+class UserProfileUpdateSerializer(serializers.Serializer):
+    """Serializer for validating user profile update fields."""
+
+    firstName = serializers.CharField(required=True, max_length=255)
+    lastName = serializers.CharField(required=True, max_length=255)
+    username = serializers.CharField(required=True, max_length=255)
+    email = serializers.EmailField(required=True)
+    experience = serializers.IntegerField(required=False, allow_null=True)
+    cropsGrown = serializers.CharField(required=False, allow_blank=True)
+    bio = serializers.CharField(required=False, allow_blank=True)
+
+    location = serializers.DictField(required=False)  # Address (Nested Object)
+    farmingType = serializers.DictField(required=False)  # Farming Type (Nested Object)
+
+   
+
+    def validate_location(self, value):
+        """Validate location dictionary structure."""
+        required_keys = ["place_id", "latitude", "longitude", "display_name", "address"]
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("Location must be a dictionary.")
+        for key in required_keys:
+            if key not in value:
+                raise serializers.ValidationError(f"Missing required location key: {key}")
+        return value
+
+    def validate_farmingType(self, value):
+        """Validate farming type dictionary structure."""
+        if not isinstance(value, dict) or "name" not in value or not value["name"].strip():
+            raise serializers.ValidationError("Farming type name is required.")
+        return value

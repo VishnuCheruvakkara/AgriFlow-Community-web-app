@@ -1,4 +1,4 @@
-import React, { useState,useRef,useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FaUser, FaMapMarkerAlt, FaIdCard, FaInfoCircle, FaFileUpload } from 'react-icons/fa';
 import { MdEmail, MdOutlineDescription } from 'react-icons/md';
 import { GiFarmTractor, GiWheat } from 'react-icons/gi';
@@ -8,9 +8,12 @@ import LocationAutocomplete from '../../components/user-dash-board/LocationAutoC
 //taked data like username and email from the redux store 
 import { useSelector } from "react-redux";
 //import image uploader 
+import ImageUploader from '../../components/ImageUploadInterFace/ImageUploader';
 
 
 const UserProfileForm = () => {
+
+    const [loading, setLoading] = useState(false); // Loading state
     const auth = useSelector((state) => state.auth);
     const user = auth.user;
     const [formData, setFormData] = useState({
@@ -24,7 +27,10 @@ const UserProfileForm = () => {
         farmingType: "",
         cropsGrown: "",
         bio: "",
+        profileImage: null,
+        aadharImage: null,
     });
+
     const [selectedLocation, setSelectedLocation] = useState(null);
 
     const [isOpen, setIsOpen] = useState(false);
@@ -84,13 +90,49 @@ const UserProfileForm = () => {
         })
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Form Submitted:", formData);
+    // Image upload handlers
+    const handleProfileImageUpload = (file) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            profileImage: file,
+        }));
+    };
 
-    }
+    const handleAadharImageUpload = (file) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            aadharImage: file,
+        }));
+    };
+
+
 
     console.log("Current form updated ::::: ", formData)
+
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Prevent default form submission
+        setLoading(true); // Set loading state
+
+        try {
+            console.log("Submitting Form Data:", formData);
+
+            // Send Data to Backend API with Axios
+            const response = await AuthenticatedAxiosInstance.post(
+                "/users/update-profile/", // Update with your API URL
+                formData,
+            );
+
+            console.log("Profile updated successfully!", response.data);
+            alert("Profile updated successfully!");
+
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Something went wrong. Please try again.");
+
+        } finally {
+            setLoading(false); // Stop loading state
+        }
+    };
 
 
     return (
@@ -181,7 +223,7 @@ const UserProfileForm = () => {
                         </div>
 
                         {/* Profile Picture */}
-                        
+
 
 
                     </div>
@@ -200,7 +242,7 @@ const UserProfileForm = () => {
 
 
                         {/* Using our new LocationAutocomplete Component */}
-                        <LocationAutocomplete 
+                        <LocationAutocomplete
                             value={selectedLocation ? selectedLocation.display_name : ''}
                             onChange={handleLocationChange}
                             placeholder="Search for your village or city"
@@ -262,7 +304,7 @@ const UserProfileForm = () => {
                             <div className="relative">
                                 <input
                                     type="text"
-                                id="farming-type"
+                                    id="farming-type"
                                     className="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                     placeholder="Select your farming type"
                                     value={selectedType}
@@ -358,6 +400,9 @@ const UserProfileForm = () => {
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
+
+
+                        
                         <div>
                             <label className="block text-gray-700 mb-2" htmlFor="aadhar-card">Upload Aadhar Card Image</label>
                             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
