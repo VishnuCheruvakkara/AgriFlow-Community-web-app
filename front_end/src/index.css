@@ -8,6 +8,10 @@ input, textarea, select {
   @apply bg-white text-black transition duration-500 ease-in-out;
 }
 
+h3{
+  @apply text-black;
+}
+
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -48,4 +52,61 @@ body::-webkit-scrollbar {
 input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px white inset !important;
   -webkit-text-fill-color: black !important;
+}
+
+
+/* =============== Custom style for the phone number coutry code selection ==================  */
+
+  /* Base styling to match Tailwind's w-full p-3 border rounded-lg */
+  .react-tel-input .form-control {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    padding-left: 3rem !important;
+    border-width: 1px !important;
+    border-radius: 0.5rem !important;
+    height: 52px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Focus styling to match focus:outline-none focus:ring-2 focus:ring-green-500 */
+  .react-tel-input .form-control:focus {
+    outline: none !important;
+    border-color: #16a34a !important;
+  }
+
+  /* Flag container styling */
+  .react-tel-input .flag-dropdown {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .react-tel-input .selected-flag {
+    border-radius: 0.5rem 0 0 0.5rem !important;
+    background: transparent !important;
+  }
+
+  /* Adjust flag position to not interfere with your icon */
+  .react-tel-input .selected-flag {
+    padding-left: 22px !important; 
+  }
+
+  /* Dropdown styling */
+  .react-tel-input .country-list {
+    color:rgb(82, 82, 82);
+    border-radius: 0.2rem !important;
+    border: 0.5px solid #e5e7eb !important;
+    box-shadow: 0 4px 6px -1px rgb(255, 255, 255), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  }
+
+
+/* Hide the up/down arrows in number input fields */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }

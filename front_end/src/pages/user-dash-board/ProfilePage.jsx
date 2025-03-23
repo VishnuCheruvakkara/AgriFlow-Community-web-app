@@ -9,7 +9,8 @@ import LocationAutocomplete from '../../components/user-dash-board/LocationAutoC
 import { useSelector } from "react-redux";
 //import image uploader 
 import ImageUploader from '../../components/ImageUploadInterFace/ImageUploader';
-
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const UserProfileForm = () => {
 
@@ -46,6 +47,49 @@ const UserProfileForm = () => {
         { id: 5, name: 'Poultry Farming', description: 'Raising birds for meat or eggs' },
         { id: 6, name: 'Other', description: 'Specialized or alternative farming methods' }
     ];
+
+    // Add this function to calculate the completion percentage
+    const calculateProfileCompletion = () => {
+        let completedFields = 0;
+        let totalFields = 9; // Adjust based on required fields
+
+        // Check each required field
+        if (formData.firstName) completedFields++;
+        if (formData.lastName) completedFields++;
+        if (formData.username) completedFields++;
+        if (formData.phone_number) completedFields++;
+        if (formData.location) completedFields++;
+        if (formData.address) completedFields++;
+        if (formData.experience) completedFields++;
+        if (formData.farmingType) completedFields++;
+        if (formData.profileImage) completedFields++;
+
+        // Optional: Add aadhar verification as a bonus
+        if (formData.aadharImage) {
+            totalFields++;
+            completedFields++;
+        }
+
+        // Calculate percentage
+        return Math.round((completedFields / totalFields) * 100);
+    };
+
+    // Add this useEffect to update the progress bar
+    useEffect(() => {
+        const percentage = calculateProfileCompletion();
+
+        // Update the progress bar width
+        const progressBar = document.getElementById('profile-progress');
+        if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // Update the progress text
+        const progressText = document.querySelector('p.text-sm.text-gray-500.mt-1');
+        if (progressText) {
+            progressText.textContent = `Profile completion: ${percentage}%`;
+        }
+    }, [formData]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -90,6 +134,14 @@ const UserProfileForm = () => {
             [name]: value,
         })
     }
+
+    const handlePhoneInputChange = (value) => {
+        // Set the phone number value directly in the form data
+        setFormData({
+            ...formData,
+            phone_number: value
+        });
+    };
 
     // Image upload handlers
     const handleProfileImageUpload = (file) => {
@@ -178,9 +230,13 @@ const UserProfileForm = () => {
                 <p className="text-gray-600">Please complete your profile to access all features of AgriFlow</p>
 
                 <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
-                    <div className="bg-green-600 h-2.5 rounded-full w-0" id="profile-progress"></div>
+                    <div
+                        className="bg-green-600 h-2.5 rounded-full transition-all duration-500"
+                        id="profile-progress"
+                        style={{ width: `${calculateProfileCompletion()}%` }}
+                    ></div>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Profile completion: 0%</p>
+                <p className="text-sm text-gray-500 mt-1">Profile completion: {calculateProfileCompletion()}%</p>
             </div>
 
             {/* Profile Form */}
@@ -231,6 +287,7 @@ const UserProfileForm = () => {
                                 onChange={handleChange}
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Choose a username"
+                                autoComplete='new-password'
 
                             />
                             <p className="text-xs text-gray-500 mt-1 italic flex items-center">
@@ -249,6 +306,7 @@ const UserProfileForm = () => {
                                     className="w-full p-3 border text-gray-500 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
                                     placeholder="Your email address"
                                     readOnly
+                                    autoComplete='new-password'
                                 />
                                 <MdEmail className="absolute left-3 top-3.5 text-gray-500" />
                             </div>
@@ -259,23 +317,32 @@ const UserProfileForm = () => {
 
                         {/* Phone Number */}
                         <div>
-                            <label className="block text-gray-700 mb-2" htmlFor="phone_number">Phone Number</label>
+                            <label className="block text-gray-700 mb-2" htmlFor="phone_number">
+                                Phone Number
+                            </label>
                             <div className="relative">
-                                <input
-                                    type="text"
-                                    id="phone_number"
-                                    name="phone_number"
-                                    onChange={handleChange}
-                                    className="w-full p-3 border  rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
+                                <PhoneInput
+                                    country="in" // Set to India as default since you're using Aadhar
+                                    value={formData.phone_number}
+                                    inputProps={{
+                                        id: "phone_number",
+                                        name: "phone_number",
+                                    }}
+                                    onChange={handlePhoneInputChange} // Use the special handler here, not handleChange
+                                    containerClass="w-full"
+                                    inputClass="w-full h-12 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
+                                    buttonClass="border-r-0 h-12"
+                                    dropdownClass="border rounded-lg"
                                     placeholder="Your phone number"
-                                   
                                 />
-                                <FaPhoneAlt className="absolute left-3 top-3.5 text-gray-500" />
+
                             </div>
                             <p className="text-xs text-gray-500 mt-1 italic flex items-center">
-                                <FaInfoCircle className="mr-1" /> Phone number contain country code
+                                <FaInfoCircle className="mr-1" /> Phone number should include country code
                             </p>
                         </div>
+
+
 
 
                         {/* Profile Picture */}
@@ -354,6 +421,7 @@ const UserProfileForm = () => {
                                 min="0"
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Enter years of farming experience"
+                                autoComplete='new-password'
                             />
                         </div>
 
@@ -430,6 +498,7 @@ const UserProfileForm = () => {
                                 placeholder="Enter crops you grow (comma separated e.g., Wheat, Rice, Cotton)"
                                 rows="3"
                                 onChange={handleChange}
+                                autoComplete='new-password'
                             ></textarea>
                         </div>
 
@@ -447,6 +516,7 @@ const UserProfileForm = () => {
                                 placeholder="Tell us about yourself and your farming journey"
                                 rows="4"
                                 onChange={handleChange}
+                                autoComplete='new-password'
                             ></textarea>
                         </div>
                     </div>
