@@ -1,17 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState,useRef,useEffect } from 'react';
 import { FaUser, FaMapMarkerAlt, FaIdCard, FaInfoCircle, FaFileUpload } from 'react-icons/fa';
 import { MdEmail, MdOutlineDescription } from 'react-icons/md';
 import { GiFarmTractor, GiWheat } from 'react-icons/gi';
-import LocationAutocomplete from '../../components/user-dash-board/LocationAutoCompletion'; // Import the new component
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
+//import location part 
+import LocationAutocomplete from '../../components/user-dash-board/LocationAutoCompletion';
+//taked data like username and email from the redux store 
+import { useSelector } from "react-redux";
+//import image uploader 
+
 
 const UserProfileForm = () => {
+    const auth = useSelector((state) => state.auth);
+    const user = auth.user;
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        username: user?.name || "",
+        email: user?.email || "",
+        location: "",
+        address: "",
+        experience: "",
+        farmingType: "",
+        cropsGrown: "",
+        bio: "",
+    });
     const [selectedLocation, setSelectedLocation] = useState(null);
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedType, setSelectedType] = useState('');
+    const wrapperRef = useRef(null);
+
+    const farmingTypes = [
+        { id: 'organic', name: 'Organic Farming', description: 'Farming without synthetic pesticides or fertilizers' },
+        { id: 'conventional', name: 'Conventional Farming', description: 'Traditional farming using modern techniques' },
+        { id: 'mixed', name: 'Mixed Farming', description: 'Combination of crops and livestock' },
+        { id: 'dairy', name: 'Dairy Farming', description: 'Focused on milk production' },
+        { id: 'poultry', name: 'Poultry Farming', description: 'Raising birds for meat or eggs' },
+        { id: 'other', name: 'Other', description: 'Specialized or alternative farming methods' }
+    ];
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [wrapperRef]);
+
+    const handleSelect = (type) => {
+        setSelectedType(type.name);
+        setFormData((prevData) => ({
+            ...prevData,
+            farmingType: {
+                id: type.id,
+                name: type.name,
+                description: type.description
+            }
+        }));
+        setIsOpen(false);
+    };
 
     // Handle location selection
     const handleLocationChange = (location) => {
         setSelectedLocation(location);
-        console.log("Selected location:", location);
+        setFormData((prevData) => ({
+            ...prevData,
+            location: location, // Update formData with selected location
+        }));
     };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        })
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Form Submitted:", formData);
+
+    }
+
+    console.log("Current form updated ::::: ", formData)
+
 
     return (
         <div className="lg:w-10/12 space-y-4 mt-4 mb-11">
@@ -27,7 +107,7 @@ const UserProfileForm = () => {
             </div>
 
             {/* Profile Form */}
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
 
                 {/* Basic Info Section */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -43,6 +123,8 @@ const UserProfileForm = () => {
                             <input
                                 type="text"
                                 id="first-name"
+                                name="firstName"
+                                onChange={handleChange}
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Enter your first name"
                             />
@@ -54,6 +136,8 @@ const UserProfileForm = () => {
                             <input
                                 type="text"
                                 id="last-name"
+                                name="lastName"
+                                onChange={handleChange}
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Enter your last name"
                             />
@@ -61,13 +145,20 @@ const UserProfileForm = () => {
 
                         {/* Username */}
                         <div>
-                            <label className="block text-gray-700 mb-2" htmlFor="username">Username</label>
+                            <label className="block text-gray-700 mb-2" htmlFor="username">Username </label>
                             <input
                                 type="text"
                                 id="username"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleChange}
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Choose a username"
+
                             />
+                            <p className="text-xs text-gray-500 mt-1 italic flex items-center">
+                                <FaInfoCircle className="mr-1" />This name will visible to others
+                            </p>
                         </div>
 
                         {/* Email */}
@@ -77,32 +168,25 @@ const UserProfileForm = () => {
                                 <input
                                     type="email"
                                     id="email"
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
+                                    value={formData.email}
+                                    className="w-full p-3 border text-gray-500 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
                                     placeholder="Your email address"
+                                    readOnly
                                 />
                                 <MdEmail className="absolute left-3 top-3.5 text-gray-500" />
                             </div>
+                            <p className="text-xs text-gray-500 mt-1 italic flex items-center">
+                                <FaInfoCircle className="mr-1" /> Email address cannot be changed
+                            </p>
                         </div>
 
                         {/* Profile Picture */}
-                        <div className="md:col-span-2">
-                            <label className="block text-gray-700 mb-2" htmlFor="profile-picture">Profile Picture</label>
-                            <div className="flex items-center space-x-4">
-                                <div className="h-20 w-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-                                    <img src="/api/placeholder/80/80" alt="Profile" className="h-full w-full object-cover hidden" id="profile-preview" />
-                                    <FaUser className="text-gray-400 text-3xl" id="profile-placeholder" />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                                        <FaFileUpload className="text-gray-400 mr-2" />
-                                        <span className="text-gray-500">Upload picture</span>
-                                        <input type="file" className="hidden" id="profile-picture" accept="image/*" />
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                        
+
+
                     </div>
                 </div>
+
 
                 {/* Location Section */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -112,6 +196,9 @@ const UserProfileForm = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+
                         {/* Using our new LocationAutocomplete Component */}
                         <LocationAutocomplete 
                             value={selectedLocation ? selectedLocation.display_name : ''}
@@ -125,23 +212,23 @@ const UserProfileForm = () => {
                             <input
                                 type="text"
                                 id="address"
+                                name="address"
+                                onChange={handleChange}
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Your complete address"
+                                autoComplete='new-password'
                             />
                         </div>
 
-                        <div className="md:col-span-2">
-                            <p className="text-sm text-gray-600 mb-3">Click the button below to automatically detect your location</p>
-                            <button
-                                type="button"
-                                className="flex items-center bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-                            >
-                                <FaMapMarkerAlt className="mr-2" />
-                                Detect My Location
-                            </button>
-                        </div>
+
                     </div>
                 </div>
+
+
+
+
+
+
 
                 {/* Farming Experience Section */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -156,26 +243,71 @@ const UserProfileForm = () => {
                             <input
                                 type="number"
                                 id="experience"
+                                name="experience"
+                                onChange={handleChange}
                                 min="0"
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Enter years of farming experience"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-gray-700 mb-2" htmlFor="farming-type">Farming Type</label>
-                            <select
+
+
+
+
+                        <div className="relative" ref={wrapperRef}>
+                            <label className="block text-gray-700 mb-2" htmlFor="farming-type">
+                                Farming Type
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="text"
                                 id="farming-type"
-                                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                <option value="">Select your farming type</option>
-                                <option value="Organic">Organic Farming</option>
-                                <option value="Conventional">Conventional Farming</option>
-                                <option value="Mixed">Mixed Farming</option>
-                                <option value="Dairy">Dairy Farming</option>
-                                <option value="Poultry">Poultry Farming</option>
-                                <option value="Other">Other</option>
-                            </select>
+                                    className="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    placeholder="Select your farming type"
+                                    value={selectedType}
+                                    onChange={() => { }} // Read-only
+                                    onClick={() => setIsOpen(!isOpen)}
+                                    readOnly
+                                    autoComplete='new-password'
+                                />
+                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                    </svg>
+                                </div>
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {isOpen && (
+                                <div className="absolute w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg z-10 max-h-60 overflow-y-auto">
+                                    <ul className="py-2">
+                                        {farmingTypes.map((type) => (
+                                            <li
+                                                key={type.id}
+                                                className="px-4 py-3 cursor-pointer hover:bg-green-50 transition-colors flex items-start"
+                                                onClick={() => handleSelect(type)}
+                                            >
+                                                <div className="text-green-600 mr-2 mt-1 flex-shrink-0">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium text-gray-800">{type.name}</div>
+                                                    <div className="text-xs text-gray-500 truncate max-w-xs">
+                                                        {type.description}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
 
                         <div className="md:col-span-2">
@@ -187,9 +319,11 @@ const UserProfileForm = () => {
                             </label>
                             <textarea
                                 id="crops-grown"
+                                name="cropsGrown"
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Enter crops you grow (comma separated e.g., Wheat, Rice, Cotton)"
                                 rows="3"
+                                onChange={handleChange}
                             ></textarea>
                         </div>
 
@@ -202,9 +336,11 @@ const UserProfileForm = () => {
                             </label>
                             <textarea
                                 id="bio"
+                                name="bio"
                                 className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="Tell us about yourself and your farming journey"
                                 rows="4"
+                                onChange={handleChange}
                             ></textarea>
                         </div>
                     </div>
