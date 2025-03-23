@@ -2,8 +2,7 @@ import axios from "axios";
 import store from "../redux/Store";
 import { loginSuccess, logout } from "../redux/slices/AuthSlice";
 
-const BASE_URL = "http://127.0.0.1:8000";
-
+const BASE_URL = "http://localhost:8000";
 
 const AuthenticatedAxiosInstance = axios.create({
     baseURL: BASE_URL,
@@ -23,27 +22,40 @@ AuthenticatedAxiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response Interceptor
+// Response Interceptor for Token Refresh
 AuthenticatedAxiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401) {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+
+            originalRequest._retry = true; // Prevent infinite loops
+
             try {
-                const { data } = await axios.post(`${BASE_URL}/users/token/refresh/`, {}, { withCredentials: true });
-                // Store the new access token in Redux
+                const { data } = await axios.post(
+                    `${BASE_URL}/users/token/refresh/`,
+                    {},
+                    { withCredentials: true } // Ensure cookies are sent
+                );
+
+                if (data.access) {
+                   
+
+                    // Store the new token in Redux
                 store.dispatch(loginSuccess({ token: data.access }));
 
                 // Update the failed request with the new token
-                error.config.headers["Authorization"] = `Bearer ${data.access}`;
+                    originalRequest.headers["Authorization"] = `Bearer ${data.access}`;
 
                 // Retry the original request with the new token
-                return axios(error.config);
-            } catch {
+                    return axios(originalRequest);
+                }
+            } catch (refreshError) {
+
+                // Handle refresh failure (Logout user)
                 store.dispatch(logout());
-                //Try to redirect, to the login page if refresh token not found!
-                
-                // Redirect to login page
-                window.location.href = "/login"; // Redirect to login page
+                window.location.href = "/login";
             }
         }
         return Promise.reject(error);

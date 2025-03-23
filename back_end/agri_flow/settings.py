@@ -262,3 +262,8 @@ CLOUDINARY_STORAGE = {
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
+
+################## Location IQ set up for API key configuration #######################
+
+# Get the API key from the environment variable
+LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")

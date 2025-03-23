@@ -21,8 +21,10 @@ from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerial
 from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.contrib.sessions.models import Session
-
-
+############ for User profile update ##################
+#============ for user location updated =============#
+from rest_framework.permissions import IsAuthenticated
+import requests
 
 User = get_user_model()
 
@@ -310,22 +312,17 @@ class GoogleAuthCallbackView(APIView):
 
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]  # required
-
     def post(self, request):
-        refresh_token = request.COOKIES.get(
-            'refresh_token')  # Get refresh token from cookies
-        print("RefreshTokenView", refresh_token)
+        refresh_token = request.COOKIES.get('refresh_token')  # Get refresh token from cookies
         if not refresh_token:
             return Response(
                 {'message': 'Refresh token not found!'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
         try:
             # Decode and validate refresh token
             refresh = RefreshToken(refresh_token)
-            # Generate new access token
-            access_token = str(refresh.access_token)
+            access_token = str(refresh.access_token)  # Generate new access token
 
             return Response(
                 {'access': access_token},
@@ -497,3 +494,44 @@ class AdminLogoutView(APIView):
 
         except Exception:
             return Response({"message": "Admin logout failed"}, status=status.HTTP_400_BAD_REQUEST)
+
+#########################  User profile creation section by taking all the relevent data. ######################################
+
+#=============================  Location IQ view for take user location with logitude abnd latitude ================================#
+
+class LocationAutocompleteView(APIView):
+
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request):
+        query = request.GET.get("q", "")
+
+        if len(query) < 2:  # Avoid unnecessary API calls
+            return Response({"error": "Query too short"}, status=status.HTTP_400_BAD_REQUEST)
+
+        api_key = settings.LOCATIONIQ_API_KEY  # Replace with your key
+        url = f"https://api.locationiq.com/v1/autocomplete?key={api_key}&q={query}&limit=10&dedupe=1"
+
+        try:
+            response = requests.get(url)
+            data = response.json()
+
+            # Extract relevant fields
+            results = [
+                {
+                    "place_id": place.get("place_id"),
+                    "display_name": place.get("display_name"),
+                    "latitude": place.get("lat"),
+                    "longitude": place.get("lon"),
+                    "address": place.get("address", {}),
+                }
+                for place in data
+            ]
+
+            return Response(results, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+#==========================  User profile image upload with cloudinary ===========================#
