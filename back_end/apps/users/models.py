@@ -15,7 +15,7 @@ class Address(models.Model):
 
     class Meta:
         app_label = 'users' 
-        
+
     def __str__(self):
         return f"{self.name}"
 
@@ -33,6 +33,7 @@ class CustomUser(AbstractUser):
     """User model with detailed farming and location information."""
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=45, unique=False, blank=True, null=True)  # Optional username
+    phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True, help_text="User's phone number")  # New field
     profile_picture = CloudinaryField("image", folder="private_files/profile_pictures/", resource_type="image", null=True, blank=True)
     is_verified = models.BooleanField(default=False)  # OTP verification status
 

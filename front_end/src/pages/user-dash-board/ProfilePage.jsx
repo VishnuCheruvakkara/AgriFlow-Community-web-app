@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaUser, FaMapMarkerAlt, FaIdCard, FaInfoCircle, FaFileUpload } from 'react-icons/fa';
+import { FaUser, FaMapMarkerAlt, FaIdCard, FaInfoCircle, FaPhoneAlt } from 'react-icons/fa';
 import { MdEmail, MdOutlineDescription } from 'react-icons/md';
 import { GiFarmTractor, GiWheat } from 'react-icons/gi';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
@@ -29,6 +29,7 @@ const UserProfileForm = () => {
         bio: "",
         profileImage: null,
         aadharImage: null,
+        phone_number: "",
     });
 
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -38,12 +39,12 @@ const UserProfileForm = () => {
     const wrapperRef = useRef(null);
 
     const farmingTypes = [
-        { id: 'organic', name: 'Organic Farming', description: 'Farming without synthetic pesticides or fertilizers' },
-        { id: 'conventional', name: 'Conventional Farming', description: 'Traditional farming using modern techniques' },
-        { id: 'mixed', name: 'Mixed Farming', description: 'Combination of crops and livestock' },
-        { id: 'dairy', name: 'Dairy Farming', description: 'Focused on milk production' },
-        { id: 'poultry', name: 'Poultry Farming', description: 'Raising birds for meat or eggs' },
-        { id: 'other', name: 'Other', description: 'Specialized or alternative farming methods' }
+        { id: 1, name: 'Organic Farming', description: 'Farming without synthetic pesticides or fertilizers' },
+        { id: 2, name: 'Conventional Farming', description: 'Traditional farming using modern techniques' },
+        { id: 3, name: 'Mixed Farming', description: 'Combination of crops and livestock' },
+        { id: 4, name: 'Dairy Farming', description: 'Focused on milk production' },
+        { id: 5, name: 'Poultry Farming', description: 'Raising birds for meat or eggs' },
+        { id: 6, name: 'Other', description: 'Specialized or alternative farming methods' }
     ];
 
     // Close dropdown when clicking outside
@@ -109,28 +110,62 @@ const UserProfileForm = () => {
 
     console.log("Current form updated ::::: ", formData)
 
+    // Update the handleSubmit function in your UserProfileForm component:
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent default form submission
-        setLoading(true); // Set loading state
+        e.preventDefault();
+        setLoading(true);
 
         try {
-            console.log("Submitting Form Data:", formData);
+            // Create FormData object
+            const formDataToSend = new FormData();
 
-            // Send Data to Backend API with Axios
+            // Append basic text fields
+            formDataToSend.append("firstName", formData.firstName);
+            formDataToSend.append("lastName", formData.lastName);
+            formDataToSend.append("username", formData.username);
+            formDataToSend.append("email", formData.email);
+            formDataToSend.append("bio", formData.bio || "");
+            formDataToSend.append("experience", formData.experience || "");
+            formDataToSend.append("cropsGrown", formData.cropsGrown || "");
+            formDataToSend.append("address", formData.address || "");
+            formDataToSend.append("phone_number", formData.phone_number || "");
+
+            // Handle Location - Convert to JSON string for proper serialization
+            if (selectedLocation) {
+                formDataToSend.append("location", JSON.stringify(selectedLocation));
+            }
+
+            // Handle Farming Type - Convert to JSON string for proper serialization
+            if (formData.farmingType) {
+                formDataToSend.append("farmingType", JSON.stringify(formData.farmingType));
+            }
+
+            // Append images
+            if (formData.profileImage) {
+                formDataToSend.append("profileImage", formData.profileImage);
+            }
+            if (formData.aadharImage) {
+                formDataToSend.append("aadharImage", formData.aadharImage);
+            }
+
+            // Send Data to Backend API
             const response = await AuthenticatedAxiosInstance.post(
-                "/users/update-profile/", // Update with your API URL
-                formData,
+                "/users/update-profile/",
+                formDataToSend,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
             );
 
             console.log("Profile updated successfully!", response.data);
             alert("Profile updated successfully!");
-
         } catch (error) {
             console.error("Error updating profile:", error);
             alert("Something went wrong. Please try again.");
-
         } finally {
-            setLoading(false); // Stop loading state
+            setLoading(false);
         }
     };
 
@@ -222,8 +257,37 @@ const UserProfileForm = () => {
                             </p>
                         </div>
 
-                        {/* Profile Picture */}
+                        {/* Phone Number */}
+                        <div>
+                            <label className="block text-gray-700 mb-2" htmlFor="phone_number">Phone Number</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="phone_number"
+                                    name="phone_number"
+                                    onChange={handleChange}
+                                    className="w-full p-3 border  rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
+                                    placeholder="Your phone number"
+                                   
+                                />
+                                <FaPhoneAlt className="absolute left-3 top-3.5 text-gray-500" />
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1 italic flex items-center">
+                                <FaInfoCircle className="mr-1" /> Phone number contain country code
+                            </p>
+                        </div>
 
+
+                        {/* Profile Picture */}
+                        <div className="md:col-span-2">
+                            <ImageUploader
+                                onImageSelect={handleProfileImageUpload}
+                                label="Profile Picture"
+                                aspect={1}
+                                maxSizeMB={0.5}
+                                previewShape="circle"
+                            />
+                        </div>
 
 
                     </div>
@@ -402,17 +466,16 @@ const UserProfileForm = () => {
                     <div className="grid grid-cols-1 gap-6">
 
 
-                        
+
+                        {/* Aadhar Image Upload */}
                         <div>
-                            <label className="block text-gray-700 mb-2" htmlFor="aadhar-card">Upload Aadhar Card Image</label>
-                            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                                <div className="flex flex-col items-center justify-center">
-                                    <FaFileUpload className="text-gray-400 text-3xl mb-2" />
-                                    <p className="text-sm text-gray-500">Click to upload or drag and drop</p>
-                                    <p className="text-xs text-gray-400">Only JPG, PNG files are supported</p>
-                                </div>
-                                <input type="file" className="hidden" id="aadhar-card" accept="image/*" />
-                            </label>
+                            <ImageUploader
+                                onImageSelect={handleAadharImageUpload}
+                                label="Upload Aadhar Card Image"
+                                aspect={1.6}
+                                maxSizeMB={1}
+                                previewShape="rectangle"
+                            />
                         </div>
 
                         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">

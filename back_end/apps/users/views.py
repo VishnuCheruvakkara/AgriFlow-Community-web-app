@@ -27,7 +27,6 @@ from rest_framework.permissions import IsAuthenticated
 import requests
 #========== for prfile update =====================#
 from users.models import FarmingType,Address
-from .serializers import UserProfileUpdateSerializer
 
 User = get_user_model()
 
@@ -551,80 +550,32 @@ class LocationAutocompleteView(APIView):
 
 #==========================  User profile image upload with cloudinary ===========================#
 
-import json
+# views.py
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from users.serializers import UserProfileUpdateSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class UserProfileUpdateView(APIView):
-    """View for updating user profile information."""
     permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user  # Get the logged-in user
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True,context={'request': request})
         
-        # Debug: Print request data
-        print("🔹 Raw Request Data:", json.dumps(request.data, indent=4))
-
-        serializer = UserProfileUpdateSerializer(data=request.data)
-
-        if not serializer.is_valid():
-            print("❌ Serializer Errors:", serializer.errors)  # Debug: Print validation errors
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        data = serializer.validated_data  # Get validated data
-        print("✅ Validated Data:", json.dumps(data, indent=4))  # Debug: Print validated data
-
-        # **1. Process Address (Location)**
-        location_data = data.get("location", {})
-        if location_data:
-            print("📍 Location Data:", json.dumps(location_data, indent=4))  # Debug location data
-            
-            # Check if place_id exists
-            if "place_id" not in location_data:
-                print("❌ Missing `place_id` in location data!")  # Debug: Missing place_id
-                return Response({"error": "Missing required location key: place_id"}, status=status.HTTP_400_BAD_REQUEST)
-
-            address, _ = Address.objects.update_or_create(
-                place_id=location_data.get("place_id"),
-                defaults={
-                    "name": location_data.get("address", {}).get("name", ""),
-                    "state": location_data.get("address", {}).get("state", ""),
-                    "country": location_data.get("address", {}).get("country", ""),
-                    "latitude": location_data.get("latitude", 0),
-                    "longitude": location_data.get("longitude", 0),
-                    "local_address": request.data.get("address", ""),
-                    "location_address": location_data.get("display_name", ""),
-                },
-            )
-            user.address = address  # Link Address to user
-
-        # **2. Process Farming Type**
-        farming_type_data = data.get("farmingType", {})
-        if farming_type_data:
-            print("🌾 Farming Type Data:", json.dumps(farming_type_data, indent=4))  # Debug farming type
-            
-            # Check if name exists in farmingType
-            if "name" not in farming_type_data:
-                print("❌ Missing `name` in farmingType data!")  # Debug: Missing name
-                return Response({"error": "Farming type name is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-            farming_type, _ = FarmingType.objects.get_or_create(
-                name=farming_type_data.get("name"),
-                defaults={"description": farming_type_data.get("description", "")}
-            )
-            user.farming_type = farming_type  # Link FarmingType to user
-
-        # **3. Update Other Fields**
-        user.first_name = data["firstName"]
-        user.last_name = data["lastName"]
-        user.username = data["username"]
-        user.email = data["email"]
-        user.experience = data.get("experience")
-        user.crops_grown = data.get("cropsGrown", user.crops_grown)
-        user.bio = data.get("bio", user.bio)
-
-        user.save()  # Save updates
-
-        print("✅ Profile updated successfully!")  # Debug: Success message
-        return Response(
-            {"message": "Profile updated successfully!", "user": user.email},
-            status=status.HTTP_200_OK,
-        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'status': 'success',
+                'message': 'Profile updated successfully',
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        
+        return Response({
+            'status': 'error',
+            'message': 'Failed to update profile',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)

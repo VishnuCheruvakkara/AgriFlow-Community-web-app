@@ -209,34 +209,111 @@ class AdminLoginSerializer(serializers.Serializer):
 ########################  User proile updation section serilizes #######################
 #=========================== User profile updation ========================#
 
-class UserProfileUpdateSerializer(serializers.Serializer):
-    """Serializer for validating user profile update fields."""
+# serializers.py
+from rest_framework import serializers
+from users.models import CustomUser, Address, FarmingType
+import json
 
-    firstName = serializers.CharField(required=True, max_length=255)
-    lastName = serializers.CharField(required=True, max_length=255)
-    username = serializers.CharField(required=True, max_length=255)
-    email = serializers.EmailField(required=True)
-    experience = serializers.IntegerField(required=False, allow_null=True)
-    cropsGrown = serializers.CharField(required=False, allow_blank=True)
-    bio = serializers.CharField(required=False, allow_blank=True)
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ['name', 'state', 'country', 'latitude', 'longitude', 'place_id', 'local_address']
 
-    location = serializers.DictField(required=False)  # Address (Nested Object)
-    farmingType = serializers.DictField(required=False)  # Farming Type (Nested Object)
+class FarmingTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FarmingType
+        fields = ['id', 'name', 'description']
 
-   
-
-    def validate_location(self, value):
-        """Validate location dictionary structure."""
-        required_keys = ["place_id", "latitude", "longitude", "display_name", "address"]
-        if not isinstance(value, dict):
-            raise serializers.ValidationError("Location must be a dictionary.")
-        for key in required_keys:
-            if key not in value:
-                raise serializers.ValidationError(f"Missing required location key: {key}")
-        return value
-
-    def validate_farmingType(self, value):
-        """Validate farming type dictionary structure."""
-        if not isinstance(value, dict) or "name" not in value or not value["name"].strip():
-            raise serializers.ValidationError("Farming type name is required.")
-        return value
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    location = serializers.JSONField(required=False)
+    farmingType = serializers.JSONField(required=False)
+    
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'bio', 'experience', 'crops_grown', 
+                  'profile_picture', 'aadhar_card', 'location', 'farmingType','phone_number' ]
+        extra_kwargs = {
+            'username': {'required': False},
+            'email': {'required': False, 'read_only': True},
+        }
+    
+    def update(self, instance, validated_data):
+        # Handle location data
+        location_data = validated_data.pop('location', None)
+        if location_data:
+            if isinstance(location_data, str):
+                location_data = json.loads(location_data)
+                
+            # Create or update Address
+            address_data = {
+                'name': location_data.get('name'),
+                'state': location_data.get('state'),
+                'country': location_data.get('country'),
+                'latitude': location_data.get('latitude'),
+                'longitude': location_data.get('longitude'),
+                'place_id': location_data.get('place_id'),
+                'local_address': validated_data.pop('address', None)
+            }
+            
+            if instance.address:
+                address = instance.address
+                for key, value in address_data.items():
+                    if value is not None:
+                        setattr(address, key, value)
+                address.save()
+            else:
+                address = Address.objects.create(**address_data)
+                instance.address = address
+        
+        # Handle farming type data
+        farming_type_data = validated_data.pop('farmingType', None)
+        if farming_type_data:
+            if isinstance(farming_type_data, str):
+                farming_type_data = json.loads(farming_type_data)
+                
+            farming_id = farming_type_data.get('id')
+            farming_type, created = FarmingType.objects.get_or_create(
+                id=farming_id,
+                defaults={
+                    'name': farming_type_data.get('name'),
+                    'description': farming_type_data.get('description')
+                }
+            )
+            instance.farming_type = farming_type
+        
+        # Handle first name and last name
+        first_name = validated_data.pop('firstName', None)
+        if first_name:
+            instance.first_name = first_name
+            
+        last_name = validated_data.pop('lastName', None)
+        if last_name:
+            instance.last_name = last_name
+        
+        # Handle crops grown
+        crops_grown = validated_data.pop('cropsGrown', None)
+        if crops_grown:
+            instance.crops_grown = crops_grown
+            
+        # Properly handle image uploads for Cloudinary
+        request = self.context.get('request')
+        
+        # Handle profile image upload
+        if request and request.FILES.get('profileImage'):
+            instance.profile_picture = request.FILES.get('profileImage')
+        
+        # Handle aadhar image upload
+        if request and request.FILES.get('aadharImage'):
+            instance.aadhar_card = request.FILES.get('aadharImage')
+            
+        # Update the remaining fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        # Set profile as completed if essential fields are filled
+        if (instance.first_name and instance.last_name and instance.address and
+                instance.farming_type and instance.profile_picture):
+            instance.profile_completed = True
+            
+        instance.save()
+        return instance
