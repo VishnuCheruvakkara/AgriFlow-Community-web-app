@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from cloudinary.models import CloudinaryField
+import time
+from cloudinary.utils import cloudinary_url
 
 class Address(models.Model):
     """Stores address details separately for better normalization."""
@@ -60,3 +62,35 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username or self.email or "Unnamed User"
+
+    def get_secure_profile_picture_url(self):
+        """Generate a secure URL for profile picture with a short expiration."""
+        if not self.profile_picture:
+            return None
+        
+        # Generate a signed URL that expires in 1 hour
+        url, options = cloudinary_url(
+            str(self.profile_picture),
+            type="authenticated",
+            secure=True,
+            sign_url=True,
+            # URL expires in 1 hour (3600 seconds)
+            sign_valid_until=int(time.time()) + 3600 # Expires in 1 hour
+        )
+        return url
+    
+    def get_secure_aadhar_card_url(self):
+        """Generate a secure URL for Aadhar card with a short expiration."""
+        if not self.aadhar_card:
+            return None
+        
+        # Generate a signed URL with shorter expiration for sensitive document
+        url, options = cloudinary_url(
+            str(self.aadhar_card),
+            type="authenticated",
+            secure=True,
+            sign_url=True,
+            # URL expires in 15 minutes (900 seconds)
+            sign_valid_until=int(time.time()) + 900    # Expires in 15 minutes
+        )
+        return url
