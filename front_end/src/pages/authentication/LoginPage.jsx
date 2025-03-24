@@ -8,9 +8,12 @@ import { loginSuccess } from '../../redux/slices/AuthSlice';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 //import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader'
-import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+
+
 
 const Login = () => {
+
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false);
@@ -40,8 +43,13 @@ const Login = () => {
             dispatch(loginSuccess({ user, token: access_token }));
             //Toast message for success login
             showToast(`Welcome ${user.name} ! Login successful`, "success")
-            // Navigate to the home/dashboard after successful OTP verification
-            navigate("/user-dash-board");
+            
+            // Check if the profile is completed and navigate accordingly
+            if (user.profile_completed) {
+                navigate("/user-dash-board"); // Redirect to dashboard
+            } else {
+                navigate("/user-dash-board/farmer-profile"); // Redirect to home page if profile is incomplete
+            }
 
         } catch (error) {
             console.error("Login failed:", error.response?.data || error.message);

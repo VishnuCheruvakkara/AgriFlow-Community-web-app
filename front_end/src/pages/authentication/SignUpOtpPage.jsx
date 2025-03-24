@@ -222,7 +222,7 @@ const OTPVerification = () => {
             //Toast message for success login
             showToast(`Welcome ${user.name} ! Login successful`, "success")
             // Navigate to the home/dashboard after successful OTP verification
-            navigate("/user-dash-board");
+            navigate("/user-dash-board/farmer-profile");
 
 
         } catch (error) {

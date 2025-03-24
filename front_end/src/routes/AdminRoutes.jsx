@@ -15,7 +15,6 @@ function AdminRoutes() {
                 <Route path="/users-management" element={<UsersPage />} />
                 <Route path="/products-management" element={<ProductsPage />} />
             </Route>
-
         </Routes>
     )
 }

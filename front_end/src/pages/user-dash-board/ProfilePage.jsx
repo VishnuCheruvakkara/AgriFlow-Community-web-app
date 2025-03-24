@@ -223,7 +223,7 @@ const UserProfileForm = () => {
 
 
     return (
-        <div className="lg:w-10/12 space-y-4 mt-4 mb-11">
+        <div className=" space-y-4 mt-4 mb-11">
             {/* Profile Completion Header */}
             <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
                 <h1 className="text-2xl font-bold text-gray-800">Complete Your Profile</h1>
@@ -563,7 +563,7 @@ const UserProfileForm = () => {
                 </div>
 
                 {/* Submit Section */}
-                <div className="flex justify-between">
+                <div className="flex justify-center">
                     <button
                         type="submit"
                         className="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors font-medium"

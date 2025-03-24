@@ -28,11 +28,15 @@ const GoogleAuthButton = () => {
 
             // Dispatch Redux action to store user data
             dispatch(loginSuccess({ user, token: access_token }));
-            showToast(`Welcome ${user.first_name} ! Login successful`,"success")
-            
-            // Navigate to the user dashboard
-            navigate("/user-dash-board");
-          
+            showToast(`Welcome ${user.first_name} ! Login successful`, "success")
+
+            // Check if the profile is completed and navigate accordingly
+            if (user.profile_completed) {
+                navigate("/user-dash-board"); // Redirect to dashboard
+            } else {
+                navigate("/user-dash-board/farmer-profile"); // Redirect to home page if profile is incomplete
+            }
+
 
         } catch (error) {
             console.error("Google Auth Failed", error);
@@ -50,11 +54,11 @@ const GoogleAuthButton = () => {
             <GoogleLogin
                 onSuccess={handleSuccess}
                 onError={handleFailure}
-                theme="fill"   
-                size="large"     
-                text="continue_with" 
+                theme="fill"
+                size="large"
+                text="continue_with"
                 logo_alignment="center"
-                  
+
             />
         </GoogleOAuthProvider>
     );

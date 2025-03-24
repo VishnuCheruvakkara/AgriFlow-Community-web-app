@@ -8,11 +8,9 @@ function UsersRoutes() {
   return (
     <Routes>
       {/* user dash board routes  */}
-
       <Route element={<UserLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/farmer-profile" element={<ProfilePage />} />
-
       </Route>
 
     </Routes>

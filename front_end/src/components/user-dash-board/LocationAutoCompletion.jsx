@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaMapMarkerAlt } from 'react-icons/fa';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 
 const LocationAutocomplete = ({ 
@@ -11,8 +10,16 @@ const LocationAutocomplete = ({
   const wrapperRef = useRef(null);
   const [query, setQuery] = useState(value || "");
   const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSelected, setIsSelected] = useState(false);
+
+  // Update query when value prop changes from parent
+  useEffect(() => {
+    if (value && value.display_name && value.display_name !== query) {
+      setQuery(value.display_name);
+    }
+  }, [value]);
 
   useEffect(() => {
     if (query.length < 2) {
@@ -20,29 +27,35 @@ const LocationAutocomplete = ({
       return;
     }
 
-    const fetchLocations = async () => {
-      setLoading(true);
-      try {
-        const response = await AuthenticatedAxiosInstance.get("/users/location-autocomplete/", { 
-          params: { q: query } 
-        });
-        setSuggestions(response.data);
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-      }
-      setLoading(false);
-    };
+    // Only fetch if the user is typing (not when a suggestion was selected)
+    if (!isSelected) {
+      const fetchLocations = async () => {
+        setLoading(true);
+        try {
+          const response = await AuthenticatedAxiosInstance.get("/users/location-autocomplete/", { 
+            params: { q: query } 
+          });
+          setSuggestions(response.data);
+          if (response.data.length > 0) {
+            setShowSuggestions(true);
+          }
+        } catch (error) {
+          console.error("Error fetching locations:", error);
+        }
+        setLoading(false);
+      };
 
-    // Debounce API calls (wait 500ms after user stops typing)
-    const timer = setTimeout(fetchLocations, 500);
-    return () => clearTimeout(timer);
-  }, [query]);
+      // Debounce API calls (wait 500ms after user stops typing)
+      const timer = setTimeout(fetchLocations, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [query, isSelected]);
 
   // Handle clicks outside the component to hide suggestions
   useEffect(() => {
     function handleClickOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setShowSuggestions(true);
+        setShowSuggestions(false);
       }
     }
 
@@ -54,8 +67,11 @@ const LocationAutocomplete = ({
 
   // Handle selection of a suggestion
   const handleSuggestionClick = (selectedItem) => {
+    // Update the input field with the selected location name
     setQuery(selectedItem.display_name);
     setShowSuggestions(false);
+    setIsSelected(true);
+    
     // Pass the selected location data back to parent component
     if (onChange) {
       onChange(selectedItem);
@@ -66,6 +82,8 @@ const LocationAutocomplete = ({
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
+    setIsSelected(false); // User is typing again, not using selection
+    
     // Pass the input value back to parent component
     if (onChange) {
       onChange({ display_name: value });
@@ -74,8 +92,24 @@ const LocationAutocomplete = ({
 
   // Show suggestions when input is focused
   const handleInputFocus = () => {
-    if (suggestions.length > 0) {
+    if (suggestions.length > 0 && !isSelected) {
       setShowSuggestions(true);
+    } else if (query.length >= 2) {
+      // Re-fetch suggestions based on current query on focus
+      setLoading(true);
+      setIsSelected(false);
+      AuthenticatedAxiosInstance.get("/users/location-autocomplete/", { 
+        params: { q: query } 
+      }).then(response => {
+        setSuggestions(response.data);
+        if (response.data.length > 0) {
+          setShowSuggestions(true);
+        }
+        setLoading(false);
+      }).catch(error => {
+        console.error("Error fetching locations:", error);
+        setLoading(false);
+      });
     }
   };
 
@@ -93,7 +127,7 @@ const LocationAutocomplete = ({
           value={query}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          autoComplete='new-password'
+          autoComplete="off"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

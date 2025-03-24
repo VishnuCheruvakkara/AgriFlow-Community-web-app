@@ -58,6 +58,7 @@ class LoginView(APIView):
                 "id": user.id,
                 "name": user.username,
                 "email": user.email,
+                "profile_completed":user.profile_completed,
             }
 
             # Set access token in the response to handle that with redux state+local storage.
@@ -166,6 +167,7 @@ class VerifyOTPView(APIView):
                 "id": user.id,
                 "name": user.username,
                 "email": user.email,
+                "profile_completed":user.profile_completed,
             }
 
             # Set access token in the response to handle that with redux state+local storage.
@@ -282,7 +284,9 @@ class GoogleAuthCallbackView(APIView):
                         "id": user.id,
                         "name": user.username,
                         "email": user.email,
-                        "first_name": first_name
+                        "first_name": first_name,
+                        "profile_completed":user.profile_completed,
+
                     },
                 },
                 status=status.HTTP_200_OK,
