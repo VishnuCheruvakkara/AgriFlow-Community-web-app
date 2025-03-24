@@ -14,9 +14,16 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         loginSuccess: (state, action) => {
-            state.user = action.payload.user || state.user;
-            state.token = action.payload.token || state.token;
-            state.isAuthenticated = true;
+            if (action.payload.profile_completed !== undefined) {
+                state.user = {
+                    ...state.user,  // Keep existing user data
+                    profile_completed: action.payload.profile_completed  // ✅ Update only profile_completed
+                };
+            } else {
+                state.user = action.payload.user || state.user;
+                state.token = action.payload.token || state.token;
+                state.isAuthenticated = true;
+            }
         },
         logout: (state) => {
             state.user = null;

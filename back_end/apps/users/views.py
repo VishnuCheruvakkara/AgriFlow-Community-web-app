@@ -26,7 +26,8 @@ from django.contrib.sessions.models import Session
 from rest_framework.permissions import IsAuthenticated
 import requests
 #========== for prfile update =====================#
-from users.models import FarmingType,Address
+from users.serializers import UserProfileUpdateSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 
 User = get_user_model()
 
@@ -554,13 +555,7 @@ class LocationAutocompleteView(APIView):
 
 #==========================  User profile image upload with cloudinary ===========================#
 
-# views.py
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from users.serializers import UserProfileUpdateSerializer
-from rest_framework.parsers import MultiPartParser, FormParser
+
 
 class UserProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -572,10 +567,13 @@ class UserProfileUpdateView(APIView):
         
         if serializer.is_valid():
             serializer.save()
+            # Fetch the updated profile_completed status from the database
+            user.refresh_from_db()
             return Response({
                 'status': 'success',
                 'message': 'Profile updated successfully',
-                'data': serializer.data
+                'data': serializer.data,
+                'profile_completed': user.profile_completed,
             }, status=status.HTTP_200_OK)
         
         return Response({

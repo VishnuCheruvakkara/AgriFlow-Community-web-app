@@ -6,10 +6,10 @@ import imageCompression from 'browser-image-compression';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-const ImageUploader = ({ 
-  onImageSelect, 
-  label, 
-  aspect = 1, 
+const ImageUploader = ({
+  onImageSelect,
+  label,
+  aspect = 1,
   maxSizeMB = 1,
   previewShape = 'rectangle', // 'circle' or 'rectangle'
   required = false,
@@ -31,11 +31,12 @@ const ImageUploader = ({
   // Create validation schema
   const validationSchema = Yup.object().shape({
     image: Yup.mixed()
-      .test('fileSize', `File size must be less than ${maxSizeMB}MB`, 
+      .required('This field is required')
+      .test('fileSize', `File size must be less than ${maxSizeMB}MB`,
         (value) => !value || (value && value.size <= maxSizeMB * 1024 * 1024))
-      .test('fileType', 'Unsupported file format', 
+      .test('fileType', 'Unsupported file format',
         (value) => !value || (value && allowedFileTypes.includes(value.type)))
-      .test('fileDimensions', 'Image dimensions are too small', 
+      .test('fileDimensions', 'Image dimensions are too small',
         () => !required || src !== null || previewUrl !== null)
   });
 
@@ -72,29 +73,29 @@ const ImageUploader = ({
   const validateFile = (file) => {
     // Reset previous errors
     setError('');
-    
+
     // Check file type
     if (!allowedFileTypes.includes(file.type)) {
       setError(`Invalid file type. Allowed types: ${allowedFileTypes.map(type => type.split('/')[1]).join(', ')}`);
       return false;
     }
-    
+
     // Check file size
     if (file.size > maxSizeMB * 1024 * 1024) {
       setError(`File size exceeds ${maxSizeMB}MB limit`);
       return false;
     }
-    
+
     return true;
   };
 
   const onSelectFile = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      
+
       // Set the file for formik validation
       formik.setFieldValue('image', file);
-      
+
       // Validate file before proceeding
       if (!validateFile(file)) {
         if (fileInputRef.current) {
@@ -102,23 +103,23 @@ const ImageUploader = ({
         }
         return;
       }
-      
+
       setFileName(file.name);
       setFileSize((file.size / 1024 / 1024).toFixed(2) + ' MB');
-      
+
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         setSrc(reader.result);
         setIsCropping(true);
       });
-      
+
       reader.addEventListener('error', () => {
         setError('Failed to read file. Please try again.');
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
       });
-      
+
       reader.readAsDataURL(file);
     }
   };
@@ -126,14 +127,14 @@ const ImageUploader = ({
   const onImageLoaded = (img) => {
     imgElementRef.current = img;
     const { naturalWidth: width, naturalHeight: height } = img;
-    
+
     // Validate image dimensions
     if (width < 200 || height < 200) {
       setError('Image dimensions too small. Minimum 200x200 pixels required.');
       handleCancel();
       return;
     }
-    
+
     imageRef.current = img;
     setCrop(centerAspectCrop(width, height, aspect));
   };
@@ -146,7 +147,7 @@ const ImageUploader = ({
         maxWidthOrHeight: 1920,
         useWebWorker: true
       };
-      
+
       const compressedFile = await imageCompression(imageFile, options);
       setFileSize((compressedFile.size / 1024 / 1024).toFixed(2) + ' MB');
       return compressedFile;
@@ -163,7 +164,7 @@ const ImageUploader = ({
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    
+
     // Calculate actual pixel dimensions
     const actualCrop = {
       x: pixelCrop.x * scaleX,
@@ -171,16 +172,16 @@ const ImageUploader = ({
       width: pixelCrop.width * scaleX,
       height: pixelCrop.height * scaleY
     };
-    
+
     canvas.width = actualCrop.width;
     canvas.height = actualCrop.height;
-    
+
     const ctx = canvas.getContext('2d');
-    
+
     // Set canvas background to white for transparent images
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Draw the cropped portion
     ctx.drawImage(
       image,
@@ -202,17 +203,17 @@ const ImageUploader = ({
             setError('Failed to crop image');
             return;
           }
-          
+
           // Create a File from Blob
           const croppedFile = new File([blob], fileName, { type: 'image/jpeg' });
-          
+
           // Compress the cropped image
           const compressedFile = await compressImage(croppedFile);
-          
+
           // Generate preview URL
           const previewUrl = URL.createObjectURL(compressedFile);
           setPreviewUrl(previewUrl);
-          
+
           resolve(compressedFile);
         },
         'image/jpeg',
@@ -230,10 +231,10 @@ const ImageUploader = ({
         completedCrop,
         fileName
       );
-      
+
       // Update formik with processed file
       formik.setFieldValue('image', croppedFile);
-      
+
       // If validation passes, proceed
       if (validateFile(croppedFile)) {
         onImageSelect(croppedFile);
@@ -258,7 +259,7 @@ const ImageUploader = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    
+
     // If image is required, set error after cancel
     if (required && !previewUrl) {
       setError('Image is required');
@@ -266,8 +267,8 @@ const ImageUploader = ({
   };
 
   // Determine preview container class based on shape
-  const previewContainerClass = previewShape === 'circle' 
-    ? "relative bg-gray-100 rounded-full overflow-hidden w-48 h-48" 
+  const previewContainerClass = previewShape === 'circle'
+    ? "relative bg-gray-100 rounded-full overflow-hidden w-48 h-48"
     : "relative bg-gray-100 rounded-md overflow-hidden";
 
   // Determine preview image class based on shape
@@ -277,7 +278,7 @@ const ImageUploader = ({
 
   // Handle display of required indicator
   const labelText = `${label || 'Upload Image'}${required ? ' *' : ''}`;
-  
+
   // Error display component
   const ErrorMessage = ({ message }) => (
     message ? (
@@ -291,9 +292,9 @@ const ImageUploader = ({
   return (
     <div className="w-full">
       <label className="block text-gray-700 mb-2">{labelText}</label>
-      
+
       {!isCropping && !previewUrl && (
-        <div 
+        <div
           className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center h-40 cursor-pointer hover:bg-gray-50 ${error ? 'border-red-400' : 'border-gray-300'}`}
           onClick={() => fileInputRef.current?.click()}
         >
@@ -302,20 +303,20 @@ const ImageUploader = ({
           <p className="text-xs text-gray-400">
             Allowed formats: {allowedFileTypes.map(type => type.split('/')[1].toUpperCase()).join(', ')} (Max {maxSizeMB}MB)
           </p>
-          <input 
-            type="file" 
-            className="hidden" 
-            accept={allowedFileTypes.join(',')} 
-            onChange={onSelectFile} 
+          <input
+            type="file"
+            className="hidden"
+            accept={allowedFileTypes.join(',')}
+            onChange={onSelectFile}
             ref={fileInputRef}
             name="image"
             onBlur={formik.handleBlur}
           />
         </div>
       )}
-      
+
       <ErrorMessage message={error || (formik.touched.image && formik.errors.image)} />
-      
+
       {isCropping && src && (
         <div className="p-4 border rounded-lg">
           <h3 className="text-lg font-medium mb-3">Crop Image</h3>
@@ -327,11 +328,11 @@ const ImageUploader = ({
               aspect={aspect}
               circularCrop={previewShape === 'circle'}
             >
-              <img 
-                src={src} 
-                onLoad={(e) => onImageLoaded(e.currentTarget)} 
+              <img
+                src={src}
+                onLoad={(e) => onImageLoaded(e.currentTarget)}
                 className="max-w-full"
-                alt="Crop preview" 
+                alt="Crop preview"
                 ref={imgElementRef}
               />
             </ReactCrop>
@@ -364,15 +365,15 @@ const ImageUploader = ({
               <p className="text-xs text-gray-500">{fileName} ({fileSize})</p>
             </div>
             <div className="flex space-x-2">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="text-blue-600 hover:text-blue-800"
                 onClick={() => setIsCropping(true)}
               >
                 <FaCrop className="text-lg" title="Crop again" />
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="text-red-600 hover:text-red-800"
                 onClick={handleCancel}
               >
@@ -381,15 +382,15 @@ const ImageUploader = ({
             </div>
           </div>
           <div className={previewContainerClass}>
-            <img 
-              src={previewUrl} 
-              alt="Preview" 
+            <img
+              src={previewUrl}
+              alt="Preview"
               className={previewImageClass}
             />
           </div>
         </div>
       )}
-      
+
       {isCompressing && (
         <div className="mt-2 flex items-center text-sm text-gray-500">
           <FaCompress className="mr-1" /> Compressing image...

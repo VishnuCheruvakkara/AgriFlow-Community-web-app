@@ -71,7 +71,7 @@ input:-webkit-autofill {
   /* Focus styling to match focus:outline-none focus:ring-2 focus:ring-green-500 */
   .react-tel-input .form-control:focus {
     outline: none !important;
-    border-color: #16a34a !important;
+    
   }
 
   /* Flag container styling */

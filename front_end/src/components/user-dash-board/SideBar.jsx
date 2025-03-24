@@ -63,12 +63,7 @@ function SideBar() {
                             <span>Home</span>
                         </Link>
                     </li>
-                    <li className="mb-1">
-                        <Link to="/user-dash-board/farmer-profile/" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
-                            <FaUser className="text-xl" />
-                            <span>My Profile</span>
-                        </Link>
-                    </li>
+                   
                     <li className="mb-1">
                         <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaUsers className="text-xl" />
