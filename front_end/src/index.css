@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 input, textarea, select {
-  @apply bg-white text-black transition duration-500 ease-in-out;
+  @apply bg-white text-black border border-gray-300 rounded-lg px-4 py-2 transition duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 ;
 }
 
-h3{
+h3,h2,label{
   @apply text-black;
 }
 
