@@ -40,7 +40,7 @@ function SideBar() {
          
         }
     }
-
+    
     return (
         <div className="hidden lg:block md:w-1/4 lg:sticky lg:top-20 lg:self-start">
             <div className="bg-white rounded-lg shadow-sm mb-4">
