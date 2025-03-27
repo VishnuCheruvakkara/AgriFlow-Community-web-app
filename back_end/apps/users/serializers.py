@@ -2,7 +2,7 @@ from cloudinary.utils import cloudinary_url
 import cloudinary.uploader
 import cloudinary
 import json
-from users.models import CustomUser, Address, FarmingType
+from users.models import CustomUser, Address
 import re
 from django.core.cache import cache
 from rest_framework import serializers
@@ -241,3 +241,68 @@ class AdminLoginSerializer(serializers.Serializer):
 
 ########################  User proile updation section serilizes #######################
 # =========================== User profile updation ========================#
+
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from users.models import Address
+import json
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Unified serializer for updating user profile, address, and file uploads."""
+
+    profileImage = serializers.ImageField(required=False, write_only=True)
+    aadhaarImage = serializers.ImageField(required=False, write_only=True)
+    location = serializers.JSONField(required=False)  # Directly handle JSON input
+    home_address = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = [
+            'first_name', 'last_name', 'username', 'phone_number', 'email',
+            'date_of_birth', 'farming_type', 'experience', 'bio',
+            'profileImage', 'aadhaarImage', 'location','home_address'
+        ]
+        extra_kwargs = {
+            'email': {'required': False},
+            'username': {'required': False}
+        }
+
+    def update(self, instance, validated_data):
+        """Handles updating user profile, address, and file uploads in a single method."""
+        # 🔹 Handle location update
+        location_data = validated_data.pop('location', None)
+        home_address=validated_data.pop('home_address','')
+        print("location_data:", location_data)  # Debugging
+
+        if location_data:
+            # Create or update Address
+           
+            address, created = Address.objects.update_or_create(
+                place_id=location_data.get('place_id'),
+                defaults={
+                    'full_location': location_data.get('full_location'),
+                    'latitude': location_data.get('latitude'),
+                    'longitude': location_data.get('longitude'),
+                    'location_name': location_data.get('location_name'),
+                    'country': location_data.get('country'),
+                    'home_address': home_address
+                }
+            )
+            instance.address = address  # Assign address to user
+
+        # 🔹 Handle profile image upload
+        if 'profileImage' in validated_data:
+            instance.profile_picture = validated_data.pop('profileImage')
+
+        # 🔹 Handle Aadhaar image upload
+        if 'aadhaarImage' in validated_data:
+            instance.aadhar_card = validated_data.pop('aadhaarImage')
+
+        # 🔹 Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # 🔹 Mark profile as completed
+        instance.profile_completed = True
+        instance.save()
+        return instance

@@ -2,7 +2,7 @@ from django.urls import path
 from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginView,AdminLogoutView
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
-from .views import LocationAutocompleteView
+from .views import LocationAutocompleteView,ProfileUpdateView
 
 
 urlpatterns = [
@@ -30,4 +30,6 @@ urlpatterns = [
 
     #=============== urls for usersprofile creation ================#
     path("location-autocomplete/", LocationAutocompleteView.as_view(), name="location_autocomplete"),
+    path('profile-update/', ProfileUpdateView.as_view(), name='profile_update'),
+
 ]

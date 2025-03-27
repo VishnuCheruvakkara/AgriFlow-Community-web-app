@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Upload } from "lucide-react";
 
-const AadhaarImageUpload = () => {
+const AadhaarImageUpload = ({onImageSelect}) => {
   const [image, setImage] = useState(null);
 
   const handleImageChange = (event) => {
@@ -10,6 +10,7 @@ const AadhaarImageUpload = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
+        onImageSelect(file); 
       };
       reader.readAsDataURL(file);
     }
@@ -17,6 +18,7 @@ const AadhaarImageUpload = () => {
 
   const clearImage = () => {
     setImage(null);
+    onImageSelect(file); 
   };
 
   return (

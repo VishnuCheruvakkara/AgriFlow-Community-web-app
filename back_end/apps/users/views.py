@@ -26,7 +26,6 @@ from django.contrib.sessions.models import Session
 from rest_framework.permissions import IsAuthenticated
 import requests
 #========== for prfile update =====================#
-from rest_framework.parsers import MultiPartParser, FormParser
 
 User = get_user_model()
 
@@ -554,3 +553,29 @@ class LocationAutocompleteView(APIView):
 
 #==========================  User profile image upload with cloudinary ===========================#
 
+
+from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.contrib.auth import get_user_model
+from users.models import Address
+from users.serializers import ProfileUpdateSerializer
+
+
+class ProfileUpdateView(APIView):
+    """API endpoint for updating user profile using POST"""
+    permission_classes = [permissions.IsAuthenticated]  # Only logged-in users can update
+    parser_classes = (MultiPartParser, FormParser)  # For handling image uploads
+
+    def post(self, request, *args, **kwargs):
+        """Handle profile update via POST request"""
+        user = request.user
+        serializer = ProfileUpdateSerializer(user, data=request.data, partial=True)
+        print("Arived data:",request.data)
+        if serializer.is_valid():
+            print("Validated Data:", serializer.validated_data)
+            serializer.save()
+            return Response({"message": "Profile updated successfully", "data": serializer.data}, status=200)
+       
+        return Response(serializer.errors, status=400)
