@@ -75,25 +75,25 @@ def validate_date_of_birth(value):
 
 
 def validate_text_field(value):
-    """Allow letters, numbers, periods, commas, and spaces, but reject inputs that are only numbers, only dots, only commas, or too short."""
+    """Allow letters, numbers, periods, commas, hyphens, apostrophes, and spaces, but reject inputs that are only numbers, only dots, only commas, or too short."""
 
     # Strip any HTML tags using bleach
     cleaned_value = bleach.clean(value, tags=[], strip=True).strip()
 
-    # Ensure it contains only allowed characters (letters, numbers, spaces, periods, commas)
-    if not re.fullmatch(r'[A-Za-z0-9., ]+', cleaned_value):
-        raise ValidationError("Invalid input: Only letters, numbers, periods, commas, and spaces are allowed.")
+    # Ensure it contains only allowed characters
+    if not re.fullmatch(r"[A-Za-z0-9.,' -]+", cleaned_value):
+        raise ValidationError("Invalid input: Only letters, numbers, periods, commas, hyphens, apostrophes, and spaces are allowed.")
 
     # Reject inputs that contain only numbers, only dots, or only commas
     if cleaned_value.isdigit() or cleaned_value.replace('.', '').strip() == '' or cleaned_value.replace(',', '').strip() == '':
         raise ValidationError("Invalid input: Cannot be only numbers, only dots, or only commas.")
 
-    # Ensure at least one letter is present (bio must have at least one letter)
+    # Ensure at least one letter is present
     if not re.search(r'[A-Za-z]', cleaned_value):
         raise ValidationError("Invalid input: The text must contain at least one letter.")
 
     # Ensure the text is at least 25 characters long
-    if len(cleaned_value) < 50:
+    if len(cleaned_value) < 25:
         raise ValidationError("Invalid input: The text must be at least 25 characters long.")
 
     return cleaned_value

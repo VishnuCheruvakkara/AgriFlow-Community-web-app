@@ -69,7 +69,8 @@ const UserLocation = ({formData,setFormData,errors}) => {
                     placeholder="Enter your location"
                     value={query}
                     onChange={handleChange}
-                    className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
                 />
 
             </div>

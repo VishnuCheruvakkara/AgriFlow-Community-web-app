@@ -10,11 +10,20 @@ import { IoIosArrowDropdown } from "react-icons/io";
 import DateOfBirthPicker from "../../components/user-dash-board/DateOfBirthPicker";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { showToast } from "../../components/toast-notification/CustomToast";
-import { useSelector } from "react-redux";
 import { TbInfoTriangleFilled } from "react-icons/tb";
+import { useSelector, useDispatch } from "react-redux";
+import { loginSuccess } from "../../redux/slices/AuthSlice";
+import { useNavigate } from 'react-router-dom'
+//import the common button loader and redux reducers 
+import ButtonLoader from "../../components/LoaderSpinner/ButtonLoader";
+import { showButtonLoader,hideButtonLoader } from "../../redux/slices/LoaderSpinnerSlice";
+
 
 function ProfilePage() {
 
+  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user)
 
   // setup for the form data
@@ -57,6 +66,9 @@ function ProfilePage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    const buttonId = "profileUpdation";
+    dispatch(showButtonLoader(buttonId)); //show-loader
+
     // Create a FormData object
     const formDataToSend = new FormData();
     formDataToSend.append("first_name", formData.firstName);
@@ -91,21 +103,25 @@ function ProfilePage() {
         },
       });
       console.log("Success:", response.data);
+      dispatch(loginSuccess({
+        profile_completed: response.data.profile_completed  // Updates only profile_completed
+      }));
       showToast("Profile updated successfully!", "success")
       setErrors({});
+      navigate("/user-dash-board");
     } catch (error) {
       console.error("Error updating profile:", error);
       if (error.response && error.response.status === 400) {
         setErrors(error.response.data); // Store backend validation errors
-        console.log("debug the erros ::::::<><><>:::::",error.response.data)
+        console.log("debug the erros ::::::<><><>:::::", error.response.data)
 
       }
-  
-      showToast("Failed to update profile!", "error");
+      showToast("Profile update failed. Please review your information and try again.", "error");
+    }
+    finally {
+      dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
     }
   };
-
- 
 
 
   return (
@@ -144,7 +160,8 @@ function ProfilePage() {
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     placeholder="Enter first name"
-                    className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.first_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
                   />
                 </div>
                 {errors.first_name && <p className="text-red-500 text-sm mt-2">{errors.first_name}</p>}
@@ -163,7 +180,8 @@ function ProfilePage() {
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     placeholder="Enter last name"
-                    className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.last_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
                   />
                 </div>
                 {errors.last_name && <p className="text-red-500 text-sm mt-2">{errors.last_name}</p>}
@@ -188,7 +206,8 @@ function ProfilePage() {
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     placeholder="Enter username"
-                    className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.username ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
                   />
                 </div>
                 {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
@@ -211,7 +230,7 @@ function ProfilePage() {
                   inputProps={{
                     name: "phone",
                     required: true,
-                    className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500",
+                    className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-int-out",
                   }}
                   containerStyle={{ width: "100%" }}
                   inputStyle={{ width: "100%", paddingLeft: "48px" }} // Adjust padding for flag & country code
@@ -232,8 +251,9 @@ function ProfilePage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="Enter email address"
-                    className="w-full pl-10 px-4 py-3 border text-gray-600 bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     readOnly
+                    className={`bg-gray-200 text-gray-500 w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.email ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
                   />
                 </div>
                 {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
@@ -261,7 +281,8 @@ function ProfilePage() {
                     value={formData.homeAddress}
                     onChange={(e) => setFormData({ ...formData, homeAddress: e.target.value })}
                     placeholder="Enter your home address"
-                    className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.home_address ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
                   />
                 </div>
                 {errors.home_address && <p className="text-red-500 text-sm mt-2">{errors.home_address}</p>}
@@ -308,7 +329,8 @@ function ProfilePage() {
                   value={formData.farmingExperience}
                   onChange={(e) => setFormData({ ...formData, farmingExperience: e.target.value })}
                   placeholder="Enter years of experience"
-                  className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.experience ? " focus:ring-red-500" : "focus:ring-green-500"
+                  } transition duration-500 ease-in-out`}
                 />
               </div>
                 {errors.experience && <p className="text-red-500 text-sm mt-2">{errors.experience}</p>}
@@ -330,7 +352,8 @@ function ProfilePage() {
                   value={formData.farmingType}
                   onChange={(e) => setFormData({ ...formData, farmingType: e.target.value })}
                   defaultValue="" // ✅ Fix: Use defaultValue instead of selected on <option>
-                  className="w-full appearance-none pl-10 pr-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-700 cursor-pointer"
+                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.farming_type ? " focus:ring-red-500" : "focus:ring-green-500"
+                  } transition duration-500 ease-in-out`}
                 >
                
 
@@ -369,7 +392,8 @@ function ProfilePage() {
                   value={formData.bio_data}
                   onChange={(e) => setFormData({ ...formData, bio_data: e.target.value })}
                   placeholder="Share a brief description of your farming background"
-                  className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.bio ? " focus:ring-red-500" : "focus:ring-green-500"
+                  } transition duration-500 ease-in-out`}
                   rows="4"
                 ></textarea>
               </div>
@@ -379,12 +403,13 @@ function ProfilePage() {
 
           {/* Submit Button */}
           <div className="mt-8">
-            <button
+            <ButtonLoader
+              buttonId= "profileUpdation"
               type="submit"
               className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-semibold text-md"
             >
               Submit Profile
-            </button>
+            </ButtonLoader>
           </div>
         </form>
       </div>

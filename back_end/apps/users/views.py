@@ -576,6 +576,6 @@ class ProfileUpdateView(APIView):
         if serializer.is_valid():
             print("Validated Data:", serializer.validated_data)
             serializer.save()
-            return Response({"message": "Profile updated successfully", "data": serializer.data}, status=200)
+            return Response({"message": "Profile updated successfully","profile_completed": user.profile_completed}, status=200)
        
         return Response(serializer.errors, status=400)

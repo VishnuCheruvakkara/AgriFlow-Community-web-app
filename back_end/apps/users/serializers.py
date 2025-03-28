@@ -274,7 +274,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'phone_number': {'required': True, 'label': "Phone Number", 'validators': [validate_phone_number]},
             'email': {'required': True, 'label': "Email", 'validators': [validate_email]},
             'date_of_birth': {'required': True, 'label': "Date of Birth",'validators': [validate_date_of_birth]},
-            'farming_type': {'required': True, 'label': "Farming Type",'validators': [validate_text_field]},
+            'farming_type': {'required': True, 'label': "Farming Type"},
             'experience': {'required': True, 'label': "Experience",'validators': [validate_experience]},
             'bio': {'required': True, 'label': "Bio",'validators': [validate_text_field]}
         }
@@ -343,9 +343,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
             # Store Cloudinary public ID 
             instance.profile_picture = upload_result["public_id"]
-
-        if 'aadhaarImage' in validated_data:
-            instance.aadhar_card = validated_data.pop('aadhaarImage')
 
         if 'aadhaarImage' in validated_data:
             image = validated_data.pop('aadhaarImage')
