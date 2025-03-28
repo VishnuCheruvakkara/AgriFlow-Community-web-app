@@ -11,16 +11,17 @@ import DateOfBirthPicker from "../../components/user-dash-board/DateOfBirthPicke
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { useSelector } from "react-redux";
+import { TbInfoTriangleFilled } from "react-icons/tb";
 
 function ProfilePage() {
 
-  const user=useSelector((state)=>state.auth.user)
+  const user = useSelector((state) => state.auth.user)
 
   // setup for the form data
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    username: user?.name|| "",
+    username: user?.name || "",
     phone: "",
     email: user?.email || "",
     date_of_birth: "", // Store dob in 'yyyy-mm-dd'
@@ -32,6 +33,8 @@ function ProfilePage() {
     profileImage: null,
     aadhaarImage: null,
   });
+
+  const [errors, setErrors] = useState({});
 
   console.log("Updated form datas debugg :::::::<><>::::", formData)
   // Handle profile image of user
@@ -88,26 +91,39 @@ function ProfilePage() {
         },
       });
       console.log("Success:", response.data);
-      showToast("Profile updated successfully!","success")
+      showToast("Profile updated successfully!", "success")
+      setErrors({});
     } catch (error) {
       console.error("Error updating profile:", error);
-      showToast("Failed to update profile!","error")
+      if (error.response && error.response.status === 400) {
+        setErrors(error.response.data); // Store backend validation errors
+        console.log("debug the erros ::::::<><><>:::::",error.response.data)
+
+      }
+  
+      showToast("Failed to update profile!", "error");
     }
   };
 
-
+ 
 
 
   return (
 
-    <div className="container mx-auto max-w-full px-4 py-8">
+    <div className="container mx-auto max-w-full px-4 py-8 ">
+      {/* Welcome Box */}
+      <div className="mb-6 p-4 bg-green-100 rounded-lg border-2 border-dashed  border-green-700 text-green-900">
+        <h2 className="text-2xl font-semibold">Hello, {user?.name} ...</h2>
+        <p className="mt-2">Complete your profile to gain full access to AgriFlow. Providing accurate and complete details is essential for authentication and security. Ensure that all required fields, including personal information, contact details, and verification documents, are correctly filled in to avoid any restrictions on your access. Your information will be securely processed in compliance with our data protection policies.</p>
+      </div>
       <div className="bg-white shadow-lg rounded-lg p-8">
 
         <form onSubmit={handleSubmit}>
 
-          <div className="flex flex-col items-center justify-center  py-10">
+          <div className="flex flex-col items-center justify-center py-10">
             <h2 className="text-xl font-semibold mb-4">Upload Profile Image</h2>
             <ProfileImageSelector onImageSelect={handleProfileImageSelect} />
+            {<errors className="profile"></errors> && <p className="text-red-500 text-sm mt-4">{errors.profileImage}</p>}
           </div>
 
 
@@ -131,6 +147,7 @@ function ProfilePage() {
                     className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
+                {errors.first_name && <p className="text-red-500 text-sm mt-2">{errors.first_name}</p>}
               </div>
 
               {/* Last Name */}
@@ -149,6 +166,8 @@ function ProfilePage() {
                     className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
+                {errors.last_name && <p className="text-red-500 text-sm mt-2">{errors.last_name}</p>}
+
               </div>
             </div>
 
@@ -172,9 +191,10 @@ function ProfilePage() {
                     className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
+                {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
               </div>
               {/* Date of Birth */}
-              <DateOfBirthPicker formData={formData} setFormData={setFormData} />
+              <DateOfBirthPicker formData={formData} setFormData={setFormData} errors={errors.date_of_birth} />
             </div>
 
             {/* Contact Information */}
@@ -185,7 +205,7 @@ function ProfilePage() {
                   Phone Number
                 </label>
                 <PhoneInput
-                  country={"us"} // Default country
+                  country={"in"} // Default country
                   value={formData.phone}
                   onChange={(value) => setFormData({ ...formData, phone: value })}
                   inputProps={{
@@ -196,6 +216,7 @@ function ProfilePage() {
                   containerStyle={{ width: "100%" }}
                   inputStyle={{ width: "100%", paddingLeft: "48px" }} // Adjust padding for flag & country code
                 />
+                {errors.phone_number && <p className="text-red-500 text-sm mt-2">{errors.phone_number}</p>}
               </div>
 
               {/* Email */}
@@ -215,13 +236,16 @@ function ProfilePage() {
                     readOnly
                   />
                 </div>
+                {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
+
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 mt-6">
 
               {/* Location Input */}
-              <UserLocation formData={formData} setFormData={setFormData} />
+              <UserLocation formData={formData} setFormData={setFormData} errors={ errors.location } />
+        
               {/* Home Address  */}
               <div className="w-full">
                 <label htmlFor="homeAddress" className="block text-gray-700 font-medium mb-2">
@@ -240,6 +264,8 @@ function ProfilePage() {
                     className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
+                {errors.home_address && <p className="text-red-500 text-sm mt-2">{errors.home_address}</p>}
+
               </div>
             </div>
           </section>
@@ -248,16 +274,19 @@ function ProfilePage() {
           <section className="mb-8">
             <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Identity Verification</h2>
 
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-              <p className="text-blue-800 font-medium">
-                Our team will verify your details. Account verification typically takes 34-48 hours. Please ensure all information is accurate.
+            <div className="bg-green-100 border-l-4 border-green-700 p-4 mb-6">
+              <p className="text-green-700 font-medium flex items-center gap-4">
+                <TbInfoTriangleFilled className="w-5 h-5 flex-shrink-0" />
+                Our team will verify your details, including Aadhaar verification, within 24 hours. Ensure all information is accurate to avoid delays in the process.
               </p>
             </div>
+
 
             {/* Aadhaar/ID Upload */}
 
             <div className="flex flex-col items-center justify-center py-10">
               <AadharImageUploads onImageSelect={handleAadhaarImageSelect} />
+              {errors.aadhaarImage && <p className="text-red-500 text-sm mt-4">{errors.aadhaarImage}</p>}
             </div>
 
           </section>
@@ -282,6 +311,7 @@ function ProfilePage() {
                   className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
+                {errors.experience && <p className="text-red-500 text-sm mt-2">{errors.experience}</p>}
             </div>
 
             {/* Farming Type */}
@@ -302,6 +332,8 @@ function ProfilePage() {
                   defaultValue="" // ✅ Fix: Use defaultValue instead of selected on <option>
                   className="w-full appearance-none pl-10 pr-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-700 cursor-pointer"
                 >
+               
+
                   <option value="" disabled>
                     Select farming type
                   </option>
@@ -322,6 +354,7 @@ function ProfilePage() {
                   <IoIosArrowDropdown size={25} />
                 </span>
               </div>
+              {errors.farming_type && <p className="text-red-500 text-sm mt-2">{errors.farming_type}</p>}
             </div>
 
             {/* Farming Bio */}
@@ -340,6 +373,7 @@ function ProfilePage() {
                   rows="4"
                 ></textarea>
               </div>
+              {errors.bio && <p className="text-red-500 text-sm mt-1">{errors.bio}</p>}
             </div>
           </section>
 

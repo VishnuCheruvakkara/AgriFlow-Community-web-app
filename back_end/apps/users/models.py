@@ -27,9 +27,15 @@ class Address(models.Model):
 class CustomUser(AbstractUser):
     """User model with detailed farming and location information."""
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=45, unique=False, blank=True, null=True)  # Optional username
+    username = models.CharField(max_length=45, unique=True, blank=True, null=True)  # Optional username
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True, help_text="User's phone number")  # New field
-    profile_picture = CloudinaryField("image", folder="private_files/profile_pictures/", resource_type="image", null=True, blank=True)
+    profile_picture = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True, 
+        help_text="Stores the secure Cloudinary URL for the user's profile picture."
+    )
+
     is_verified = models.BooleanField(default=False)  # OTP verification status
 
     # Address (ForeignKey to Address Model)
@@ -41,7 +47,12 @@ class CustomUser(AbstractUser):
     bio = models.TextField(null=True, blank=True)
 
     # Aadhar Verification
-    aadhar_card = CloudinaryField("image", folder="private_files/aadhar_cards/", resource_type="image", null=True, blank=True)
+    aadhar_card = models.CharField(
+        max_length=255,  
+        blank=True,
+        null=True,
+        help_text="Stores the Cloudinary public ID for the user's Aadhaar card."
+    )
     is_aadhar_verified = models.BooleanField(default=False)  # Admin verification status for Aadhar
    
     # Date of Birth
@@ -66,10 +77,10 @@ class CustomUser(AbstractUser):
         
         # Generate a signed URL that expires in 1 hour
         url, options = cloudinary_url(
-            str(self.profile_picture),
-            type="authenticated",
-            secure=True,
-            sign_url=True,
+            self.profile_picture, # Use public ID
+            type="authenticated",  # Only accessible via signed URL
+            secure=True, # Ensure HTTPS
+            sign_url=True, # Enable signed URL
             # URL expires in 1 hour (3600 seconds)
             sign_valid_until=int(time.time()) + 3600 # Expires in 1 hour
         )
@@ -82,7 +93,7 @@ class CustomUser(AbstractUser):
         
         # Generate a signed URL with shorter expiration for sensitive document
         url, options = cloudinary_url(
-            str(self.aadhar_card),
+            self.aadhar_card,
             type="authenticated",
             secure=True,
             sign_url=True,

@@ -4,7 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { format,parseISO } from "date-fns"; // Import date-fns for formatting
 
-const DateOfBirthPicker = ({ formData, setFormData }) => {
+const DateOfBirthPicker = ({ formData, setFormData,errors}) => {
     const handleDateChange = (date) => {
         if (date) {
             // Convert to yyyy-mm-dd for storage
@@ -21,7 +21,7 @@ const DateOfBirthPicker = ({ formData, setFormData }) => {
                 Date of Birth
             </label>
             <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 z-10">
                     <FaCalendarAlt size={20} />
                 </span>
                 <DatePicker
@@ -34,6 +34,7 @@ const DateOfBirthPicker = ({ formData, setFormData }) => {
                     wrapperClassName="w-full"
                 />
             </div>
+                {errors && <p className="text-red-500 text-sm mt-2">{errors}</p>}
         </div>
     );
 };

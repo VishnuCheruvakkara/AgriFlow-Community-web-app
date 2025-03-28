@@ -246,12 +246,17 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from users.models import Address
 import json
+from .validators import (
+    validate_phone_number, validate_experience, validate_email, 
+    validate_aadhaar_image, validate_profile_image, validate_name,
+    validate_date_of_birth,validate_text_field
+)
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     """Unified serializer for updating user profile, address, and file uploads."""
 
-    profileImage = serializers.ImageField(required=False, write_only=True)
-    aadhaarImage = serializers.ImageField(required=False, write_only=True)
+    profileImage = serializers.ImageField(required=False, write_only=True,validators=[validate_profile_image])
+    aadhaarImage = serializers.ImageField(required=False, write_only=True, validators=[validate_aadhaar_image])
     location = serializers.JSONField(required=False)  # Directly handle JSON input
     home_address = serializers.CharField(required=False, allow_blank=True)
 
@@ -263,20 +268,49 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'profileImage', 'aadhaarImage', 'location','home_address'
         ]
         extra_kwargs = {
-            'email': {'required': False},
-            'username': {'required': False}
+            'first_name': {'required': True, 'label': "First Name",'validators': [validate_name]},
+            'last_name': {'required': True, 'label': "Last Name",'validators': [validate_name]},
+            'username': {'required': True, 'label': "Username",'validators': [validate_name]},
+            'phone_number': {'required': True, 'label': "Phone Number", 'validators': [validate_phone_number]},
+            'email': {'required': True, 'label': "Email", 'validators': [validate_email]},
+            'date_of_birth': {'required': True, 'label': "Date of Birth",'validators': [validate_date_of_birth]},
+            'farming_type': {'required': True, 'label': "Farming Type",'validators': [validate_text_field]},
+            'experience': {'required': True, 'label': "Experience",'validators': [validate_experience]},
+            'bio': {'required': True, 'label': "Bio",'validators': [validate_text_field]}
         }
+
+
+    
+    
+    # Validation for every fields are required 
+    def validate(self, data):
+        """Ensure all fields are provided and not empty, with readable field names."""
+        
+        # Mapping field names to human-readable labels
+        field_labels = {field: self.fields[field].label or field.replace("_", " ").title() for field in self.fields}
+
+        required_fields = list(field_labels.keys())
+
+        missing_fields = [field for field in required_fields if field not in data or data[field] in [None, '', [],{}]]
+
+        if missing_fields:
+            raise serializers.ValidationError({
+                field: f"{field_labels[field]} is required and cannot be empty." for field in missing_fields
+            })
+
+        return data
+    
+   
 
     def update(self, instance, validated_data):
         """Handles updating user profile, address, and file uploads in a single method."""
-        # 🔹 Handle location update
+       
         location_data = validated_data.pop('location', None)
         home_address=validated_data.pop('home_address','')
         print("location_data:", location_data)  # Debugging
 
         if location_data:
             # Create or update Address
-           
             address, created = Address.objects.update_or_create(
                 place_id=location_data.get('place_id'),
                 defaults={
@@ -290,19 +324,52 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             )
             instance.address = address  # Assign address to user
 
-        # 🔹 Handle profile image upload
+      
         if 'profileImage' in validated_data:
-            instance.profile_picture = validated_data.pop('profileImage')
+            image = validated_data.pop('profileImage')
+            
+            # Upload image to Cloudinary with transformations and security settings
+            upload_result = cloudinary.uploader.upload(
+                image,
+                folder="private_files/profile_pictures/",  # Store images in a private folder
+                resource_type="image",  # Specify resource type
+                type="authenticated",  # Ensure secure access (authenticated delivery)
+                transformation=[
+                    {"width": 500, "height": 500, "crop": "limit"},  # Resize max 500x500
+                    {"quality": "auto:good"},  # Optimize quality while reducing size
+                    {"fetch_format": "auto"}  # Serve best format (e.g., WebP, JPEG)
+                ]
+            )
 
-        # 🔹 Handle Aadhaar image upload
+            # Store Cloudinary public ID 
+            instance.profile_picture = upload_result["public_id"]
+
         if 'aadhaarImage' in validated_data:
             instance.aadhar_card = validated_data.pop('aadhaarImage')
 
-        # 🔹 Update other fields
+        if 'aadhaarImage' in validated_data:
+            image = validated_data.pop('aadhaarImage')
+
+            # Upload Aadhaar card to Cloudinary with transformations & security settings
+            upload_result = cloudinary.uploader.upload(
+                image,
+                folder="private_files/aadhaar_cards/",  # Secure storage path
+                resource_type="image",  
+                type="authenticated",  # Ensure secure access (authenticated delivery)
+                transformation=[
+                    {"width": 1000, "height": 1000, "crop": "limit"},  # Resize max 1000x1000
+                    {"quality": "auto:good"},  # Optimize quality while reducing size
+                    {"fetch_format": "auto"}  # Serve best format (e.g., WebP, JPEG)
+                ]
+            )
+
+            # Store only the Cloudinary public ID (not full URL)
+            instance.aadhar_card = upload_result["public_id"]
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
-        # 🔹 Mark profile as completed
+            
+        # mark profile was updated with proper data 
         instance.profile_completed = True
         instance.save()
         return instance

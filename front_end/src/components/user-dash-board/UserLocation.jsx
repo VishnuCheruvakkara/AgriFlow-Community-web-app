@@ -4,7 +4,7 @@ import { debounce } from "lodash"; // Import debounce from Lodash
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { TbInfoCircleFilled } from "react-icons/tb";
 
-const UserLocation = ({formData,setFormData}) => {
+const UserLocation = ({formData,setFormData,errors}) => {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -73,6 +73,7 @@ const UserLocation = ({formData,setFormData}) => {
                 />
 
             </div>
+            {errors && <p className="text-red-500 text-sm mt-2">{errors}</p>}
             <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                 <TbInfoCircleFilled />
                 Select a nearby location if the shown one is incorrect.
@@ -89,7 +90,7 @@ const UserLocation = ({formData,setFormData}) => {
                             className="px-4 py-2 hover:bg-green-100 cursor-pointer transition-colors"
                             onClick={() => handleSelectLocation(location)}
                         >
-                            {location.address.name||location.display_name}
+                            {location.display_name ||location.address.name}
 
                         </li>
                     ))}

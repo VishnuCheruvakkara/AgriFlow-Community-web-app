@@ -20,7 +20,7 @@ const ProfileImageSelector = ({onImageSelect}) => {
   return (
     <div className="relative w-32 h-32">
       {/* Profile Image / Placeholder */}
-      <label className="w-32 h-32 rounded-full border-4 border-green-700 border-dashed flex items-center justify-center cursor-pointer overflow-hidden relative">
+      <label className="w-32 h-32 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center cursor-pointer overflow-hidden relative">
         {selectedImage ? (
           <img src={selectedImage} alt="Profile" className="w-full h-full object-cover  border-4 border-white rounded-full" />
         ) : (
