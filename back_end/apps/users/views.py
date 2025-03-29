@@ -579,3 +579,20 @@ class ProfileUpdateView(APIView):
             return Response({"message": "Profile updated successfully","profile_completed": user.profile_completed}, status=200)
        
         return Response(serializer.errors, status=400)
+
+
+########################## Get user data view ##########################
+from .serializers import UserDashboardSerializer
+from rest_framework.generics import RetrieveAPIView
+
+class GetUserDataView(RetrieveAPIView):
+    """Fetch user data for dashboard."""
+    
+    serializer_class = UserDashboardSerializer
+    permission_classes = [IsAuthenticated]  # Require authentication
+
+    def get(self, request, *args, **kwargs):
+        """Return authenticated user's details."""
+        user = request.user  # Get logged-in user
+        serializer = self.get_serializer(user)  # Serialize data
+        return Response(serializer.data)  # Send response

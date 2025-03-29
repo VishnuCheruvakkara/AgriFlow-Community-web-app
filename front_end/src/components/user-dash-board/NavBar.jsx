@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { FaBell, FaEnvelope, FaSearch } from 'react-icons/fa';
 import { IoMdLogOut } from "react-icons/io";
-import { useSelector } from "react-redux";
 // for lgout section 
 import { useNavigate } from 'react-router-dom';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector  } from 'react-redux';
 //import from redux-auth-slice 
 import { logout } from '../../redux/slices/AuthSlice'
 // persitor imported from the redux store to purge the data in the local storage
@@ -19,14 +18,15 @@ import { FaSignOutAlt, FaCog } from 'react-icons/fa';
 import agriFlowLogo from '../../assets/images/agriflowwhite.png'
 
 
+
 function NavBar() {
 
     const user = useSelector((state) => state.auth.user);
     const profileCompleted = user?.profile_completed;
+    const userData=useSelector((state)=>state.user.user)
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
 
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
@@ -111,7 +111,7 @@ function NavBar() {
                                         onClick={toggleDropdown} // Toggle on click
                                     >
                                         <img
-                                            src={defaultUserImage}
+                                            src={ userData?.profile_picture|| defaultUserImage}
                                             alt="User profile"
                                             className="h-full w-full object-cover"
                                         />

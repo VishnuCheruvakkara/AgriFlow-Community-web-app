@@ -17,7 +17,7 @@ import defaultUserImage from '../../assets/images/user-default.png'
 function SideBar() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const user = useSelector((state)=>state.auth.user)
+    const user = useSelector((state)=>state.user.user)
 
     const handleLogout = async () => {
         try {
@@ -37,7 +37,6 @@ function SideBar() {
         } catch (error) {
             console.log("logout failed:", error);
             showToast(`logout failed`, "error")
-
         }
     }
 
@@ -49,7 +48,7 @@ function SideBar() {
                 {/* Profile Image Container */}
                 <div className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                     <img
-                        src={defaultUserImage}
+                        src={ user?.profile_picture|| defaultUserImage}
                         alt="User profile"
                         className="h-full w-full object-cover"
                     />
@@ -57,8 +56,8 @@ function SideBar() {
     
                 {/* User Information */}
                 <div className="ml-4 truncate max-w-[250px]"> {/* Increased max-width for larger name space */}
-                        <h3 className="font-semibold text-gray-800 text-ellipsis overflow-hidden whitespace-nowrap">{ user?.name || "Farmer"}</h3>
-                    <p className="text-sm text-gray-500 truncate text-ellipsis overflow-hidden whitespace-nowrap">Rice Cultivator</p>
+                        <h3 className="font-semibold text-gray-800 text-ellipsis overflow-hidden whitespace-nowrap">{ user?.username || "Farmer"}</h3>
+                    <p className="text-sm text-gray-500 truncate text-ellipsis overflow-hidden whitespace-nowrap">{ user?.farming_type|| "Rice Cultivator"}</p>
                 </div>
             </div>
     

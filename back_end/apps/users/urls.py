@@ -3,6 +3,7 @@ from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginVie
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
 from .views import LocationAutocompleteView,ProfileUpdateView
+from .views import  GetUserDataView
 
 
 urlpatterns = [
@@ -32,4 +33,6 @@ urlpatterns = [
     path("location-autocomplete/", LocationAutocompleteView.as_view(), name="location_autocomplete"),
     path('profile-update/', ProfileUpdateView.as_view(), name='profile_update'),
 
+    #================== get user data =======================#
+     path("get-user-data/", GetUserDataView.as_view(), name="get-user-data"),
 ]

@@ -9,15 +9,15 @@ import defaultGroupImage from '../../assets/images/user-group-default.png'
 import { useSelector } from 'react-redux';
 
 function Home() {
-  
-  const user = useSelector((state) => state.auth.user)
-  
+
+  const user = useSelector((state) => state.user.user)
+
   return (
     <>
       <div className="lg:w-10/12 space-y-4 mt-4 mb-11">
         {/* Welcome bar */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Welcome back, { user?.name || "Farmer"} !</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Welcome back, {user?.username || "Farmer"} !</h1>
           <p className="text-gray-600">Stay informed with the latest news and trends in agriculture this season.</p>
         </div>
 
@@ -25,9 +25,14 @@ function Home() {
         <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="flex space-x-3">
 
-            <div className="h-10 w-10  border rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-              <img src={defaultUserImage} alt="User profile" className=" w-96 object-cover" />
+            <div className="h-10 w-10 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+              <img
+                src={user?.profile_picture || defaultUserImage}
+                alt="User profile"
+                className="h-full w-full object-cover"
+              />
             </div>
+
 
             <div className="flex-1">
               <input
@@ -75,7 +80,7 @@ function Home() {
             <p className="text-gray-800">Just harvested my first batch of organic tomatoes! The new irrigation system has really improved the yield this season. 🍅</p>
           </div>
           <div className="mb-4 bg-gray-200 rounded-lg overflow-hidden">
-            <img src={ tomatoImage } alt="Post image" className=" w-full object-cover" />
+            <img src={tomatoImage} alt="Post image" className=" w-full object-cover" />
           </div>
           <div className="flex justify-between text-gray-600 pb-3 border-b">
             <span>42 likes</span>
@@ -187,7 +192,7 @@ function Home() {
             <li className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
-                  <img src={ defaultGroupImage } alt="User profile" className="h-full w-full object-cover" />
+                  <img src={defaultGroupImage} alt="User profile" className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <p className="font-medium text-green-700">Organic Farmers Group</p>

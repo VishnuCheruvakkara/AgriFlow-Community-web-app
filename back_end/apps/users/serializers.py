@@ -279,8 +279,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'bio': {'required': True, 'label': "Bio",'validators': [validate_text_field]}
         }
 
-
-    
     
     # Validation for every fields are required 
     def validate(self, data):
@@ -300,8 +298,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
         return data
     
-   
-
     def update(self, instance, validated_data):
         """Handles updating user profile, address, and file uploads in a single method."""
        
@@ -370,3 +366,40 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.profile_completed = True
         instance.save()
         return instance
+    
+######################### get users data serializers ########################
+
+from rest_framework import serializers
+from users.models import CustomUser
+
+class UserDashboardSerializer(serializers.ModelSerializer):
+    """Serializer for fetching user dashboard data."""
+    
+    profile_picture = serializers.SerializerMethodField()  # Secure URL
+    address = serializers.SerializerMethodField()  # Format Address
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            "id", "email", "username", "phone_number",
+            "profile_picture", "address", "farming_type",
+            "experience", "bio", "date_of_birth", "profile_completed",
+            "created_at"
+        ]  # Only necessary fields
+
+    def get_profile_picture(self, obj):
+        """Return a secure profile picture URL."""
+        return obj.get_secure_profile_picture_url()  # Uses model method
+
+    def get_address(self, obj):
+        """Return structured address details if available."""
+        if obj.address:
+            return {
+                "full_location": obj.address.full_location,
+                "latitude": obj.address.latitude,
+                "longitude": obj.address.longitude,
+                "location_name": obj.address.location_name,
+                "country": obj.address.country,
+                "home_address": obj.address.home_address,
+            }
+        return None  # If no address is set
