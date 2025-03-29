@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 input, textarea, select {
-  @apply bg-white text-black transition duration-500 ease-in-out;
+  @apply bg-white text-black  ;
 }
 
-h3{
+h3,h2,label{
   @apply text-black;
 }
 
@@ -69,10 +69,12 @@ input:-webkit-autofill {
   }
 
   /* Focus styling to match focus:outline-none focus:ring-2 focus:ring-green-500 */
+ 
   .react-tel-input .form-control:focus {
     outline: none !important;
-    
+   
   }
+
 
   /* Flag container styling */
   .react-tel-input .flag-dropdown {
@@ -106,3 +108,13 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+/* Hide the default dropdown arrow  in the user profile updation section */
+select::-ms-expand {
+  display: none;
+}
+
+select {
+  appearance: none; /* Hide default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}

@@ -1,542 +1,421 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { FaUser, FaMapMarkerAlt, FaIdCard, FaInfoCircle, FaPhoneAlt } from 'react-icons/fa';
-import { MdEmail, MdOutlineDescription } from 'react-icons/md';
-import { GiFarmTractor, GiWheat } from 'react-icons/gi';
-import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
-//import location part 
-import LocationAutocomplete from '../../components/user-dash-board/LocationAutoCompletion';
-//taked data like username and email from the redux store 
-import { useSelector, useDispatch } from "react-redux";
-//import image uploader 
-import ImageUploader from '../../components/ImageUploadInterFace/ImageUploader';
+import React, { useState } from "react";
+import { FaUser, FaHome, FaEnvelope, FaTractor, FaSeedling, FaMapMarkerAlt } from "react-icons/fa";
+import AadharImageUploads from "../../components/user-dash-board/AadharImageUploads";
+import ProfileImageSelector from "../../components/user-dash-board/ProfileImageSelector";
+import "react-datepicker/dist/react-datepicker.css";
+import UserLocation from "../../components/user-dash-board/UserLocation";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-//import the common button loader and redux reducers
-import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
-import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
-//set up toast messages
-import { showToast } from '../../components/toast-notification/CustomToast';
-// Import Formik and Yup for validation
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import userProfileValidationSchema from '../../components/user-dash-board/userProfileValidationSchema'
-import { useNavigate } from 'react-router-dom';
-import { loginSuccess } from '../../redux/slices/AuthSlice';
+import { IoIosArrowDropdown } from "react-icons/io";
+import DateOfBirthPicker from "../../components/user-dash-board/DateOfBirthPicker";
+import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
+import { showToast } from "../../components/toast-notification/CustomToast";
+import { TbInfoTriangleFilled } from "react-icons/tb";
+import { useSelector, useDispatch } from "react-redux";
+import { loginSuccess } from "../../redux/slices/AuthSlice";
+import { useNavigate } from 'react-router-dom'
+//import the common button loader and redux reducers 
+import ButtonLoader from "../../components/LoaderSpinner/ButtonLoader";
+import { showButtonLoader,hideButtonLoader } from "../../redux/slices/LoaderSpinnerSlice";
 
 
-const UserProfileForm = () => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const auth = useSelector((state) => state.auth);
-    const user = auth.user;
-    const wrapperRef = useRef(null);
-    
-    const [profileImage, setProfileImage] = useState(null);
-    const [aadharImage, setAadharImage] = useState(null);
-    const [isOpen, setIsOpen] = useState(false);
+function ProfilePage() {
 
-    const farmingTypes = [
-        { id: 1, name: 'Organic Farming', description: 'Farming without synthetic pesticides or fertilizers' },
-        { id: 2, name: 'Conventional Farming', description: 'Traditional farming using modern techniques' },
-        { id: 3, name: 'Mixed Farming', description: 'Combination of crops and livestock' },
-        { id: 4, name: 'Dairy Farming', description: 'Focused on milk production' },
-        { id: 5, name: 'Poultry Farming', description: 'Raising birds for meat or eggs' },
-        { id: 6, name: 'Other', description: 'Specialized or alternative farming methods' }
-    ];
+  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  const user = useSelector((state) => state.auth.user) 
 
-    const initialValues = {
-        firstName: "",
-        lastName: "",
-        username: user?.name || "",
-        email: user?.email || "",
-        location: "",
-        address: "",
-        experience: "",
-        farmingType: null,
-        cropsGrown: "",
-        bio: "",
-        phone_number: "",
-    };
+  // setup for the form data
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    username: user?.name || "",
+    phone: "",
+    email: user?.email || "",
+    date_of_birth: "", // Store dob in 'yyyy-mm-dd'
+    location: {},
+    homeAddress: "",
+    farmingExperience: "",
+    farmingType: "",
+    bio_data: "",
+    profileImage: null,
+    aadhaarImage: null,
+  });
 
-    // Calculate profile completion
-    const calculateProfileCompletion = (values) => {
-        let completedFields = 0;
-        let totalFields = 9; // Adjust based on required fields
+  const [errors, setErrors] = useState({});
 
-        // Check each required field
-        if (values.firstName) completedFields++;
-        if (values.lastName) completedFields++;
-        if (values.username) completedFields++;
-        if (values.phone_number) completedFields++;
-        if (values.location) completedFields++;
-        if (values.address) completedFields++;
-        if (values.experience) completedFields++;
-        if (values.farmingType) completedFields++;
-        if (profileImage) completedFields++;
+  console.log("Updated form datas debugg :::::::<><>::::", formData)
+  // Handle profile image of user
+  const handleProfileImageSelect = (file) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      profileImage: file,
+    }));
+  }
 
-        // Optional: Add aadhar verification as a bonus
-        if (aadharImage) {
-            totalFields++;
-            completedFields++;
-        }
+  // Handle Aadhaar Image Selection
+  const handleAadhaarImageSelect = (file) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      aadhaarImage: file,
+    }));
+  };
 
-        // Calculate percentage
-        return Math.round((completedFields / totalFields) * 100);
-    };
+  // Handle form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        }
+    const buttonId = "profileUpdation";
+    dispatch(showButtonLoader(buttonId)); //show-loader
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [wrapperRef]);
+    // Create a FormData object
+    const formDataToSend = new FormData();
+    formDataToSend.append("first_name", formData.firstName);
+    formDataToSend.append("last_name", formData.lastName);
+    formDataToSend.append("username", formData.username);
+    formDataToSend.append("phone_number", formData.phone);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("date_of_birth", formData.date_of_birth);
+    formDataToSend.append("home_address", formData.homeAddress);
+    formDataToSend.append("experience", formData.farmingExperience);
+    formDataToSend.append("farming_type", formData.farmingType);
+    formDataToSend.append("bio", formData.bio_data);
 
-    // Handle profile image upload
-    const handleProfileImageUpload = (file) => {
-        setProfileImage(file);
-    };
+    // Append location fields separately
+    if (formData.location) {
+      formDataToSend.append("location", JSON.stringify(formData.location));
+    }
 
-    // Handle aadhar image upload
-    const handleAadharImageUpload = (file) => {
-        setAadharImage(file);
-    };
+    // Append files only if selected
+    if (formData.profileImage) {
+      formDataToSend.append("profileImage", formData.profileImage);
+    }
+    if (formData.aadhaarImage) {
+      formDataToSend.append("aadhaarImage", formData.aadhaarImage);
+    }
 
-    // Submit form handler
-    const handleSubmit = async (values, { setSubmitting }) => {
-        const buttonId = "profileUpdateButton";
-        dispatch(showButtonLoader(buttonId)); //show-loader
+    try {
+      // Send request to the backend
+      const response = await AuthenticatedAxiosInstance.post("/users/profile-update/", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Success:", response.data);
+      dispatch(loginSuccess({
+        profile_completed: response.data.profile_completed  // Updates only profile_completed
+      }));
+      showToast("Profile updated successfully!", "success")
+      setErrors({});
+      navigate("/user-dash-board");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      if (error.response && error.response.status === 400) {
+        setErrors(error.response.data); // Store backend validation errors
+        console.log("debug the erros ::::::<><><>:::::", error.response.data)
 
-        try {
-            // Create FormData object
-            const formDataToSend = new FormData();
+      }
+      showToast("Profile update failed. Please review your information and try again.", "error");
+    }
+    finally {
+      dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
+    }
+  };
 
-            // Append basic text fields
-            formDataToSend.append("firstName", values.firstName);
-            formDataToSend.append("lastName", values.lastName);
-            formDataToSend.append("username", values.username);
-            formDataToSend.append("email", values.email);
-            formDataToSend.append("bio", values.bio || "");
-            formDataToSend.append("experience", values.experience || "");
-            formDataToSend.append("cropsGrown", values.cropsGrown || "");
-            formDataToSend.append("address", values.address || "");
-            formDataToSend.append("phone_number", values.phone_number || "");
 
-            // Handle Location - Convert to JSON string for proper serialization
-            if (values.location) {
-                formDataToSend.append("location", JSON.stringify(values.location));
-            }
+  return (
 
-            // Handle Farming Type - Convert to JSON string for proper serialization
-            if (values.farmingType) {
-                formDataToSend.append("farmingType", JSON.stringify(values.farmingType));
-            }
+    <div className="container mx-auto max-w-full px-4 py-8 ">
+      {/* Welcome Box */}
+      <div className="mb-6 p-4 bg-green-100 rounded-lg border-2 border-dashed  border-green-700 text-green-900">
+        <h2 className="text-2xl font-semibold">Hello, {user?.name} ...</h2>
+        <p className="mt-2">Complete your profile to gain full access to AgriFlow. Providing accurate and complete details is essential for authentication and security. Ensure that all required fields, including personal information, contact details, and verification documents, are correctly filled in to avoid any restrictions on your access. Your information will be securely processed in compliance with our data protection policies.</p>
+      </div>
+      <div className="bg-white shadow-lg rounded-lg p-8">
 
-            // Append images
-            if (profileImage) {
-                formDataToSend.append("profileImage", profileImage);
-            }
-            if (aadharImage) {
-                formDataToSend.append("aadharImage", aadharImage);
-            }
+        <form onSubmit={handleSubmit}>
 
-            // Send Data to Backend API
-            const response = await AuthenticatedAxiosInstance.post(
-                "/users/update-profile/",
-                formDataToSend,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
-            dispatch(loginSuccess({
-                profile_completed: response.data.profile_completed  // Updates only profile_completed
-            }));
-            showToast("Profile updated successfully!", "success");
-            navigate("/user-dash-board");
-            console.log(response.data);
+          <div className="flex flex-col items-center justify-center py-10">
+            <h2 className="text-xl font-semibold mb-4">Upload Profile Image</h2>
+            <ProfileImageSelector onImageSelect={handleProfileImageSelect} />
+            {<errors className="profile"></errors> && <p className="text-red-500 text-sm mt-4">{errors.profileImage}</p>}
+          </div>
 
-        } catch (error) {
-            console.error("Error updating profile:", error);
-            showToast("Please resolve the error to proceed further.", "error");
-        } finally {
-            dispatch(hideButtonLoader(buttonId)); // Hide loader after process
-            setSubmitting(false);
-        }
-    };
 
-    return (
-        <div className="space-y-4 mt-4 mb-11">
-            <Formik
-                initialValues={initialValues}
-                validationSchema={userProfileValidationSchema}
-                onSubmit={handleSubmit}
+          {/* Personal Information Section */}
+          <section className="mb-8">
+            <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Personal Information</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* First Name */}
+              <div>
+                <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">First Name</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <FaUser size={20} />
+                  </span>
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    placeholder="Enter first name"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.first_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
+                  />
+                </div>
+                {errors.first_name && <p className="text-red-500 text-sm mt-2">{errors.first_name}</p>}
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">Last Name</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <FaUser size={20} />
+                  </span>
+                  <input
+                    id="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    placeholder="Enter last name"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.last_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
+                  />
+                </div>
+                {errors.last_name && <p className="text-red-500 text-sm mt-2">{errors.last_name}</p>}
+
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+
+              {/* Username */}
+              <div className="w-full">
+                <label htmlFor="username" className="block text-gray-700 font-medium mb-2">
+                  Username
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <FaUser size={20} />
+                  </span>
+                  <input
+                    id="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    placeholder="Enter username"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.username ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
+                  />
+                </div>
+                {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+              </div>
+              {/* Date of Birth */}
+              <DateOfBirthPicker formData={formData} setFormData={setFormData} errors={errors.date_of_birth} />
+            </div>
+
+            {/* Contact Information */}
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+              {/* Phone Number */}
+              <div>
+                <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-2">
+                  Phone Number
+                </label>
+                <PhoneInput
+                  country={"in"} // Default country
+                  value={formData.phone}
+                  onChange={(value) => setFormData({ ...formData, phone: value })}
+                  inputProps={{
+                    name: "phone",
+                    required: true,
+                    className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-int-out",
+                  }}
+                  containerStyle={{ width: "100%" }}
+                  inputStyle={{ width: "100%", paddingLeft: "48px" }} // Adjust padding for flag & country code
+                />
+                {errors.phone_number && <p className="text-red-500 text-sm mt-2">{errors.phone_number}</p>}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email Address</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <FaEnvelope size={20} />
+                  </span>
+                  <input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Enter email address"
+                    readOnly
+                    className={`bg-gray-200 text-gray-500 w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.email ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
+                  />
+                </div>
+                {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
+
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+
+              {/* Location Input */}
+              <UserLocation formData={formData} setFormData={setFormData} errors={ errors.location } />
+        
+              {/* Home Address  */}
+              <div className="w-full">
+                <label htmlFor="homeAddress" className="block text-gray-700 font-medium mb-2">
+                  Home Address
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <FaHome size={20} /> {/* Home icon */}
+                  </span>
+                  <input
+                    id="homeAddress"
+                    type="text"
+                    value={formData.homeAddress}
+                    onChange={(e) => setFormData({ ...formData, homeAddress: e.target.value })}
+                    placeholder="Enter your home address"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.home_address ? " focus:ring-red-500" : "focus:ring-green-500"
+                    } transition duration-500 ease-in-out`}
+                  />
+                </div>
+                {errors.home_address && <p className="text-red-500 text-sm mt-2">{errors.home_address}</p>}
+
+              </div>
+            </div>
+          </section>
+
+          {/* Identity Verification Section */}
+          <section className="mb-8">
+            <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Identity Verification</h2>
+
+            <div className="bg-green-100 border-l-4 border-green-700 p-4 mb-6">
+              <p className="text-green-700 font-medium flex items-center gap-4">
+                <TbInfoTriangleFilled className="w-5 h-5 flex-shrink-0" />
+                Our team will verify your details, including Aadhaar verification, within 24 hours. Ensure all information is accurate to avoid delays in the process.
+              </p>
+            </div>
+
+
+            {/* Aadhaar/ID Upload */}
+
+            <div className="flex flex-col items-center justify-center py-10">
+              <AadharImageUploads onImageSelect={handleAadhaarImageSelect} />
+              {errors.aadhaarImage && <p className="text-red-500 text-sm mt-4">{errors.aadhaarImage}</p>}
+            </div>
+
+          </section>
+
+          {/* Farming Details Section */}
+          <section>
+            <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Farming Information</h2>
+
+            {/* Farming Experience */}
+            <div className="mb-6">
+              <label htmlFor="farmingExperience" className="block text-gray-700 font-medium mb-2">Years of Farming Experience</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                  <FaTractor size={20} />
+                </span>
+                <input
+                  id="farmingExperience"
+                  type="number"
+                  value={formData.farmingExperience}
+                  onChange={(e) => setFormData({ ...formData, farmingExperience: e.target.value })}
+                  placeholder="Enter years of experience"
+                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.experience ? " focus:ring-red-500" : "focus:ring-green-500"
+                  } transition duration-500 ease-in-out`}
+                />
+              </div>
+                {errors.experience && <p className="text-red-500 text-sm mt-2">{errors.experience}</p>}
+            </div>
+
+            {/* Farming Type */}
+            <div className="mb-6">
+              <label htmlFor="farmingType" className="block text-gray-700 font-medium mb-2">
+                Select Farming Type
+              </label>
+              <div className="relative">
+                {/* Icon */}
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                  <FaSeedling size={20} />
+                </span>
+                {/* Select Dropdown */}
+                <select
+                  id="farmingType"
+                  value={formData.farmingType}
+                  onChange={(e) => setFormData({ ...formData, farmingType: e.target.value })}
+                  defaultValue="" // Fix: Use defaultValue instead of selected on <option>
+                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.farming_type ? " focus:ring-red-500" : "focus:ring-green-500"
+                  } transition duration-500 ease-in-out`}
+                >
+               
+
+                  <option value="" disabled>
+                    Select farming type
+                  </option>
+                  <option value="poultry">Poultry Farming</option>
+                  <option value="dairy">Dairy Farming</option>
+                  <option value="organic">Organic Farming</option>
+                  <option value="aquaculture">Aquaculture (Fish Farming)</option>
+                  <option value="beekeeping">Beekeeping</option>
+                  <option value="hydroponics">Hydroponics Farming</option>
+                  <option value="horticulture">Horticulture</option>
+                  <option value="livestock">Livestock Farming</option>
+                  <option value="crop">Crop Farming</option>
+                  <option value="agribusiness">Agribusiness</option>
+                  <option value="other">Other</option>
+                </select>
+                {/* Dropdown Arrow */}
+                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                  <IoIosArrowDropdown size={25} />
+                </span>
+              </div>
+              {errors.farming_type && <p className="text-red-500 text-sm mt-2">{errors.farming_type}</p>}
+            </div>
+
+            {/* Farming Bio */}
+            <div>
+              <label htmlFor="farmingBio" className="block text-gray-700 font-medium mb-2">About Your Farming Experience</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pt-3 pl-3 text-gray-400">
+                  <FaTractor size={20} />
+                </span>
+                <textarea
+                  id="farmingBio"
+                  value={formData.bio_data}
+                  onChange={(e) => setFormData({ ...formData, bio_data: e.target.value })}
+                  placeholder="Share a brief description of your farming background"
+                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.bio ? " focus:ring-red-500" : "focus:ring-green-500"
+                  } transition duration-500 ease-in-out`}
+                  rows="4"
+                ></textarea>
+              </div>
+              {errors.bio && <p className="text-red-500 text-sm mt-1">{errors.bio}</p>}
+            </div>
+          </section>
+
+          {/* Submit Button */}
+          <div className="mt-8">
+            <ButtonLoader
+              buttonId= "profileUpdation"
+              type="submit"
+              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-semibold text-md"
             >
-                {({ values, errors, touched, setFieldValue, isSubmitting }) => (
-                    <Form className="space-y-6">
-                        {/* Profile Completion Header */}
-                        <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-                            <h1 className="text-2xl font-bold text-gray-800">Complete Your Profile</h1>
-                            <p className="text-gray-600">Please complete your profile to access all features of AgriFlow</p>
+              Submit Profile
+            </ButtonLoader>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
-                            <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
-                                <div
-                                    className="bg-green-600 h-2.5 rounded-full transition-all duration-500"
-                                    id="profile-progress"
-                                    style={{ width: `${calculateProfileCompletion(values)}%` }}
-                                ></div>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">Profile completion: {calculateProfileCompletion(values)}%</p>
-                        </div>
-
-                        {/* Basic Info Section */}
-                        <div className="bg-white rounded-lg shadow-sm p-6">
-                            <div className="flex items-center mb-4">
-                                <FaUser className="text-green-600 mr-2" />
-                                <h2 className="text-xl font-semibold text-gray-800">Basic Information</h2>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* First Name */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="firstName">First Name</label>
-                                    <Field
-                                        type="text"
-                                        id="firstName"
-                                        name="firstName"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.firstName && touched.firstName ? ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Enter your first name"
-                                    />
-                                    <ErrorMessage name="firstName" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-
-                                {/* Last Name */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="lastName">Last Name</label>
-                                    <Field
-                                        type="text"
-                                        id="lastName"
-                                        name="lastName"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.lastName && touched.lastName ? ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Enter your last name"
-                                    />
-                                    <ErrorMessage name="lastName" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-
-                                {/* Username */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="username">Username</label>
-                                    <Field
-                                        type="text"
-                                        id="username"
-                                        name="username"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.username && touched.username ?  ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Choose a username"
-                                        autoComplete="new-password"
-                                    />
-                                    <ErrorMessage name="username" component="div" className="text-red-500 text-sm mt-1" />
-                                    <p className="text-xs text-gray-500 mt-1 italic flex items-center">
-                                        <FaInfoCircle className="mr-1" />This name will visible to others
-                                    </p>
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="email">Email</label>
-                                    <div className="relative">
-                                        <Field
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            className="w-full p-3 border text-gray-500 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10"
-                                            placeholder="Your email address"
-                                            readOnly
-                                            autoComplete="new-password"
-                                        />
-                                        <MdEmail className="absolute left-3 top-3.5 text-gray-500" />
-                                    </div>
-                                    <p className="text-xs text-gray-500 mt-1 italic flex items-center">
-                                        <FaInfoCircle className="mr-1" /> Email address cannot be changed
-                                    </p>
-                                </div>
-
-                                {/* Phone Number */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="phone_number">
-                                        Phone Number
-                                    </label>
-                                    <div className="relative">
-                                        <PhoneInput
-                                            country="in"
-                                            value={values.phone_number}
-                                            inputProps={{
-                                                id: "phone_number",
-                                                name: "phone_number",
-                                            }}
-                                            onChange={(value) => setFieldValue("phone_number", value)}
-                                            containerClass="w-full"
-                                            inputClass={`w-full h-12 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pl-10 ${
-                                                errors.phone_number && touched.phone_number ? ' focus:ring-red-500' : ''
-                                            }`}
-                                            buttonClass="border-r-0 h-12"
-                                            dropdownClass="border rounded-lg"
-                                            placeholder="Your phone number"
-                                        />
-                                    </div>
-                                    <ErrorMessage name="phone_number" component="div" className="text-red-500 text-sm mt-1" />
-                                    <p className="text-xs text-gray-500 mt-1 italic flex items-center">
-                                        <FaInfoCircle className="mr-1" /> Phone number should include country code
-                                    </p>
-                                </div>
-
-                                {/* Profile Picture */}
-                                <div className="md:col-span-2">
-                                    <ImageUploader
-                                        onImageSelect={handleProfileImageUpload}
-                                        label="Profile Picture"
-                                        aspect={1}
-                                        maxSizeMB={0.5}
-                                        previewShape="circle"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Location Section */}
-                        <div className="bg-white rounded-lg shadow-sm p-6">
-                            <div className="flex items-center mb-4">
-                                <FaMapMarkerAlt className="text-green-600 mr-2" />
-                                <h2 className="text-xl font-semibold text-gray-800">Location Details</h2>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Location Autocomplete */}
-                                <div>
-                                    <LocationAutocomplete
-                                        value={values.location ? values.location.display_name : ''}
-                                        onChange={(location) => setFieldValue("location", location)}
-                                        placeholder="Search for your village or city"
-                                        label="Village/City Name"
-                                        className={errors.location && touched.location ? ' focus:ring-red-500' : ''}
-                                    />
-                                    <ErrorMessage name="location" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-
-                                {/* Address */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="address">Full Address</label>
-                                    <Field
-                                        type="text"
-                                        id="address"
-                                        name="address"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.address && touched.address ? ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Your complete address"
-                                        autoComplete="new-password"
-                                    />
-                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Farming Experience Section */}
-                        <div className="bg-white rounded-lg shadow-sm p-6">
-                            <div className="flex items-center mb-4">
-                                <GiFarmTractor className="text-green-600 mr-2 text-xl" />
-                                <h2 className="text-xl font-semibold text-gray-800">Farming Experience</h2>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Years of Experience */}
-                                <div>
-                                    <label className="block text-gray-700 mb-2" htmlFor="experience">Years of Experience</label>
-                                    <Field
-                                        type="number"
-                                        id="experience"
-                                        name="experience"
-                                        min="0"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.experience && touched.experience ? ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Enter years of farming experience"
-                                        autoComplete="new-password"
-                                    />
-                                    <ErrorMessage name="experience" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-
-                                {/* Farming Type */}
-                                <div className="relative" ref={wrapperRef}>
-                                    <label className="block text-gray-700 mb-2" htmlFor="farming-type">
-                                        Farming Type
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            id="farming-type"
-                                            className={`w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                                errors.farmingType && touched.farmingType ? ' focus:ring-red-500' : ''
-                                            }`}
-                                            placeholder="Select your farming type"
-                                            value={values.farmingType ? values.farmingType.name : ''}
-                                            onClick={() => setIsOpen(!isOpen)}
-                                            readOnly
-                                            autoComplete="new-password"
-                                        />
-                                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-                                            </svg>
-                                        </div>
-                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <ErrorMessage name="farmingType" component="div" className="text-red-500 text-sm mt-1" />
-
-                                    {isOpen && (
-                                        <div className="absolute w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg z-10 max-h-60 overflow-y-auto">
-                                            <ul className="py-2">
-                                                {farmingTypes.map((type) => (
-                                                    <li
-                                                        key={type.id}
-                                                        className="px-4 py-3 cursor-pointer hover:bg-green-50 transition-colors flex items-start"
-                                                        onClick={() => {
-                                                            setFieldValue("farmingType", type);
-                                                            setIsOpen(false);
-                                                        }}
-                                                    >
-                                                        <div className="text-green-600 mr-2 mt-1 flex-shrink-0">
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-medium text-gray-800">{type.name}</div>
-                                                            <div className="text-xs text-gray-500 truncate max-w-xs">
-                                                                {type.description}
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Crops Grown */}
-                                <div className="md:col-span-2">
-                                    <label className="block text-gray-700 mb-2" htmlFor="cropsGrown">
-                                        <div className="flex items-center">
-                                            <GiWheat className="text-green-600 mr-2" />
-                                            <span>Crops Grown</span>
-                                        </div>
-                                    </label>
-                                    <Field
-                                        as="textarea"
-                                        id="cropsGrown"
-                                        name="cropsGrown"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.cropsGrown && touched.cropsGrown ? ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Enter crops you grow (comma separated e.g., Wheat, Rice, Cotton)"
-                                        rows="3"
-                                        autoComplete="new-password"
-                                    />
-                                    <ErrorMessage name="cropsGrown" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-
-                                {/* Bio */}
-                                <div className="md:col-span-2">
-                                    <label className="block text-gray-700 mb-2" htmlFor="bio">
-                                        <div className="flex items-center">
-                                            <MdOutlineDescription className="text-green-600 mr-2" />
-                                            <span>Bio</span>
-                                        </div>
-                                    </label>
-                                    <Field
-                                        as="textarea"
-                                        id="bio"
-                                        name="bio"
-                                        className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                                            errors.bio && touched.bio ? ' focus:ring-red-500' : ''
-                                        }`}
-                                        placeholder="Tell us about yourself and your farming journey"
-                                        rows="4"
-                                        autoComplete="new-password"
-                                    />
-                                    <ErrorMessage name="bio" component="div" className="text-red-500 text-sm mt-1" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Aadhar Verification Section */}
-                        <div className="bg-white rounded-lg shadow-sm p-6">
-                            <div className="flex items-center mb-4">
-                                <FaIdCard className="text-green-600 mr-2" />
-                                <h2 className="text-xl font-semibold text-gray-800">Aadhar Verification</h2>
-                            </div>
-
-                            <div className="mb-4">
-                                <p className="text-gray-600">Verifying your Aadhar will give you access to government schemes and subsidies</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-6">
-                                {/* Aadhar Image Upload */}
-                                <div>
-                                    <ImageUploader
-                                        onImageSelect={handleAadharImageUpload}
-                                        label="Upload Aadhar Card Image"
-                                        aspect={1.6}
-                                        maxSizeMB={1}
-                                        previewShape="rectangle"
-                                    />
-                                </div>
-
-                                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-                                    <div className="flex">
-                                        <FaInfoCircle className="text-yellow-400 mt-0.5 mr-2" />
-                                        <div>
-                                            <p className="text-sm text-yellow-700">
-                                                Your Aadhar details will be securely stored and verified by our team.
-                                                This process may take up to 24 hours.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Submit Section */}
-                        <div className="flex justify-center">
-                            <ButtonLoader
-                                buttonId="profileUpdateButton"
-                                type="submit"
-                                className="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors font-medium"
-                                disabled={isSubmitting}
-                            >
-                                Complete Profile
-                            </ButtonLoader>
-                        </div>
-                    </Form>
-                )}
-            </Formik>
-        </div>
-    );
-};
-
-export default UserProfileForm;
+export default ProfilePage;

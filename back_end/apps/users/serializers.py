@@ -2,7 +2,7 @@ from cloudinary.utils import cloudinary_url
 import cloudinary.uploader
 import cloudinary
 import json
-from users.models import CustomUser, Address, FarmingType
+from users.models import CustomUser, Address
 import re
 from django.core.cache import cache
 from rest_framework import serializers
@@ -242,139 +242,164 @@ class AdminLoginSerializer(serializers.Serializer):
 ########################  User proile updation section serilizes #######################
 # =========================== User profile updation ========================#
 
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from users.models import Address
+import json
+from .validators import (
+    validate_phone_number, validate_experience, validate_email, 
+    validate_aadhaar_image, validate_profile_image, validate_name,
+    validate_date_of_birth,validate_text_field
+)
 
-# serializers.py
-from cloudinary.exceptions import Error as CloudinaryError
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Unified serializer for updating user profile, address, and file uploads."""
 
-class AddressSerializer(serializers.ModelSerializer):
+    profileImage = serializers.ImageField(required=False, write_only=True,validators=[validate_profile_image])
+    aadhaarImage = serializers.ImageField(required=False, write_only=True, validators=[validate_aadhaar_image])
+    location = serializers.JSONField(required=False)  # Directly handle JSON input
+    home_address = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
-        model = Address
-        fields = ['name', 'state', 'country', 'latitude',
-                  'longitude', 'place_id', 'local_address']
+        model = get_user_model()
+        fields = [
+            'first_name', 'last_name', 'username', 'phone_number', 'email',
+            'date_of_birth', 'farming_type', 'experience', 'bio',
+            'profileImage', 'aadhaarImage', 'location','home_address'
+        ]
+        extra_kwargs = {
+            'first_name': {'required': True, 'label': "First Name",'validators': [validate_name]},
+            'last_name': {'required': True, 'label': "Last Name",'validators': [validate_name]},
+            'username': {'required': True, 'label': "Username",'validators': [validate_name]},
+            'phone_number': {'required': True, 'label': "Phone Number", 'validators': [validate_phone_number]},
+            'email': {'required': True, 'label': "Email", 'validators': [validate_email]},
+            'date_of_birth': {'required': True, 'label': "Date of Birth",'validators': [validate_date_of_birth]},
+            'farming_type': {'required': True, 'label': "Farming Type"},
+            'experience': {'required': True, 'label': "Experience",'validators': [validate_experience]},
+            'bio': {'required': True, 'label': "Bio",'validators': [validate_text_field]}
+        }
 
+    
+    # Validation for every fields are required 
+    def validate(self, data):
+        """Ensure all fields are provided and not empty, with readable field names."""
+        
+        # Mapping field names to human-readable labels
+        field_labels = {field: self.fields[field].label or field.replace("_", " ").title() for field in self.fields}
 
-class FarmingTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FarmingType
-        fields = ['id', 'name', 'description']
+        required_fields = list(field_labels.keys())
 
+        missing_fields = [field for field in required_fields if field not in data or data[field] in [None, '', [],{}]]
 
-class UserProfileUpdateSerializer(serializers.ModelSerializer):
-    location = serializers.JSONField(required=False)
-    farmingType = serializers.JSONField(required=False)
+        if missing_fields:
+            raise serializers.ValidationError({
+                field: f"{field_labels[field]} is required and cannot be empty." for field in missing_fields
+            })
+
+        return data
+    
+    def update(self, instance, validated_data):
+        """Handles updating user profile, address, and file uploads in a single method."""
+       
+        location_data = validated_data.pop('location', None)
+        home_address=validated_data.pop('home_address','')
+        print("location_data:", location_data)  # Debugging
+
+        if location_data:
+            # Create or update Address
+            address, created = Address.objects.update_or_create(
+                place_id=location_data.get('place_id'),
+                defaults={
+                    'full_location': location_data.get('full_location'),
+                    'latitude': location_data.get('latitude'),
+                    'longitude': location_data.get('longitude'),
+                    'location_name': location_data.get('location_name'),
+                    'country': location_data.get('country'),
+                    'home_address': home_address
+                }
+            )
+            instance.address = address  # Assign address to user
+
+      
+        if 'profileImage' in validated_data:
+            image = validated_data.pop('profileImage')
+            
+            # Upload image to Cloudinary with transformations and security settings
+            upload_result = cloudinary.uploader.upload(
+                image,
+                folder="private_files/profile_pictures/",  # Store images in a private folder
+                resource_type="image",  # Specify resource type
+                type="authenticated",  # Ensure secure access (authenticated delivery)
+                transformation=[
+                    {"width": 500, "height": 500, "crop": "limit"},  # Resize max 500x500
+                    {"quality": "auto:good"},  # Optimize quality while reducing size
+                    {"fetch_format": "auto"}  # Serve best format (e.g., WebP, JPEG)
+                ]
+            )
+
+            # Store Cloudinary public ID 
+            instance.profile_picture = upload_result["public_id"]
+
+        if 'aadhaarImage' in validated_data:
+            image = validated_data.pop('aadhaarImage')
+
+            # Upload Aadhaar card to Cloudinary with transformations & security settings
+            upload_result = cloudinary.uploader.upload(
+                image,
+                folder="private_files/aadhaar_cards/",  # Secure storage path
+                resource_type="image",  
+                type="authenticated",  # Ensure secure access (authenticated delivery)
+                transformation=[
+                    {"width": 1000, "height": 1000, "crop": "limit"},  # Resize max 1000x1000
+                    {"quality": "auto:good"},  # Optimize quality while reducing size
+                    {"fetch_format": "auto"}  # Serve best format (e.g., WebP, JPEG)
+                ]
+            )
+
+            # Store only the Cloudinary public ID (not full URL)
+            instance.aadhar_card = upload_result["public_id"]
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            
+        # mark profile was updated with proper data 
+        instance.profile_completed = True
+        instance.save()
+        return instance
+    
+######################### get users data serializers ########################
+
+from rest_framework import serializers
+from users.models import CustomUser
+
+class UserDashboardSerializer(serializers.ModelSerializer):
+    """Serializer for fetching user dashboard data."""
+    
+    profile_picture = serializers.SerializerMethodField()  # Secure URL
+    address = serializers.SerializerMethodField()  # Format Address
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'bio', 'experience', 'crops_grown',
-                  'profile_picture', 'aadhar_card', 'location', 'farmingType', 'phone_number']
-        extra_kwargs = {
-            'username': {'required': False},
-            'email': {'required': False, 'read_only': True},
-        }
+        fields = [
+            "id", "email", "username", "phone_number",
+            "profile_picture", "address", "farming_type",
+            "experience", "bio", "date_of_birth", "profile_completed",
+            "created_at"
+        ]  # Only necessary fields
 
-    def update(self, instance, validated_data):
-        # Handle location data
-        location_data = validated_data.pop('location', None)
-        if location_data:
-            if isinstance(location_data, str):
-                location_data = json.loads(location_data)
+    def get_profile_picture(self, obj):
+        """Return a secure profile picture URL."""
+        return obj.get_secure_profile_picture_url()  # Uses model method
 
-            # Create or update Address
-            address_data = {
-                'name': location_data.get('name'),
-                'state': location_data.get('state'),
-                'country': location_data.get('country'),
-                'latitude': location_data.get('latitude'),
-                'longitude': location_data.get('longitude'),
-                'place_id': location_data.get('place_id'),
-                'local_address': validated_data.pop('address', None)
+    def get_address(self, obj):
+        """Return structured address details if available."""
+        if obj.address:
+            return {
+                "full_location": obj.address.full_location,
+                "latitude": obj.address.latitude,
+                "longitude": obj.address.longitude,
+                "location_name": obj.address.location_name,
+                "country": obj.address.country,
+                "home_address": obj.address.home_address,
             }
-
-            if instance.address:
-                address = instance.address
-                for key, value in address_data.items():
-                    if value is not None:
-                        setattr(address, key, value)
-                address.save()
-            else:
-                address = Address.objects.create(**address_data)
-                instance.address = address
-
-        # Handle farming type data
-        farming_type_data = validated_data.pop('farmingType', None)
-        if farming_type_data:
-            if isinstance(farming_type_data, str):
-                farming_type_data = json.loads(farming_type_data)
-
-            farming_id = farming_type_data.get('id')
-            farming_type, created = FarmingType.objects.get_or_create(
-                id=farming_id,
-                defaults={
-                    'name': farming_type_data.get('name'),
-                    'description': farming_type_data.get('description')
-                }
-            )
-            instance.farming_type = farming_type
-
-        # Handle first name and last name
-        first_name = validated_data.pop('firstName', None)
-        if first_name:
-            instance.first_name = first_name
-
-        last_name = validated_data.pop('lastName', None)
-        if last_name:
-            instance.last_name = last_name
-
-        # Handle crops grown
-        crops_grown = validated_data.pop('cropsGrown', None)
-        if crops_grown:
-            instance.crops_grown = crops_grown
-
-        # Access request for file handling
-        request = self.context.get('request')
-
-
-        # Handle profile image upload with signed upload
-        if request and request.FILES.get('profileImage'):
-            profile_file = request.FILES.get('profileImage')
-            try:
-                upload_result = cloudinary.uploader.upload(
-                    profile_file,
-                    folder="private_files/profile_pictures/",
-                    type="authenticated",
-                    access_mode="authenticated",
-                    use_filename=True
-                )
-                instance.profile_picture = upload_result['public_id']
-            except CloudinaryError as e:
-                raise serializers.ValidationError(
-                    {"profileImage": f"Upload failed: {str(e)}"})
-
-        # Handle Aadhar image upload with additional security
-        if request and request.FILES.get('aadharImage'):
-            aadhar_file = request.FILES.get('aadharImage')
-            try:
-                upload_result = cloudinary.uploader.upload(
-                    aadhar_file,
-                    folder="private_files/aadhar_cards/",
-                    type="authenticated",
-                    access_mode="authenticated",
-                    use_filename=True,
-                    access_control=[{"access_type": "token"}]
-                )
-                instance.aadhar_card = upload_result['public_id']
-            except CloudinaryError as e:
-                raise serializers.ValidationError(
-                    {"aadharImage": f"Upload failed: {str(e)}"})
-            
-        # Update the remaining fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        # Set profile as completed if essential fields are filled
-        if (instance.first_name and instance.last_name and instance.address and
-                instance.farming_type and instance.profile_picture):
-            instance.profile_completed = True
-
-        instance.save()
-        return instance
+        return None  # If no address is set
