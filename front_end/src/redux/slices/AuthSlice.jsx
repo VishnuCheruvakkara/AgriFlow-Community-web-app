@@ -17,7 +17,7 @@ const authSlice = createSlice({
             if (action.payload.profile_completed !== undefined) {
                 state.user = {
                     ...state.user,  // Keep existing user data
-                    profile_completed: action.payload.profile_completed  // ✅ Update only profile_completed
+                    profile_completed: action.payload.profile_completed  // Update only profile_completed
                 };
             } else {
                 state.user = action.payload.user || state.user;

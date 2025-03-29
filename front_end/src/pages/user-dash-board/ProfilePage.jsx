@@ -24,7 +24,8 @@ function ProfilePage() {
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user)
+  
+  const user = useSelector((state) => state.auth.user) 
 
   // setup for the form data
   const [formData, setFormData] = useState({
@@ -351,7 +352,7 @@ function ProfilePage() {
                   id="farmingType"
                   value={formData.farmingType}
                   onChange={(e) => setFormData({ ...formData, farmingType: e.target.value })}
-                  defaultValue="" // ✅ Fix: Use defaultValue instead of selected on <option>
+                  defaultValue="" // Fix: Use defaultValue instead of selected on <option>
                   className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.farming_type ? " focus:ring-red-500" : "focus:ring-green-500"
                   } transition duration-500 ease-in-out`}
                 >

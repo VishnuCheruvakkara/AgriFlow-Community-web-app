@@ -75,7 +75,7 @@ function Footer() {
                 </div>
                 <div className="mt-8 pt-6 border-t text-center text-gray-500 text-sm">
                     <p className="flex justify-center items-center gap-1">
-                        <MdCopyright className="text-base" /> 2025 FarmConnect. All rights reserved.
+                        <MdCopyright className="text-base" />  {new Date().getFullYear()} AgriFlow. All rights reserved.
                     </p>
                     <p className="mt-1 flex justify-center items-center gap-1">
                         Made with <IoIosHeart className="text-red-500 text-lg" /> for farmers across the world
