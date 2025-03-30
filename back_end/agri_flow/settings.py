@@ -267,3 +267,10 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 
 # Get the API key from the environment variable
 LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")
+
+##################  Rest based Pagination configurations  ##########################
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,  # Adjust page size as needed
+}

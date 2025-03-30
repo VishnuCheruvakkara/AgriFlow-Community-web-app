@@ -13,8 +13,9 @@ h3,h2,label{
 }
 
 
-body {
+body,html {
   font-family: 'Poppins', sans-serif;
+  background-color: white !important;
 }
 
 /* This will hide the scrollbar but still allow horizontal scrolling */

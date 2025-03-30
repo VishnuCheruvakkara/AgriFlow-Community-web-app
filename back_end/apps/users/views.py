@@ -23,7 +23,7 @@ from django.utils.timezone import now
 from django.contrib.sessions.models import Session
 ############ for User profile update ##################
 #============ for user location updated =============#
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 import requests
 #========== for prfile update =====================#
 
@@ -313,8 +313,8 @@ class GoogleAuthCallbackView(APIView):
             return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-############################ Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
-
+############################ Token creation| working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
+#========================== Tokern creation for users only =======================================#
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]  # required
 
@@ -350,6 +350,47 @@ class RefreshTokenView(APIView):
                 {'message': 'Invalid or expired refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+        
+#==============================   Token creation for Admin   =====================================#
+
+class AdminRefreshTokenView(APIView):
+    permission_classes = [AllowAny]  # Allow unauthenticated requests to refresh
+
+    def post(self, request, *args, **kwargs):
+        print("\n🔹 [DEBUG] Admin RefreshTokenView Called")
+        print("🔹 [DEBUG] Request Headers:", request.headers)
+        print("🔹 [DEBUG] Request Cookies:", request.COOKIES)
+
+        # Admin refresh token from cookies
+        admin_refresh_token = request.COOKIES.get('admin_refresh_token')
+
+        print("🔹 [DEBUG] Extracted Admin Refresh Token:", admin_refresh_token)
+
+        if not admin_refresh_token:
+            print("❌ [ERROR] Admin refresh token not found in cookies!")
+            return Response(
+                {'message': 'Admin refresh token not found!'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+            # Decode and validate admin refresh token
+            refresh = RefreshToken(admin_refresh_token)
+            access_token = str(refresh.access_token)  # Generate new access token
+
+            print("✅ [SUCCESS] New Admin Access Token Generated:", access_token)
+
+            return Response(
+                {'access': access_token},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            print(f"❌ [ERROR] Invalid or expired admin refresh token! Exception: {str(e)}")
+            return Response(
+                {'message': 'Invalid or expired admin refresh token!'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
 
 
 ##################################################  Forgot password section #####################################
@@ -442,7 +483,7 @@ class ResendOTPView(APIView):
 
         return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
 
-# Admin Login View for authentication  ###########################3
+################################ Admin Login View for authentication  ###########################3
 
 class AdminLoginView(APIView):
     """JWT-based Admin Login"""
@@ -596,3 +637,48 @@ class GetUserDataView(RetrieveAPIView):
         user = request.user  # Get logged-in user
         serializer = self.get_serializer(user)  # Serialize data
         return Response(serializer.data)  # Send response
+
+
+##################  Get all users data in the admin side #######################
+
+from rest_framework import generics,filters
+from users.serializers import GetAllUsersInAdminSideSerializer
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
+
+#=======================Pagination set up with get user data =======================#
+#Pagination part 
+class CustomUserPagination(PageNumberPagination):
+    page_size=5 # Deafault page size
+    page_size_query_param='page_size'
+    max_page_size=50 # Limit max page size to avoid performance issues
+#Data fetching part
+class GetAllUsersInAdminSideView(generics.ListAPIView):
+    """
+    API view to fetch all users' data.
+    Only admin users should access this endpoint.
+    """
+    serializer_class = GetAllUsersInAdminSideSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser] 
+    pagination_class=CustomUserPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'email']
+
+    def get_queryset(self):
+        queryset=User.objects.filter(is_superuser=False)
+        filter_type=self.request.query_params.get('filter',None)
+        search_query=self.request.query_params.get('search',None)
+
+        #Apply filtering 
+        if filter_type=='profile_not_updated':
+            queryset=queryset.filter(profile_completed=False)
+        elif filter_type=='aadhar_not_verified':
+            queryset=queryset.filter(is_aadhar_varified=False)
+
+        #Apply Search 
+        if search_query:
+            queryset=queryset.filter(
+                Q(username__icontains=search_query) | Q(email__icontains=search_query)
+            )
+
+        return queryset

@@ -60,7 +60,6 @@ const UserLayout = () => {
 
             )}
 
-
             {/* Footer section */}
             <Footer />
 
