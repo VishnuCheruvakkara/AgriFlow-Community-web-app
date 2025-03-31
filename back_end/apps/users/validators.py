@@ -97,3 +97,28 @@ def validate_text_field(value):
         raise ValidationError("Invalid input: The text must be at least 25 characters long.")
 
     return cleaned_value
+
+def validate_home_address(value):
+    """Validate home address: Allow letters, numbers, spaces, commas, periods, hyphens, and apostrophes.
+    Must be at least 10 characters long and contain at least one letter."""
+
+    # Strip any HTML tags using bleach
+    cleaned_value = bleach.clean(value, tags=[], strip=True).strip()
+
+    # Ensure it contains only allowed characters
+    if not re.fullmatch(r"[A-Za-z0-9.,' -]+", cleaned_value):
+        raise ValidationError("Invalid address: Only letters, numbers, spaces, commas, periods, hyphens, and apostrophes are allowed.")
+
+    # Reject addresses that contain only numbers, only dots, or only commas
+    if cleaned_value.isdigit() or cleaned_value.replace('.', '').strip() == '' or cleaned_value.replace(',', '').strip() == '':
+        raise ValidationError("Invalid address: Cannot be only numbers, only dots, or only commas.")
+
+    # Ensure at least one letter is present
+    if not re.search(r'[A-Za-z]', cleaned_value):
+        raise ValidationError("Invalid address: The address must contain at least one letter.")
+
+    # Ensure the address is at least 10 characters long
+    if len(cleaned_value) < 10:
+        raise ValidationError("Invalid address: The address must be at least 10 characters long.")
+
+    return cleaned_value

@@ -114,6 +114,16 @@ select::-ms-expand {
   display: none;
 }
 
+
+html, body {
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Hide the default dropdown arrow  in the user profile updation section */
+select::-ms-expand {
+  display: none;
+}
+
 select {
   appearance: none; /* Hide default arrow */
   -webkit-appearance: none;

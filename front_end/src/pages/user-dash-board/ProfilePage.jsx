@@ -140,7 +140,7 @@ function ProfilePage() {
           <div className="flex flex-col items-center justify-center py-10">
             <h2 className="text-xl font-semibold mb-4">Upload Profile Image</h2>
             <ProfileImageSelector onImageSelect={handleProfileImageSelect} />
-            {<errors className="profile"></errors> && <p className="text-red-500 text-sm mt-4">{errors.profileImage}</p>}
+            {<errors className="profile"></errors> && <p className="text-red-500 text-sm mt-2">{errors.profileImage}</p>}
           </div>
 
 
@@ -156,13 +156,15 @@ function ProfilePage() {
                     <FaUser size={20} />
                   </span>
                   <input
+                    required
                     id="firstName"
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     placeholder="Enter first name"
                     className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.first_name ? " focus:ring-red-500" : "focus:ring-green-500"
-                    } transition duration-500 ease-in-out`}
+                      } transition duration-500 ease-in-out`}
+                   
                   />
                 </div>
                 {errors.first_name && <p className="text-red-500 text-sm mt-2">{errors.first_name}</p>}
@@ -176,6 +178,7 @@ function ProfilePage() {
                     <FaUser size={20} />
                   </span>
                   <input
+                    required
                     id="lastName"
                     type="text"
                     value={formData.lastName}
@@ -202,6 +205,7 @@ function ProfilePage() {
                     <FaUser size={20} />
                   </span>
                   <input
+                    required
                     id="username"
                     type="text"
                     value={formData.username}
@@ -225,6 +229,7 @@ function ProfilePage() {
                   Phone Number
                 </label>
                 <PhoneInput
+                  required
                   country={"in"} // Default country
                   value={formData.phone}
                   onChange={(value) => setFormData({ ...formData, phone: value })}
@@ -247,6 +252,7 @@ function ProfilePage() {
                     <FaEnvelope size={20} />
                   </span>
                   <input
+                    required
                     id="email"
                     type="email"
                     value={formData.email}
@@ -277,6 +283,7 @@ function ProfilePage() {
                     <FaHome size={20} /> {/* Home icon */}
                   </span>
                   <input
+                    required
                     id="homeAddress"
                     type="text"
                     value={formData.homeAddress}
@@ -308,7 +315,7 @@ function ProfilePage() {
 
             <div className="flex flex-col items-center justify-center py-10">
               <AadharImageUploads onImageSelect={handleAadhaarImageSelect} />
-              {errors.aadhaarImage && <p className="text-red-500 text-sm mt-4">{errors.aadhaarImage}</p>}
+              {errors.aadhaarImage && <p className="text-red-500 text-sm mt-2">{errors.aadhaarImage}</p>}
             </div>
 
           </section>
@@ -325,6 +332,7 @@ function ProfilePage() {
                   <FaTractor size={20} />
                 </span>
                 <input
+                  required
                   id="farmingExperience"
                   type="number"
                   value={formData.farmingExperience}
@@ -349,6 +357,7 @@ function ProfilePage() {
                 </span>
                 {/* Select Dropdown */}
                 <select
+                  required
                   id="farmingType"
                   value={formData.farmingType}
                   onChange={(e) => setFormData({ ...formData, farmingType: e.target.value })}
@@ -389,6 +398,7 @@ function ProfilePage() {
                   <FaTractor size={20} />
                 </span>
                 <textarea
+                  required
                   id="farmingBio"
                   value={formData.bio_data}
                   onChange={(e) => setFormData({ ...formData, bio_data: e.target.value })}

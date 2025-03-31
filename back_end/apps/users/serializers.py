@@ -249,7 +249,7 @@ import json
 from .validators import (
     validate_phone_number, validate_experience, validate_email, 
     validate_aadhaar_image, validate_profile_image, validate_name,
-    validate_date_of_birth,validate_text_field
+    validate_date_of_birth,validate_text_field,validate_home_address
 )
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
@@ -258,7 +258,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     profileImage = serializers.ImageField(required=False, write_only=True,validators=[validate_profile_image])
     aadhaarImage = serializers.ImageField(required=False, write_only=True, validators=[validate_aadhaar_image])
     location = serializers.JSONField(required=False)  # Directly handle JSON input
-    home_address = serializers.CharField(required=False, allow_blank=True)
+    home_address = serializers.CharField(required=False, allow_blank=True,validators=[validate_home_address])
 
     class Meta:
         model = get_user_model()

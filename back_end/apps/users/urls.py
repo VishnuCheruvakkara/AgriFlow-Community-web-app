@@ -3,7 +3,7 @@ from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginVie
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
 from .views import LocationAutocompleteView,ProfileUpdateView
-from .views import  GetUserDataView,GetAllUsersInAdminSideView
+from .views import  GetUserDataView,GetAllUsersInAdminSideView,AdminRefreshTokenView
 
 
 urlpatterns = [
@@ -28,6 +28,8 @@ urlpatterns = [
     path("auth/callback/", GoogleAuthCallbackView.as_view(), name="google_callback"),
     #for refrsh and access token controlling with axios interceptors.
     path('token/refresh/', RefreshTokenView.as_view(), name='token_refresh'),
+    #for admin refresh token handling 
+    path('admin/token-refresh/', AdminRefreshTokenView.as_view(), name='admin_token_refresh'),
 
     #=============== urls for usersprofile creation ================#
     path("location-autocomplete/", LocationAutocompleteView.as_view(), name="location_autocomplete"),

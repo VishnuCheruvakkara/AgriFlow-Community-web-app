@@ -1,12 +1,31 @@
 import React, { useState } from "react";
-import { AiOutlineEdit, AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 
-const ProfileImageSelector = ({onImageSelect}) => {
+const ProfileImageSelector = ({ onImageSelect }) => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [error, setError] = useState("");
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
+
     if (file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!allowedTypes.includes(file.type)) {
+        setError("Only PNG, JPG, and JPEG formats are allowed.");
+        setSelectedImage(null);
+        onImageSelect(null);
+        return;
+      }
+
+      const maxSize = 2 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setError("File size must be less than 2MB.");
+        setSelectedImage(null);
+        onImageSelect(null);
+        return;
+      }
+
+      setError("");
       setSelectedImage(URL.createObjectURL(file));
       onImageSelect(file);
     }
@@ -14,35 +33,47 @@ const ProfileImageSelector = ({onImageSelect}) => {
 
   const removeImage = () => {
     setSelectedImage(null);
+    setError("");
     onImageSelect(null);
   };
 
   return (
-    <div className="relative w-32 h-32">
-      {/* Profile Image / Placeholder */}
-      <label className="w-32 h-32 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center cursor-pointer overflow-hidden relative">
-        {selectedImage ? (
-          <img src={selectedImage} alt="Profile" className="w-full h-full object-cover  border-4 border-white rounded-full" />
-        ) : (
-          <AiOutlinePlus size={40} className="text-gray-500" />
-        )}
-        <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-      </label>
+    <div className="flex flex-col items-center">
+      {/* Profile Image Upload Area */}
+      <div className="relative w-32 h-32">
+        <label className="w-32 h-32 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center cursor-pointer overflow-hidden relative">
+          {selectedImage ? (
+            <img
+              src={selectedImage}
+              alt="Profile"
+              className="w-full h-full object-cover border-4 border-white rounded-full"
+            />
+          ) : (
+            <AiOutlinePlus size={40} className="text-gray-500" />
+          )}
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </label>
 
-      {/* Edit & Remove Icons */}
-      {selectedImage ? (
-        <>
-          {/* Edit Icon */}
-         
-          {/* Remove Icon */}
-          <div
-            className="absolute top-1 right-1 bg-red-500 p-2 rounded-full text-white cursor-pointer"
+        {/* Remove Image Button */}
+        {selectedImage && (
+          <button
+            className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 p-2 rounded-full text-white shadow-lg hover:bg-red-600 transition"
             onClick={removeImage}
           >
-            <AiOutlineClose size={12} />
-          </div>
-        </>
-      ) : null}
+            <AiOutlineClose size={14} />
+          </button>
+        )}
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <p className="text-red-500 text-sm mt-5 text-center w-full">{error}</p>
+      )}
     </div>
   );
 };
