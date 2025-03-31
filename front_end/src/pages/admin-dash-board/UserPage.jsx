@@ -20,7 +20,7 @@ const UsersPage = () => {
   const fetchUsers = async (page, filter, search) => {
     try {
       const response = await AdminAuthenticatedAxiosInstance.get(`/users/admin/get-all-users-data/`, {
-        params: { page: page, page_size: pageSize, filter: filter || undefined, search: search || undefined }
+        params: { page: page, page_size: pageSize, filter: filter || undefined, search: search.trim() || undefined }
       });
 
       setUsers(response.data.results);
@@ -38,10 +38,12 @@ const UsersPage = () => {
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
+    setCurrentPage(1);
   };
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
+    setUsers([]);
     setCurrentPage(1); // Reset to page 1 when filter changes
   };
 
@@ -52,29 +54,47 @@ const UsersPage = () => {
         <h2 className="text-2xl font-bold text-green-600">User Management</h2>
 
         {/* filter option  */}
+
+        {/* Filters */}
         <div className="flex w-full bg-green-100 rounded-lg overflow-hidden shadow-md mt-4">
           <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400"} text-white`}
+            className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400"}
+      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
             onClick={() => handleFilterChange("")}>
             All
           </button>
           <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400"} text-white`}
+            className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400"}
+      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
             onClick={() => handleFilterChange("profile_not_updated")}>
             Profile Not Updated
           </button>
           <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400"} text-white`}
+            className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400"}
+      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
             onClick={() => handleFilterChange("aadhaar_not_verified")}>
             Aadhaar Not Verified
+          </button>
+          <button
+            className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400"}
+      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+            onClick={() => handleFilterChange("active")}>
+            Active
+          </button>
+          <button
+            className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400"}
+      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+            onClick={() => handleFilterChange("blocked")}>
+            Blocked
           </button>
         </div>
 
         <div className="mt-8 grid grid-cols-1  gap-6">
           <div className="bg-white p-6 rounded-lg border border-gray-100  shadow-lg">
             <h3 className="font-bold text-gray-700 mb-4">Available Farmers</h3>
+
             {/* Search Bar */}
-            <div className="flex border-2 my-4 focus-within:border-green-500 items-center w-full bg-white rounded-lg shadow-sm p-3">
+            <div className="flex border-2 my-4 focus-within:border-green-500 items-center w-full bg-white rounded-lg shadow-sm p-3 transition duration-300 ease-in-out">
               <RiSearchLine className="text-gray-500 text-xl" />
               <input
                 type="text"

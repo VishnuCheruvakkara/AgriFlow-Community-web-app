@@ -665,15 +665,22 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
     search_fields = ['username', 'email']
 
     def get_queryset(self):
-        queryset=User.objects.filter(is_superuser=False)
+        queryset=User.objects.filter(is_superuser=False,is_verified=True)
         filter_type=self.request.query_params.get('filter',None)
         search_query=self.request.query_params.get('search',None)
 
         #Apply filtering 
         if filter_type=='profile_not_updated':
             queryset=queryset.filter(profile_completed=False)
-        elif filter_type=='aadhar_not_verified':
-            queryset=queryset.filter(is_aadhar_varified=False)
+        elif filter_type == 'aadhaar_not_verified':
+            print("This called")
+            queryset = queryset.filter(is_aadhar_verified=False, profile_completed=True)
+        elif filter_type == "active":
+            queryset = queryset.filter(is_active=True)  # Active users
+        elif filter_type == "blocked":
+            queryset = queryset.filter(is_active=False)  # Blocked users
+
+            
 
         #Apply Search 
         if search_query:
