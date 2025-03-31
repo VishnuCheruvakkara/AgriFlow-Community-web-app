@@ -366,8 +366,10 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.profile_completed = True
         instance.save()
         return instance
+
+####################### User Management Admin Side ######################
     
-######################### get users data serializers ########################
+#================================== get users data serializers ========================#
 
 from rest_framework import serializers
 from users.models import CustomUser
@@ -406,7 +408,7 @@ class UserDashboardSerializer(serializers.ModelSerializer):
 
 
    
-############################  Get all the usrs data in the admin side #################################
+#=======================  Get all the usrs data in the admin side =======================#
 
 class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()  # Secure URL
@@ -428,3 +430,9 @@ class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
                 'home_address': obj.address.home_address
             }
         return None  # No address assigned
+
+#======================= Change user status in admin side ===========================#
+class UserStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'is_active']

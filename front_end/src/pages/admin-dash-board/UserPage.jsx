@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticatedAxiosInstance";
 import defaultUserImage from '../../assets/images/user-default.png'
 import { RiSearchLine } from "react-icons/ri";
+// sweet alert import
+import Swal from "sweetalert2";
+import { showToast } from "../../components/toast-notification/CustomToast";
 
 const UsersPage = () => {
 
@@ -45,6 +48,56 @@ const UsersPage = () => {
     setFilter(newFilter);
     setUsers([]);
     setCurrentPage(1); // Reset to page 1 when filter changes
+  };
+
+
+  const handleStatusToggle = async (userId, currentStatus) => {
+    const newStatus = !currentStatus;
+    const result = await Swal.fire({
+      title: "Modify User Status",
+      text: "This action will update the user's status. Please confirm to proceed.",
+      showCancelButton: true,
+      confirmButtonText: 'Yes, change status!',
+      cancelButtonText: 'Cancel',
+      showClass: {
+        popup: "swal-fade-in", // Custom fade-in class
+      },
+      hideClass: {
+        popup: "swal-fade-out",
+      },
+
+      customClass: {
+        popup: 'my-swal-popup',
+        title: 'my-swal-title',
+        content: 'my-swal-content',
+        confirmButton: 'my-swal-confirm',
+        cancelButton: 'my-swal-cancel',
+      }
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await AdminAuthenticatedAxiosInstance.patch(`/users/change-status/${userId}/`, {
+          is_active: newStatus,
+        });
+
+        if (response.status === 200) {
+          // Update the user's status in the frontend after backend responds
+          setUsers((prevUsers) =>
+            prevUsers.map((user) =>
+              user.id === userId ? { ...user, is_active: newStatus } : user
+            )
+          );
+
+          showToast("User status has been changed.", "success");
+        } else {
+          showToast("User status was not changed..", "error");
+        }
+      } catch (error) {
+        console.error("Error updating status:", error);
+        showToast("Something went wrong.", "error");
+      }
+    }
   };
 
   return (
@@ -121,7 +174,7 @@ const UsersPage = () => {
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Location</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Active</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Aadhar</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">View</th>
                       </tr>
                     </thead>
@@ -160,26 +213,44 @@ const UsersPage = () => {
                             <div className="text-sm text-gray-500">{user.address_details?.country || "Unknown"}</div>
                           </td>
 
-                          {/* Status (Verified / Not Verified) */}
+                          {/*Active or Inactive status handling */}
                           <td className="px-4 py-4">
                             <span
-                              className={`px-2 py-1 text-xs font-semibold rounded-full ${user.is_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                }`}
+                              className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap cursor-pointer 
+                              ${user.is_active ? "bg-green-100 text-green-800 px-2 py-2" : "bg-red-100 text-red-800 px-2 py-2"}`}
+                              onClick={() => handleStatusToggle(user.id, user.is_active)}
                             >
-                              {user.is_active ? "Active" : "Inactive"}
+                              {user.is_active ? (
+                                <>
+                                  <FaCheckCircle className="text-green-600 w-4 h-3" />Active
+                                </>
+                              ) : (
+                                <>
+                                  <FaTimesCircle className="text-red-600 w-4 h-3" /> Blocked
+                                </>
+                              )}
                             </span>
                           </td>
 
+                          {/* Adhar Status */}
 
-                          {/* Active Status */}
                           <td className="px-4 py-4">
                             <span
-                              className={`px-2 py-1 text-xs font-semibold rounded-full ${user.is_active ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
-                                }`}
+                              className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap 
+                              ${user.is_aadhar_verified ? "bg-green-100 text-green-800 px-2 py-2" : "bg-red-100 text-red-800 px-2 py-2"}`}
                             >
-                              {user.is_active ? "Active" : "Inactive"}
+                              {user.is_aadhar_verified ? (
+                                <>
+                                  <FaCheckCircle className="text-green-600 w-4 h-3" /> Verified
+                                </>
+                              ) : (
+                                <>
+                                  <FaTimesCircle className="text-red-600 w-4 h-3" /> Not Verified
+                                </>
+                              )}
                             </span>
                           </td>
+
 
                           {/* View Button */}
                           <td className="px-4 py-4 text-center">

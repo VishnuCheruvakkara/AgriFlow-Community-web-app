@@ -689,3 +689,17 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
             )
 
         return queryset
+#================== View for handle status of the user shwowed in the admin side user management ===============================#
+
+from users.serializers import UserStatusSerializer
+class UserStatusUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserStatusSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]  # Only authenticated admins can change the status
+
+    def patch(self, request, *args, **kwargs):
+        user = self.get_object()
+        # Ensure that the logged-in user has permission to update the status
+        if not request.user.is_superuser and request.user != user:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        return self.update(request, *args, **kwargs)

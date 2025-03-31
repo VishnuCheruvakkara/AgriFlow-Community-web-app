@@ -32,6 +32,7 @@
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
     "redux-persist": "^6.0.0",
+    "sweetalert2": "^11.17.2",
     "yup": "^1.6.1"
   },
   "devDependencies": {

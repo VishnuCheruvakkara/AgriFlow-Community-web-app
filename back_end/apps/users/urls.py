@@ -3,7 +3,7 @@ from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginVie
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
 from .views import LocationAutocompleteView,ProfileUpdateView
-from .views import  GetUserDataView,GetAllUsersInAdminSideView,AdminRefreshTokenView
+from .views import  GetUserDataView,GetAllUsersInAdminSideView,AdminRefreshTokenView,UserStatusUpdateView
 
 
 urlpatterns = [
@@ -37,5 +37,7 @@ urlpatterns = [
 
     #================== get user data =======================#
     path("get-user-data/", GetUserDataView.as_view(), name="get-user-data"),
-      path('admin/get-all-users-data/', GetAllUsersInAdminSideView.as_view(), name='get-all-users'),
+    path('admin/get-all-users-data/', GetAllUsersInAdminSideView.as_view(), name='get-all-users'),
+    #================== Change user status (active or incative) ===================#
+    path('change-status/<int:pk>/', UserStatusUpdateView.as_view(), name='user-status-update'),
 ]

@@ -129,3 +129,118 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
+
+
+
+
+
+
+
+/* SweetAlert2 Custom Styling */
+/* ===================  Competly customized confirmation alert with ok and cancel button (Admin side users status controll)============================  */
+
+/* Popup */
+.my-swal-popup {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 25rem; /* w-96 */
+  max-width: 24rem;
+}
+
+/* Title */
+.my-swal-title {
+  font-size: 24px; /* text-xl */
+  font-weight: 600; /* font-semibold */
+  color: #7d7d7d; /* Green */
+  
+}
+
+/* Content */
+.my-swal-content {
+  font-size: 0.7rem; /* text-sm */
+  color: #4b5563; /* Gray-700 */
+}
+
+/* Confirm Button */
+.my-swal-confirm {
+  background-color: #dcfce7; /* Green-100 */
+  border: 1px solid #16a34a; /* Green-600 */
+  color: #16a34a; /* Green text */
+  font-weight: 600;
+  padding: 0.5rem 1.5rem; /* py-2 px-6 */
+  border-radius: 6px; /* rounded-md */
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.my-swal-confirm:hover {
+  background-color: #1fdf66;
+  color: white;
+  box-shadow: none;
+}
+
+/* Cancel Button */
+.my-swal-cancel {
+  background-color: #fee2e2; /* Red-100 */
+  color: #e82e2e; /* Red-600 */
+  font-weight: 600;
+  padding: 0.5rem 1.5rem; /* py-2 px-6 */
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e82e2e; /* Green-600 */
+  
+}
+
+.my-swal-cancel:hover {
+  background-color: #ff2b2b; /* Red */
+  color: white;
+  box-shadow: none;
+  
+}
+
+.my-swal-confirm,
+.my-swal-cancel {
+  outline: none !important; /* Removes focus outline */
+}
+
+.my-swal-confirm:focus,
+.my-swal-cancel:focus {
+  outline: none !important; /* Ensure no focus ring */
+  box-shadow: none !important;
+}
+
+/* Fade-in effect */
+.swal-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Fade-out effect */
+.swal-fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+/* Keyframes for fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Keyframes for fade-out */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+
+
