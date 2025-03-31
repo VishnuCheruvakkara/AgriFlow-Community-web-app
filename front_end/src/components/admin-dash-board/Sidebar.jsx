@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaUsers,
@@ -13,11 +13,39 @@ import {
   FaBars,
   FaTimes
 } from "react-icons/fa";
+import { persistor } from '../../redux/Store';
 import AgriFlowWhiteLogo from '../../assets/images/agriflowwhite.png';
+import { useDispatch } from "react-redux";
+import { showToast } from "../toast-notification/CustomToast";
+import PublicAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance'
+import { adminLogout } from "../../redux/slices/AdminAuthSlice";
 
 const Sidebar = ({ onToggle }) => {
   const [isOpen, setIsOpen] = useState(true);
   const sidebarRef = useRef(null);
+
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await PublicAxiosInstance.post("users/admin/logout/"); // Ensure this is your logout endpoint
+      if (response.status === 200) {
+        showToast("Admin logged out successfully!", "success");
+
+        // Remove all stored authentication data
+        persistor.purge();
+        dispatch(adminLogout());
+
+        // Redirect to login page
+        navigate("/admin-login");
+      }
+    } catch (error) {
+      showToast("Logout failed. Try again.", "error");
+    }
+  };
+
 
   // Function to handle toggling via icon click
   const toggleSidebar = () => {
@@ -44,6 +72,7 @@ const Sidebar = ({ onToggle }) => {
     };
   }, [isOpen, onToggle]);
 
+
   return (
     <div
       ref={sidebarRef}
@@ -68,7 +97,7 @@ const Sidebar = ({ onToggle }) => {
       </div>
 
       <div className="px-2 py-4 border-b border-green-600">
-        <div 
+        <div
           className={`flex items-center ${isOpen ? 'px-3' : 'justify-center'} cursor-pointer`}
           onClick={toggleSidebar}
         >
@@ -189,11 +218,11 @@ const Sidebar = ({ onToggle }) => {
       </div>
 
       {/* Logout section clearly separated at bottom */}
-      <div className="absolute bottom-0 w-full border-t border-green-600 bg-green-700">
-        <Link
-          to="/logout"
-          className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-4 mx-2 my-2 text-white rounded-md hover:bg-red-600 transition-all duration-200 group hover:shadow-md`}
-        >
+      <div
+        className="absolute bottom-0 w-full border-t border-green-600 bg-green-700 cursor-pointer"
+        onClick={handleLogout} // Calls handleLogout on click
+      >
+        <div className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-4 mx-2 my-2 text-white rounded-md hover:bg-red-600 transition-all duration-200 group hover:shadow-md`}>
           <div className="flex items-center justify-center w-6 h-6 text-lg text-red-200 group-hover:scale-110 transition-transform">
             <FaSignOutAlt />
           </div>
@@ -203,8 +232,9 @@ const Sidebar = ({ onToggle }) => {
               <div className="text-xs text-red-200">Exit admin portal</div>
             </div>
           )}
-        </Link>
+        </div>
       </div>
+
 
       {/* Add global styles to hide scrollbar */}
       <style jsx global>{`

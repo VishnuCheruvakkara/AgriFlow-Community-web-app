@@ -403,3 +403,28 @@ class UserDashboardSerializer(serializers.ModelSerializer):
                 "home_address": obj.address.home_address,
             }
         return None  # If no address is set
+
+
+   
+############################  Get all the usrs data in the admin side #################################
+
+class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()  # Secure URL
+    address_details = serializers.SerializerMethodField()  # Custom field for address
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'username', 'is_verified', 'address_details','profile_picture','profile_completed','is_aadhar_verified','is_active']  # Include only needed fields
+    
+    def get_profile_picture(self, obj):
+        """Return a secure profile picture URL."""
+        return obj.get_secure_profile_picture_url()  # Uses model method
+  
+    def get_address_details(self, obj):
+        if obj.address:  # If the user has an address
+            return {
+                'location_name': obj.address.location_name,
+                'country': obj.address.country,
+                'home_address': obj.address.home_address
+            }
+        return None  # No address assigned

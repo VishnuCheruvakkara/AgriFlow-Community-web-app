@@ -3,7 +3,7 @@ from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginVie
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
 from .views import LocationAutocompleteView,ProfileUpdateView
-from .views import  GetUserDataView
+from .views import  GetUserDataView,GetAllUsersInAdminSideView
 
 
 urlpatterns = [
@@ -34,5 +34,6 @@ urlpatterns = [
     path('profile-update/', ProfileUpdateView.as_view(), name='profile_update'),
 
     #================== get user data =======================#
-     path("get-user-data/", GetUserDataView.as_view(), name="get-user-data"),
+    path("get-user-data/", GetUserDataView.as_view(), name="get-user-data"),
+      path('admin/get-all-users-data/', GetAllUsersInAdminSideView.as_view(), name='get-all-users'),
 ]
