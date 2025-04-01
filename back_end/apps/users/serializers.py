@@ -436,3 +436,43 @@ class UserStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'is_active']
+
+#===========================  User deatail view page serializer in the admin side for user management ========================#
+
+class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
+    """Serializer for fetching complete user details (for Admin use)."""
+    
+    profile_picture = serializers.SerializerMethodField()  # Secure Profile Picture URL
+    address = serializers.SerializerMethodField()  # Structured Address Data
+    aadhar_card = serializers.SerializerMethodField()  # Secure Aadhar Card URL
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            "id", "email", "username", "phone_number",
+            "profile_picture", "address", "farming_type",
+            "experience", "bio", "aadhar_card", "is_aadhar_verified",
+            "date_of_birth", "profile_completed", "created_at", "updated_at","is_verified",'is_active',
+        ]  # Includes additional admin-specific fields
+
+    def get_profile_picture(self, obj):
+        """Return a secure profile picture URL."""
+        return obj.get_secure_profile_picture_url()  
+
+    def get_aadhar_card(self, obj):
+        """Return a secure Aadhar card URL."""
+        return obj.get_secure_aadhar_card_url()  # Assuming this method exists in model
+
+    def get_address(self, obj):
+        """Return structured address details if available."""
+        if obj.address:
+            return {
+                "full_location": obj.address.full_location,
+                "latitude": obj.address.latitude,
+                "longitude": obj.address.longitude,
+                "location_name": obj.address.location_name,
+                "country": obj.address.country,
+                "home_address": obj.address.home_address,
+            }
+        return None  # If no address is set
+

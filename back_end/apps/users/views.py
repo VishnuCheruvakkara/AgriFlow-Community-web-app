@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
+from .serializers import AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -25,6 +25,7 @@ from django.contrib.sessions.models import Session
 #============ for user location updated =============#
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 import requests
+
 #========== for prfile update =====================#
 
 User = get_user_model()
@@ -659,7 +660,7 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
     Only admin users should access this endpoint.
     """
     serializer_class = GetAllUsersInAdminSideSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser] 
+    permission_classes = [IsAuthenticated,IsAdminUser] 
     pagination_class=CustomUserPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', 'email']
@@ -680,8 +681,6 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
         elif filter_type == "blocked":
             queryset = queryset.filter(is_active=False)  # Blocked users
 
-            
-
         #Apply Search 
         if search_query:
             queryset=queryset.filter(
@@ -689,13 +688,14 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
             )
 
         return queryset
+    
 #================== View for handle status of the user shwowed in the admin side user management ===============================#
 
 from users.serializers import UserStatusSerializer
 class UserStatusUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserStatusSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]  # Only authenticated admins can change the status
+    permission_classes = [IsAuthenticated,IsAdminUser]  # Only authenticated admins can change the status
 
     def patch(self, request, *args, **kwargs):
         user = self.get_object()
@@ -703,3 +703,12 @@ class UserStatusUpdateView(generics.UpdateAPIView):
         if not request.user.is_superuser and request.user != user:
             return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
         return self.update(request, *args, **kwargs)
+    
+#======================= Admin side user detail page view set up ======================# 
+
+class AdminSideUserDetailView(generics.RetrieveAPIView):
+        """Fetch complete user details by ID (Admin Access Only)."""
+        queryset=User.objects.filter(is_superuser=False)
+        serializer_class=AdminSideUserDetailPageSerializer
+        permission_classes=[IsAuthenticated,IsAdminUser]
+        lookup_field='id'

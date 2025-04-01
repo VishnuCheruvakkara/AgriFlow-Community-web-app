@@ -259,7 +259,7 @@ const UsersPage = () => {
 
                           {/* View Button */}
                           <td className="px-4 py-4 text-center">
-                            <Link to="/admin/users-management/user-details" className="text-blue-600 hover:text-blue-800 transition">
+                            <Link to={`/admin/users-management/user-details/${user.id}`} className="text-blue-600 hover:text-blue-800 transition">
                               <button>
                                 <FaEye size={22} />
                               </button>
