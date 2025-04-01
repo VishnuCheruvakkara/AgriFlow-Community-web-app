@@ -4,6 +4,7 @@ import AdminLayout from '../layout/AdminLayout'
 import DashboardPage from '../pages/admin-dash-board/DashboardPage'
 import UsersPage from '../pages/admin-dash-board/UserPage'
 import ProductsPage from '../pages/admin-dash-board/ProductsPage'
+import UserPageDetailView from '../pages/admin-dash-board/UserPageDetailView'
 
 function AdminRoutes() {
     return (
@@ -14,6 +15,7 @@ function AdminRoutes() {
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/users-management" element={<UsersPage />} />
                 <Route path="/products-management" element={<ProductsPage />} />
+                <Route path="/users-management/user-details" element={<UserPageDetailView />} />
             </Route>
         </Routes>
     )

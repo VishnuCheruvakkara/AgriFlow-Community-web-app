@@ -6,6 +6,7 @@ import { RiSearchLine } from "react-icons/ri";
 // sweet alert import
 import Swal from "sweetalert2";
 import { showToast } from "../../components/toast-notification/CustomToast";
+import { Link } from "react-router-dom";
 
 const UsersPage = () => {
 
@@ -103,44 +104,48 @@ const UsersPage = () => {
   return (
     <>
 
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <h2 className="text-2xl font-bold text-green-600">User Management</h2>
+      <div className="max-w-full  bg-white shadow-xl rounded-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
+          <h1 className="text-2xl font-bold">User Management</h1>
+        </div>
 
         {/* filter option  */}
-
-        {/* Filters */}
-        <div className="flex w-full bg-green-100 rounded-lg overflow-hidden shadow-md mt-4">
-          <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400"}
+        <div className="mt-4 px-4"> {/* Added px-4 for spacing on the sides */}
+          <div className="flex bg-green-100 rounded-lg overflow-hidden shadow-md">
+            <button
+              className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400"}
       text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
-            onClick={() => handleFilterChange("")}>
-            All
-          </button>
-          <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400"}
+              onClick={() => handleFilterChange("")}>
+              All
+            </button>
+            <button
+              className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400"}
       text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
-            onClick={() => handleFilterChange("profile_not_updated")}>
-            Profile Not Updated
-          </button>
-          <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400"}
+              onClick={() => handleFilterChange("profile_not_updated")}>
+              Profile Not Updated
+            </button>
+            <button
+              className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400"}
       text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
-            onClick={() => handleFilterChange("aadhaar_not_verified")}>
-            Aadhaar Not Verified
-          </button>
-          <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400"}
+              onClick={() => handleFilterChange("aadhaar_not_verified")}>
+              Aadhaar Not Verified
+            </button>
+            <button
+              className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400"}
       text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
-            onClick={() => handleFilterChange("active")}>
-            Active
-          </button>
-          <button
-            className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400"}
+              onClick={() => handleFilterChange("active")}>
+              Active
+            </button>
+            <button
+              className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400"}
       text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
-            onClick={() => handleFilterChange("blocked")}>
-            Blocked
-          </button>
+              onClick={() => handleFilterChange("blocked")}>
+              Blocked
+            </button>
+          </div>
         </div>
+        {/* Filters */}
+
 
         <div className="mt-8 grid grid-cols-1  gap-6">
           <div className="bg-white p-6 rounded-lg border border-gray-100  shadow-lg">
@@ -215,8 +220,8 @@ const UsersPage = () => {
 
                           {/*Active or Inactive status handling */}
                           <td className="px-4 py-4">
-                            <span
-                              className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap cursor-pointer 
+                            <span data-tip="Click here to change Status!"
+                              className={`tooltip tooltip-top inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap cursor-pointer 
                               ${user.is_active ? "bg-green-100 text-green-800 px-2 py-2" : "bg-red-100 text-red-800 px-2 py-2"}`}
                               onClick={() => handleStatusToggle(user.id, user.is_active)}
                             >
@@ -254,9 +259,11 @@ const UsersPage = () => {
 
                           {/* View Button */}
                           <td className="px-4 py-4 text-center">
-                            <button className="text-blue-600 hover:text-blue-800 transition">
-                              <FaEye size={22} />
-                            </button>
+                            <Link to="/admin/users-management/user-details" className="text-blue-600 hover:text-blue-800 transition">
+                              <button>
+                                <FaEye size={22} />
+                              </button>
+                            </Link>
                           </td>
                         </tr>
                       ))}
