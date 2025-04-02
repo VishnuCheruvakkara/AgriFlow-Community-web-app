@@ -593,7 +593,7 @@ class LocationAutocompleteView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#==========================  User profile image upload with cloudinary ===========================#
+#==========================  User proflile update view  ===========================#
 
 
 from rest_framework import permissions
@@ -623,7 +623,8 @@ class ProfileUpdateView(APIView):
         return Response(serializer.errors, status=400)
 
 
-########################## Get user data view ##########################
+########################## Get user data view When user login ##########################
+
 from .serializers import UserDashboardSerializer
 from rest_framework.generics import RetrieveAPIView
 
@@ -636,6 +637,7 @@ class GetUserDataView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         """Return authenticated user's details."""
         user = request.user  # Get logged-in user
+        print("Logged In user :", user )
         serializer = self.get_serializer(user)  # Serialize data
         return Response(serializer.data)  # Send response
     

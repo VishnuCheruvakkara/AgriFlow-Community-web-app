@@ -1,27 +1,45 @@
-import React,{useEffect} from "react"
-import { Outlet } from "react-router-dom";
+import React, { useEffect } from "react"
+import { Outlet,useNavigate } from "react-router-dom";
 import NavBar from "../components/user-dash-board/NavBar";
 import MobileNavBar from "../components/user-dash-board/MobileNavBar";
 import SideBar from "../components/user-dash-board/SideBar";
 import Footer from "../components/user-dash-board/Footer";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 //imports for to save the user deatils in redux with useEffect
 import AuthenticatedAxiosInstance from "../axios-center/AuthenticatedAxiosInstance";
 import { setUserDetails } from "../redux/slices/userSlice";
+import { logout } from "../redux/slices/AuthSlice";
+import { showToast } from "../components/toast-notification/CustomToast";
+import { persistor } from '../redux/Store';
+import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 
 const UserLayout = () => {
+    const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
     const profileCompleted = user?.profile_completed;
     const dispatch = useDispatch();
 
     useEffect(() => {
+
         const fetchUserData = async () => {
             try {
                 const response = await AuthenticatedAxiosInstance.get("/users/get-user-data/", {
                 });
+                const userData = response.data;
+                console.log("user data :::: ",userData)
 
-                console.log(response.data)
-                dispatch(setUserDetails(response.data)); // Store in Redux
+                if (!userData.is_active) {
+                    console.log("User deactivated! Logging out...");
+                    showToast("Your account has been deactivated by the admin.", "error");
+                    await PublicAxiosInstance.post("/users/logout/");  // Call backend logout
+                    dispatch(logout());  // Clear Redux store
+                    await persistor.purge(); 
+                    navigate("/login");  
+
+                    return;
+                }
+
+                dispatch(setUserDetails(userData));// Store in Redux
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }

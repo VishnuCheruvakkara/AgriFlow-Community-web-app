@@ -44,12 +44,12 @@ AuthenticatedAxiosInstance.interceptors.response.use(
                     console.log("✅ New access token received:", data.access);
 
                     // Store the new token in Redux
-                store.dispatch(loginSuccess({ token: data.access }));
+                    store.dispatch(loginSuccess({ token: data.access }));
 
-                // Update the failed request with the new token
+                    // Update the failed request with the new token
                     originalRequest.headers["Authorization"] = `Bearer ${data.access}`;
 
-                // Retry the original request with the new token
+                    // Retry the original request with the new token
                     return axios(originalRequest);
                 }
             } catch (refreshError) {
@@ -58,9 +58,10 @@ AuthenticatedAxiosInstance.interceptors.response.use(
                 // Handle refresh failure (Logout user)
                 store.dispatch(logout());
                 window.location.href = "/login";
+                return Promise.reject(error);
             }
         }
-        return Promise.reject(error);
+        
     }
 );
 
