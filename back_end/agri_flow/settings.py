@@ -84,9 +84,12 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Djanot rest framerword with jwt setup.
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    ),
 }
 
 #################### JWT Token custom setup. ############################
@@ -216,6 +219,7 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
 ############################## django jazzmin setup for better ui for django admin.  #########################
+
 JAZZMIN_SETTINGS = {
     "site_title": "AgriFlow Admin",
     "site_header": "AgriFlow Admin",

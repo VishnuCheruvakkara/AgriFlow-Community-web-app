@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
 
 const UserProtectedRoute = () => {
     const { isAuthenticated, user } = useSelector((state) => state.auth);
     const location = useLocation();
+ 
 
+    // Call logout API only when authentication fails (no useEffect needed)
     if (!isAuthenticated) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/login" replace />;
     }
 
     // If profile is NOT completed, always redirect to "/user-dash-board/farmer-profile"

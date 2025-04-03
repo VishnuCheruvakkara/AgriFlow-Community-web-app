@@ -36,6 +36,8 @@ User = get_user_model()
 class LoginView(APIView):
     """JWT based login"""
 
+    permission_classes=[AllowAny]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -87,6 +89,7 @@ class LoginView(APIView):
 
 class RegisterView(APIView):
     """User Registration API with OTP Generation"""
+    permission_classes=[AllowAny]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -135,6 +138,8 @@ class RegisterView(APIView):
 
 class VerifyOTPView(APIView):
     """OTP Verification API"""
+
+    permission_classes=[AllowAny]
 
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
@@ -230,6 +235,8 @@ class LogoutView(APIView):
 class GoogleAuthCallbackView(APIView):
     """Handles Google OAuth callback, verifies the token, and returns JWT access/refresh tokens."""
 
+    permission_classes=[AllowAny]
+
     def post(self, request, *args, **kwargs):
         # Get the token from the frontend
         token = request.data.get("token")
@@ -318,6 +325,7 @@ class GoogleAuthCallbackView(APIView):
 
 #========================== Tokern creation for users only =======================================#
 class RefreshTokenView(APIView):
+
     permission_classes = [AllowAny]  # required
 
     def post(self, request):
@@ -356,6 +364,7 @@ class RefreshTokenView(APIView):
    
 #==============================   Token creation for Admin   =====================================#
 class AdminRefreshTokenView(APIView):
+
     permission_classes = [AllowAny]  # Allow unauthenticated requests to refresh
 
     def post(self, request, *args, **kwargs):
@@ -398,6 +407,9 @@ class AdminRefreshTokenView(APIView):
 
 # =============================================== Forgot password email request view ============================
 class ForgotPasswordView(APIView):
+
+    permission_classes=[AllowAny]
+
     def post(self, request):
         serializer = ForgotPasswordSerialzier(data=request.data)
         if serializer.is_valid():
@@ -411,6 +423,9 @@ class ForgotPasswordView(APIView):
 # ============================================= Forgot password OTP Verifcation View =====================================
 
 class ForgotPasswordOTPVerifyView(APIView):
+
+    permission_classes=[AllowAny]
+
     def post(self, request):
         serializer = ForgotPasswordVerifyOTPSerializer(data=request.data)
         if serializer.is_valid():
@@ -421,6 +436,8 @@ class ForgotPasswordOTPVerifyView(APIView):
     
 class ForgotPasswordSetNewView(APIView):
     """API for resetting password and blacklisting old refresh tokens"""
+   
+    permission_classes=[AllowAny]
 
     def put(self, request):
         serializer = ForgotPasswordSetSerializer(data=request.data)
@@ -471,7 +488,7 @@ class ForgotPasswordSetNewView(APIView):
 
 class ResendOTPView(APIView):
     """Handles OTP resending for user authentication"""
-
+    permission_classes=[AllowAny]
     def post(self, request):
         email = request.data.get("email")
         # Default to "registration"
@@ -484,10 +501,11 @@ class ResendOTPView(APIView):
 
         return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
 
-# Admin Login View for authentication  ###########################3
+################################### Admin Login View for authentication  ###########################3
 
 class AdminLoginView(APIView):
     """JWT-based Admin Login"""
+    permission_classes=[AllowAny]
 
     def post(self, request):
         serializer = AdminLoginSerializer(data=request.data)
