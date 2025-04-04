@@ -3,12 +3,13 @@ from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
 # import from rest_frameworks library
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
+from .serializers import AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -732,3 +733,19 @@ class AdminSideUserDetailView(generics.RetrieveAPIView):
         serializer_class=AdminSideUserDetailPageSerializer
         permission_classes=[IsAuthenticated,IsAdminUser]
         lookup_field='id'
+
+#==========================  Change Aadhar Verification status in the usertable View ==============================# 
+
+
+class VerifyAadhaarView(APIView):
+    permission_classes=[IsAdminUser]
+
+    def put(self,request,user_id):
+        user=get_object_or_404(User,id=user_id)
+        serializer = AadhaarVerificationSerializer(user,data={'is_aadhar_verified':True},partial=True)
+
+        if serializer.is_valid():
+            serializer.save() 
+            return Response({'message':'Aadhaar verified successfully!','data':serializer.data},status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

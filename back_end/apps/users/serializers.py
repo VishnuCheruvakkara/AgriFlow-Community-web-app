@@ -476,3 +476,16 @@ class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
             }
         return None  # If no address is set
 
+#==========================  Change Aadhar Verification status in the usertable Serializer ==============================# 
+
+class AadhaarVerificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser 
+        fields = ['is_aadhar_verified']
+
+    def update(self,instance,validated_data):
+        instance.is_aadhar_verified = validated_data.get('is_aadhar_verified',instance.is_aadhar_verified)
+        instance.save()
+        return instance 
+
+

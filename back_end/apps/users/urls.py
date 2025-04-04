@@ -3,7 +3,7 @@ from .views import RegisterView,VerifyOTPView,LogoutView,LoginView,AdminLoginVie
 from .views import GoogleAuthCallbackView,RefreshTokenView,ResendOTPView
 from .views import ForgotPasswordView,ForgotPasswordOTPVerifyView,ForgotPasswordSetNewView
 from .views import LocationAutocompleteView,ProfileUpdateView
-from .views import  GetUserDataView,GetAllUsersInAdminSideView,AdminRefreshTokenView,UserStatusUpdateView,AdminSideUserDetailView
+from .views import  GetUserDataView,GetAllUsersInAdminSideView,AdminRefreshTokenView,UserStatusUpdateView,AdminSideUserDetailView,VerifyAadhaarView
 
 
 urlpatterns = [
@@ -42,4 +42,6 @@ urlpatterns = [
     path('change-status/<int:pk>/', UserStatusUpdateView.as_view(), name='user-status-update'),
     #================== User Deatailpage in admin side to fetch perticular user data ========================#
     path('admin/get-user/<int:id>/',AdminSideUserDetailView.as_view(),name='admin_get_user_details'),
+    #============= Verify the user aadhar on admin side =======================# 
+    path('verify-aadhaar/<int:user_id>/', VerifyAadhaarView.as_view(), name='verify-aadhaar'),
 ]

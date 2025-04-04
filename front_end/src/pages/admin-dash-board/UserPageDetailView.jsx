@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaSeedling, FaCalendarAlt, FaIdCard, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaSeedling, FaCalendarAlt, FaIdCard, FaCheckCircle, FaTimesCircle, FaTimes, FaFileAlt, FaEye } from 'react-icons/fa';
 import { useParams, Link } from 'react-router-dom';
 import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
-import UserDefaultImage from '../../assets/images/user-default.png'
+import UserDefaultImage from '../../assets/images/user-default.png';
+import { showToast } from '../../components/toast-notification/CustomToast';
+//redux disptach for handle the buttonloader 
+import { useDispatch } from 'react-redux';
+//import the common button loader and redux reducers
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+// import sweet alert
+import Swal from "sweetalert2";
 
 function UserPageDetailView() {
+    const dispatch = useDispatch();
     const { userId } = useParams();
     const [user, setUser] = useState(null);
+    const [showAadharModal, setShowAadharModal] = useState(false);
 
     // Function to calculate age based on date of birth
     const calculateAge = (dateString) => {
@@ -32,7 +42,7 @@ function UserPageDetailView() {
     // Calculate Age
     const age = user && user.date_of_birth ? calculateAge(user.date_of_birth) : null;
 
-    // formate the updated and created with time 
+    // Format the updated and created with time 
     const formatDate = (dateString) => {
         const date = new Date(dateString); // No need to handle empty string here
         if (isNaN(date)) {
@@ -53,29 +63,90 @@ function UserPageDetailView() {
         return date.toLocaleString('en-US', options);
     };
 
+    // Open Aadhar modal
+    const openAadharModal = () => {
+        setShowAadharModal(true);
+    };
+
+    // Close Aadhar modal
+    const closeAadharModal = () => {
+        setShowAadharModal(false);
+    };
 
     useEffect(() => {
-
+        // Fetch user details function, can be called anytime
         const fetchUserDetails = async () => {
             try {
-                const response = await AdminAuthenticatedAxiosInstance.get(`/users/admin/get-user/${userId}/`)
-                setUser(response.data)
+                const response = await AdminAuthenticatedAxiosInstance.get(`/users/admin/get-user/${userId}/`);
+                setUser(response.data);
             } catch (error) {
-                console.log("Error fetching user details : ", error)
+                console.log("Error fetching user details : ", error);
             }
-        }
+        };
+
         fetchUserDetails();
-    }, [userId])
+
+    }, [userId]);
+
+    const handleVerifyAadhaar = async (userId) => {
+        //for button loader when click the button...
+        const buttonId = "verifyAadhaar"
+
+        // Show confirmation alert before proceeding
+        const result = await Swal.fire({
+            title: "Verify Aadhaar?",
+            text: "Have you verified that the uploaded Aadhaar is correct and matches the user's profile details?",
+            showCancelButton: true,
+            confirmButtonText: "Yes, verify it!",
+            cancelButtonText: "Cancel",
+            showClass: {
+                popup: "swal-fade-in",
+            },
+            hideClass: {
+                popup: "swal-fade-out",
+            },
+            customClass: {
+                popup: "my-swal-popup",
+                title: "my-swal-title",
+                content: "my-swal-content",
+                confirmButton: "my-swal-confirm",
+                cancelButton: "my-swal-cancel",
+            }
+        });
+
+        // If the user cancels, exit function
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        dispatch(showButtonLoader(buttonId
+
+        ))
+        try {
+            const response = await AdminAuthenticatedAxiosInstance.put(`/users/verify-aadhaar/${userId}/`);
+            showToast("Aadhar successfully verified!")
+            setUser((prevUser) => ({
+                ...prevUser,
+                is_aadhar_verified: true,
+            }))
+            setShowAadharModal(false);
+        } catch (error) {
+            console.log("Error verifying Aadhar : ", error)
+            showToast("Failed to verify Aadhaar.")
+            setShowAadharModal(false);
+        } finally {
+            dispatch(hideButtonLoader(buttonId));
+        }
+    }
 
     return (
         <>
-            <div className="bg-white  border-l-4 border-r-4 border-green-500 0 p-4  shadow-lg mb-5">
+            <div className="bg-white border-l-4 border-r-4 border-green-500 0 p-4 shadow-lg mb-5">
                 <nav aria-label="breadcrumb">
                     <ol className="flex space-x-2 text-gray-600 font-bold">
                         <li>
                             <Link to="/admin/users-management" className="text-green-500 hover:text-green-700">Farmers</Link>
                         </li>
-
                         <li>
                             <span className="text-gray-500"> /</span>
                         </li>
@@ -127,7 +198,6 @@ function UserPageDetailView() {
                                         )}
                                     </span>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -172,7 +242,6 @@ function UserPageDetailView() {
                                 </div>
                             </div>
                         </div>
-
 
                         {/* Verification Status */}
                         <div className="bg-gray-50 rounded-lg p-4 shadow-md md:col-span-2">
@@ -236,27 +305,35 @@ function UserPageDetailView() {
                                 </div>
 
                                 {/* Aadhaar Verified */}
-                                <div className="flex items-center justify-between p-2 bg-white rounded border border-gray-200">
-                                    <span className="text-gray-600">Aadhaar Verified</span>
-                                    <div className="flex items-center">
-                                        {user && user?.is_aadhar_verified ? (
-                                            <div className="flex items-center text-green-500">
-                                                <FaCheckCircle className="mr-1" />
-                                                <span className="font-medium">Yes</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center text-red-500">
-                                                <FaTimesCircle className="mr-1" />
-                                                <span className="font-medium">No</span>
-                                            </div>
-                                        )}
+                                {user?.profile_completed && (
+
+                                    <div
+                                        className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 cursor-pointer hover:bg-gray-100"
+                                        onClick={openAadharModal}
+                                    >
+                                        <div className="flex items-center">
+                                            <span className="text-gray-600">Aadhaar Verified</span>
+
+                                        </div>
+                                        <div className="flex items-center">
+                                            {user && user?.is_aadhar_verified ? (
+                                                <div className="flex items-center text-green-500">
+                                                    <FaCheckCircle className="mr-1" />
+                                                    <span className="font-medium">Yes</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center text-red-500">
+                                                    <FaTimesCircle className="mr-1" />
+                                                    <span className="font-medium">No</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+
+                                )}
+
                             </div>
                         </div>
-
-
-
                     </div>
 
                     {/* Timestamps */}
@@ -266,6 +343,121 @@ function UserPageDetailView() {
                     </div>
                 </div>
             </div>
+
+
+            {showAadharModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-hidden scrollbar-hide">
+                    <div className="bg-white rounded-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto shadow-lg scrollbar-hide relative">
+
+                        {/* Modal Header */}
+                        <div className="border-b px-4 py-3 flex items-center justify-between 
+                        bg-gradient-to-r from-green-700 to-green-400 
+                        sticky top-0 z-10 w-full rounded-t-lg">
+                            <h3 className="text-xl font-bold text-white flex items-center">
+                                <FaIdCard className="mr-2" /> Aadhaar Details
+                            </h3>
+                            <button onClick={closeAadharModal} className="text-white hover:text-gray-200">
+                                <FaTimes className="text-xl" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6">
+                            {user && user?.is_aadhar_verified ? (
+                                <div className="space-y-4">
+                                    {/* Aadhaar Image Preview */}
+
+
+                                    <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300">
+                                        <h4 className="font-bold text-gray-700 mb-4">Uploaded Aadhaar Image</h4>
+
+                                        {user?.aadhar_card ? (
+                                            <div className="flex justify-center border-2 border-gray-300 rounded-lg p-2 bg-gray-100">
+                                                <img
+                                                    src={user.aadhar_card}
+                                                    alt="Aadhaar"
+                                                    className="w-full max-w-sm h-auto object-contain rounded-md"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-full h-48 bg-gray-100 flex items-center justify-center border-2 border-gray-300 rounded-lg">
+                                                <span className="text-gray-500">Image not available</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+
+                                    {/* Status Badge */}
+                                    <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full inline-flex items-center">
+                                        <span className="text-green-500 mr-2"><FaCheckCircle className="mr-1" /></span> Verified
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {/* Header */}
+                                    <div className="text-center">
+                                        <FaTimesCircle className="text-red-500 text-5xl  mx-auto" />
+                                        <h4 className="text-lg font-bold text-red-700 py-4">Aadhaar Not Verified</h4>
+
+                                        <div className="bg-red-50 border-l-4 border-red-400 p-5 shadow-lg flex items-center space-x-3 mb-8">
+                                            {/* Warning Icon */}
+                                            <svg className="h-6 w-6 text-red-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+
+                                            {/* Text */}
+                                            <p className="text-sm text-red-700 flex-1">
+                                                Please verify the user's Aadhaar manually. If any issue, request resubmission.
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    {/* Aadhaar Image Preview */}
+                                    {user?.aadhar_card && (
+                                        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300">
+                                            <h4 className="font-bold text-gray-700 mb-4">Uploaded Aadhaar Image</h4>
+                                            <div className="flex justify-center border-2 mb-4">
+                                                <img
+                                                    src={user.aadhar_card}
+                                                    alt="Aadhaar"
+                                                    className="w-full max-w-sm h-auto object-contain rounded-lg"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Buttons */}
+                                    <div className="flex flex-col  gap-6">
+
+                                        <ButtonLoader
+                                            buttonId="verifyAadhaar"
+                                            onClick={() => { handleVerifyAadhaar(user.id) }}
+                                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md shadow-md mt-4"
+                                        >
+                                            Verify Aadhaar
+                                        </ButtonLoader>
+
+                                        <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-md shadow-md">Request Resubmission</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="border-t px-4 py-3 flex justify-end bg-gray-50">
+                            <button onClick={closeAadharModal} className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                                Close
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
+
+
+
         </>
     );
 }

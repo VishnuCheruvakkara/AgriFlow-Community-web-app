@@ -61,6 +61,7 @@ const UsersPage = () => {
 
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = !currentStatus;
+    
     const result = await Swal.fire({
       title: "Modify User Status",
       text: "This action will update the user's status. Please confirm to proceed.",
