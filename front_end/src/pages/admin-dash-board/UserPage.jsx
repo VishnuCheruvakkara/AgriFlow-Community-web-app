@@ -7,8 +7,12 @@ import { RiSearchLine } from "react-icons/ri";
 import Swal from "sweetalert2";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { Link } from "react-router-dom";
+import { PulseLoader } from 'react-spinners';
+
 
 const UsersPage = () => {
+
+  const [loading, setLoading] = useState(false);
 
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
@@ -18,6 +22,7 @@ const UsersPage = () => {
   const pageSize = 5; // Number of users per page
 
   useEffect(() => {
+    setLoading(true);
     fetchUsers(currentPage, filter, searchQuery);
   }, [currentPage, filter, searchQuery]);
 
@@ -31,6 +36,8 @@ const UsersPage = () => {
       setTotalPages(Math.ceil(response.data.count / pageSize));
     } catch (error) {
       console.error("Error while fetching users:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -164,7 +171,12 @@ const UsersPage = () => {
             </div>
 
             {/* Parent Container is Required for Ternary */}
-            {users.length > 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center py-28">
+              <PulseLoader color="#16a34a" speedMultiplier={1} />
+            </div>
+            
+            ) : users.length > 0 ? (
               <>
 
 
@@ -306,12 +318,11 @@ const UsersPage = () => {
                 </div>
               </div>
             )}
-
-
-
-
           </div>
         </div>
+
+
+
       </div >
     </>
   );
