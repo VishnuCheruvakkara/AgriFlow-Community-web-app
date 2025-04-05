@@ -61,7 +61,7 @@ const UsersPage = () => {
 
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = !currentStatus;
-    
+
     const result = await Swal.fire({
       title: "Modify User Status",
       text: "This action will update the user's status. Please confirm to proceed.",
@@ -114,7 +114,7 @@ const UsersPage = () => {
 
       <div className="max-w-full  bg-white shadow-xl rounded-lg overflow-hidden">
         <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
-          <h1 className="text-2xl font-bold">User Management</h1>
+          <h1 className="text-2xl font-bold">Farmers Management</h1>
         </div>
 
         {/* filter option  */}

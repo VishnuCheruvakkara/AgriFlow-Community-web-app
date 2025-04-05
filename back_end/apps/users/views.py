@@ -746,6 +746,10 @@ class VerifyAadhaarView(APIView):
 
         if serializer.is_valid():
             serializer.save() 
+
+            # Send welcome email on Aadhaar verification
+            generate_otp_and_send_email(user.email, email_type="aadhaar_verified")
+
             return Response({'message':'Aadhaar verified successfully!','data':serializer.data},status=status.HTTP_200_OK)
         
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
