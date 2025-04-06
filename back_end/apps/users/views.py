@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
+from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -27,7 +27,9 @@ from django.contrib.sessions.models import Session
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 import requests
 
-#========== for prfile update =====================#
+# from back_end.apps.users import serializers
+
+#========== for profile update =====================#
 
 User = get_user_model()
 
@@ -772,3 +774,18 @@ class UpdateAadharResubmissionMessageView(APIView):
             return Response({'message': 'Aadhar resubmission message updated successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#==========================  Aadhar image resubmission view for user resubmission ==========================#
+
+class AadhaarResubmissionUpdateView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def patch(self,request):
+        user = request.user
+
+        serializer = AadhaarResubmissionSerializer(user,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Aadhaar resubmission image updated"},status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaTractor, FaSeedling, FaMapMarkerAlt } from "react-icons/fa";
+//import the addhar submission component for submit adhar if any deffect found by admin 
 import AadharImageUploads from "../../components/user-dash-board/AadharImageUploads";
 import ProfileImageSelector from "../../components/user-dash-board/ProfileImageSelector";
 import "react-datepicker/dist/react-datepicker.css";
@@ -20,6 +21,7 @@ import { showButtonLoader, hideButtonLoader } from "../../redux/slices/LoaderSpi
 //import the refresh button from react icons 
 import { IoMdRefreshCircle } from "react-icons/io";
 
+
 function ProfilePage() {
 
 
@@ -27,6 +29,7 @@ function ProfilePage() {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth.user)
+  const [resubmissionAadhaarImage, setResubmissionAadhaarImage] = useState(null);
 
   // setup for the form data
   const [formData, setFormData] = useState({
@@ -57,12 +60,39 @@ function ProfilePage() {
   }
 
   // Handle Aadhaar Image Selection
-  const handleAadhaarImageSelect = (file) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      aadhaarImage: file,
-    }));
+  const handleAadhaarImageSelect = (file, purpose) => {
+    if (purpose === "form") {
+      setFormData((prevData) => ({
+        ...prevData,
+        aadhaarImage: file,
+      }));
+    } else if (purpose === "resubmission") {
+      // Store separately for resubmission
+      setResubmissionAadhaarImage(file);
+    }
   };
+
+  const submitAadhaarResubmission = async () => {
+    if (!resubmissionAadhaarImage) {
+      showToast("Please select an Aadhaar image", "error");
+      return;
+    }
+
+    const aadharformData = new FormData();
+    aadharformData.append("aadhaar_resubmission_image", resubmissionAadhaarImage);
+
+    try {
+      const response = await AuthenticatedAxiosInstance.patch(
+        `/users/aadhaar-resubmission/`, // No userId needed
+        aadharformData,
+      );
+      showToast("Aadhaar image resubmitted successfully", "success");
+    } catch (error) {
+      console.error("Upload error:", error.response?.data || error.message);
+      showToast("Error uploading Aadhaar image", "error");
+    }
+  };
+
 
   // Handle form submission
   const handleSubmit = async (event) => {
@@ -315,7 +345,7 @@ function ProfilePage() {
               {/* Aadhaar/ID Upload */}
 
               <div className="flex flex-col items-center justify-center py-10">
-                <AadharImageUploads onImageSelect={handleAadhaarImageSelect} />
+                <AadharImageUploads onImageSelect={handleAadhaarImageSelect} purpose="form" />
                 {errors.aadhaarImage && <p className="text-red-500 text-sm mt-2">{errors.aadhaarImage}</p>}
               </div>
 
@@ -426,43 +456,78 @@ function ProfilePage() {
           </form>
         </div>
       ) : (
+        (user?.aadhar_resubmission_message ? (
+          <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+            <div className="flex flex-col items-center justify-center py-10">
+              <div className="mb-6 text-yellow-500">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Verification In Progress</h2>
 
-        <div className="bg-white shadow-lg rounded-lg p-8 text-center">
-          <div className="flex flex-col items-center justify-center py-10">
-            <div className="mb-6 text-yellow-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Verification In Progress</h2>
+              <div className=" bg-yellow-100 border-l-4 border-yellow-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
+                {/* Warning Icon */}
+                <svg className="h-6 w-6 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
 
-            <div className=" bg-yellow-100 border-l-4 border-yellow-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
-              {/* Warning Icon */}
-              <svg className="h-6 w-6 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-
-              {/* Text */}
-              <p className="text-md text-yellow-700 flex-1">
-                Your Aadhaar verification is currently under review. This process typically takes up to 24 hours to complete.
+                {/* Text */}
+                <p className="text-md text-yellow-700 flex-1">
+                  Your Aadhaar verification is currently under review. This process typically takes up to 24 hours to complete.
+                </p>
+              </div>
+              <p className="text-gray-600 mb-6">
+                We will notify you through email once the verification is complete.
               </p>
+              <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 mb-6">
+                <div className="bg-yellow-500 h-2.5 rounded-full w-3/4"></div>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                data-tip="Refresh the page"
+                className="tooltip tooltip-right px-2 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition duration-300"
+              >
+                <IoMdRefreshCircle size={30} />
+              </button>
             </div>
-            <p className="text-gray-600 mb-6">
-              We will notify you through email once the verification is complete.
-            </p>
-            <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 mb-6">
-              <div className="bg-yellow-500 h-2.5 rounded-full w-3/4"></div>
-            </div>
-            <button
-              onClick={() => window.location.reload()}
-              data-tip="Refresh the page"
-              className="tooltip tooltip-right px-2 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition duration-300"
-            >
-              <IoMdRefreshCircle size={30} />
-            </button>
-
           </div>
-        </div>
+        ) : (
+          <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+            <div className="flex flex-col items-center justify-center py-10">
+              {/* Alert Box */}
+              <div className="bg-red-100 border-l-4 border-red-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
+                <svg className="h-6 w-6 text-red-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <p className="text-md text-red-700 flex-1">
+                  We found an issue with the uploaded Aadhaar during the verification process.
+                  <b> Please review the reason provided </b>and resubmit the corrected Aadhaar for verification.
+                </p>
+              </div>
+
+              {/* Aadhaar Upload */}
+              <AadharImageUploads onImageSelect={handleAadhaarImageSelect} purpose="resubmission" />
+
+              {/* Reason for Resubmission */}
+              <div className="mt-6 text-center w-full">
+                <p className="text-red-600 text-md font-semibold">Reason for resubmission:</p>
+                <p className="text-red-500 text-md mt-1">
+                  The Aadhaar image is blurry or partially visible. Please ensure it's clear and fully legible.
+                </p>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                onClick={submitAadhaarResubmission}
+                className="mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-all duration-200"
+              >
+                Resubmit Aadhaar
+              </button>
+            </div>
+          </div>
+
+        ))
       )}
 
 

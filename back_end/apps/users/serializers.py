@@ -500,3 +500,18 @@ class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
         instance.aadhar_resubmission_message = validated_data.get('aadhar_resubmission_message', instance.aadhar_resubmission_message)
         instance.save()
         return instance
+    
+#========================  Adhar resubmission endpoint for uesr if admin notify any mistakes in the aadhar image ==========================#
+
+class AadhaarResubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['aadhar_card']
+    
+    def update(self,instance,validated_data):
+        #Update Aadhar card image 
+        instance.aadhar_card=validated_data.get('aadhar_card',instance.aadhar_card)
+        #Set the resubmission message into None
+        instance.aadhar_resubmission_message = None 
+        instance.save()
+        return instance 

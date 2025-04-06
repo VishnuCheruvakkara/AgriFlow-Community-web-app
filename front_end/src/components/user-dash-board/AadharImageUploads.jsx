@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Upload } from "lucide-react";
 
-const AadhaarImageUpload = ({ onImageSelect }) => {
+const AadhaarImageUpload = ({ onImageSelect,purpose }) => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
 
@@ -34,7 +34,7 @@ const AadhaarImageUpload = ({ onImageSelect }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
-        onImageSelect(file);
+        onImageSelect(file,purpose);
       };
       reader.readAsDataURL(file);
     }

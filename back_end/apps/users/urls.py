@@ -3,7 +3,7 @@ from .views import RegisterView, VerifyOTPView, LogoutView, LoginView, AdminLogi
 from .views import GoogleAuthCallbackView, RefreshTokenView, ResendOTPView
 from .views import ForgotPasswordView, ForgotPasswordOTPVerifyView, ForgotPasswordSetNewView
 from .views import LocationAutocompleteView, ProfileUpdateView
-from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView,UpdateAadharResubmissionMessageView
+from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView,UpdateAadharResubmissionMessageView,AadhaarResubmissionUpdateView
 
 
 urlpatterns = [
@@ -54,4 +54,7 @@ urlpatterns = [
          VerifyAadhaarView.as_view(), name='verify-aadhaar'),
     # ==============  addhar resubmission message set up admin side ===============#
     path('update-aadhar-resubmission-message/<int:user_id>/', UpdateAadharResubmissionMessageView.as_view(), name='update-aadhar-message'),
+    # ===============  addhar resubmission option for uesr =========================#
+    path('aadhaar-resubmission/', AadhaarResubmissionUpdateView.as_view(), name='aadhaar-resubmission'),
+
 ]
