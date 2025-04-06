@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { Outlet,useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import NavBar from "../components/user-dash-board/NavBar";
 import MobileNavBar from "../components/user-dash-board/MobileNavBar";
 import SideBar from "../components/user-dash-board/SideBar";
@@ -12,11 +12,12 @@ import { logout } from "../redux/slices/AuthSlice";
 import { showToast } from "../components/toast-notification/CustomToast";
 import { persistor } from '../redux/Store';
 import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
+import { loginSuccess } from "../redux/slices/AuthSlice";
 
 const UserLayout = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
-    const profileCompleted = user?.profile_completed;
+    const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
 
 
@@ -28,6 +29,11 @@ const UserLayout = () => {
 
                 console.log(response.data)
                 dispatch(setUserDetails(response.data)); // Store in Redux
+                console.log("My debugger :::::",response.data)
+                dispatch(loginSuccess({
+                    aadhar_verification: response?.data?.is_aadhar_verified// Updates only profile_completed
+                }));
+
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }
@@ -42,7 +48,7 @@ const UserLayout = () => {
             {/* NAVBAR HERE */}
             <NavBar />
 
-            {profileCompleted ? (
+            {AadharVerified ? (
                 <div className="pt-16 pb-8 container mx-auto px-4 ">
                     <div className="flex flex-col lg:flex-row gap-4">
 
@@ -70,7 +76,7 @@ const UserLayout = () => {
             <Footer />
 
             {/* Mobile Bottom Navigation */}
-            {profileCompleted && <MobileNavBar />}
+            {AadharVerified && <MobileNavBar />}
         </div>
     );
 };

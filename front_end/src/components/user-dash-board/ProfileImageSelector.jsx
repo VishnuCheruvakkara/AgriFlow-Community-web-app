@@ -62,7 +62,7 @@ const ProfileImageSelector = ({ onImageSelect }) => {
         {/* Remove Image Button */}
         {selectedImage && (
           <button
-            className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 p-2 rounded-full text-white shadow-lg hover:bg-red-600 transition"
+            className="absolute top-4 right-4 transform translate-x-1/2 -translate-y-1/2 bg-red-500 p-2 rounded-full text-white shadow-lg hover:bg-red-600 transition"
             onClick={removeImage}
           >
             <AiOutlineClose size={14} />

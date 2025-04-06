@@ -14,14 +14,14 @@ const UserProtectedRoute = () => {
     }
 
     // If profile is NOT completed, always redirect to "/user-dash-board/farmer-profile"
-    if (!user?.profile_completed) {
+    if (!user?.aadhar_verification) {
         return location.pathname === "/user-dash-board/farmer-profile"
             ? <Outlet /> // Allow access only to profile completion page
             : <Navigate to="/user-dash-board/farmer-profile" replace />;
     }
 
     // If profile IS completed, prevent access to "/user-dash-board/farmer-profile"
-    if (user?.profile_completed && location.pathname === "/user-dash-board/farmer-profile") {
+    if (user?.aadhar_verification && location.pathname === "/user-dash-board/farmer-profile") {
         return <Navigate to="/user-dash-board" replace />;
     }
 

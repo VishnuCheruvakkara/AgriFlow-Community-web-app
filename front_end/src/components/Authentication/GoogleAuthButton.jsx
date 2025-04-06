@@ -31,12 +31,12 @@ const GoogleAuthButton = () => {
             showToast(`Welcome ${user.first_name} ! Login successful`, "success")
 
             // Check if the profile is completed and navigate accordingly
-            if (user.profile_completed) {
+            if (user.aadhar_verification) {
                 navigate("/user-dash-board"); // Redirect to dashboard
             } else {
                 navigate("/user-dash-board/farmer-profile"); // Redirect to home page if profile is incomplete
             }
-
+            
 
         } catch (error) {
             console.error("Google Auth Failed", error);

@@ -17,7 +17,7 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 ######### for refresh token view ##############
 from rest_framework.permissions import AllowAny
-######### for Forget password section ##############
+######### for Forget password section ############# 
 from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerializer, ForgotPasswordSetSerializer
 from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
@@ -32,7 +32,6 @@ import requests
 User = get_user_model()
 
 ################################## User Login  ##################################
-
 
 class LoginView(APIView):
     """JWT based login"""
@@ -58,10 +57,10 @@ class LoginView(APIView):
 
             # include users details in response
             user_data = {
-                "id": user.id,
                 "name": user.username,
                 "email": user.email,
                 "profile_completed":user.profile_completed,
+                "aadhar_verification":user.is_aadhar_verified,
             }
 
             # Set access token in the response to handle that with redux state+local storage.
@@ -136,7 +135,6 @@ class RegisterView(APIView):
 
 #####################################  Otp verification  #########################
 
-
 class VerifyOTPView(APIView):
     """OTP Verification API"""
 
@@ -170,10 +168,10 @@ class VerifyOTPView(APIView):
 
             # include users details in response
             user_data = {
-                "id": user.id,
                 "name": user.username,
                 "email": user.email,
                 "profile_completed":user.profile_completed,
+                "aadhar_verification":user.is_aadhar_verified,
             }
 
             # Set access token in the response to handle that with redux state+local storage.
@@ -289,11 +287,11 @@ class GoogleAuthCallbackView(APIView):
                     "message": "Google authentication successful",
                     "access_token": access_token,
                     "user": {
-                        "id": user.id,
                         "name": user.username,
                         "email": user.email,
                         "first_name": first_name,
                         "profile_completed":user.profile_completed,
+                        "aadhar_verification":user.is_aadhar_verified,
 
                     },
                 },
@@ -330,15 +328,15 @@ class RefreshTokenView(APIView):
     permission_classes = [AllowAny]  # required
 
     def post(self, request):
-        print("\n🔹 [DEBUG] RefreshTokenView Called")  # Debugging Start
-        print("🔹 [DEBUG] Request Headers:", request.headers)
-        print("🔹 [DEBUG] Request Cookies:", request.COOKIES)
+        print("\n [DEBUG] RefreshTokenView Called")  # Debugging Start
+        print(" [DEBUG] Request Headers:", request.headers)
+        print(" [DEBUG] Request Cookies:", request.COOKIES)
 
         refresh_token = request.COOKIES.get('refresh_token')  # Get refresh token from cookies
-        print("🔹 [DEBUG] Extracted Refresh Token:", refresh_token)
+        print("[DEBUG] Extracted Refresh Token:", refresh_token)
 
         if not refresh_token:
-            print("❌ [ERROR] Refresh token not found in cookies!")
+            print(" [ERROR] Refresh token not found in cookies!")
             return Response(
                 {'message': 'Refresh token not found!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -349,14 +347,14 @@ class RefreshTokenView(APIView):
             refresh = RefreshToken(refresh_token)
             access_token = str(refresh.access_token)  # Generate new access token
 
-            print("✅ [SUCCESS] New Access Token Generated:", access_token)
+            print("[SUCCESS] New Access Token Generated:", access_token)
 
             return Response(
                 {'access': access_token},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            print(f"❌ [ERROR] Invalid or expired refresh token! Exception: {str(e)}")
+            print(f" [ERROR] Invalid or expired refresh token! Exception: {str(e)}")
             return Response(
                 {'message': 'Invalid or expired refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -369,17 +367,17 @@ class AdminRefreshTokenView(APIView):
     permission_classes = [AllowAny]  # Allow unauthenticated requests to refresh
 
     def post(self, request, *args, **kwargs):
-        print("\n🔹 [DEBUG] Admin RefreshTokenView Called")
-        print("🔹 [DEBUG] Request Headers:", request.headers)
-        print("🔹 [DEBUG] Request Cookies:", request.COOKIES)
+        print("\n [DEBUG] Admin RefreshTokenView Called")
+        print(" [DEBUG] Request Headers:", request.headers)
+        print(" [DEBUG] Request Cookies:", request.COOKIES)
 
         # Admin refresh token from cookies
         admin_refresh_token = request.COOKIES.get('admin_refresh_token')
 
-        print("🔹 [DEBUG] Extracted Admin Refresh Token:", admin_refresh_token)
+        print("[DEBUG] Extracted Admin Refresh Token:", admin_refresh_token)
 
         if not admin_refresh_token:
-            print("❌ [ERROR] Admin refresh token not found in cookies!")
+            print("[ERROR] Admin refresh token not found in cookies!")
             return Response(
                 {'message': 'Admin refresh token not found!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -390,14 +388,14 @@ class AdminRefreshTokenView(APIView):
             refresh = RefreshToken(admin_refresh_token)
             access_token = str(refresh.access_token)  # Generate new access token
 
-            print("✅ [SUCCESS] New Admin Access Token Generated:", access_token)
+            print("[SUCCESS] New Admin Access Token Generated:", access_token)
 
             return Response(
                 {'access': access_token},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            print(f"❌ [ERROR] Invalid or expired admin refresh token! Exception: {str(e)}")
+            print(f" [ERROR] Invalid or expired admin refresh token! Exception: {str(e)}")
             return Response(
                 {'message': 'Invalid or expired admin refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -501,6 +499,11 @@ class ResendOTPView(APIView):
         generate_otp_and_send_email(email, email_type=email_type)
 
         return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
+
+
+################################################################
+"""" Admin side set up below..."""                           
+################################################################
 
 ################################### Admin Login View for authentication  ###########################3
 

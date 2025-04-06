@@ -16,16 +16,17 @@ import { loginSuccess } from "../../redux/slices/AuthSlice";
 import { useNavigate } from 'react-router-dom'
 //import the common button loader and redux reducers 
 import ButtonLoader from "../../components/LoaderSpinner/ButtonLoader";
-import { showButtonLoader,hideButtonLoader } from "../../redux/slices/LoaderSpinnerSlice";
-
+import { showButtonLoader, hideButtonLoader } from "../../redux/slices/LoaderSpinnerSlice";
+//import the refresh button from react icons 
+import { IoMdRefreshCircle } from "react-icons/io";
 
 function ProfilePage() {
 
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  const user = useSelector((state) => state.auth.user) 
+
+  const user = useSelector((state) => state.auth.user)
 
   // setup for the form data
   const [formData, setFormData] = useState({
@@ -133,297 +134,338 @@ function ProfilePage() {
         <h2 className="text-2xl font-semibold">Hello, {user?.name} ...</h2>
         <p className="mt-2">Complete your profile to gain full access to AgriFlow. Providing accurate and complete details is essential for authentication and security. Ensure that all required fields, including personal information, contact details, and verification documents, are correctly filled in to avoid any restrictions on your access. Your information will be securely processed in compliance with our data protection policies.</p>
       </div>
-      <div className="bg-white shadow-lg rounded-lg p-8">
 
-        <form onSubmit={handleSubmit}>
+      {!user.profile_completed ? (
+        <div className="bg-white shadow-lg rounded-lg p-8">
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center justify-center py-10">
+              <h2 className="text-xl font-semibold mb-4">Upload Profile Image</h2>
+              <ProfileImageSelector onImageSelect={handleProfileImageSelect} />
+              {<errors className="profile"></errors> && <p className="text-red-500 text-sm mt-2">{errors.profileImage}</p>}
+            </div>
 
-          <div className="flex flex-col items-center justify-center py-10">
-            <h2 className="text-xl font-semibold mb-4">Upload Profile Image</h2>
-            <ProfileImageSelector onImageSelect={handleProfileImageSelect} />
-            {<errors className="profile"></errors> && <p className="text-red-500 text-sm mt-2">{errors.profileImage}</p>}
-          </div>
+
+            {/* Personal Information Section */}
+            <section className="mb-8">
+              <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Personal Information</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* First Name */}
+                <div>
+                  <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">First Name</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      <FaUser size={20} />
+                    </span>
+                    <input
+                      required
+                      id="firstName"
+                      type="text"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      placeholder="Enter first name"
+                      className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.first_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                        } transition duration-500 ease-in-out`}
+
+                    />
+                  </div>
+                  {errors.first_name && <p className="text-red-500 text-sm mt-2">{errors.first_name}</p>}
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">Last Name</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      <FaUser size={20} />
+                    </span>
+                    <input
+                      required
+                      id="lastName"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      placeholder="Enter last name"
+                      className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.last_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                        } transition duration-500 ease-in-out`}
+                    />
+                  </div>
+                  {errors.last_name && <p className="text-red-500 text-sm mt-2">{errors.last_name}</p>}
+
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+
+                {/* Username */}
+                <div className="w-full">
+                  <label htmlFor="username" className="block text-gray-700 font-medium mb-2">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      <FaUser size={20} />
+                    </span>
+                    <input
+                      required
+                      id="username"
+                      type="text"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      placeholder="Enter username"
+                      className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.username ? " focus:ring-red-500" : "focus:ring-green-500"
+                        } transition duration-500 ease-in-out`}
+                    />
+                  </div>
+                  {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+                </div>
+                {/* Date of Birth */}
+                <DateOfBirthPicker formData={formData} setFormData={setFormData} errors={errors.date_of_birth} />
+              </div>
+
+              {/* Contact Information */}
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+                {/* Phone Number */}
+                <div>
+                  <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-2">
+                    Phone Number
+                  </label>
+                  <PhoneInput
+                    required
+                    country={"in"} // Default country
+                    value={formData.phone}
+                    onChange={(value) => setFormData({ ...formData, phone: value })}
+                    inputProps={{
+                      name: "phone",
+                      required: true,
+                      className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-int-out",
+                    }}
+                    containerStyle={{ width: "100%" }}
+                    inputStyle={{ width: "100%", paddingLeft: "48px" }} // Adjust padding for flag & country code
+                  />
+                  {errors.phone_number && <p className="text-red-500 text-sm mt-2">{errors.phone_number}</p>}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email Address</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      <FaEnvelope size={20} />
+                    </span>
+                    <input
+                      required
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="Enter email address"
+                      readOnly
+                      className={`bg-gray-200 text-gray-500 w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.email ? " focus:ring-red-500" : "focus:ring-green-500"
+                        } transition duration-500 ease-in-out`}
+                    />
+                  </div>
+                  {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
+
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+
+                {/* Location Input */}
+                <UserLocation formData={formData} setFormData={setFormData} errors={errors.location} />
+
+                {/* Home Address  */}
+                <div className="w-full">
+                  <label htmlFor="homeAddress" className="block text-gray-700 font-medium mb-2">
+                    Home Address
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      <FaHome size={20} /> {/* Home icon */}
+                    </span>
+                    <input
+                      required
+                      id="homeAddress"
+                      type="text"
+                      value={formData.homeAddress}
+                      onChange={(e) => setFormData({ ...formData, homeAddress: e.target.value })}
+                      placeholder="Enter your home address"
+                      className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.home_address ? " focus:ring-red-500" : "focus:ring-green-500"
+                        } transition duration-500 ease-in-out`}
+                    />
+                  </div>
+                  {errors.home_address && <p className="text-red-500 text-sm mt-2">{errors.home_address}</p>}
+
+                </div>
+              </div>
+            </section>
+
+            {/* Identity Verification Section */}
+            <section className="mb-8">
+              <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Identity Verification</h2>
+
+              <div className="bg-green-100 border-l-4 border-green-700 p-4 mb-6">
+                <p className="text-green-700 font-medium flex items-center gap-4">
+                  <TbInfoTriangleFilled className="w-5 h-5 flex-shrink-0" />
+                  Our team will verify your details, including Aadhaar verification, within 24 hours. Ensure all information is accurate to avoid delays in the process.
+                </p>
+              </div>
 
 
-          {/* Personal Information Section */}
-          <section className="mb-8">
-            <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Personal Information</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* First Name */}
-              <div>
-                <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">First Name</label>
+              {/* Aadhaar/ID Upload */}
+
+              <div className="flex flex-col items-center justify-center py-10">
+                <AadharImageUploads onImageSelect={handleAadhaarImageSelect} />
+                {errors.aadhaarImage && <p className="text-red-500 text-sm mt-2">{errors.aadhaarImage}</p>}
+              </div>
+
+            </section>
+
+            {/* Farming Details Section */}
+            <section>
+              <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Farming Information</h2>
+
+              {/* Farming Experience */}
+              <div className="mb-6">
+                <label htmlFor="farmingExperience" className="block text-gray-700 font-medium mb-2">Years of Farming Experience</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <FaUser size={20} />
+                    <FaTractor size={20} />
                   </span>
                   <input
                     required
-                    id="firstName"
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    placeholder="Enter first name"
-                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.first_name ? " focus:ring-red-500" : "focus:ring-green-500"
+                    id="farmingExperience"
+                    type="number"
+                    value={formData.farmingExperience}
+                    onChange={(e) => setFormData({ ...formData, farmingExperience: e.target.value })}
+                    placeholder="Enter years of experience"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.experience ? " focus:ring-red-500" : "focus:ring-green-500"
                       } transition duration-500 ease-in-out`}
-                   
                   />
                 </div>
-                {errors.first_name && <p className="text-red-500 text-sm mt-2">{errors.first_name}</p>}
+                {errors.experience && <p className="text-red-500 text-sm mt-2">{errors.experience}</p>}
               </div>
 
-              {/* Last Name */}
-              <div>
-                <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">Last Name</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <FaUser size={20} />
-                  </span>
-                  <input
-                    required
-                    id="lastName"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    placeholder="Enter last name"
-                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.last_name ? " focus:ring-red-500" : "focus:ring-green-500"
-                    } transition duration-500 ease-in-out`}
-                  />
-                </div>
-                {errors.last_name && <p className="text-red-500 text-sm mt-2">{errors.last_name}</p>}
-
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
-
-              {/* Username */}
-              <div className="w-full">
-                <label htmlFor="username" className="block text-gray-700 font-medium mb-2">
-                  Username
+              {/* Farming Type */}
+              <div className="mb-6">
+                <label htmlFor="farmingType" className="block text-gray-700 font-medium mb-2">
+                  Select Farming Type
                 </label>
                 <div className="relative">
+                  {/* Icon */}
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <FaUser size={20} />
+                    <FaSeedling size={20} />
                   </span>
-                  <input
+                  {/* Select Dropdown */}
+                  <select
                     required
-                    id="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="Enter username"
-                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.username ? " focus:ring-red-500" : "focus:ring-green-500"
-                    } transition duration-500 ease-in-out`}
-                  />
-                </div>
-                {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
-              </div>
-              {/* Date of Birth */}
-              <DateOfBirthPicker formData={formData} setFormData={setFormData} errors={errors.date_of_birth} />
-            </div>
+                    id="farmingType"
+                    value={formData.farmingType}
+                    onChange={(e) => setFormData({ ...formData, farmingType: e.target.value })}
+                    defaultValue="" // Fix: Use defaultValue instead of selected on <option>
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.farming_type ? " focus:ring-red-500" : "focus:ring-green-500"
+                      } transition duration-500 ease-in-out`}
+                  >
 
-            {/* Contact Information */}
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
-              {/* Phone Number */}
+
+                    <option value="" disabled>
+                      Select farming type
+                    </option>
+                    <option value="poultry">Poultry Farming</option>
+                    <option value="dairy">Dairy Farming</option>
+                    <option value="organic">Organic Farming</option>
+                    <option value="aquaculture">Aquaculture (Fish Farming)</option>
+                    <option value="beekeeping">Beekeeping</option>
+                    <option value="hydroponics">Hydroponics Farming</option>
+                    <option value="horticulture">Horticulture</option>
+                    <option value="livestock">Livestock Farming</option>
+                    <option value="crop">Crop Farming</option>
+                    <option value="agribusiness">Agribusiness</option>
+                    <option value="other">Other</option>
+                  </select>
+                  {/* Dropdown Arrow */}
+                  <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                    <IoIosArrowDropdown size={25} />
+                  </span>
+                </div>
+                {errors.farming_type && <p className="text-red-500 text-sm mt-2">{errors.farming_type}</p>}
+              </div>
+
+              {/* Farming Bio */}
               <div>
-                <label htmlFor="phoneNumber" className="block text-gray-700 font-medium mb-2">
-                  Phone Number
-                </label>
-                <PhoneInput
-                  required
-                  country={"in"} // Default country
-                  value={formData.phone}
-                  onChange={(value) => setFormData({ ...formData, phone: value })}
-                  inputProps={{
-                    name: "phone",
-                    required: true,
-                    className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-int-out",
-                  }}
-                  containerStyle={{ width: "100%" }}
-                  inputStyle={{ width: "100%", paddingLeft: "48px" }} // Adjust padding for flag & country code
-                />
-                {errors.phone_number && <p className="text-red-500 text-sm mt-2">{errors.phone_number}</p>}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email Address</label>
+                <label htmlFor="farmingBio" className="block text-gray-700 font-medium mb-2">About Your Farming Experience</label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <FaEnvelope size={20} />
+                  <span className="absolute inset-y-0 left-0 pt-3 pl-3 text-gray-400">
+                    <FaTractor size={20} />
                   </span>
-                  <input
+                  <textarea
                     required
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="Enter email address"
-                    readOnly
-                    className={`bg-gray-200 text-gray-500 w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.email ? " focus:ring-red-500" : "focus:ring-green-500"
-                    } transition duration-500 ease-in-out`}
-                  />
+                    id="farmingBio"
+                    value={formData.bio_data}
+                    onChange={(e) => setFormData({ ...formData, bio_data: e.target.value })}
+                    placeholder="Share a brief description of your farming background"
+                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.bio ? " focus:ring-red-500" : "focus:ring-green-500"
+                      } transition duration-500 ease-in-out`}
+                    rows="4"
+                  ></textarea>
                 </div>
-                {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
-
+                {errors.bio && <p className="text-red-500 text-sm mt-1">{errors.bio}</p>}
               </div>
+            </section>
+
+            {/* Submit Button */}
+            <div className="mt-8">
+              <ButtonLoader
+                buttonId="profileUpdation"
+                type="submit"
+                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-semibold text-md"
+              >
+                Submit Profile
+              </ButtonLoader>
             </div>
+          </form>
+        </div>
+      ) : (
 
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
-
-              {/* Location Input */}
-              <UserLocation formData={formData} setFormData={setFormData} errors={ errors.location } />
-        
-              {/* Home Address  */}
-              <div className="w-full">
-                <label htmlFor="homeAddress" className="block text-gray-700 font-medium mb-2">
-                  Home Address
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <FaHome size={20} /> {/* Home icon */}
-                  </span>
-                  <input
-                    required
-                    id="homeAddress"
-                    type="text"
-                    value={formData.homeAddress}
-                    onChange={(e) => setFormData({ ...formData, homeAddress: e.target.value })}
-                    placeholder="Enter your home address"
-                    className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.home_address ? " focus:ring-red-500" : "focus:ring-green-500"
-                    } transition duration-500 ease-in-out`}
-                  />
-                </div>
-                {errors.home_address && <p className="text-red-500 text-sm mt-2">{errors.home_address}</p>}
-
-              </div>
+        <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+          <div className="flex flex-col items-center justify-center py-10">
+            <div className="mb-6 text-yellow-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-          </section>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Verification In Progress</h2>
 
-          {/* Identity Verification Section */}
-          <section className="mb-8">
-            <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Identity Verification</h2>
+            <div className=" bg-yellow-100 border-l-4 border-yellow-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
+              {/* Warning Icon */}
+              <svg className="h-6 w-6 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
 
-            <div className="bg-green-100 border-l-4 border-green-700 p-4 mb-6">
-              <p className="text-green-700 font-medium flex items-center gap-4">
-                <TbInfoTriangleFilled className="w-5 h-5 flex-shrink-0" />
-                Our team will verify your details, including Aadhaar verification, within 24 hours. Ensure all information is accurate to avoid delays in the process.
+              {/* Text */}
+              <p className="text-md text-yellow-700 flex-1">
+                Your Aadhaar verification is currently under review. This process typically takes up to 24 hours to complete.
               </p>
             </div>
-
-
-            {/* Aadhaar/ID Upload */}
-
-            <div className="flex flex-col items-center justify-center py-10">
-              <AadharImageUploads onImageSelect={handleAadhaarImageSelect} />
-              {errors.aadhaarImage && <p className="text-red-500 text-sm mt-2">{errors.aadhaarImage}</p>}
+            <p className="text-gray-600 mb-6">
+              We will notify you through email once the verification is complete.
+            </p>
+            <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 mb-6">
+              <div className="bg-yellow-500 h-2.5 rounded-full w-3/4"></div>
             </div>
-
-          </section>
-
-          {/* Farming Details Section */}
-          <section>
-            <h2 className="text-md font-bold text-green-700 mb-6 border-b pb-2">Farming Information</h2>
-
-            {/* Farming Experience */}
-            <div className="mb-6">
-              <label htmlFor="farmingExperience" className="block text-gray-700 font-medium mb-2">Years of Farming Experience</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                  <FaTractor size={20} />
-                </span>
-                <input
-                  required
-                  id="farmingExperience"
-                  type="number"
-                  value={formData.farmingExperience}
-                  onChange={(e) => setFormData({ ...formData, farmingExperience: e.target.value })}
-                  placeholder="Enter years of experience"
-                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.experience ? " focus:ring-red-500" : "focus:ring-green-500"
-                  } transition duration-500 ease-in-out`}
-                />
-              </div>
-                {errors.experience && <p className="text-red-500 text-sm mt-2">{errors.experience}</p>}
-            </div>
-
-            {/* Farming Type */}
-            <div className="mb-6">
-              <label htmlFor="farmingType" className="block text-gray-700 font-medium mb-2">
-                Select Farming Type
-              </label>
-              <div className="relative">
-                {/* Icon */}
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                  <FaSeedling size={20} />
-                </span>
-                {/* Select Dropdown */}
-                <select
-                  required
-                  id="farmingType"
-                  value={formData.farmingType}
-                  onChange={(e) => setFormData({ ...formData, farmingType: e.target.value })}
-                  defaultValue="" // Fix: Use defaultValue instead of selected on <option>
-                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.farming_type ? " focus:ring-red-500" : "focus:ring-green-500"
-                  } transition duration-500 ease-in-out`}
-                >
-               
-
-                  <option value="" disabled>
-                    Select farming type
-                  </option>
-                  <option value="poultry">Poultry Farming</option>
-                  <option value="dairy">Dairy Farming</option>
-                  <option value="organic">Organic Farming</option>
-                  <option value="aquaculture">Aquaculture (Fish Farming)</option>
-                  <option value="beekeeping">Beekeeping</option>
-                  <option value="hydroponics">Hydroponics Farming</option>
-                  <option value="horticulture">Horticulture</option>
-                  <option value="livestock">Livestock Farming</option>
-                  <option value="crop">Crop Farming</option>
-                  <option value="agribusiness">Agribusiness</option>
-                  <option value="other">Other</option>
-                </select>
-                {/* Dropdown Arrow */}
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
-                  <IoIosArrowDropdown size={25} />
-                </span>
-              </div>
-              {errors.farming_type && <p className="text-red-500 text-sm mt-2">{errors.farming_type}</p>}
-            </div>
-
-            {/* Farming Bio */}
-            <div>
-              <label htmlFor="farmingBio" className="block text-gray-700 font-medium mb-2">About Your Farming Experience</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pt-3 pl-3 text-gray-400">
-                  <FaTractor size={20} />
-                </span>
-                <textarea
-                  required
-                  id="farmingBio"
-                  value={formData.bio_data}
-                  onChange={(e) => setFormData({ ...formData, bio_data: e.target.value })}
-                  placeholder="Share a brief description of your farming background"
-                  className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.bio ? " focus:ring-red-500" : "focus:ring-green-500"
-                  } transition duration-500 ease-in-out`}
-                  rows="4"
-                ></textarea>
-              </div>
-              {errors.bio && <p className="text-red-500 text-sm mt-1">{errors.bio}</p>}
-            </div>
-          </section>
-
-          {/* Submit Button */}
-          <div className="mt-8">
-            <ButtonLoader
-              buttonId= "profileUpdation"
-              type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-semibold text-md"
+            <button
+              onClick={() => window.location.reload()}
+              data-tip="Refresh the page"
+              className="tooltip tooltip-right px-2 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition duration-300"
             >
-              Submit Profile
-            </ButtonLoader>
+              <IoMdRefreshCircle size={30} />
+            </button>
+
           </div>
-        </form>
-      </div>
+        </div>
+      )}
+
+
     </div>
   );
 }

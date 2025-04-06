@@ -22,7 +22,7 @@ import agriFlowLogo from '../../assets/images/agriflowwhite.png'
 function NavBar() {
 
     const user = useSelector((state) => state.auth.user);
-    const profileCompleted = user?.profile_completed;
+    const AadharVerified = user?.aadhar_verification;
     const userData=useSelector((state)=>state.user.user)
 
     const navigate = useNavigate();
@@ -79,7 +79,7 @@ function NavBar() {
                     </div>
 
                     {/* Search Bar */}
-                    {profileCompleted &&
+                    {AadharVerified  &&
                         <div className="hidden md:block flex-1 max-w-xl mx-6">
                             <div className="relative">
                                 <input
@@ -94,7 +94,7 @@ function NavBar() {
 
                     {/* Navigation Icons */}
                     <div className="flex items-center space-x-4">
-                        {profileCompleted ? (
+                        {AadharVerified  ? (
                             <>
                                 {/* Show Other Icons if Profile is Completed */}
                                 <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors">
@@ -144,7 +144,7 @@ function NavBar() {
                         ) : (
                             <>
                                 {/* Show Logout Button if Profile is NOT Completed */}
-                                <div className="tooltip tooltip-bottom" data-tip="Logout">
+                                <div className="tooltip tooltip-left" data-tip="Logout">
                                     <button onClick={handleLogout} className="group  relative p-2 rounded-full hover:bg-white transition duration-500 ease-in-out">
                                         <IoMdLogOut className="text-2xl text-white group-hover:text-red-600 transition duration-500 ease-in-out" />
                                     </button>

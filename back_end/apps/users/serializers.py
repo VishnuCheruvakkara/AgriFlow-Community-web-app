@@ -386,7 +386,7 @@ class UserDashboardSerializer(serializers.ModelSerializer):
             "id", "email", "username", "phone_number",
             "profile_picture", "address", "farming_type",
             "experience", "bio", "date_of_birth", "profile_completed",
-            "created_at","is_active",
+            "created_at","is_active","is_aadhar_verified",
         ]  # Only necessary fields
 
     def get_profile_picture(self, obj):
