@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaUser, FaHome, FaEnvelope, FaTractor, FaSeedling, FaMapMarkerAlt } from "react-icons/fa";
+import { FaUser, FaHome, FaEnvelope, FaTractor, FaSeedling, FaMapMarkerAlt, FaIdCard } from "react-icons/fa";
 //import the addhar submission component for submit adhar if any deffect found by admin 
 import AadharImageUploads from "../../components/user-dash-board/AadharImageUploads";
 import ProfileImageSelector from "../../components/user-dash-board/ProfileImageSelector";
@@ -81,7 +81,7 @@ function ProfilePage() {
     }
 
     const aadharformData = new FormData();
-    aadharformData.append("aadhaar_resubmission_image", resubmissionAadhaarImage);
+    aadharformData.append("aadhaarImage", resubmissionAadhaarImage);
 
     try {
       const response = await AuthenticatedAxiosInstance.patch(
@@ -151,7 +151,6 @@ function ProfilePage() {
       if (error.response && error.response.status === 400) {
         setErrors(error.response.data); // Store backend validation errors
         console.log("debug the erros ::::::<><><>:::::", error.response.data)
-
       }
       showToast("Profile update failed. Please review your information and try again.", "error");
     }
@@ -544,8 +543,12 @@ function ProfilePage() {
               onClick={submitAadhaarResubmission}
               className="mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-all duration-200"
             >
-              Resubmit Aadhaar
+              <span className="flex items-center gap-2">
+                <FaIdCard size={25} />
+                Resubmit Aadhaar
+              </span>
             </button>
+
           </div>
         </div>
       </>

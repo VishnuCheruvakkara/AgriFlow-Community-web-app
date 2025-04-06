@@ -496,6 +496,10 @@ class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
         model = User
         fields = ['aadhar_resubmission_message']
 
+    def validate_aadhar_resubmission_message(self, value):
+        """Field-level validation using custom validator"""
+        return validate_text_field(value)
+
     def update(self, instance, validated_data):
         instance.aadhar_resubmission_message = validated_data.get('aadhar_resubmission_message', instance.aadhar_resubmission_message)
         instance.save()
@@ -504,14 +508,30 @@ class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
 #========================  Adhar resubmission endpoint for uesr if admin notify any mistakes in the aadhar image ==========================#
 
 class AadhaarResubmissionSerializer(serializers.ModelSerializer):
+    aadhaarImage = serializers.ImageField(write_only=True, required=False)
     class Meta:
         model = User
-        fields = ['aadhar_card']
+        fields = ['aadhar_card','aadhaarImage'] 
     
-    def update(self,instance,validated_data):
-        #Update Aadhar card image 
-        instance.aadhar_card=validated_data.get('aadhar_card',instance.aadhar_card)
-        #Set the resubmission message into None
-        instance.aadhar_resubmission_message = None 
+    def update(self, instance, validated_data):
+        if 'aadhaarImage' in validated_data:
+            image = validated_data.pop('aadhaarImage')
+
+            upload_result = cloudinary.uploader.upload(
+                image,
+                folder="private_files/aadhaar_cards/",
+                resource_type="image",
+                type="authenticated",
+                transformation=[
+                    {"width": 1000, "height": 1000, "crop": "limit"},
+                    {"quality": "auto:good"},
+                    {"fetch_format": "auto"}
+                ]
+            )
+
+            instance.aadhar_card = upload_result["public_id"]
+
+        # Clear resubmission message
+        instance.aadhar_resubmission_message = None
         instance.save()
-        return instance 
+        return instance

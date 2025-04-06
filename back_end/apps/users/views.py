@@ -759,7 +759,8 @@ class VerifyAadhaarView(APIView):
         
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-#============================= Add Resubmission message according the user to the aadhar card ====================================#
+#============================= Add Resubmission message according the user to the aadhar card in Admin side ====================================#
+
 from .serializers import AadharResubmissionMessageSerializer
 
 class UpdateAadharResubmissionMessageView(APIView):
@@ -779,6 +780,7 @@ class UpdateAadharResubmissionMessageView(APIView):
 
 class AadhaarResubmissionUpdateView(APIView):
     permission_classes=[IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def patch(self,request):
         user = request.user

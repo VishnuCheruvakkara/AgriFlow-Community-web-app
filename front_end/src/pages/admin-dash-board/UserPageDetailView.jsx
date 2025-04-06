@@ -23,6 +23,7 @@ function UserPageDetailView() {
     const [showAadharModal, setShowAadharModal] = useState(false);
     const [showInputField, setShowInputField] = useState(false);
     const [resubmissionMessage, setResubmissionMessage] = useState('');
+    const [messageError, setMessageError] = useState(""); 
 
     const dragControls = useDragControls();
 
@@ -63,16 +64,18 @@ function UserPageDetailView() {
             console.log('Resubmission request sent successfully:', response.data);
             showToast("Resubmission request sent successfully...", "success")
             cancelRequest();
+            setMessageError("");
         } catch (error) {
             console.error('Error sending resubmission message:', error.response?.data || error.message);
             showToast("Error happend while sending the message...", "error")
-
+            setMessageError(error.response?.data);
         }
     };
 
     const cancelRequest = () => {
         setResubmissionMessage('');
         setShowInputField(false);
+        setMessageError("");
     };
     // Function to calculate age based on date of birth
     const calculateAge = (dateString) => {
@@ -521,19 +524,21 @@ function UserPageDetailView() {
                                                 </button>
                                             ) : (
                                                 <div className="border rounded-md p-4 bg-white shadow-md">
-                                                    <div className="mb-3">
+                                                    <div className="mb-1">
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                                             Reason for resubmission:
                                                         </label>
                                                         <textarea
-                                                            className=" text-gray-500 w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                                           className={`bg-white text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${messageError?.aadhar_resubmission_message ? " focus:ring-red-500" : "focus:ring-green-500"
+                                                           } transition duration-500 ease-in-out`}
                                                             placeholder="Please explain why the user needs to resubmit their Aadhaar..."
                                                             value={resubmissionMessage}
                                                             onChange={(e) => setResubmissionMessage(e.target.value)}
                                                         />
                                                     </div>
+                                                    {messageError?.aadhar_resubmission_message && <p className="text-red-500 text-sm mb-6">{messageError?.aadhar_resubmission_message}</p>}
 
-                                                    <div className="flex justify-end gap-3">
+                                                    <div className="flex justify-end gap-3 mt-4">
                                                         <button
                                                             className="flex items-center gap-1 px-3 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
                                                             onClick={cancelRequest}
