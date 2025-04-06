@@ -93,7 +93,6 @@ function ProfilePage() {
     }
   };
 
-
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -166,6 +165,9 @@ function ProfilePage() {
       </div>
 
       {!user.profile_completed ? (
+
+
+        
         <div className="bg-white shadow-lg rounded-lg p-8">
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col items-center justify-center py-10">
