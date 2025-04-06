@@ -20,15 +20,17 @@ import ButtonLoader from "../../components/LoaderSpinner/ButtonLoader";
 import { showButtonLoader, hideButtonLoader } from "../../redux/slices/LoaderSpinnerSlice";
 //import the refresh button from react icons 
 import { IoMdRefreshCircle } from "react-icons/io";
+import { setUserDetails } from "../../redux/slices/userSlice";
 
 
 function ProfilePage() {
-
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth.user)
+  // take data from the redux store authSlice named as users
+  const userData = useSelector((state) => state.user.user)
   const [resubmissionAadhaarImage, setResubmissionAadhaarImage] = useState(null);
 
   // setup for the form data
@@ -87,6 +89,10 @@ function ProfilePage() {
         aadharformData,
       );
       showToast("Aadhaar image resubmitted successfully", "success");
+      dispatch(setUserDetails({
+        ...userData,
+        aadhar_resubmission_message: null,
+      }));
     } catch (error) {
       console.error("Upload error:", error.response?.data || error.message);
       showToast("Error uploading Aadhaar image", "error");
@@ -155,19 +161,15 @@ function ProfilePage() {
   };
 
 
-  return (
+  /////////  Set up for the all conditional statement to show the ui part (For debug friendly approach...) ////////////////////
 
-    <div className="container mx-auto max-w-full px-4 py-8 ">
-      {/* Welcome Box */}
-      <div className="mb-6 p-4 bg-green-100 rounded-lg border-2 border-dashed  border-green-700 text-green-900">
-        <h2 className="text-2xl font-semibold">Hello, {user?.name} ...</h2>
-        <p className="mt-2">Complete your profile to gain full access to AgriFlow. Providing accurate and complete details is essential for authentication and security. Ensure that all required fields, including personal information, contact details, and verification documents, are correctly filled in to avoid any restrictions on your access. Your information will be securely processed in compliance with our data protection policies.</p>
-      </div>
+  let content;
 
-      {!user.profile_completed ? (
+  if (!user.profile_completed) {
+    content = (
 
-
-        
+      <>
+        {/*  Profile form section here */}
         <div className="bg-white shadow-lg rounded-lg p-8">
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col items-center justify-center py-10">
@@ -457,81 +459,110 @@ function ProfilePage() {
             </div>
           </form>
         </div>
-      ) : (
-        (user?.aadhar_resubmission_message ? (
-          <div className="bg-white shadow-lg rounded-lg p-8 text-center">
-            <div className="flex flex-col items-center justify-center py-10">
-              <div className="mb-6 text-yellow-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Verification In Progress</h2>
+      </>
+    );
+  } else if (userData?.aadhar_resubmission_message === null) {
+    content = (
+      <>
+        {/*  Aadhaar verification in progress UI */}
 
-              <div className=" bg-yellow-100 border-l-4 border-yellow-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
-                {/* Warning Icon */}
-                <svg className="h-6 w-6 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+        <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+          <div className="flex flex-col items-center justify-center py-10">
+            <div className="mb-6 text-yellow-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Verification In Progress</h2>
 
-                {/* Text */}
-                <p className="text-md text-yellow-700 flex-1">
-                  Your Aadhaar verification is currently under review. This process typically takes up to 24 hours to complete.
-                </p>
-              </div>
-              <p className="text-gray-600 mb-6">
-                We will notify you through email once the verification is complete.
+            <div className=" bg-yellow-100 border-l-4 border-yellow-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
+              {/* Warning Icon */}
+              <svg className="h-6 w-6 text-yellow-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+
+              {/* Text */}
+              <p className="text-md text-yellow-700 flex-1">
+                Your Aadhaar verification is currently under review. This process typically takes up to 24 hours to complete.
               </p>
-              <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 mb-6">
-                <div className="bg-yellow-500 h-2.5 rounded-full w-3/4"></div>
-              </div>
-              <button
-                onClick={() => window.location.reload()}
-                data-tip="Refresh the page"
-                className="tooltip tooltip-right px-2 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition duration-300"
-              >
-                <IoMdRefreshCircle size={30} />
-              </button>
             </div>
-          </div>
-        ) : (
-          <div className="bg-white shadow-lg rounded-lg p-8 text-center">
-            <div className="flex flex-col items-center justify-center py-10">
-              {/* Alert Box */}
-              <div className="bg-red-100 border-l-4 border-red-500 p-5 shadow-lg flex items-center space-x-3 mb-8">
-                <svg className="h-6 w-6 text-red-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <p className="text-md text-red-700 flex-1">
-                  We found an issue with the uploaded Aadhaar during the verification process.
-                  <b> Please review the reason provided </b>and resubmit the corrected Aadhaar for verification.
-                </p>
-              </div>
-
-              {/* Aadhaar Upload */}
-              <AadharImageUploads onImageSelect={handleAadhaarImageSelect} purpose="resubmission" />
-
-              {/* Reason for Resubmission */}
-              <div className="mt-6 text-center w-full">
-                <p className="text-red-600 text-md font-semibold">Reason for resubmission:</p>
-                <p className="text-red-500 text-md mt-1">
-                  The Aadhaar image is blurry or partially visible. Please ensure it's clear and fully legible.
-                </p>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                onClick={submitAadhaarResubmission}
-                className="mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-all duration-200"
-              >
-                Resubmit Aadhaar
-              </button>
+            <p className="text-gray-600 mb-6">
+              We will notify you through email once the verification is complete.
+            </p>
+            <div className="w-full max-w-xs bg-gray-200 rounded-full h-2.5 mb-6">
+              <div className="bg-yellow-500 h-2.5 rounded-full w-3/4"></div>
             </div>
+            <button
+              onClick={() => window.location.reload()}
+              data-tip="Refresh the page"
+              className="tooltip tooltip-right px-2 py-2 bg-yellow-600 text-white rounded-full hover:bg-yellow-700 transition duration-300"
+            >
+              <IoMdRefreshCircle size={30} />
+            </button>
           </div>
+        </div>
+      </>
+    );
+  } else if (userData?.aadhar_resubmission_message !== null) {
+    content = (
+      <>
+        {/* Aadhaar resubmission UI (upload image, resubmit, etc.) */}
+        <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+          <div className="flex flex-col items-center justify-center py-">
+            {/* Reason for Resubmission */}
+            <div className="mb-8 w-full max-w-full mx-auto shadow-lg">
+              <div className="border-l-4 border-red-500  bg-red-100 p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <h3 className="text-red-700 font-bold text-lg">Resubmission Required</h3>
+                </div>
 
-        ))
-      )}
+                <div className="border-t border-red-700 pt-2">
+                  <p className="text-md text-red-700 flex-1 break-words whitespace-pre-wrap">
+                    We found an issue with the uploaded Aadhaar during the verification process.
+                    <b> Please review the reason provided </b> and resubmit the corrected Aadhaar for verification.
+                    <br />
+                    <b className="text-red-800">If not updated within 24 hours, your access will be blocked.</b>
+                  </p>
 
+                  <p className=" border-t mt-4 pt-3 border-red-700 text-red-700 font-bold mb-1">Reason:</p>
+                  <p className="text-red-700 text-md break-words whitespace-pre-wrap overflow-hidden">
+                    {userData?.aadhar_resubmission_message ||
+                      "The Aadhaar image is blurry or partially visible. Please ensure it's clear and fully legible."}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* Aadhaar Upload */}
+            <AadharImageUploads onImageSelect={handleAadhaarImageSelect} purpose="resubmission" />
+
+
+            {/* Submit Button */}
+            <button
+              onClick={submitAadhaarResubmission}
+              className="mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-md transition-all duration-200"
+            >
+              Resubmit Aadhaar
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+
+    <div className="container mx-auto max-w-full px-4 py-8 ">
+      {/* Welcome Box */}
+      <div className="mb-6 p-4 bg-green-100 rounded-lg border-2 border-dashed  border-green-700 text-green-900">
+        <h2 className="text-2xl font-semibold">Hello, {user?.name} ...</h2>
+        <p className="mt-2">Complete your profile to gain full access to AgriFlow. Providing accurate and complete details is essential for authentication and security. Ensure that all required fields, including personal information, contact details, and verification documents, are correctly filled in to avoid any restrictions on your access. Your information will be securely processed in compliance with our data protection policies.</p>
+      </div>
+
+      {/* Dynamically render the conditional based UI parts here...  */}
+      {content}
 
     </div>
   );
