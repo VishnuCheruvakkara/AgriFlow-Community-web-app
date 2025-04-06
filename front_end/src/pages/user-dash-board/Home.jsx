@@ -7,6 +7,7 @@ import defaultUserImage from '../../assets/images/user-default.png'
 import tomatoImage from '../../assets/images/tomato-1.jpg'
 import defaultGroupImage from '../../assets/images/user-group-default.png'
 import { useSelector } from 'react-redux';
+import CustomScrollToTop from '../../components/CustomScrollBottomToTop/CustomScrollToTop';
 
 function Home() {
 
@@ -14,6 +15,8 @@ function Home() {
 
   return (
     <>
+  <CustomScrollToTop />
+
       <div className="lg:w-10/12 space-y-4 mt-4 mb-11">
         {/* Welcome bar */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
