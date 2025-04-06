@@ -2,7 +2,7 @@ from cloudinary.utils import cloudinary_url
 import cloudinary.uploader
 import cloudinary
 import json
-from users.models import CustomUser, Address
+from users.models import Address
 import re
 from django.core.cache import cache
 from rest_framework import serializers
@@ -372,7 +372,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 #================================== get users data serializers ========================#
 
 from rest_framework import serializers
-from users.models import CustomUser
+
 
 class UserDashboardSerializer(serializers.ModelSerializer):
     """Serializer for fetching user dashboard data."""
@@ -381,12 +381,12 @@ class UserDashboardSerializer(serializers.ModelSerializer):
     address = serializers.SerializerMethodField()  # Format Address
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
             "id", "email", "username", "phone_number",
             "profile_picture", "address", "farming_type",
             "experience", "bio", "date_of_birth", "profile_completed",
-            "created_at","is_active","is_aadhar_verified",
+            "created_at","is_active","is_aadhar_verified","aadhar_resubmission_message",
         ]  # Only necessary fields
 
     def get_profile_picture(self, obj):
@@ -415,7 +415,7 @@ class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
     address_details = serializers.SerializerMethodField()  # Custom field for address
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = ['id', 'email', 'username', 'is_verified', 'address_details','profile_picture','profile_completed','is_aadhar_verified','is_active']  # Include only needed fields
     
     def get_profile_picture(self, obj):
@@ -447,7 +447,7 @@ class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
     aadhar_card = serializers.SerializerMethodField()  # Secure Aadhar Card URL
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = [
             "id", "email", "username", "phone_number",
             "profile_picture", "address", "farming_type",
@@ -480,7 +480,7 @@ class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
 
 class AadhaarVerificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser 
+        model = User 
         fields = ['is_aadhar_verified']
 
     def update(self,instance,validated_data):
@@ -488,4 +488,15 @@ class AadhaarVerificationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance 
 
+#=========================== Adhar resubmission message end point for admin can notify to the user that any deffect in the submitted aadhar ===========================#
 
+
+class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['aadhar_resubmission_message']
+
+    def update(self, instance, validated_data):
+        instance.aadhar_resubmission_message = validated_data.get('aadhar_resubmission_message', instance.aadhar_resubmission_message)
+        instance.save()
+        return instance

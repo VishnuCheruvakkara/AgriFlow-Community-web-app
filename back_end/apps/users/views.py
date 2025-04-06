@@ -743,7 +743,7 @@ class AdminSideUserDetailView(generics.RetrieveAPIView):
 class VerifyAadhaarView(APIView):
     permission_classes=[IsAdminUser]
 
-    def put(self,request,user_id):
+    def patch(self,request,user_id):
         user=get_object_or_404(User,id=user_id)
         serializer = AadhaarVerificationSerializer(user,data={'is_aadhar_verified':True},partial=True)
 
@@ -756,3 +756,19 @@ class VerifyAadhaarView(APIView):
             return Response({'message':'Aadhaar verified successfully!','data':serializer.data},status=status.HTTP_200_OK)
         
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+#============================= Add Resubmission message according the user to the aadhar card ====================================#
+from .serializers import AadharResubmissionMessageSerializer
+
+class UpdateAadharResubmissionMessageView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def patch(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        serializer = AadharResubmissionMessageSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Aadhar resubmission message updated successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

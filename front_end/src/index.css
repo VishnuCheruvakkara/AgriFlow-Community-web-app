@@ -139,7 +139,10 @@ select {
 
 /* SweetAlert2 Custom Styling */
 /* ===================  Competly customized confirmation alert with ok and cancel button (Admin side users status controll)============================  */
-
+body.swal2-shown {
+  padding-right: 0 !important;
+  overflow: hidden !important;
+}
 /* Popup */
 .my-swal-popup {
   background-color: white;
@@ -147,21 +150,24 @@ select {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 25rem; /* w-96 */
   max-width: 24rem;
+  font-size: 0.85rem; /* text-sm */
 }
 
 /* Title */
 .my-swal-title {
-  font-size: 24px; /* text-xl */
+  font-size: 15px; /* text-xl */
   font-weight: 600; /* font-semibold */
-  color: #7d7d7d; /* Green */
-  
+  color: #5c5c5c; /* Green */
+  border-bottom: 2px solid #949494; /* light gray border */
+  padding-bottom: 8px; /* spacing between text and border */
 }
 
-/* Content */
-.my-swal-content {
-  font-size: 0.7rem; /* text-sm */
-  color: #4b5563; /* Gray-700 */
+.my-swal-content{
+  font-weight: 600;
+  border-bottom: 2px solid #949494; /* light gray border */
 }
+
+
 
 /* Confirm Button */
 .my-swal-confirm {
@@ -169,7 +175,6 @@ select {
   border: 1px solid #16a34a; /* Green-600 */
   color: #16a34a; /* Green text */
   font-weight: 600;
-  padding: 0.5rem 1.5rem; /* py-2 px-6 */
   border-radius: 6px; /* rounded-md */
   transition: all 0.2s ease-in-out;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -242,6 +247,7 @@ select {
   }
 }
 
+/* customized daisy UI tool tip, below.... */
 /* Tooltip Box */
 .tooltip::before {
   background-color: #16a34a !important;  /* Tailwind's green-600 */

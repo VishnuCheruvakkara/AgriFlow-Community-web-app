@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaSeedling, FaCalendarAlt, FaIdCard, FaCheckCircle, FaTimesCircle, FaTimes, FaFileAlt, FaEye } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaSeedling, FaCalendarAlt, FaIdCard, FaCheckCircle, FaTimesCircle, FaTimes, FaFileAlt, FaEye, FaArrowsAlt } from 'react-icons/fa';
 import { useParams, Link } from 'react-router-dom';
 import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
 import UserDefaultImage from '../../assets/images/user-default.png';
@@ -12,7 +12,8 @@ import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpi
 // import sweet alert
 import Swal from "sweetalert2";
 //To make the modal draggable 
-import { motion } from "framer-motion";
+import { motion, useDragControls } from "framer-motion";
+import { FiAlertCircle, FiSend } from 'react-icons/fi';
 
 
 function UserPageDetailView() {
@@ -20,7 +21,59 @@ function UserPageDetailView() {
     const { userId } = useParams();
     const [user, setUser] = useState(null);
     const [showAadharModal, setShowAadharModal] = useState(false);
+    const [showInputField, setShowInputField] = useState(false);
+    const [resubmissionMessage, setResubmissionMessage] = useState('');
 
+    const dragControls = useDragControls();
+
+    const startDrag = (event) => {
+        dragControls.start(event);
+    };
+
+    //for resubmission button set up
+    const handleSubmitResubmissionRequest = async () => {
+        // Show confirmation alert before proceeding
+        const result = await Swal.fire({
+            title: "Send Aadhaar Resubmission Request?",
+            text: "Are you sure you want to send a resubmission request to the user for their Aadhaar verification?",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Send request!",
+            cancelButtonText: "Cancel",
+            showClass: {
+                popup: "swal-fade-in",
+            },
+            hideClass: {
+                popup: "swal-fade-out",
+            },
+            customClass: {
+                popup: "my-swal-popup",
+                title: "my-swal-title",
+                confirmButton: "my-swal-confirm",
+                cancelButton: "my-swal-cancel",
+            }
+        });
+
+        // If the user cancels, exit function
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        try {
+            const response = await AdminAuthenticatedAxiosInstance.patch(`/users/update-aadhar-resubmission-message/${userId}/`, { aadhar_resubmission_message: resubmissionMessage });
+            console.log('Resubmission request sent successfully:', response.data);
+            showToast("Resubmission request sent successfully...", "success")
+            cancelRequest();
+        } catch (error) {
+            console.error('Error sending resubmission message:', error.response?.data || error.message);
+            showToast("Error happend while sending the message...", "error")
+
+        }
+    };
+
+    const cancelRequest = () => {
+        setResubmissionMessage('');
+        setShowInputField(false);
+    };
     // Function to calculate age based on date of birth
     const calculateAge = (dateString) => {
         const birthDate = new Date(dateString);
@@ -122,11 +175,9 @@ function UserPageDetailView() {
             return;
         }
 
-        dispatch(showButtonLoader(buttonId
-
-        ))
+        dispatch(showButtonLoader(buttonId))
         try {
-            const response = await AdminAuthenticatedAxiosInstance.put(`/users/verify-aadhaar/${userId}/`);
+            const response = await AdminAuthenticatedAxiosInstance.patch(`/users/verify-aadhaar/${userId}/`);
             showToast("Aadhar successfully verified!")
             setUser((prevUser) => ({
                 ...prevUser,
@@ -349,10 +400,11 @@ function UserPageDetailView() {
 
 
             {showAadharModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-hidden scrollbar-hide">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-25 overflow-hidden scrollbar-hide">
                     <motion.div
                         drag
-                        
+                        dragControls={dragControls}
+                        dragListener={false} // disables default drag behavior
                         dragTransition={{ power: 0, timeConstant: 0 }}
                     >
                         <div className="bg-white rounded-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto shadow-lg scrollbar-hide relative">
@@ -364,9 +416,22 @@ function UserPageDetailView() {
                                 <h3 className="text-xl font-bold text-white flex items-center">
                                     <FaIdCard className="mr-2" /> Aadhaar Details
                                 </h3>
-                                <button onClick={closeAadharModal} className="text-white hover:text-gray-200">
-                                    <FaTimes className="text-xl" />
-                                </button>
+                                <div className="flex items-center gap-7">
+                                    {/* Drag Handle Button */}
+                                    <button
+                                        onPointerDown={startDrag}
+                                        className="text-white hover:text-gray-200 cursor-move"
+                                        title="Drag Modal"
+                                    >
+                                        <FaArrowsAlt className="text-xl" />
+                                    </button>
+                                    <button
+                                        onClick={closeAadharModal}
+                                        className="text-white hover:text-gray-200"
+                                    >
+                                        <FaTimes className="text-xl" />
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Modal Body */}
@@ -442,11 +507,51 @@ function UserPageDetailView() {
                                                 buttonId="verifyAadhaar"
                                                 onClick={() => { handleVerifyAadhaar(user.id) }}
                                                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md shadow-md mt-4"
-                                            >
+                                            >< FaIdCard className="text-lg" />
                                                 Verify Aadhaar
                                             </ButtonLoader>
 
-                                            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md shadow-md">Request Resubmission</button>
+                                            {!showInputField ? (
+                                                <button
+                                                    className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md shadow-md"
+                                                    onClick={() => setShowInputField(true)}
+                                                >
+                                                    <FiAlertCircle className="text-lg" />
+                                                    Request Resubmission
+                                                </button>
+                                            ) : (
+                                                <div className="border rounded-md p-4 bg-white shadow-md">
+                                                    <div className="mb-3">
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Reason for resubmission:
+                                                        </label>
+                                                        <textarea
+                                                            className=" text-gray-500 w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out"
+                                                            placeholder="Please explain why the user needs to resubmit their Aadhaar..."
+                                                            value={resubmissionMessage}
+                                                            onChange={(e) => setResubmissionMessage(e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex justify-end gap-3">
+                                                        <button
+                                                            className="flex items-center gap-1 px-3 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                                                            onClick={cancelRequest}
+                                                        >
+                                                            <FaTimesCircle />
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:bg-red-300"
+                                                            onClick={handleSubmitResubmissionRequest}
+                                                            disabled={!resubmissionMessage.trim()}
+                                                        >
+                                                            <FiSend />
+                                                            Send Request
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}

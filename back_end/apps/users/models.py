@@ -54,10 +54,10 @@ class CustomUser(AbstractUser):
         help_text="Stores the Cloudinary public ID for the user's Aadhaar card."
     )
     is_aadhar_verified = models.BooleanField(default=False)  # Admin verification status for Aadhar
+    aadhar_resubmission_message = models.TextField(blank=True, null=True)
    
     # Date of Birth
     date_of_birth = models.DateField(null=True, blank=True, help_text="User's date of birth")  
-
 
     # Access Control
     profile_completed = models.BooleanField(default=False)  # Restrict app access until True
