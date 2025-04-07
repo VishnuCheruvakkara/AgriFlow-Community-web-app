@@ -15,7 +15,8 @@ function Home() {
 
   return (
     <>
-  <CustomScrollToTop />
+      {/* for scroll set up  */}
+      <CustomScrollToTop />
 
       <div className="lg:w-10/12 space-y-4 mt-4 mb-11">
         {/* Welcome bar */}

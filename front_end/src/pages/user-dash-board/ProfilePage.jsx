@@ -460,7 +460,7 @@ function ProfilePage() {
         </div>
       </>
     );
-  } else if (userData?.aadhar_resubmission_message === null) {
+  } else if (userData?.aadhar_resubmission_message == null) {
     content = (
       <>
         {/*  Aadhaar verification in progress UI */}
