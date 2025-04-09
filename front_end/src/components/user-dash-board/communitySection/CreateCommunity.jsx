@@ -3,22 +3,27 @@ import { FaSearch, FaGlobe, FaLock, FaChevronRight, FaCamera } from 'react-icons
 import { IoMdAddCircle } from "react-icons/io";
 import ProfileImageSelector from '../ProfileImageSelector';
 
+
+
 function CreateCommunity() {
     const [tagInput, setTagInput] = useState('');
     const [tags, setTags] = useState([]);
 
-    // Tag section setup 
+    //================== Tag section setup 
     const handleAddTag = () => {
-        const newTag = tagInput.trim();
-        if (newTag && !tags.includes(newTag)) {
-            setTags([...tags, newTag]);
-            setTagInput('');
+        const trimmedTag = tagInput.trim();
+        if (trimmedTag && !formData.tags.includes(trimmedTag)) {
+            const updatedTags = [...formData.tags, trimmedTag];
+            setFormData(prev => ({ ...prev, tags: updatedTags }));
         }
+        setTagInput("");
     };
 
     const handleRemoveTag = (tagToRemove) => {
-        setTags(tags.filter(tag => tag !== tagToRemove));
+        const updatedTags = formData.tags.filter(tag => tag !== tagToRemove);
+        setFormData(prev => ({ ...prev, tags: updatedTags }));
     };
+
 
     const handleKeyPress = (e) => {
         if (e.key === 'enter') {
@@ -26,7 +31,17 @@ function CreateCommunity() {
             handleAddTag();
         }
     };
-    //Tag section ends
+    //***************Tag section ends
+
+    //============== Add community image/Icon in to the state 
+    const handleImageSelect = (imageFile) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            logo: imageFile,
+        }));
+    };
+    
+    //*************** */ add community image section ends
 
     // state for handle every form data with handleChange 
     const [formData, setFormData] = useState({
@@ -34,9 +49,10 @@ function CreateCommunity() {
         description: '',
         is_private: false,
         tags: [],
-        logo:null,
+        logo: null,
     })
 
+    console.log("Current formData ::::", formData)
 
 
     return (
@@ -45,17 +61,19 @@ function CreateCommunity() {
             <div className="mt-6 ">
                 <form className="space-y-6">
 
-
                     {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
                     <div className="mt-10">
-                        <ProfileImageSelector />
+                        <ProfileImageSelector onImageSelect={handleImageSelect} />
                     </div>
 
                     {/* Basic information */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">Community Name</label>
                         <input
+                            id='name'
                             type="text"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="w-full py-3 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             placeholder="Enter your community name"
                         />
@@ -64,6 +82,9 @@ function CreateCommunity() {
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">Description</label>
                         <textarea
+                            id='description'
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             className="w-full py-3 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             placeholder="Describe what your community is about"
                             rows="3"
@@ -73,26 +94,44 @@ function CreateCommunity() {
 
 
                     {/* Privacy settings */}
+                    {/* Privacy settings */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">Privacy Settings</label>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="border border-green-500 bg-green-50 rounded-md p-4 cursor-pointer">
+
+                            {/* Public Option */}
+                            <div
+                                onClick={() => setFormData({ ...formData, is_private: false })}
+                                className={`border rounded-md p-4 cursor-pointer transition-colors duration-500
+                                ${formData.is_private === false
+                                        ? "border-green-600 bg-green-100"
+                                        : "border-gray-300"}`}
+                            >
                                 <div className="flex items-center">
-                                    <FaGlobe className="text-green-500 mr-2" />
+                                    <FaGlobe className={`mr-2 ${formData.is_private === false ? "text-green-500" : "text-gray-400"}`} />
                                     <h3 className="font-medium">Public Community</h3>
                                 </div>
                                 <p className="text-sm text-gray-600 mt-2">Anyone can see and join this community</p>
                             </div>
 
-                            <div className="border border-gray-300 rounded-md p-4 cursor-pointer">
+                            {/* Private Option */}
+                            <div
+                                onClick={() => setFormData({ ...formData, is_private: true })}
+                                className={`border rounded-md p-4 cursor-pointer transition 
+                                ${formData.is_private === true
+                                        ? "border-green-600 bg-green-100"
+                                        : "border-gray-300"}`}
+                            >
                                 <div className="flex items-center">
-                                    <FaLock className="text-gray-400 mr-2" />
+                                    <FaLock className={`mr-2 ${formData.is_private === true ? "text-green-500" : "text-gray-400"}`} />
                                     <h3 className="font-medium">Private Community</h3>
                                 </div>
                                 <p className="text-sm text-gray-600 mt-2">Admin approval required to join</p>
                             </div>
+
                         </div>
                     </div>
+
 
                     {/* Tags */}
                     <div>
@@ -117,10 +156,10 @@ function CreateCommunity() {
                         </div>
 
                         <div className="flex flex-wrap gap-2 mt-3">
-                            {tags.map((tag, index) => (
+                            {formData.tags.map((tag, index) => (
                                 <span onClick={() => handleRemoveTag(tag)} key={index} className="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full flex items-center cursor-pointer">
                                     {tag}
-                                    <span className='ml-2'>  &times;</span>
+                                    <span className='ml-2'>&times;</span>
                                 </span>
                             ))}
                         </div>
