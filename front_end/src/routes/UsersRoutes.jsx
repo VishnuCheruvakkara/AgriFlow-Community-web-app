@@ -1,9 +1,15 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route,Navigate } from 'react-router-dom'
 import Home from '../pages/user-dash-board/Home'
 import UserLayout from '../layout/UserLayout'
 import ProfilePage from '../pages/user-dash-board/ProfilePage'
-import CommunityPage from '../pages/user-dash-board/CommunityPage'
+//Community layout 
+import CommunityLayout from '../layout/UserCommunityLayout'
+// Community sub-pages
+import DiscoverCommunities from '../components/user-dash-board/communitySection/DiscoverCommunities'
+import MyCommunities from '../components/user-dash-board/communitySection/MyCommunities'
+import CreateCommunity from '../components/user-dash-board/communitySection/CreateCommunity'
+import PendingRequest from '../components/user-dash-board/communitySection/pendingRequest'
 
 function UsersRoutes() {
   return (
@@ -12,9 +18,16 @@ function UsersRoutes() {
       <Route element={<UserLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/farmer-profile" element={<ProfilePage />} />
-        <Route path="/farmer-community" element={<CommunityPage />} />
-      </Route>
 
+        <Route path="farmer-community" element={<CommunityLayout />}>
+          <Route index element={<Navigate to="discover-communities" replace />} />
+          <Route path="discover-communities" element={<DiscoverCommunities />} />
+          <Route path="my-communities" element={<MyCommunities />} />
+          <Route path="create-communities" element={<CreateCommunity />} />
+          <Route path="pending-request" element={<PendingRequest/>} />
+        </Route>
+
+      </Route>
     </Routes>
   )
 }
