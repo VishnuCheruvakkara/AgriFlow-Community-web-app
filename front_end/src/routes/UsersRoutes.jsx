@@ -6,10 +6,10 @@ import ProfilePage from '../pages/user-dash-board/ProfilePage'
 //Community layout 
 import CommunityLayout from '../layout/UserCommunityLayout'
 // Community sub-pages
-import DiscoverCommunities from '../components/user-dash-board/communitySection/DiscoverCommunities'
-import MyCommunities from '../components/user-dash-board/communitySection/MyCommunities'
-import CreateCommunity from '../components/user-dash-board/communitySection/CreateCommunity'
-import PendingRequest from '../components/user-dash-board/communitySection/pendingRequest'
+import DiscoverCommunities from '../components/user-dash-board/createCommunitySupportComponents/DiscoverCommunities'
+import MyCommunities from '../components/user-dash-board/createCommunitySupportComponents/MyCommunities'
+import CreateCommunity from '../components/user-dash-board/createCommunitySupportComponents/CreateCommunity'
+import PendingRequest from '../components/user-dash-board/createCommunitySupportComponents/pendingRequest'
 
 function UsersRoutes() {
   return (

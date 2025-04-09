@@ -17,7 +17,6 @@
     "classnames": "^2.5.1",
     "daisyui": "^5.0.4",
     "dropzone": "^6.0.0-beta.2",
-    "formik": "^2.4.6",
     "framer-motion": "^12.6.3",
     "icons": "^1.0.0",
     "lodash": "^4.17.21",
