@@ -520,7 +520,6 @@ function CreateCommunity() {
                                         setSearchQuery("")
                                     }}
                                 ><ImCancelCircle />
-
                                     Cancel
                                 </button>
                                 <button
