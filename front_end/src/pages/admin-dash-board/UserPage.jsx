@@ -174,9 +174,9 @@ const UsersPage = () => {
             {/* Parent Container is Required for Ternary */}
             {loading ? (
               <div className="flex justify-center items-center py-28">
-              <PulseLoader color="#16a34a" speedMultiplier={1} />
-            </div>
-            
+                <PulseLoader color="#16a34a" speedMultiplier={1} />
+              </div>
+
             ) : users.length > 0 ? (
               <>
 

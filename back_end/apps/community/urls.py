@@ -1,6 +1,7 @@
 from django.urls import path
+from community.views import ShowUsersWhileCreateCommunity 
 
 urlpatterns = [
     # Authentication urls
-    # path('register/', RegisterView.as_view(), name='register'),
+    path('get-users-create-community/', ShowUsersWhileCreateCommunity.as_view(), name='all-users-except-self-admin'),
 ]

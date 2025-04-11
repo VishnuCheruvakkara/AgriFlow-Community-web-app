@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 
 export const CommunitySchema = Yup.object().shape({
+  communityImage: Yup.mixed().required("Community image is required"),
   name: Yup.string()
     .required('Community name is required')
     .matches(/^[A-Za-z0-9 ]+$/, 'Only letters, numbers, and spaces are allowed')
@@ -27,4 +28,5 @@ export const CommunitySchema = Yup.object().shape({
     )
     .min(5, 'At least 5 tags are required')
     .max(8, 'You can add a maximum of 8 tags'),
+    
 });
