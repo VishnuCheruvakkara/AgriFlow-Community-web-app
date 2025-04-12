@@ -19,14 +19,9 @@ export const CommunitySchema = Yup.object().shape({
       /^[A-Za-z0-9 ,.?!'"()\-]+$/,
       'Description can only include text, numbers, spaces, commas, and basic punctuation'
     ),
-
-  tags: Yup.array()
-    .of(
-      Yup.string()
-        .trim()
-        .test('not-empty', 'Tag cannot be empty', (value) => value && value.length > 0)
-    )
-    .min(5, 'At least 5 tags are required')
-    .max(8, 'You can add a maximum of 8 tags'),
+    tags: Yup.array()
+    .min(3, 'At least 3 tags are required')
+    .max(5, 'You can add a maximum of 8 tags'),
+  
     
 });

@@ -1,12 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from community.models import Community,CommunityMembership,Tag 
 
 ################### Get the User model ###############
 
 User = get_user_model()
 
-######################################################
+########################  Commuity creation realted serializers ##############################
 
+#=========================  Serializer for to get minimum user data ============================#
 class UserMinimalSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
@@ -25,3 +27,53 @@ class UserMinimalSerializer(serializers.ModelSerializer):
                 "country": obj.address.country
             }
         return None
+    
+#==========================  Community creation serializer ===========================# 
+
+class CommunitySerializer(serializers.ModelSerializer):
+    tags = serializers.ListField(child=serializers.CharField(), write_only=True)
+    members = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+    communityImage = serializers.ImageField(write_only=True, required=False)
+    join_message = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = Community
+        fields = ['name', 'description', 'is_private', 'tags', 'members', 'communityImage', 'join_message']
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags', [])
+        member_ids = validated_data.pop('members', [])
+        image = validated_data.pop('communityImage', None)
+        join_message = validated_data.pop('join_message', "You've been invited to join this community.")
+        user = self.context['request'].user
+
+        # Create community
+        community = Community.objects.create(created_by=user, **validated_data)
+        if image:
+            community.community_logo = image
+            community.save()
+
+        # Add tags
+        for tag in tags:
+            tag_obj, _ = Tag.objects.get_or_create(name=tag)
+            community.tags.add(tag_obj)
+
+        # Add invited members
+        for uid in member_ids:
+            CommunityMembership.objects.create(
+                user_id=uid,
+                community=community,
+                status='pending',
+                join_message=join_message,
+                approved_by=None
+            )
+
+        # Add creator as admin
+        CommunityMembership.objects.create(
+            user=user,
+            community=community,
+            status='approved',
+            is_admin=True
+        )
+
+        return community

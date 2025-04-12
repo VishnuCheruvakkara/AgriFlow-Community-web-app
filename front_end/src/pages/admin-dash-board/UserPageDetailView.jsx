@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 // import sweet alert
-import Swal from "sweetalert2";
+import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 //To make the modal draggable 
 import { motion, useDragControls } from "framer-motion";
 import { FiAlertCircle, FiSend } from 'react-icons/fi';
@@ -23,7 +23,7 @@ function UserPageDetailView() {
     const [showAadharModal, setShowAadharModal] = useState(false);
     const [showInputField, setShowInputField] = useState(false);
     const [resubmissionMessage, setResubmissionMessage] = useState('');
-    const [messageError, setMessageError] = useState(""); 
+    const [messageError, setMessageError] = useState("");
 
     const dragControls = useDragControls();
 
@@ -34,26 +34,11 @@ function UserPageDetailView() {
     //for resubmission button set up
     const handleSubmitResubmissionRequest = async () => {
         // Show confirmation alert before proceeding
-        const result = await Swal.fire({
+        const result = await showConfirmationAlert({
             title: "Send Aadhaar Resubmission Request?",
             text: "Are you sure you want to send a resubmission request to the user for their Aadhaar verification?",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Send request!",
-            cancelButtonText: "Cancel",
-            showClass: {
-                popup: "swal-fade-in",
-            },
-            hideClass: {
-                popup: "swal-fade-out",
-            },
-            customClass: {
-                popup: "my-swal-popup",
-                title: "my-swal-title",
-                confirmButton: "my-swal-confirm",
-                cancelButton: "my-swal-cancel",
-            }
-        });
-
+            confirmButtonText: "Yes, Send request",
+        })
         // If the user cancels, exit function
         if (!result.isConfirmed) {
             return;
@@ -152,25 +137,10 @@ function UserPageDetailView() {
         const buttonId = "verifyAadhaar"
 
         // Show confirmation alert before proceeding
-        const result = await Swal.fire({
+        const result = await showConfirmationAlert({
             title: "Verify Aadhaar?",
             text: "Have you verified that the uploaded Aadhaar is correct and matches the user's profile details?",
-            showCancelButton: true,
-            confirmButtonText: "Yes, verify it!",
-            cancelButtonText: "Cancel",
-            showClass: {
-                popup: "swal-fade-in",
-            },
-            hideClass: {
-                popup: "swal-fade-out",
-            },
-            customClass: {
-                popup: "my-swal-popup",
-                title: "my-swal-title",
-                content: "my-swal-content",
-                confirmButton: "my-swal-confirm",
-                cancelButton: "my-swal-cancel",
-            }
+            confirmButtonText: "Yes, Verify",
         });
 
         // If the user cancels, exit function
@@ -529,8 +499,8 @@ function UserPageDetailView() {
                                                             Reason for resubmission:
                                                         </label>
                                                         <textarea
-                                                           className={`bg-white text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${messageError?.aadhar_resubmission_message ? " focus:ring-red-500" : "focus:ring-green-500"
-                                                           } transition duration-500 ease-in-out`}
+                                                            className={`bg-white text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${messageError?.aadhar_resubmission_message ? " focus:ring-red-500" : "focus:ring-green-500"
+                                                                } transition duration-500 ease-in-out`}
                                                             placeholder="Please explain why the user needs to resubmit their Aadhaar..."
                                                             value={resubmissionMessage}
                                                             onChange={(e) => setResubmissionMessage(e.target.value)}

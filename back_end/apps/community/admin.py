@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Community, CommunityMembership, Tag
 
-# Register your models here.
+# Simple admin registrations
+admin.site.register(Community)
+admin.site.register(CommunityMembership)
+admin.site.register(Tag)

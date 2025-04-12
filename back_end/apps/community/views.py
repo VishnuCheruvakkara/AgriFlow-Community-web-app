@@ -1,4 +1,5 @@
 
+from os import read
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
@@ -7,11 +8,15 @@ from rest_framework.response import Response
 # for pagination set up
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
-
+# create community
+from rest_framework import generics, permissions, status
+from community.serializers import CommunitySerializer
 
 ############### get the Usermodel ##################
 
 User = get_user_model()
+
+# Community creation View part ##########################3
 
 # ==================== get user data for community creation : To shwo in the modal
 
@@ -27,7 +32,8 @@ class ShowUsersWhileCreateCommunity(APIView):
 
     def get(self, request):
         current_user = request.user
-        search_query=request.GET.get("search","") #To get hte search value from the query params
+        # To get hte search value from the query params
+        search_query = request.GET.get("search", "")
         users = User.objects.exclude(id=current_user.id).exclude(
             is_superuser=True).filter(is_active=True, is_aadhar_verified=True)
         if search_query:
@@ -35,7 +41,22 @@ class ShowUsersWhileCreateCommunity(APIView):
                 Q(username__icontains=search_query) |
                 Q(address__location_name__icontains=search_query)
             )
-        paginator=CustomUserPagination()
-        result_page=paginator.paginate_queryset(users,request)
+        paginator = CustomUserPagination()
+        result_page = paginator.paginate_queryset(users, request)
         serializer = UserMinimalSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+# ===============================  Create community View =====================================#
+
+class CreateCommunityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        print("Arived data from front end ::: ",request.data)
+        serializer = CommunitySerializer(data=request.data, context={'request': request})
+        print("Serializer data ::: ",serializer) 
+        if serializer.is_valid():
+            print("Valid data ::: ",serializer.validated_data)
+            serializer.save()
+            return Response({"message": "Community created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -6,8 +6,9 @@ import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImCancelCircle } from "react-icons/im";
 // improt loader spinner  
 import { PulseLoader } from 'react-spinners';
-
-
+// improt sweet alert here 
+import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+//import image selector for community image upload 
 import ProfileImageSelector from '../ProfileImageSelector';
 //import Yup for front-end validation
 import { CommunitySchema } from './createCommunitySupportingComponents/communitySchema';
@@ -21,7 +22,6 @@ function CreateCommunity() {
     //debouncer state setup
     const debounceTimeout = useRef(null);
     const [tagInput, setTagInput] = useState('');
-    const [tags, setTags] = useState([]);
     const [errors, setErrors] = useState({});
     //set members get from backend to here : for select the community members.
     const [members, setMembers] = useState([]);
@@ -32,23 +32,49 @@ function CreateCommunity() {
     const [hasMore, setHasMore] = useState(true);
     //for search the members showed in the modal 
     const [searchQuery, setSearchQuery] = useState("");
-
+    //controll community image with state 
+    const [resetImage, setResetImage] = useState(false);
 
     //modal controller for add farmers while creating a community
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // state for handle every form data with handleChange 
-    const [formData, setFormData] = useState({
+    const initialFormData = {
         name: '',
         description: '',
         is_private: false,
         tags: [],
         communityImage: null,
         members: [],
-    })
+    };
+
+    // creating state for the initalformData
+    const [formData, setFormData] = useState(initialFormData);
 
     console.log("Current formData ::::", formData)
     console.log("Errors :::", errors)
+
+    //======================= Function const handleCloseModal = (shouldClearSearch = true) => {
+    const handleCloseModal = async (shouldClearSearch = true) => {
+        const result = await showConfirmationAlert({
+            title: 'Cancel Community creation ?',
+            text: 'Are you sure you want to Cancell the community creation ?',
+            confirmButtonText: 'Yes, Cancell it',
+            cancelButtonText: 'No, Keep it',
+        });
+
+        if (result) {
+            setIsModalOpen(false);
+            setSearchQuery(''); // Clear search query when closing the modal
+            setErrors("");
+            setSelectedMembers([]);
+            setFormData(initialFormData);
+            setTagInput("")
+            setResetImage(true);
+            // Reset the flag back after a tiny delay
+            setTimeout(() => setResetImage(false), 100);
+        }
+    };
 
     //======================= Function to add members from modal
 
@@ -62,7 +88,7 @@ function CreateCommunity() {
     };
     console.log("selected members ::::", selectedMembers)
 
-    const handleModalSubmit = () => {
+    const handleModalSubmit = async () => {
         if (selectedMembers.length === 0) {
             showToast("Please select at least one member", "error");
             return;
@@ -76,10 +102,51 @@ function CreateCommunity() {
 
         console.log("Final Submission:", fullFormData);
 
-        setIsModalOpen(false);
-        showToast("Community Created Successfully!", "success");
+        // Prepare for submission
+        try {
 
-        // Now you can POST `fullFormData` to your backend
+
+            // If sending image or file, use multipart/form-data
+            const submitData = new FormData();
+            submitData.append('name', fullFormData.name);
+            submitData.append('description', fullFormData.description);
+            submitData.append('is_private', fullFormData.is_private);
+            fullFormData.tags.forEach(tag => submitData.append('tags', tag));
+            fullFormData.members.forEach(id => submitData.append('members', id));
+
+
+            if (fullFormData.communityImage) {
+                submitData.append('communityImage', fullFormData.communityImage);
+            }
+            // Debugger for the sumbitData
+            for (let [key, value] of submitData.entries()) {
+                console.log(`${key}:`, value);
+            }
+            
+            const response = await AuthenticatedAxiosInstance.post(
+                '/community/create-community/',
+                submitData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+
+            showToast("Community Created Successfully!", "success");
+            setIsModalOpen(false);
+
+            // Reset form after successful submission
+            setFormData(initialFormData);
+            setTagInput('');
+            setSelectedMembers([]);
+            setResetImage(true);
+            setTimeout(() => setResetImage(false), 100);
+
+        } catch (error) {
+            console.error("Error submitting community:", error);
+            showToast("Something went wrong while creating community", "error");
+        }
     };
 
     //******************* modal for add user end */
@@ -112,11 +179,27 @@ function CreateCommunity() {
     //================== Tag section setup 
     const handleAddTag = () => {
         const trimmedTag = tagInput.trim();
-        if (trimmedTag && !formData.tags.includes(trimmedTag)) {
-            const updatedTags = [...formData.tags, trimmedTag];
-            setFormData(prev => ({ ...prev, tags: updatedTags }));
+        const tagRegex = /^[A-Za-z]+$/;
+
+        if (!trimmedTag) {
+            setErrors((prev) => ({ ...prev, tags: "Tag cannot be empty" }));
+            return;
         }
-        setTagInput("");
+
+        if (!tagRegex.test(trimmedTag)) {
+            setErrors((prev) => ({ ...prev, tags: "Tags must contain only alphabets with no spaces" }));
+            return;
+        }
+
+        if (formData.tags.includes(trimmedTag)) {
+            setErrors((prev) => ({ ...prev, tags: "Tag already added" }));
+            return;
+        }
+
+        // Add tag and clear input
+        setFormData((prev) => ({ ...prev, tags: [...prev.tags, trimmedTag] }));
+        setTagInput('');
+        setErrors((prev) => ({ ...prev, tags: '' }));
     };
 
     const handleRemoveTag = (tagToRemove) => {
@@ -124,13 +207,13 @@ function CreateCommunity() {
         setFormData(prev => ({ ...prev, tags: updatedTags }));
     };
 
-
     const handleKeyPress = (e) => {
-        if (e.key === 'enter') {
+        if (e.key === 'Enter') {
             e.preventDefault();
             handleAddTag();
         }
     };
+
     //***************Tag section ends
 
     //============== Add community image/Icon in to the state 
@@ -190,10 +273,10 @@ function CreateCommunity() {
         e.preventDefault();
         const isValid = await handleValidation();
 
-        // if (!isValid) {
-        //     showToast("Errors found. Please fix and resubmit.", "error")
-        //     return;
-        // }
+        if (!isValid) {
+            showToast("Some details are not correct. Please check and submit again.", "error")
+            return;
+        }
 
         // Open the modal to select members
         setPage(1);
@@ -213,7 +296,7 @@ function CreateCommunity() {
                     {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
                     <div className="flex flex-col items-center justify-center ">
                         <h2 className="text-lg font-semibold mb-4">Upload Community Image</h2>
-                        <ProfileImageSelector onImageSelect={handleImageSelect} />
+                        <ProfileImageSelector onImageSelect={handleImageSelect} reset={resetImage} />
                         {errors.communityImage && (<p className="text-red-500 text-sm mt-4">{errors.communityImage}</p>)}
                     </div>
 
@@ -308,7 +391,10 @@ function CreateCommunity() {
                                 <span className="font-medium">Add</span>
                             </button>
                         </div>
-                        {errors.tags && <p className="text-red-500 text-sm mt-2">{errors.tags}</p>}
+                        {/* Tag Errors */}
+                        {errors.tags && (
+                            <p className="text-red-500 text-sm mt-2">{errors.tags}</p>
+                        )}
 
 
                         <div className="flex flex-wrap gap-2 mt-3">
@@ -339,9 +425,9 @@ function CreateCommunity() {
                         <div className="bg-white rounded-lg shadow-xl w-[90%] max-w-md overflow-hidden">
                             {/* Green Header */}
                             <div className="bg-gradient-to-r from-green-700 to-green-400  px-6 py-4 flex justify-between items-center">
-                                <h2 className="text-xl font-bold text-white">Select Group Farmers</h2>
+                                <h2 className="text-xl font-bold text-white">Select Group Members</h2>
                                 <button
-                                    onClick={() => setIsModalOpen(false)}
+                                    onClick={handleCloseModal}
                                     className="text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -438,9 +524,7 @@ function CreateCommunity() {
 
                                                 </div>
 
-                                        // {/* Member List */}
-
-
+                                                {/* Member List */}
                                                 <div
                                                     className="max-h-60 overflow-y-auto border-2 border-gray-300 rounded-lg mb-3 scrollbar-hide"
                                                     onScroll={(e) => {
@@ -506,19 +590,13 @@ function CreateCommunity() {
                                     </div>
                                 )}
 
-
-
-
                             </div>
 
                             {/* Footer with Actions */}
                             <div className="bg-gray-100 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
                                 <button
                                     className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium flex items-center gap-2"
-                                    onClick={() => { 
-                                        setIsModalOpen(false)
-                                        setSearchQuery("")
-                                    }}
+                                    onClick={handleCloseModal}
                                 ><ImCancelCircle />
                                     Cancel
                                 </button>
@@ -527,7 +605,7 @@ function CreateCommunity() {
                                     onClick={handleModalSubmit}
                                 >
                                     <FaRegCircleCheck />
-                                    Submit Farmers & Create
+                                    Submit Members & Create
                                 </button>
                             </div>
                         </div>

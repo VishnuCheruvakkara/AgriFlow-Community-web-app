@@ -4,7 +4,7 @@ import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticat
 import defaultUserImage from '../../assets/images/user-default.png'
 import { RiSearchLine } from "react-icons/ri";
 // sweet alert import
-import Swal from "sweetalert2";
+import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmationAlert";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { Link } from "react-router-dom";
 import { PulseLoader } from 'react-spinners';
@@ -61,28 +61,12 @@ const UsersPage = () => {
 
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = !currentStatus;
-
-    const result = await Swal.fire({
+    const result = await showConfirmationAlert({
       title: "Modify User Status",
       text: "This action will update the user's status. Please confirm to proceed.",
-      showCancelButton: true,
-      confirmButtonText: 'Yes, change status!',
-      cancelButtonText: 'Cancel',
-      showClass: {
-        popup: "swal-fade-in", // Custom fade-in class
-      },
-      hideClass: {
-        popup: "swal-fade-out",
-      },
-
-      customClass: {
-        popup: 'my-swal-popup',
-        title: 'my-swal-title',
-        content: 'my-swal-content',
-        confirmButton: 'my-swal-confirm',
-        cancelButton: 'my-swal-cancel',
-      }
+      confirmButtonText: "Yes, change status",
     });
+    
 
     if (result.isConfirmed) {
       try {

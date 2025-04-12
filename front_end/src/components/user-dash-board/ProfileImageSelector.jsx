@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 
-const ProfileImageSelector = ({ onImageSelect }) => {
+const ProfileImageSelector = ({ onImageSelect,reset }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (reset) {
+      setSelectedImage(null);
+      setError("");
+    }
+  }, [reset]);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
