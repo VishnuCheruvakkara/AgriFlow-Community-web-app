@@ -1,0 +1,48 @@
+import time
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
+#####################  Common image uploading and retrieving functions  #####################
+
+def upload_image_to_cloudinary(image_file, folder_name):
+    """
+    Securely uploads an image to Cloudinary with authenticated access.
+    Returns the public_id for later retrieval.
+    """
+    try:
+        result = cloudinary.uploader.upload(
+            image_file,
+            folder=f"private_files/{folder_name}/",
+            resource_type="image",
+            type="authenticated",  # ensures private storage
+            transformation=[
+                {"width": 500, "height": 500, "crop": "limit"},
+                {"quality": "auto:good"},
+                {"fetch_format": "auto"}
+            ]
+        )
+        return result["public_id"]
+    except Exception as e:
+        print("Cloudinary upload error:", e)
+        return None
+
+
+def generate_secure_image_url(public_id, expires_in=3600):
+    """
+    Generates a secure signed URL to access the private image.
+    :param public_id: Stored Cloudinary public ID.
+    :param expires_in: URL validity in seconds (default 1 hour).
+    """
+    if not public_id:
+        return ""
+
+    secure_url, _ = cloudinary_url(
+        public_id,
+        type="authenticated",
+        secure=True,
+        sign_url=True,
+        sign_valid_until=int(time.time()) + expires_in
+    )
+    return secure_url
+
+########################################################

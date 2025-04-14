@@ -7,8 +7,12 @@ function CommunityLayout() {
 
     return (
         <div className="container mx-auto py-4 max-w-full">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">Communities</h1>
+                <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
+                    <h1 className="text-2xl font-bold">Communities</h1>
+                </div>
+               
+            <div className="bg-white rounded-b-lg shadow-sm p-6 mb-8">
+                
                 <p className="text-gray-600">Connect with fellow farmers, share knowledge, and grow together</p>
 
                 {/* Tab navigation using NavLink for routing */}

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from community.models import Community,CommunityMembership,Tag 
+from apps.common.cloudinary_utils import upload_image_to_cloudinary,generate_secure_image_url
 
 ################### Get the User model ###############
 
@@ -49,9 +50,12 @@ class CommunitySerializer(serializers.ModelSerializer):
 
         # Create community
         community = Community.objects.create(created_by=user, **validated_data)
+        # Upload image to Cloudinary if provided
         if image:
-            community.community_logo = image
-            community.save()
+            public_id = upload_image_to_cloudinary(image, folder_name="community_logos")
+            if public_id:
+                community.community_logo = public_id
+                community.save()
 
         # Add tags
         for tag in tags:
@@ -77,3 +81,21 @@ class CommunitySerializer(serializers.ModelSerializer):
         )
 
         return community
+
+#==========================  Serializer for get the My-community ===========================# 
+
+class GetMyCommunitySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='community.name')
+    is_admin = serializers.BooleanField()
+    members_count = serializers.SerializerMethodField()
+    logo = serializers.SerializerMethodField()
+    class Meta:
+        model = CommunityMembership 
+        fields = ['name','is_admin','members_count','logo']
+
+    def get_members_count(self,obj):
+        return obj.community.memberships.filter(status='approved').count()
+    
+    def get_logo(self,obj):
+        public_id = obj.community.community_logo  
+        return generate_secure_image_url(public_id)

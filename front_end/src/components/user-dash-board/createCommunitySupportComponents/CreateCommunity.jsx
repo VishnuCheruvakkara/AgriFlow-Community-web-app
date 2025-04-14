@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { FaSearch, FaGlobe, FaLock, FaChevronRight, FaCamera, FaUserPlus } from 'react-icons/fa';
+import { FaSearch, FaGlobe, FaLock, FaChevronRight, FaCamera, FaUserPlus,FaInfoCircle} from 'react-icons/fa';
 import { IoMdAddCircle } from "react-icons/io";
 import { AiOutlineCheck } from 'react-icons/ai';
 import { FaRegCircleCheck } from "react-icons/fa6";
@@ -17,8 +17,17 @@ import { showToast } from '../../toast-notification/CustomToast';
 import DefaultUserImage from "../../../assets/images/user-default.png"
 //import the axios instace for send request to the end point 
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
+//import for navigate after success full community creation
+import { useNavigate } from 'react-router-dom';
+//implementaion of the loader while submit data in a form 
+import ButtonLoader from '../../LoaderSpinner/ButtonLoader';
+import { showButtonLoader, hideButtonLoader } from '../../../redux/slices/LoaderSpinnerSlice';
+import { useDispatch } from 'react-redux';
 
 function CreateCommunity() {
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     //debouncer state setup
     const debounceTimeout = useRef(null);
     const [tagInput, setTagInput] = useState('');
@@ -102,6 +111,10 @@ function CreateCommunity() {
 
         console.log("Final Submission:", fullFormData);
 
+        //set up for the button loader 
+        const buttonId = "CommunityCreation"
+        dispatch(showButtonLoader(buttonId));
+
         // Prepare for submission
         try {
 
@@ -122,7 +135,7 @@ function CreateCommunity() {
             for (let [key, value] of submitData.entries()) {
                 console.log(`${key}:`, value);
             }
-            
+
             const response = await AuthenticatedAxiosInstance.post(
                 '/community/create-community/',
                 submitData,
@@ -142,10 +155,16 @@ function CreateCommunity() {
             setSelectedMembers([]);
             setResetImage(true);
             setTimeout(() => setResetImage(false), 100);
+            // Navigate to my-communities
+            setTimeout(() => {
+                navigate('/user-dash-board/farmer-community/my-communities');
+            }, 500); 
 
         } catch (error) {
             console.error("Error submitting community:", error);
             showToast("Something went wrong while creating community", "error");
+        } finally {
+            dispatch(hideButtonLoader(buttonId))  // Hide loader afeter process
         }
     };
 
@@ -290,9 +309,19 @@ function CreateCommunity() {
         <>
             {/* Create Community Content (Hidden by default) */}
             <div className="mt-6 ">
-
+            <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                <FaInfoCircle className="text-yellow-700" />
+                                </div>
+                                <div className="ml-3">
+                                    <p className="text-sm text-yellow-700">
+                                    Let’s build your community, A space to connect, share, and grow together. Start by entering the details below.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                 <form className="space-y-6" onSubmit={handleSubmit}>
-
                     {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
                     <div className="flex flex-col items-center justify-center ">
                         <h2 className="text-lg font-semibold mb-4">Upload Community Image</h2>
@@ -600,13 +629,14 @@ function CreateCommunity() {
                                 ><ImCancelCircle />
                                     Cancel
                                 </button>
-                                <button
+                                <ButtonLoader
+                                    buttonId="CommunityCreation"
                                     className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium flex items-center gap-2"
                                     onClick={handleModalSubmit}
                                 >
                                     <FaRegCircleCheck />
                                     Submit Members & Create
-                                </button>
+                                </ButtonLoader>
                             </div>
                         </div>
                     </div>

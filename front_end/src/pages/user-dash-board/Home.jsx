@@ -18,12 +18,17 @@ function Home() {
       {/* for scroll set up  */}
       <CustomScrollToTop />
 
-      <div className="lg:w-10/12 space-y-4 mt-4 mb-11">
+      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 ">
         {/* Welcome bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Welcome back, {user?.username || "Farmer"} !</h1>
-          <p className="text-gray-600">Stay informed with the latest news and trends in agriculture this season.</p>
+        <div className="animate-gradient bg-white rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%] ">
+          <h1 className="text-2xl font-bold text-white">
+            Welcome back, {user?.username || "Farmer"}!
+          </h1>
+          <p className="text-gray-100">
+            Stay informed with the latest news and trends in agriculture this season.
+          </p>
         </div>
+
 
         {/* Create post card */}
         <div className="bg-white rounded-lg shadow-sm p-4">

@@ -1,87 +1,89 @@
-import React from 'react'
-import { FaSearch,FaGlobe,FaLock,FaChevronRight,FaCamera } from 'react-icons/fa';
-import DeafultCommunityIcon from "../../../assets/images/user-group-default.png"
+import React, { useEffect, useState } from 'react';
+import { FaChevronRight } from 'react-icons/fa';
+import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
+import { Search, Globe, Lock } from 'lucide-react';
 
 function MyCommunities() {
+    const [communities, setCommunities] = useState([]);
+
+    useEffect(() => {
+        const fetchCommunities = async () => {
+            try {
+                const response = await AuthenticatedAxiosInstance.get('/community/get-my-communities/');
+                setCommunities(response.data);
+                console.log("Fetched communities:", response.data);
+            } catch (error) {
+                console.error("Error fetching communities", error);
+            }
+        };
+
+        fetchCommunities();
+    }, []);
+
     return (
-        <>
-            {/* My Communities Content (Hidden by default) */}
-            <div className="mt-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                    {/* My Community Card 1 */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-start">
-                            <div className="h-16 w-16 rounded-lg bg-gray-200 overflow-hidden mr-4">
-                                <img src={DeafultCommunityIcon} alt="Community" className="h-full w-full object-cover" />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-green-700">Rice Farmers Association</h3>
-                                <div className="flex mt-1">
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                                        Admin
-                                    </span>
-                                    <span className="text-xs text-gray-500 px-2 py-1">
-                                        156 members
-                                    </span>
-                                </div>
-
-                                <div className="flex justify-between mt-4">
-                                    <button className="text-green-600 text-sm font-medium flex items-center">
-                                        View Community <FaChevronRight className="ml-1 text-xs" />
-                                    </button>
-
-                                    <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
-                                        5 pending requests
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 border-t pt-4 grid grid-cols-2 gap-2">
-                            <button className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                                Manage Members
-                            </button>
-                            <button className="px-3 py-2 text-sm border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition">
-                                Edit Community
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* My Community Card 2 */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-start">
-                            <div className="h-16 w-16 rounded-lg bg-gray-200 overflow-hidden mr-4">
-                                <img src={DeafultCommunityIcon} alt="Community" className="h-full w-full object-cover" />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-green-700">Agricultural Innovation</h3>
-                                <div className="flex mt-1">
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                                        Member
-                                    </span>
-                                    <span className="text-xs text-gray-500 px-2 py-1">
-                                        278 members
-                                    </span>
-                                </div>
-
-                                <div className="flex justify-between mt-4">
-                                    <button className="text-green-600 text-sm font-medium flex items-center">
-                                        View Community <FaChevronRight className="ml-1 text-xs" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 border-t pt-4">
-                            <button className="px-3 py-2 text-sm border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition w-full">
-                                Leave Community
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <div className="mt-4">
+            <h2 className="text-lg font-medium text-gray-800 mb-3">My Communities</h2>
+            {/* search space  */}
+            <div className="relative mb-6">
+                <input
+                    type="text"
+                    placeholder="Search communities..."
+                    className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
-            </>
-    )
+
+            <div className="overflow-hidden rounded-lg bg-white shadow">
+                {communities.length === 0 ? (
+                    <div className="p-4 text-gray-500 text-sm">
+                        You haven't joined any communities yet.
+                    </div>
+                ) : (
+                    communities.map((item, index) => {
+                        const isAdmin = item?.is_admin;
+                        const notificationCount = item?.unread_notifications || 0;
+
+                        return (
+                            <div
+                                key={index}
+                                className="flex items-center p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                            >
+                                {/* Community Avatar */}
+                                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
+                                    <img src={item.logo} alt="Community Logo" className="h-12 w-12 rounded-full object-cover" />
+                                </div>
+
+                                {/* Community Details */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center">
+                                        <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
+                                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                            {isAdmin ? "Admin" : "Member"}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {item.members_count || 0} members
+                                    </p>
+                                </div>
+
+                                {/* Notification Badge */}
+                                {notificationCount > 0 && (
+                                    <div className="flex-shrink-0 mr-3">
+                                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600">
+                                            {notificationCount}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {/* Chevron Icon */}
+                                <FaChevronRight className="text-gray-400 h-4 w-4 flex-shrink-0" />
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+        </div>
+    );
 }
 
-export default MyCommunities
+export default MyCommunities;
