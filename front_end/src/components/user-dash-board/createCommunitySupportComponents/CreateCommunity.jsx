@@ -271,21 +271,22 @@ function CreateCommunity() {
 
     //debounce set up for prevent the direct search entry 
     useEffect(() => {
-        // Clear previous timer if it exists
+      
+    
         if (debounceTimeout.current) {
             clearTimeout(debounceTimeout.current);
         }
-
+    
         // Set a new debounce timer
         debounceTimeout.current = setTimeout(() => {
             setPage(1); // Reset to page 1 on new search
             fetchMembers(1, searchQuery); // Fetch using current search query
         }, 500); // 500ms debounce delay
-
+    
         return () => {
             clearTimeout(debounceTimeout.current); // Cleanup on unmount or change
         };
-    }, [searchQuery]);
+    }, [searchQuery]); 
 
 
     const handleSubmit = async (e) => {

@@ -2,18 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { Search, Globe, Lock } from 'lucide-react';
+import PublicAxiosInstance from '../../../axios-center/PublicAxiosInstance'
+// improt loader spinner  
+import { PulseLoader } from 'react-spinners';
 
 function MyCommunities() {
     const [communities, setCommunities] = useState([]);
+    const [initialLoading, setInitialLoading] = useState(false)
 
     useEffect(() => {
         const fetchCommunities = async () => {
+            setInitialLoading(true)
             try {
                 const response = await AuthenticatedAxiosInstance.get('/community/get-my-communities/');
                 setCommunities(response.data);
                 console.log("Fetched communities:", response.data);
             } catch (error) {
                 console.error("Error fetching communities", error);
+            } finally {
+                setInitialLoading(false);
+                ;
             }
         };
 
@@ -34,7 +42,12 @@ function MyCommunities() {
             </div>
 
             <div className="overflow-hidden rounded-lg bg-white shadow">
-                {communities.length === 0 ? (
+                {initialLoading ? (
+                    <div className="flex flex-col justify-center items-center py-28">
+                        <PulseLoader color="#16a34a" speedMultiplier={1} />
+                        <p className="mt-4 text-sm text-gray-500">Loading farmers, please wait...</p>
+                    </div>
+                ) : communities.length === 0 ? (
                     <div className="p-4 text-gray-500 text-sm">
                         You haven't joined any communities yet.
                     </div>
@@ -45,7 +58,7 @@ function MyCommunities() {
 
                         return (
                             <div
-                                key={index}
+                                key={item.id}
                                 className="flex items-center p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                             >
                                 {/* Community Avatar */}

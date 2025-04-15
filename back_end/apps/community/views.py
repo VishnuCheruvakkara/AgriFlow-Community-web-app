@@ -73,9 +73,6 @@ class GetMyCommunityView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        print("[DEBUG] request.user:", request.user)
-        print("[DEBUG] request.auth:", request.auth)
-        print("[DEBUG] request.headers:", request.headers)
         memberships = CommunityMembership.objects.filter(
             user=request.user,
             status = 'approved'
