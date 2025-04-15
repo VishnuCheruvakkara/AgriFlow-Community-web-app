@@ -15,6 +15,8 @@ from community.serializers import CommunitySerializer, GetMyCommunitySerializer
 # get community data
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership
+#imports from the custom named app
+from apps.common.pagination import CustomUserPagination 
 ############### get the Usermodel ##################
 
 User = get_user_model()
@@ -23,11 +25,6 @@ User = get_user_model()
 
 # ==================== get user data for community creation : To shwo in the modal
 
-
-class CustomUserPagination(PageNumberPagination):
-    page_size = 5
-    page_size_query_param = 'page_size'
-    max_page_size = 50
 
 
 class ShowUsersWhileCreateCommunity(APIView):
@@ -69,14 +66,26 @@ class CreateCommunityView(APIView):
 # ===============================  Get My community View =================================#
 
 
+
 class GetMyCommunityView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        search_query = request.GET.get("search", "")
+        user = request.user
+
         memberships = CommunityMembership.objects.filter(
-            user=request.user,
-            status = 'approved'
+            user=user,
+            status='approved'
         ).select_related('community')
 
-        serializer = GetMyCommunitySerializer(memberships,many=True)
-        return Response(serializer.data)
+        if search_query:
+            memberships = memberships.filter(
+                Q(community__name__icontains=search_query) |
+                Q(community__description__icontains=search_query)
+            )
+
+        paginator = CustomUserPagination()
+        result_page = paginator.paginate_queryset(memberships, request)
+        serializer = GetMyCommunitySerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
