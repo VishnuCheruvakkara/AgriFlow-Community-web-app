@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, Globe, Lock } from 'lucide-react';
-import DeafultCommunityIcon from "../../../assets/images/user-group-default.png"
+import DeafultCommunityIcon from "../../assets/images/user-group-default.png"
 
 function DiscoverCommunities() {
   return (

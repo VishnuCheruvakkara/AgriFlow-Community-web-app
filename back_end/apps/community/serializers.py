@@ -85,13 +85,14 @@ class CommunitySerializer(serializers.ModelSerializer):
 #==========================  Serializer for get the My-community ===========================# 
 
 class GetMyCommunitySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='community.id')  
     name = serializers.CharField(source='community.name')
     is_admin = serializers.BooleanField()
     members_count = serializers.SerializerMethodField()
     logo = serializers.SerializerMethodField()
     class Meta:
         model = CommunityMembership 
-        fields = ['name','is_admin','members_count','logo']
+        fields = ['id','name','is_admin','members_count','logo']
 
     def get_members_count(self,obj):
         return obj.community.memberships.filter(status='approved').count()

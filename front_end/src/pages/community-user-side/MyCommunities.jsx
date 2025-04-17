@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
 import { Search } from 'lucide-react';
-import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 import { PulseLoader } from 'react-spinners';
 import debounce from 'lodash.debounce';
 import { ImCancelCircle } from "react-icons/im";
+import { Link } from 'react-router-dom';
 
 function MyCommunities() {
     const [communities, setCommunities] = useState([]);
@@ -26,7 +27,7 @@ function MyCommunities() {
             const response = await AuthenticatedAxiosInstance.get(
                 `/community/get-my-communities/?page=${currentPage}&search=${searchTerm}`
             );
-
+            console.log("Debugging the upcomming data ::::: ", response.data?.results)
             if (reset) {
                 setCommunities(response.data.results);
                 setPage(2);
@@ -126,8 +127,9 @@ function MyCommunities() {
                         const isLast = index === communities.length - 1;
 
                         return (
-                            <div
-                                key={community.id || `${community.name}-${index}`}
+                            <Link 
+                                to={`community-chat/${community.id}`}
+                                key={community.id}
                                 ref={isLast ? lastCommunityRef : null}
                                 className="flex items-center p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                             >
@@ -160,7 +162,7 @@ function MyCommunities() {
                                 )}
 
                                 <FaChevronRight className="text-gray-400 h-4 w-4 flex-shrink-0" />
-                            </div>
+                            </Link>
                         );
                     })
                 )}

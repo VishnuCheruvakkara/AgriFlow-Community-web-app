@@ -200,7 +200,6 @@ class VerifyOTPView(APIView):
 
 ####################### Logout ##########################
 
-
 class LogoutView(APIView):
     """Logout API to remove refresh token and clear cookies"""
     permission_classes = [AllowAny]  # Allow all users to call logout

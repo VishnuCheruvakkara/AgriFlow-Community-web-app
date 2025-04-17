@@ -1,6 +1,5 @@
 import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 
 function CommunityLayout() {
     const location = useLocation();

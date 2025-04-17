@@ -1,7 +1,7 @@
 import React from 'react'
 import { FaSearch,FaGlobe,FaLock,FaChevronRight,FaCamera } from 'react-icons/fa';
-import DeafultCommunityIcon from "../../../assets/images/user-group-default.png"
-import DeafaultuserIcon from "../../../assets/images/user-default.png"
+import DeafultCommunityIcon from "../../assets/images/user-group-default.png"
+import DeafaultuserIcon from "../../assets/images/user-default.png"
 
 function PendingRequest() {
     return (

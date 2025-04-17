@@ -7,21 +7,21 @@ import { ImCancelCircle } from "react-icons/im";
 // improt loader spinner  
 import { PulseLoader } from 'react-spinners';
 // improt sweet alert here 
-import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 //import image selector for community image upload 
-import ProfileImageSelector from '../ProfileImageSelector';
+import ProfileImageSelector from '../../components/user-dash-board/ProfileImageSelector';
 //import Yup for front-end validation
-import { CommunitySchema } from './createCommunitySupportingComponents/communitySchema';
-import { showToast } from '../../toast-notification/CustomToast';
+import { CommunitySchema } from '../../components/Community/CommunitySchema';
+import { showToast } from '../../components/toast-notification/CustomToast';
 //import the dummy image for the users 
-import DefaultUserImage from "../../../assets/images/user-default.png"
+import DefaultUserImage from "../../assets/images/user-default.png"
 //import the axios instace for send request to the end point 
-import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 //import for navigate after success full community creation
 import { useNavigate } from 'react-router-dom';
 //implementaion of the loader while submit data in a form 
-import ButtonLoader from '../../LoaderSpinner/ButtonLoader';
-import { showButtonLoader, hideButtonLoader } from '../../../redux/slices/LoaderSpinnerSlice';
+import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
+import { showButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
 
 function CreateCommunity() {
