@@ -14,25 +14,27 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         loginSuccess: (state, action) => {
-            // Create a copy of the current user or fallback to {}
-            const updatedUser = { ...state.user };
-        
-            // Conditionally update fields
-            if (action.payload.profile_completed !== undefined) {
-                updatedUser.profile_completed = action.payload.profile_completed;
+            // Always update token if provided
+            if (action.payload.token) {
+                state.token = action.payload.token;
+                state.isAuthenticated = true;
             }
         
-            if (action.payload.aadhar_verification !== undefined) {
-                updatedUser.aadhar_verification = action.payload.aadhar_verification;
-            }
-        
-            // If full user object is passed (e.g., during login), overwrite it
+            // If full user object is passed (e.g., during full login)
             if (action.payload.user) {
                 state.user = action.payload.user;
-                state.token = action.payload.token || state.token;
-                state.isAuthenticated = true;
-            } else {
-                // Otherwise, just apply the partial updates
+            } else if (state.user) {
+                // Otherwise, apply partial updates to existing user
+                const updatedUser = { ...state.user };
+        
+                if (action.payload.profile_completed !== undefined) {
+                    updatedUser.profile_completed = action.payload.profile_completed;
+                }
+        
+                if (action.payload.aadhar_verification !== undefined) {
+                    updatedUser.aadhar_verification = action.payload.aadhar_verification;
+                }
+        
                 state.user = updatedUser;
             }
         },        

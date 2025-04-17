@@ -32,7 +32,13 @@ function MyCommunities() {
                 setCommunities(response.data.results);
                 setPage(2);
             } else {
-                setCommunities(prev => [...prev, ...response.data.results]);
+                setCommunities(prev => {
+                    const combined = [...prev, ...response.data.results];
+                    const uniqueCommunities = Array.from(
+                        new Map(combined.map(c => [c.id, c])).values()
+                    );
+                    return uniqueCommunities;
+                });
                 setPage(prev => prev + 1);
             }
 

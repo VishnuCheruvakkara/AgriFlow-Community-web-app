@@ -200,6 +200,7 @@ class VerifyOTPView(APIView):
 
 ####################### Logout ##########################
 
+
 class LogoutView(APIView):
     """Logout API to remove refresh token and clear cookies"""
     permission_classes = [AllowAny]  # Allow all users to call logout
@@ -323,7 +324,7 @@ class GoogleAuthCallbackView(APIView):
 
 ############################ Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
 
-#========================== Tokern creation for users only =======================================#
+#========================== Token creation for users only =======================================#
 class RefreshTokenView(APIView):
 
     permission_classes = [AllowAny]  # required
