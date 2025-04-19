@@ -40,7 +40,7 @@ function UserPageDetailView() {
             confirmButtonText: "Yes, Send request",
         })
         // If the user cancels, exit function
-        if (!result.isConfirmed) {
+        if (!result) {
             return;
         }
 
@@ -144,7 +144,7 @@ function UserPageDetailView() {
         });
 
         // If the user cancels, exit function
-        if (!result.isConfirmed) {
+        if (!result) {
             return;
         }
 
@@ -232,20 +232,32 @@ function UserPageDetailView() {
                     {/* Details section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         {/* Address */}
-                        <div className="bg-gray-50 rounded-lg p-4 shadow-md">
+                        <div className="bg-gray-50 rounded-lg p-4 shadow-md overflow-hidden">
                             <div className="flex items-center mb-3">
                                 <FaMapMarkerAlt className="text-xl text-green-500 mr-2" />
                                 <h3 className="text-lg font-semibold text-gray-700">Address</h3>
                             </div>
-                            <div className="pl-7">
-                                <p className="text-gray-600 mb-1"><span className="text-green-500 font-bold">Home Address :</span>  {user && user?.address?.home_address || "No data found"}</p>
-                                <p className="text-gray-600 mb-1"> <span className="text-green-500 font-bold">Location : </span>{user && user?.address?.full_location || "No data found"}</p>
-                                <div className="mt-2 text-xs text-gray-500 flex items-center font-bold">
-                                    <span className="mr-3 ">Latitude: {user && user?.address?.latitude || "No data found"}</span>
-                                    <span>Longitude: {user && user?.address?.longitude || "No data found"}</span>
+                            <div className="pl-7 break-words">
+                                <p className="text-gray-600 mb-1">
+                                    <span className="text-green-500 font-bold">Home Address :</span>
+                                    <span className="ml-1 break-words">
+                                        {user?.address?.home_address || "No data found"}
+                                    </span>
+                                </p>
+                                <p className="text-gray-600 mb-1">
+                                    <span className="text-green-500 font-bold">Location :</span>
+                                    <span className="ml-1 break-words">
+                                        {user?.address?.full_location || "No data found"}
+                                    </span>
+                                </p>
+                                <div className="mt-2 text-xs text-gray-500 font-bold flex flex-col space-y-1">
+                                    <span className="break-all">Latitude: {user?.address?.latitude || "No data found"}</span>
+                                    <span className="break-all">Longitude: {user?.address?.longitude || "No data found"}</span>
                                 </div>
                             </div>
                         </div>
+
+
 
                         {/* Farming Details */}
                         <div className="bg-gray-50 rounded-lg p-4 shadow-md">

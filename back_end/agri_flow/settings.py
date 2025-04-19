@@ -1,6 +1,7 @@
 
 
 import os
+from re import A
 import sys
 from pathlib import Path
 import environ
@@ -32,7 +33,10 @@ APPS_DIR = BASE_DIR / 'apps'
 sys.path.insert(0, str(APPS_DIR))
 
 INSTALLED_APPS = [
+    # Third party app setup 
+    'channels',
     'jazzmin',
+    #Default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,6 +67,9 @@ INSTALLED_APPS = [
     'Home',
 
 ]
+
+#Set up for asgi for WebSocket
+ASGI_APPLICATION = 'agri_flow.asgi.application'
 
 CORS_ALLOW_HEADERS = [
     'content-type',
