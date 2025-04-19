@@ -14,12 +14,55 @@ import { persistor } from '../redux/Store';
 import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 import { loginSuccess } from "../redux/slices/AuthSlice";
 
+
 const UserLayout = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
+    const token = useSelector((state) => state.auth.token);
     const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
 
+    // Hand-shaking for websocket notification connection
+
+    
+
+    useEffect(() => {
+        if (!token) {
+            console.warn("🔒 No token found, skipping WebSocket connection.");
+            return;
+        }
+
+        const socket = new WebSocket(
+            `ws://localhost:8000/ws/notification/user/`,
+            token  // Pass token via subprotocol
+        );
+
+        socket.onopen = () => {
+            console.log("✅ WebSocket connection opened");
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("📩 Notification received:", data);
+            // You can show a toast or update notification state here
+        };
+
+        socket.onerror = (error) => {
+            console.error("❌ WebSocket error:", error);
+        };
+
+        socket.onclose = (event) => {
+            console.log("🛑 WebSocket closed:", event.code, event.reason);
+        };
+
+        // Cleanup on component unmount
+        return () => {
+            socket.close();
+        };
+    }, [token]);
+
+
+   
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -29,7 +72,7 @@ const UserLayout = () => {
 
                 console.log(response.data)
                 dispatch(setUserDetails(response.data)); // Store in Redux
-                console.log("My debugger :::::",response.data)
+                console.log("My debugger :::::", response.data)
                 dispatch(loginSuccess({
                     aadhar_verification: response?.data?.is_aadhar_verified// Updates only profile_completed
                 }));

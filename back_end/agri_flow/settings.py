@@ -63,13 +63,26 @@ INSTALLED_APPS = [
     'community',
     'events',
     'notifications',
+    'common',
     # Django main page (Home) for initial load (optional).
     'Home',
+    #Custom app for handle websoket
+    'websocket',
 
 ]
 
+#=============  Asgi set up ==================#
+
 #Set up for asgi for WebSocket
 ASGI_APPLICATION = 'agri_flow.asgi.application'
+
+# Add channel layer backend (for now, use in-memory for dev)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
+
 
 CORS_ALLOW_HEADERS = [
     'content-type',
@@ -83,6 +96,8 @@ CORS_ALLOW_CREDENTIALS = True
 # Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "ws://localhost:8000",  # WebSocket URL
+
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -278,3 +293,9 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 
 # Get the API key from the environment variable
 LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")
+
+
+
+
+
+
