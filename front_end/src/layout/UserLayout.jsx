@@ -13,7 +13,7 @@ import { showToast } from "../components/toast-notification/CustomToast";
 import { persistor } from '../redux/Store';
 import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 import { loginSuccess } from "../redux/slices/AuthSlice";
-
+import useWebSocketNotification from "../websocket-center/useWebSocketNotification";
 
 const UserLayout = () => {
     const navigate = useNavigate();
@@ -22,46 +22,8 @@ const UserLayout = () => {
     const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
 
-    // Hand-shaking for websocket notification connection
-
-    
-
-    useEffect(() => {
-        if (!token) {
-            console.warn("🔒 No token found, skipping WebSocket connection.");
-            return;
-        }
-
-        const socket = new WebSocket(
-            `ws://localhost:8000/ws/notification/user/`,
-            token  // Pass token via subprotocol
-        );
-
-        socket.onopen = () => {
-            console.log("✅ WebSocket connection opened");
-        };
-
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log("📩 Notification received:", data);
-            // You can show a toast or update notification state here
-        };
-
-        socket.onerror = (error) => {
-            console.error("❌ WebSocket error:", error);
-        };
-
-        socket.onclose = (event) => {
-            console.log("🛑 WebSocket closed:", event.code, event.reason);
-        };
-
-        // Cleanup on component unmount
-        return () => {
-            socket.close();
-        };
-    }, [token]);
-
-
+    // Hand-shaking for websocket notification connection with custom hook
+    useWebSocketNotification(token)
    
 
     useEffect(() => {

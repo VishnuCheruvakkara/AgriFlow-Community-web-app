@@ -120,7 +120,7 @@ function MyCommunities() {
 
 
 
-            <div className="overflow-hidden rounded-lg bg-white shadow">
+            <div className="overflow-hidden  rounded-lg ">
                 {!loading && communities.length === 0 ? (
                     <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
                         <p className="text-lg font-semibold ">No Communities found!</p>
@@ -137,7 +137,7 @@ function MyCommunities() {
                                 to={`community-chat/${community.id}`}
                                 key={community.id}
                                 ref={isLast ? lastCommunityRef : null}
-                                className="flex items-center p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                                className="flex items-center p-4 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4"
                             >
                                 <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
                                     <img

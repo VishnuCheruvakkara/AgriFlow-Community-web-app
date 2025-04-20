@@ -2,10 +2,18 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from community.models import Community,CommunityMembership,Tag 
 from apps.common.cloudinary_utils import upload_image_to_cloudinary,generate_secure_image_url
+#import the notificaiton set model from notifications named app
+from notifications.models import Notification
+from django.utils import timezone
+#=========== for websocket sset up ==================# 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
-################### Get the User model ###############
-
+#########################################
+#================= Get the User model ================#
 User = get_user_model()
+#================= Get the Channel layers ==============# 
+channel_layer = get_channel_layer()
 
 ########################  Commuity creation realted serializers ##############################
 
@@ -45,11 +53,11 @@ class CommunitySerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags', [])
         member_ids = validated_data.pop('members', [])
         image = validated_data.pop('communityImage', None)
-        join_message = validated_data.pop('join_message', "You've been invited to join this community.")
         user = self.context['request'].user
-
         # Create community
         community = Community.objects.create(created_by=user, **validated_data)
+        join_message = validated_data.pop('join_message',f"{user.username} invited you to join the community '{community.name}'.")
+
         # Upload image to Cloudinary if provided
         if image:
             public_id = upload_image_to_cloudinary(image, folder_name="community_logos")
@@ -70,6 +78,27 @@ class CommunitySerializer(serializers.ModelSerializer):
                 status='pending',
                 join_message=join_message,
                 approved_by=None
+            )
+
+        # Send notifications to all invited members
+        for uid in member_ids:
+            Notification.objects.create(
+                recipient_id=uid,
+                sender=user,
+                notification_type='community_invite',
+                message=join_message,
+                created_at=timezone.now()
+            )
+        
+        for uid in member_ids:
+            async_to_sync(channel_layer.group_send)(
+                f"user_{uid}",  # each user has their own channel group
+                {
+                    "type": "send_notification",
+                    "message": f"{user.username} invited you to join '{community.name}'",
+                    "notification_type": "community_invite",
+                    "community_id": community.id
+                }
             )
 
         # Add creator as admin

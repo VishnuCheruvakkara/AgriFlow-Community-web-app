@@ -48,7 +48,6 @@ class ShowUsersWhileCreateCommunity(APIView):
 
 # ===============================  Create community View =====================================#
 
-
 class CreateCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
