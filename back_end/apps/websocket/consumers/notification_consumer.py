@@ -29,12 +29,9 @@ class UserNotificationConsumer(AsyncWebsocketConsumer):
         print("Received data from client:", text_data)
         # You can also parse and print json.loads(text_data) if it's JSON.
 
-    async def send_invite_notification(self, event):
-        print("Sending invite notification to client:", event)
-        await self.send(text_data=json.dumps({
-            'message': event['payload']['message'],
-            'type': 'notification',  # default notification type
-        }))
+    async def send_notification(self, event):
+        data = event.get("data", {})
+        await self.send(text_data=json.dumps(data))
 
 
 

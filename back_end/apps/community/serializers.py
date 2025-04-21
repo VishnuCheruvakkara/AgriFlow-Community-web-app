@@ -92,16 +92,16 @@ class CommunitySerializer(serializers.ModelSerializer):
                 message=join_message,
             )
         
-        # for uid in member_ids:
-        #     async_to_sync(channel_layer.group_send)(
-        #         f"user_{uid}",  # each user has their own channel group
-        #         {
-        #             "type": "send_notification",
-        #             "message": f"{user.username} invited you to join '{community.name}'",
-        #             "notification_type": "community_invite",
-        #             "community_id": community.id
-        #         }
-        #     )
+        for uid in member_ids:
+            async_to_sync(channel_layer.group_send)(
+                f"user_{uid}",  # each user has their own channel group
+                {
+                    "type": "send_notification",
+                    "message": f"{user.username} invited you to join '{community.name}'",
+                    "notification_type": "community_invite",
+                    "community_id": community.id
+                }
+            )
 
         # Add creator as admin
         CommunityMembership.objects.create(
@@ -113,7 +113,7 @@ class CommunitySerializer(serializers.ModelSerializer):
         )
 
         return community
-z
+
 #==========================  Serializer for get the My-community ===========================# 
 
 class GetMyCommunitySerializer(serializers.ModelSerializer):

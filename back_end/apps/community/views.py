@@ -50,20 +50,55 @@ class ShowUsersWhileCreateCommunity(APIView):
 
 # ===============================  Create community View =====================================#
 
+
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.utils.timezone import now
+
+
 class CreateCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        print("Arived data from front end ::: ", request.data)
-        serializer = CommunitySerializer(
-            data=request.data, context={'request': request})
-        print("Serializer data ::: ", serializer)
-        if serializer.is_valid():
-            print("Valid data ::: ", serializer.validated_data)
-            serializer.save()
-            return Response({"message": "Community created successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CommunitySerializer(data=request.data, context={'request': request})
 
+        if serializer.is_valid():
+            community = serializer.save()
+            user = request.user
+            member_ids = request.data.get('members', [])
+            channel_layer = get_channel_layer()
+
+            # Common details
+            sender_profile = {
+                "id": user.id,
+                "name": user.username,
+                "profile_picture": user.profile.profile_picture.url if hasattr(user, 'profile') and user.profile.profile_picture else None,
+            }
+
+            for uid in member_ids:
+                notification_data = {
+                    "community": community.id,
+                    "community_name": community.name,
+                    "community_logo": community.community_logo.url if community.community_logo else None,
+                    "id": community.id,
+                    "invited_by": sender_profile,
+                    "message": f"{user.username} invited you to join the community '{community.name}'.",
+                    "invited_on": now().isoformat()
+                }
+
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{uid}",
+                    {
+                        "type": "send_notification",
+                        "data": notification_data
+                    }
+                )
+
+            return Response({"message": "Community created successfully"}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 # ===============================  Get My community View =================================#
 
 class GetMyCommunityView(APIView):
