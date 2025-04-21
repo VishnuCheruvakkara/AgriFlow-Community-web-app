@@ -330,15 +330,11 @@ class RefreshTokenView(APIView):
     permission_classes = [AllowAny]  # required
 
     def post(self, request):
-        print("\n [DEBUG] RefreshTokenView Called")  # Debugging Start
-        print(" [DEBUG] Request Headers:", request.headers)
-        print(" [DEBUG] Request Cookies:", request.COOKIES)
-
+       
         refresh_token = request.COOKIES.get('refresh_token')  # Get refresh token from cookies
-        print("[DEBUG] Extracted Refresh Token:", refresh_token)
-
+       
         if not refresh_token:
-            print(" [ERROR] Refresh token not found in cookies!")
+            
             return Response(
                 {'message': 'Refresh token not found!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -349,14 +345,14 @@ class RefreshTokenView(APIView):
             refresh = RefreshToken(refresh_token)
             access_token = str(refresh.access_token)  # Generate new access token
 
-            print("[SUCCESS] New Access Token Generated:", access_token)
+           
 
             return Response(
                 {'access': access_token},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            print(f" [ERROR] Invalid or expired refresh token! Exception: {str(e)}")
+          
             return Response(
                 {'message': 'Invalid or expired refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED

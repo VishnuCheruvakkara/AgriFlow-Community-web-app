@@ -3,6 +3,8 @@ import { FaChevronDown, FaChevronUp, FaUsers } from 'react-icons/fa';
 import DefaultCommunityIcon from "../../../assets/images/user-group-default.png";
 import DefaultUserIcon from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
+import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+
 function CommunityInvitationsSection({ expanded, toggleSection }) {
 
     const [invitations, setInvitations] = useState([]);
@@ -24,40 +26,57 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
 
     // Handle accept action
     const handleAccept = async (inviteId, communityId) => {
-        try {
-            console.log("Sending POST to respond:", {
-                community_id: communityId,
-                action: 'accept'
-            });
-            const response = await AuthenticatedAxiosInstance.post('community/respond/', {
-                community_id: communityId,
-                action: 'accept'
-            });
-            console.log("Invitation accepted:", response.data);
-            // Update state to reflect the change
-            setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove accepted invite
-        } catch (error) {
-            console.error("Error accepting invite:", error);
+        const result = await showConfirmationAlert({
+            title: 'Accept Invitation?',
+            text: 'Are you sure you want to accept this invitation?',
+            confirmButtonText: 'Yes, Accept',
+            cancelButtonText: 'No, Cancel',
+        });
+        if (result) {
+            try {
+                console.log("Sending POST to respond:", {
+                    community_id: communityId,
+                    action: 'accept'
+                });
+                const response = await AuthenticatedAxiosInstance.post('community/respond/', {
+                    community_id: communityId,
+                    action: 'accept'
+                });
+                console.log("Invitation accepted:", response.data);
+                // Update state to reflect the change
+                setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove accepted invite
+            } catch (error) {
+                console.error("Error accepting invite:", error);
+            }
         }
     };
 
     // Handle ignore action
     const handleIgnore = async (inviteId, communityId) => {
-        try {
-            console.log("Sending POST to respond:", {
-                community_id: communityId,
-                action: 'accept'
-            });
-            const response = await AuthenticatedAxiosInstance.post('community/respond/', {
-                community_id: communityId,
-                action: 'ignore'
-            });
-            console.log("Invitation ignored:", response.data);
-            // Update state to reflect the change
-            setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove ignored invite
-        } catch (error) {
-            console.error("Error ignoring invite:", error);
+        const result = await showConfirmationAlert({
+            title: 'Ignore Invitation?',
+            text: 'Are you sure you want to ignore this invitation?',
+            confirmButtonText: 'Yes, Ignore',
+            cancelButtonText: 'No, Go Back',
+        });
+        if (result) {
+            try {
+                console.log("Sending POST to respond:", {
+                    community_id: communityId,
+                    action: 'accept'
+                });
+                const response = await AuthenticatedAxiosInstance.post('community/respond/', {
+                    community_id: communityId,
+                    action: 'ignore'
+                });
+                console.log("Invitation ignored:", response.data);
+                // Update state to reflect the change
+                setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove ignored invite
+            } catch (error) {
+                console.error("Error ignoring invite:", error);
+            }
         }
+
     };
 
     const handleToggle = () => {
@@ -75,7 +94,8 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                         <FaUsers className="text-purple-600 text-xl" />
                     </div>
                     <h2 className="text-md font-semibold text-white">Community Invitations for You</h2>
-                    <span className="ml-3 px-2 py-1 border border-purple-600 bg-white text-purple-600 font-semibold text-xs rounded-full">{invitations.length || "0"}</span>
+                    <span className="ml-3 px-2 py-1 border border-purple-600 bg-white text-purple-600 font-semibold text-xs rounded-full">{ invitations.length || "0"}</span>
+                    
                 </div>
                 <div className="transition-transform duration-300 ease-in-out">
                     {expanded ?
@@ -85,7 +105,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                 </div>
             </div>
 
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={` transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="p-3 border-t-0 border rounded-b-lg border-gray-300">
                     <div className="space-y-3">
 
@@ -98,10 +118,10 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                         <div className="h-12 w-12 rounded-lg overflow-hidden mr-4 border border-gray-200">
                                             <img src={invite?.community_logo || DefaultCommunityIcon} alt="Organic Farming Practices" className="h-full w-full object-cover" />
                                         </div>
-                                        <div>
-                                            <h3 className="font-medium text-gray-800">{invite.community_name || "No data found"}</h3>
-                                            <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                <span>Invited by Admin: </span>
+                                        <div >
+                                            <h3 className="font-medium  text-gray-800">{invite.community_name || "No data found"}</h3>
+                                            <div className="flex items-center text-xs text-gray-500 mt-1 tooltip tooltip-top  " data-tip={ invite?.invited_by?.message || "No message found"}>
+                                                <span>Invited by : </span>
                                                 <div className="h-5 w-5 rounded-full overflow-hidden mx-1 border border-gray-400">
                                                     <img src={invite?.invited_by?.profile_picture || DefaultUserIcon} alt="Admin" className="h-full w-full object-cover" />
                                                 </div>

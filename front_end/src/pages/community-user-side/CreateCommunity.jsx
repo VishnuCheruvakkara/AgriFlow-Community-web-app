@@ -264,6 +264,7 @@ function CreateCommunity() {
             setHasMore(response.data.next !== null); // check if more pages exist
         } catch (error) {
             console.error("Error fetching members:", error);
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -396,9 +397,6 @@ function CreateCommunity() {
 
                         </div>
                     </div>
-
-
-
 
                     {/* Tags */}
                     <div>
