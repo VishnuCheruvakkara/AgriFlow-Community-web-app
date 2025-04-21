@@ -77,7 +77,8 @@ class CommunitySerializer(serializers.ModelSerializer):
                 community=community,
                 status='pending',
                 join_message=join_message,
-                approved_by=None
+                approved_by=None,
+                joined_at=None 
             )
 
         # Send notifications to all invited members
@@ -85,9 +86,9 @@ class CommunitySerializer(serializers.ModelSerializer):
             Notification.objects.create(
                 recipient_id=uid,
                 sender=user,
+                community=community,
                 notification_type='community_invite',
                 message=join_message,
-                created_at=timezone.now()
             )
         
         for uid in member_ids:
@@ -106,7 +107,8 @@ class CommunitySerializer(serializers.ModelSerializer):
             user=user,
             community=community,
             status='approved',
-            is_admin=True
+            is_admin=True,
+            joined_at=timezone.now(),
         )
 
         return community
@@ -129,3 +131,69 @@ class GetMyCommunitySerializer(serializers.ModelSerializer):
     def get_logo(self,obj):
         public_id = obj.community.community_logo  
         return generate_secure_image_url(public_id)
+
+
+########################  community pending request section serializer set up ################################### 
+
+#======================= Communty pending request to the useres serializer ==============================# 
+
+class CommunityInviteSerializer(serializers.ModelSerializer):
+    community_name = serializers.CharField(source='community.name', read_only=True)
+    community_logo = serializers.SerializerMethodField()
+    invited_by = serializers.SerializerMethodField()
+    invited_on = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunityMembership
+        fields = [
+            'id', 
+            'community', 
+            'community_name', 
+            'community_logo', 
+            'invited_by', 
+            'invited_on',
+        ]
+
+    def get_invite_notification(self, obj):
+        return obj.community.notifications.filter(
+            recipient=obj.user,
+            community=obj.community,
+            notification_type='community_invite'
+        ).order_by('-created_at').first()
+
+    def get_invited_by(self, obj):
+        invite_notification = self.get_invite_notification(obj)
+        if invite_notification and invite_notification.sender:
+            sender = invite_notification.sender
+            return {
+                'id': sender.id,
+                'name': sender.username,
+                'message': invite_notification.message,
+                'profile_picture': sender.get_secure_profile_picture_url(),
+            }
+        return None
+
+    def get_invited_on(self, obj):
+        invite_notification = self.get_invite_notification(obj)
+        return invite_notification.created_at if invite_notification else None
+
+    def get_community_logo(self, obj):
+        public_id = obj.community.community_logo
+        return generate_secure_image_url(public_id) if public_id else ""
+    
+#======================= Communty pending request accept or regect ==============================# 
+
+class CommunityInvitationResponseSerializer(serializers.Serializer):
+    community_id = serializers.IntegerField()
+    action = serializers.ChoiceField(choices=["accept", "ignore"])
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        community_id = attrs.get('community_id')
+        try:
+            membership = CommunityMembership.objects.get(user=user, community_id=community_id, status='pending')
+        except CommunityMembership.DoesNotExist:
+            raise serializers.ValidationError("No pending invitation found for this community.")
+
+        attrs['membership'] = membership
+        return attrs

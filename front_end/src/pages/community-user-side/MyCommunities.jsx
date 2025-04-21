@@ -118,8 +118,6 @@ function MyCommunities() {
                 )}
             </div>
 
-
-
             <div className="overflow-hidden  rounded-lg ">
                 {!loading && communities.length === 0 ? (
                     <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
@@ -166,7 +164,6 @@ function MyCommunities() {
                                         </span>
                                     </div>
                                 )}
-
                                 <FaChevronRight className="text-gray-400 h-4 w-4 flex-shrink-0" />
                             </Link>
                         );

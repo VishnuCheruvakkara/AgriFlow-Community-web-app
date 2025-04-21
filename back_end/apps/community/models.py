@@ -25,6 +25,7 @@ class CommunityMembership(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('left', 'Left'),
+        ('ignored', 'Ignored'),
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='community_memberships')
@@ -33,7 +34,7 @@ class CommunityMembership(models.Model):
     is_admin = models.BooleanField(default=False)
     join_message = models.TextField(blank=True, null=True)
     approved_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='approved_memberships')
-    joined_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(null=True,blank=True)
 
     class Meta:
         unique_together = ('user', 'community')  # Prevent duplicate memberships

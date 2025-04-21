@@ -14,7 +14,7 @@ class Notification(models.Model):
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
     sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="sent_notifications")
-    community = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True)
+    community = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True,related_name="notifications")
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default="custom")
     message = models.TextField()
     is_read = models.BooleanField(default=False)

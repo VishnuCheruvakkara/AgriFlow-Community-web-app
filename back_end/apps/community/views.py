@@ -11,12 +11,14 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer,CommunityInviteSerializer,CommunityInvitationResponseSerializer
 # get community data
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership
 #imports from the custom named app
 from apps.common.pagination import CustomUserPagination 
+from django.utils import timezone
+
 ############### get the Usermodel ##################
 
 User = get_user_model()
@@ -64,8 +66,6 @@ class CreateCommunityView(APIView):
 
 # ===============================  Get My community View =================================#
 
-
-
 class GetMyCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -88,3 +88,47 @@ class GetMyCommunityView(APIView):
         result_page = paginator.paginate_queryset(memberships, request)
         serializer = GetMyCommunitySerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+
+####################################  Pending request section (Community section part)  ########################
+
+#======================  Pending community invites to a specific uses View ============================# 
+class PendingCommunityInvitesView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        user = request.user 
+        print(f"User: {user}")
+        pending_invites = CommunityMembership.objects.filter(user=user,status='pending')
+        print(f"Pending count: {pending_invites.count()}")
+        for invite in pending_invites:
+            print(f"Invite: {invite.community.name}, Status: {invite.status}")
+        
+        serializer = CommunityInviteSerializer(pending_invites,many=True)
+        return Response(serializer.data)
+
+#================== Pending community response from user accept or ignore =============================# 
+
+class CommunityInvitationResponseView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CommunityInvitationResponseSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            membership = serializer.validated_data['membership']
+            action = serializer.validated_data['action']
+
+            if action == 'accept':
+                membership.status = 'approved'
+                membership.joined_at = timezone.now()
+                membership.approved_by = request.user  # Optional: usually the inviter
+                membership.save()
+                return Response({'detail': 'Invitation accepted.'}, status=status.HTTP_200_OK)
+
+            elif action == 'ignore':
+                membership.status = 'ignored'
+                membership.save()
+                return Response({'detail': 'Invitation ignored.'}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
