@@ -86,15 +86,15 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
     return (
         <div className="mb-6 rounded-lg shadow-lg">
             <div
-                className={`bg-gradient-to-r from-purple-700 to-purple-400 flex justify-between items-center p-4 cursor-pointer ${expanded ? 'rounded-t-lg' : 'rounded-lg'}`}
+                className={`bg-gradient-to-r from-green-700 to-green-400 flex justify-between items-center p-4 cursor-pointer ${expanded ? 'rounded-t-lg' : 'rounded-lg'}`}
                 onClick={handleToggle}
             >
                 <div className="flex items-center">
                     <div className="bg-white rounded-full mr-3 flex items-center justify-center w-10 h-10">
-                        <FaUsers className="text-purple-600 text-xl" />
+                        <FaUsers className="text-green-600 text-xl" />
                     </div>
                     <h2 className="text-md font-semibold text-white">Community Invitations for You</h2>
-                    <span className="ml-3 px-2 py-1 border border-purple-600 bg-white text-purple-600 font-semibold text-xs rounded-full">{ invitations.length || "0"}</span>
+                    <span className="ml-3 px-2 py-1 border border-green-600 bg-white text-green-600 font-semibold text-xs rounded-full">{ invitations.length || "0"}</span>
                     
                 </div>
                 <div className="transition-transform duration-300 ease-in-out">
@@ -105,7 +105,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                 </div>
             </div>
 
-            <div className={` transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="p-3 border-t-0 border rounded-b-lg border-gray-300">
                     <div className="space-y-3">
 
@@ -120,7 +120,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                         </div>
                                         <div >
                                             <h3 className="font-medium  text-gray-800">{invite.community_name || "No data found"}</h3>
-                                            <div className="flex items-center text-xs text-gray-500 mt-1 tooltip tooltip-top  " data-tip={ invite?.invited_by?.message || "No message found"}>
+                                            <div className="flex items-center text-xs text-gray-500 mt-1 ">
                                                 <span>Invited by : </span>
                                                 <div className="h-5 w-5 rounded-full overflow-hidden mx-1 border border-gray-400">
                                                     <img src={invite?.invited_by?.profile_picture || DefaultUserIcon} alt="Admin" className="h-full w-full object-cover" />
@@ -137,7 +137,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                     </div>
                                     <div className="flex gap-2">
                                         <button
-                                            className="px-3 py-1.5 bg-purple-600 text-white rounded-md text-sm hover:bg-purple-700 transition"
+                                            className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
                                             onClick={() => handleAccept(invite.id, invite.community)}
                                         >
                                             Accept

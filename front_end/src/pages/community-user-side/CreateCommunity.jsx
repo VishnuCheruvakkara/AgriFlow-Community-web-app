@@ -21,7 +21,7 @@ import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosIns
 import { useNavigate } from 'react-router-dom';
 //implementaion of the loader while submit data in a form 
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
-import { showButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
 
 function CreateCommunity() {

@@ -44,11 +44,11 @@ class CommunitySerializer(serializers.ModelSerializer):
     tags = serializers.ListField(child=serializers.CharField(), write_only=True)
     members = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     communityImage = serializers.ImageField(write_only=True, required=False)
-    join_message = serializers.CharField(write_only=True, required=False)
+    message = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Community
-        fields = ['name', 'description', 'is_private', 'tags', 'members', 'communityImage', 'join_message']
+        fields = ['name', 'description', 'is_private', 'tags', 'members', 'communityImage', 'message']
 
     def create(self, validated_data):
         tags = validated_data.pop('tags', [])
@@ -57,7 +57,7 @@ class CommunitySerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         # Create community
         community = Community.objects.create(created_by=user, **validated_data)
-        join_message = validated_data.pop('join_message',f"{user.username} invited you to join the community '{community.name}'.")
+        message = validated_data.pop('message',f"{user.username} invited you to join the community '{community.name}'.")
 
         # Upload image to Cloudinary if provided
         if image:
@@ -77,7 +77,7 @@ class CommunitySerializer(serializers.ModelSerializer):
                 user_id=uid,
                 community=community,
                 status='pending',
-                join_message=join_message,
+                message=message,
                 approved_by=None,
                 joined_at=None 
             )
@@ -89,19 +89,19 @@ class CommunitySerializer(serializers.ModelSerializer):
                 sender=user,
                 community=community,
                 notification_type='community_invite',
-                message=join_message,
+                message=message,
             )
         
-        for uid in member_ids:
-            async_to_sync(channel_layer.group_send)(
-                f"user_{uid}",  # each user has their own channel group
-                {
-                    "type": "send_notification",
-                    "message": f"{user.username} invited you to join '{community.name}'",
-                    "notification_type": "community_invite",
-                    "community_id": community.id
-                }
-            )
+        # for uid in member_ids:
+        #     async_to_sync(channel_layer.group_send)(
+        #         f"user_{uid}",  # each user has their own channel group
+        #         {
+        #             "type": "send_notification",
+        #             "message": f"{user.username} invited you to join '{community.name}'",
+        #             "notification_type": "community_invite",
+        #             "community_id": community.id
+        #         }
+        #     )
 
         # Add creator as admin
         CommunityMembership.objects.create(
@@ -135,7 +135,7 @@ class GetMyCommunitySerializer(serializers.ModelSerializer):
 
 
 ########################  community pending request section serializer set up ################################### 
-
+#########################  part-1 serialzer #############################
 #======================= Communty pending request to the useres serializer ==============================# 
 
 class CommunityInviteSerializer(serializers.ModelSerializer):
@@ -198,3 +198,55 @@ class CommunityInvitationResponseSerializer(serializers.Serializer):
 
         attrs['membership'] = membership
         return attrs
+
+####################################  part - 2  serializer ###############################################
+
+#====================== get all request that send by admin while creating the community ==========================#  
+class CommunityWithPendingUsersSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    community_logo = serializers.SerializerMethodField()
+    pending_users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Community
+        fields = ['id', 'name', 'community_logo', 'pending_users']
+
+    def get_community_logo(self, obj):
+        return generate_secure_image_url(obj.community_logo)  # community_logo is assumed to be public_id
+
+    def get_pending_users(self, obj):
+
+        pending_memberships = CommunityMembership.objects.filter(
+            community=obj, status='pending'
+        ).select_related('user')
+
+        result = []
+        for membership in pending_memberships:
+            user = membership.user
+            # Get the invite notification for this user and community
+            notification = Notification.objects.filter(
+                recipient=user,
+                community=obj,
+                notification_type='community_invite'
+            ).order_by('-created_at').first()
+
+            result.append({
+                'user_id':user.id,
+                "username": user.username,
+                "invited_at": notification.created_at if notification else None,
+                "profile_picture": generate_secure_image_url(user.profile_picture)
+            })
+
+        return result
+    
+#=================== cancell the request send by admin to user while community creation =====================#
+class CommunityMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommunityMembership
+        fields = ['user', 'community', 'status', 'is_admin', 'message', 'approved_by', 'joined_at']
+    
+    def update(self, instance, validated_data):
+        instance.status = 'cancelled'
+        instance.save()
+        return instance

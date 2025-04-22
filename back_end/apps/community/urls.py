@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView
 
 urlpatterns = [
     # Authentication urls
@@ -9,9 +9,18 @@ urlpatterns = [
     #======== for My-community section ===========# 
     path('get-my-communities/',GetMyCommunityView.as_view(),name='get-my-communities'),
 
-    ############## pending request part #################
+    ############## pending request sended to user from admins #################
     #============ pending request from community to a user ===========================#
     path('pending-community-invites/',PendingCommunityInvitesView.as_view(),name='pending-community-invites'),
     #============ accept or igonore  pending request from community to a user ===================# 
     path('respond/', CommunityInvitationResponseView.as_view(), name='community-invitation-respond'),
+
+    ############## pending request status is user accepted or not (Admin can know how many users are accepted the request) #################
+    #============ pending request status amdin send to user ===========================#
+    path('pending-admin-join-request/', PendingAdminJoinRequestView.as_view(), name='pending-admin-join-request'),
+    #===============  admin can cancell the request =================# 
+    path('cancel-request/', CancelAdminJoinRequestView.as_view(), name='cancel-admin-join-request'),
+
+
+
 ]

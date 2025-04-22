@@ -18,6 +18,12 @@ from community.models import CommunityMembership
 #imports from the custom named app
 from apps.common.pagination import CustomUserPagination 
 from django.utils import timezone
+#import for the admin send request to user section 
+from community.serializers import CommunityWithPendingUsersSerializer
+from community.models import Community
+from rest_framework.exceptions import NotFound
+from .serializers import CommunityMembershipSerializer
+from rest_framework.generics import UpdateAPIView
 
 ############### get the Usermodel ##################
 
@@ -50,55 +56,21 @@ class ShowUsersWhileCreateCommunity(APIView):
 
 # ===============================  Create community View =====================================#
 
-
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from django.utils.timezone import now
-
-
 class CreateCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = CommunitySerializer(data=request.data, context={'request': request})
-
+        print("Arived data from front end ::: ", request.data)
+        serializer = CommunitySerializer(
+            data=request.data, context={'request': request})
+        print("Serializer data ::: ", serializer)
         if serializer.is_valid():
-            community = serializer.save()
-            user = request.user
-            member_ids = request.data.get('members', [])
-            channel_layer = get_channel_layer()
-
-            # Common details
-            sender_profile = {
-                "id": user.id,
-                "name": user.username,
-                "profile_picture": user.profile.profile_picture.url if hasattr(user, 'profile') and user.profile.profile_picture else None,
-            }
-
-            for uid in member_ids:
-                notification_data = {
-                    "community": community.id,
-                    "community_name": community.name,
-                    "community_logo": community.community_logo.url if community.community_logo else None,
-                    "id": community.id,
-                    "invited_by": sender_profile,
-                    "message": f"{user.username} invited you to join the community '{community.name}'.",
-                    "invited_on": now().isoformat()
-                }
-
-                async_to_sync(channel_layer.group_send)(
-                    f"user_{uid}",
-                    {
-                        "type": "send_notification",
-                        "data": notification_data
-                    }
-                )
-
+            print("Valid data ::: ", serializer.validated_data)
+            serializer.save()
             return Response({"message": "Community created successfully"}, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    
+
+
 # ===============================  Get My community View =================================#
 
 class GetMyCommunityView(APIView):
@@ -128,6 +100,7 @@ class GetMyCommunityView(APIView):
 
 ####################################  Pending request section (Community section part)  ########################
 
+######################## part - 1 (Community Invitation Section) ############################
 #======================  Pending community invites to a specific uses View ============================# 
 class PendingCommunityInvitesView(APIView):
     permission_classes=[IsAuthenticated]
@@ -167,3 +140,57 @@ class CommunityInvitationResponseView(APIView):
                 return Response({'detail': 'Invitation ignored.'}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+######################## part - 2 ( Admin Approvals section ) ############################
+#======================  View for admin can know how man users are not accept the request that send while community creation ============================# 
+
+class PendingAdminJoinRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        communities = Community.objects.filter(memberships__user=request.user,memberships__is_admin=True).order_by('-created_at')
+        if not communities.exists():
+            return Response({"detail": "No communities found."}, status=404)
+
+        serializer = CommunityWithPendingUsersSerializer(communities, many=True)
+        return Response(serializer.data)
+
+
+class CancelAdminJoinRequestView(UpdateAPIView):
+    serializer_class = CommunityMembershipSerializer
+    queryset = CommunityMembership.objects.all()
+
+    def get_object(self):
+        """
+        This method will retrieve the CommunityMembership object based on the user_id and community_id.
+        If not found, a NotFound exception will be raised.
+        """
+        user_id = self.request.data.get('user_id')
+        community_id = self.request.data.get('community_id')
+        
+        try:
+            return CommunityMembership.objects.get(user_id=user_id, community_id=community_id)
+        except CommunityMembership.DoesNotExist:
+            raise NotFound(detail="Membership not found.")
+
+    def patch(self, request, *args, **kwargs):
+        """
+        Cancel the community membership request by setting the status to 'cancelled'
+        and adding a message with the admin name.
+        """
+        membership = self.get_object()
+
+        admin_user = request.user
+        admin_name = admin_user.username  # or admin_user.get_full_name() if you prefer
+
+        # Update membership fields
+        membership.status = 'cancelled'
+        membership.message = f"Request cancelled by admin: {admin_name}"
+        membership.save()
+
+        return Response(
+            {'message': f'Request cancelled successfully by {admin_name}.'},
+            status=status.HTTP_200_OK
+        )

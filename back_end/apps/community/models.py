@@ -26,13 +26,14 @@ class CommunityMembership(models.Model):
         ('rejected', 'Rejected'),
         ('left', 'Left'),
         ('ignored', 'Ignored'),
+        ('cancelled','Cancelled'),
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='community_memberships')
     community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='memberships')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     is_admin = models.BooleanField(default=False)
-    join_message = models.TextField(blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
     approved_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='approved_memberships')
     joined_at = models.DateTimeField(null=True,blank=True)
 
