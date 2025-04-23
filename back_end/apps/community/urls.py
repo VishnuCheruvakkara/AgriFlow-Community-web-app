@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView
 
 urlpatterns = [
     # Authentication urls
@@ -21,6 +21,8 @@ urlpatterns = [
     #===============  admin can cancell the request =================# 
     path('cancel-request/', CancelAdminJoinRequestView.as_view(), name='cancel-admin-join-request'),
 
-
-
+    ############# get all communities ##################
+    path('get-communities/', GetCommunityListAPIView.as_view(), name='get-communities'),
+    ############# request to join a community  ###############
+    path('join-community/<int:community_id>/', JoinCommunityView.as_view(), name='join-community'),
 ]

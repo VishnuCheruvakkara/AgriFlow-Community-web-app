@@ -1,7 +1,7 @@
 
 from os import read
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import get_user_model
 
 from community.serializers import UserMinimalSerializer
@@ -11,19 +11,20 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer,CommunityInviteSerializer,CommunityInvitationResponseSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer
 # get community data
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership
-#imports from the custom named app
-from apps.common.pagination import CustomUserPagination 
+# imports from the custom named app
+from apps.common.pagination import CustomCommunityPagination, CustomUserPagination
 from django.utils import timezone
-#import for the admin send request to user section 
+# import for the admin send request to user section
 from community.serializers import CommunityWithPendingUsersSerializer
 from community.models import Community
 from rest_framework.exceptions import NotFound
 from .serializers import CommunityMembershipSerializer
 from rest_framework.generics import UpdateAPIView
+from django.utils.timezone import now
 
 ############### get the Usermodel ##################
 
@@ -32,7 +33,6 @@ User = get_user_model()
 # Community creation View part ##########################3
 
 # ==================== get user data for community creation : To shwo in the modal
-
 
 
 class ShowUsersWhileCreateCommunity(APIView):
@@ -55,6 +55,7 @@ class ShowUsersWhileCreateCommunity(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 # ===============================  Create community View =====================================#
+
 
 class CreateCommunityView(APIView):
     permission_classes = [IsAuthenticated]
@@ -97,32 +98,34 @@ class GetMyCommunityView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-
 ####################################  Pending request section (Community section part)  ########################
 
 ######################## part - 1 (Community Invitation Section) ############################
-#======================  Pending community invites to a specific uses View ============================# 
+# ======================  Pending community invites to a specific uses View ============================#
 class PendingCommunityInvitesView(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    def get(self,request):
-        user = request.user 
+    def get(self, request):
+        user = request.user
         print(f"User: {user}")
-        pending_invites = CommunityMembership.objects.filter(user=user,status='pending')
+        pending_invites = CommunityMembership.objects.filter(
+            user=user, status='pending')
         print(f"Pending count: {pending_invites.count()}")
         for invite in pending_invites:
             print(f"Invite: {invite.community.name}, Status: {invite.status}")
-        
-        serializer = CommunityInviteSerializer(pending_invites,many=True)
+
+        serializer = CommunityInviteSerializer(pending_invites, many=True)
         return Response(serializer.data)
 
-#================== Pending community response from user accept or ignore =============================# 
+# ================== Pending community response from user accept or ignore =============================#
+
 
 class CommunityInvitationResponseView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = CommunityInvitationResponseSerializer(data=request.data, context={'request': request})
+        serializer = CommunityInvitationResponseSerializer(
+            data=request.data, context={'request': request})
         if serializer.is_valid():
             membership = serializer.validated_data['membership']
             action = serializer.validated_data['action']
@@ -142,19 +145,20 @@ class CommunityInvitationResponseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 ######################## part - 2 ( Admin Approvals section ) ############################
-#======================  View for admin can know how man users are not accept the request that send while community creation ============================# 
+# ======================  View for admin can know how man users are not accept the request that send while community creation ============================#
 
 class PendingAdminJoinRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        communities = Community.objects.filter(memberships__user=request.user,memberships__is_admin=True).order_by('-created_at')
+        communities = Community.objects.filter(
+            memberships__user=request.user, memberships__is_admin=True).order_by('-created_at')
         if not communities.exists():
             return Response({"detail": "No communities found."}, status=404)
 
-        serializer = CommunityWithPendingUsersSerializer(communities, many=True)
+        serializer = CommunityWithPendingUsersSerializer(
+            communities, many=True)
         return Response(serializer.data)
 
 
@@ -169,7 +173,7 @@ class CancelAdminJoinRequestView(UpdateAPIView):
         """
         user_id = self.request.data.get('user_id')
         community_id = self.request.data.get('community_id')
-        
+
         try:
             return CommunityMembership.objects.get(user_id=user_id, community_id=community_id)
         except CommunityMembership.DoesNotExist:
@@ -194,3 +198,68 @@ class CancelAdminJoinRequestView(UpdateAPIView):
             {'message': f'Request cancelled successfully by {admin_name}.'},
             status=status.HTTP_200_OK
         )
+
+##################### Get all communities in teh user side #####################
+
+class GetCommunityListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            search_query = request.GET.get('search', '')
+
+            # Get communities where the current user is NOT a member
+            excluded_community_ids = CommunityMembership.objects.filter(
+                user=request.user,
+                status__in=['pending', 'approved','requested']
+            ).values_list('community_id', flat=True)
+
+            communities = Community.objects.filter(
+                Q(name__icontains=search_query) | Q(description__icontains=search_query),
+                is_deleted=False
+            ).exclude(id__in=excluded_community_ids)
+
+            paginator = CustomCommunityPagination()
+            paginated_communities = paginator.paginate_queryset(communities, request)
+            serializer = GetCommunitySerializer(paginated_communities, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        except Exception as e:
+            return Response({'error': 'Something went wrong', 'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+#########################  request to join a community ######################
+
+class JoinCommunityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, community_id):
+        user = request.user
+        try:
+            community = Community.objects.get(pk=community_id, is_deleted=False)
+        except Community.DoesNotExist:
+            return Response({"detail": "Community not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if the user is already a member or has a pending request
+        existing_membership = CommunityMembership.objects.filter(user=user, community=community, status__in=['pending', 'approved']).first()
+
+        if existing_membership:
+            # Update existing membership
+            existing_membership.status = 'requested' if community.is_private else 'approved'
+            existing_membership.joined_at = now() if existing_membership.status == 'approved' else None
+            existing_membership.save()
+
+            serializer = CommunityMembershipSerializer(existing_membership)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            # Create new membership if no existing request or membership found
+            status_choice = 'requested' if community.is_private else 'approved'
+            membership = CommunityMembership.objects.create(
+                user=user,
+                community=community,
+                status=status_choice,
+                joined_at=now() if status_choice == 'approved' else None
+            )
+
+            serializer = CommunityMembershipSerializer(membership)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -15,9 +15,13 @@ class Community(models.Model):
         help_text="Stores the secure Cloudinary URL for the community logo."
     )
     tags = models.ManyToManyField('Tag', blank=True, related_name='communities')
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.id}"
 # Comuunity members model for now different famres who are belong to the perticular group/community 
 class CommunityMembership(models.Model):
     STATUS_CHOICES = [
@@ -27,6 +31,8 @@ class CommunityMembership(models.Model):
         ('left', 'Left'),
         ('ignored', 'Ignored'),
         ('cancelled','Cancelled'),
+        ('blocked', 'Blocked'),
+        ('requested','Requested'),
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='community_memberships')
@@ -44,9 +50,10 @@ class CommunityMembership(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.community.name}"
 
-
 class Tag(models.Model):
     name = models.CharField(max_length=30, unique=True)
 
     def __str__(self):
         return self.name
+
+

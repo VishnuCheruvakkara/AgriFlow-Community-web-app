@@ -250,3 +250,45 @@ class CommunityMembershipSerializer(serializers.ModelSerializer):
         instance.status = 'cancelled'
         instance.save()
         return instance
+
+
+########################## Get communities in the user side #######################
+
+class CommunityMemberPreviewSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'profile_picture']
+
+    def get_profile_picture(self, obj):
+        return obj.get_secure_profile_picture_url()
+
+class GetCommunitySerializer(serializers.ModelSerializer):
+    members_count = serializers.SerializerMethodField()
+    community_logo = serializers.SerializerMethodField()
+    sample_members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Community
+        fields = ['id', 'name', 'description', 'is_private', 'community_logo', 'members_count', 'sample_members']
+
+    def get_members_count(self, obj):
+        return obj.memberships.filter(status='approved').count()
+
+    def get_community_logo(self, obj):
+        return generate_secure_image_url(obj.community_logo)
+
+    def get_sample_members(self, obj):
+        # Get 3 approved members from CommunityMembership
+        approved_memberships = obj.memberships.filter(status='approved').select_related('user')[:3]
+        users = [membership.user for membership in approved_memberships]
+        return CommunityMemberPreviewSerializer(users, many=True).data
+    
+#######################  request to join a community ##################3
+
+class CommunityMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommunityMembership
+        fields = ['id', 'community', 'user', 'status', 'joined_at', 'is_admin']
+        read_only_fields = ['id', 'joined_at', 'is_admin']

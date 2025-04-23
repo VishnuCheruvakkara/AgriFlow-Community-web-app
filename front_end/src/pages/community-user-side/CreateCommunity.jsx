@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { FaSearch, FaGlobe, FaLock, FaChevronRight, FaCamera, FaUserPlus,FaInfoCircle} from 'react-icons/fa';
+import { FaSearch, FaGlobe, FaLock, FaChevronRight, FaCamera, FaUserPlus, FaInfoCircle } from 'react-icons/fa';
 import { IoMdAddCircle } from "react-icons/io";
 import { AiOutlineCheck } from 'react-icons/ai';
 import { FaRegCircleCheck } from "react-icons/fa6";
@@ -21,7 +21,7 @@ import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosIns
 import { useNavigate } from 'react-router-dom';
 //implementaion of the loader while submit data in a form 
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
-import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
 
 function CreateCommunity() {
@@ -158,7 +158,7 @@ function CreateCommunity() {
             // Navigate to my-communities
             setTimeout(() => {
                 navigate('/user-dash-board/farmer-community/my-communities');
-            }, 500); 
+            }, 500);
 
         } catch (error) {
             console.error("Error submitting community:", error);
@@ -272,22 +272,22 @@ function CreateCommunity() {
 
     //debounce set up for prevent the direct search entry 
     useEffect(() => {
-      
-    
+
+
         if (debounceTimeout.current) {
             clearTimeout(debounceTimeout.current);
         }
-    
+
         // Set a new debounce timer
         debounceTimeout.current = setTimeout(() => {
             setPage(1); // Reset to page 1 on new search
             fetchMembers(1, searchQuery); // Fetch using current search query
         }, 500); // 500ms debounce delay
-    
+
         return () => {
             clearTimeout(debounceTimeout.current); // Cleanup on unmount or change
         };
-    }, [searchQuery]); 
+    }, [searchQuery]);
 
 
     const handleSubmit = async (e) => {
@@ -311,18 +311,18 @@ function CreateCommunity() {
         <>
             {/* Create Community Content (Hidden by default) */}
             <div className="mt-6 ">
-            <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                <FaInfoCircle className="text-yellow-700" />
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm text-yellow-700">
-                                    Let’s build your community, A space to connect, share, and grow together. Start by entering the details below.
-                                    </p>
-                                </div>
-                            </div>
+                <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <FaInfoCircle className="text-yellow-700" />
                         </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                                Let’s build your community, A space to connect, share, and grow together. Start by entering the details below.
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
                     <div className="flex flex-col items-center justify-center ">
