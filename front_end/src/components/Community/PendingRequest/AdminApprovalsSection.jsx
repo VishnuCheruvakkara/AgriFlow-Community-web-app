@@ -4,7 +4,7 @@ import DefaultCommunityIcon from "../../../assets/images/user-group-default.png"
 import DefaultUserIcon from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
-
+import { showToast } from '../../toast-notification/CustomToast';
 function AdminApprovalsSection({ expanded, toggleSection }) {
 
     const [joinRequest, setJoinRequest] = useState([]);
@@ -34,9 +34,11 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                     community_id: communityId,
                     user_id: userId
                 });
+                showToast("Cancelled the request successfully")
                 fetchRequest(); // Refresh the list after cancel
             } catch (error) {
                 console.error("Error cancelling request:", error);
+                showToast("Error happened, Try agian","error")
             }
         }
     };

@@ -4,6 +4,7 @@ import DefaultCommunityIcon from "../../../assets/images/user-group-default.png"
 import DefaultUserIcon from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+import { showToast } from '../../toast-notification/CustomToast';
 
 function CommunityInvitationsSection({ expanded, toggleSection }) {
 
@@ -43,10 +44,12 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                     action: 'accept'
                 });
                 console.log("Invitation accepted:", response.data);
+                showToast("You have successfully joined",'success')
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove accepted invite
             } catch (error) {
                 console.error("Error accepting invite:", error);
+                showToast("Erro happened, try again","error")
             }
         }
     };
@@ -70,6 +73,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                     action: 'ignore'
                 });
                 console.log("Invitation ignored:", response.data);
+                showToast("Invitation ingored successfully","success")
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove ignored invite
             } catch (error) {
@@ -140,7 +144,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                             className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
                                             onClick={() => handleAccept(invite.id, invite.community)}
                                         >
-                                            Accept
+                                            Join
                                         </button>
                                         <button
                                             className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"

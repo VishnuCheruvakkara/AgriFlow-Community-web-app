@@ -3,6 +3,8 @@ import { FaChevronDown, FaChevronUp, FaUserPlus } from 'react-icons/fa';
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import DefaultCommunityIcon from "../../../assets/images/user-group-default.png";
 import DefaultUserIcon from "../../../assets/images/user-default.png";
+import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+import { showToast } from '../../toast-notification/CustomToast';
 
 function IncomingRequestsSection() {
     const [expanded, setExpanded] = useState(false);
@@ -16,7 +18,7 @@ function IncomingRequestsSection() {
     useEffect(() => {
         fetchIncomingRequests();
     }, []);
-    
+
 
     const fetchIncomingRequests = async () => {
         try {
@@ -32,15 +34,28 @@ function IncomingRequestsSection() {
     };
 
     const handleRequestAction = async (communityId, username, action) => {
-        try {
-            const response = await AuthenticatedAxiosInstance.patch(
-                `/community/update-community/${communityId}/membership/${username}/update/`,
-                { status: action }
-            );
-            console.log('Status updated:', response.data);
-            fetchIncomingRequests(); // refresh data
-        } catch (error) {
-            console.error('Error updating membership status:', error);
+        const isApproval = action === 'approved';
+    
+        const result = await showConfirmationAlert({
+            title: isApproval ? 'Approve request?' : 'Reject request?',
+            text: isApproval
+                ? `Are you sure you want to approve the request from "${username}"?`
+                : `Are you sure you want to reject the request from "${username}"?`,
+            confirmButtonText: isApproval ? 'Yes, Approve' : 'Yes, Reject',
+            cancelButtonText: 'No, Cancel',
+        });
+    
+        if (result) {
+            try {
+                const response = await AuthenticatedAxiosInstance.patch(
+                    `/community/update-community/${communityId}/membership/${username}/update/`,
+                    { status: action }
+                );
+                console.log('Status updated:', response.data);
+                fetchIncomingRequests(); // Refresh the list
+            } catch (error) {
+                console.error('Error updating membership status:', error);
+            }
         }
     };
     
@@ -119,13 +134,13 @@ function IncomingRequestsSection() {
                                                         onClick={() => handleRequestAction(community.id, user.username, 'approved')}
                                                         className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
                                                     >
-                                                        Aprove
+                                                        Accept
                                                     </button>
                                                     <button
                                                         onClick={() => handleRequestAction(community.id, user.username, 'ignored')}
                                                         className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
                                                     >
-                                                        Reject
+                                                        Ignore
                                                     </button>
 
                                                 </div>
