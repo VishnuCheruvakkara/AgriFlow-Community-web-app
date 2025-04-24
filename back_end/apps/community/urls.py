@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView
 
 urlpatterns = [
     # Authentication urls
@@ -20,6 +20,17 @@ urlpatterns = [
     path('pending-admin-join-request/', PendingAdminJoinRequestView.as_view(), name='pending-admin-join-request'),
     #===============  admin can cancell the request =================# 
     path('cancel-request/', CancelAdminJoinRequestView.as_view(), name='cancel-admin-join-request'),
+
+    ############## community join request to admin from a user ###############
+    #============= get data to show request that was send and waiting for admin aproval =================#
+    path('requested-join-community/', OutgoingRequestsView.as_view(), name='outgoing_requests'),
+    #============ user can cancel the request any time ============#
+    path('cancel-join-request/<int:community_id>/', CancelJoinRequestView.as_view(), name='cancel-join-request'),
+    
+    ################ request from users they want to join a community #################
+    path('incoming-requests/', IncomingMembershipRequestsView.as_view(), name='incoming-requests'),
+    #=============== change status of user request aprove or ignored by community admin =================# 
+    path('update-community/<int:community_id>/membership/<str:username>/update/', UpdateMembershipRequestView.as_view(), name='update-membership-status'),
 
     ############# get all communities ##################
     path('get-communities/', GetCommunityListAPIView.as_view(), name='get-communities'),

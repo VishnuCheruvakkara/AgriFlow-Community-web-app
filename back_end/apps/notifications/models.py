@@ -6,6 +6,7 @@ from community.models import Community
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
         ("community_invite", "Community Invite"),
+        ("community_request", "Community Request"),
         ("community_update", "Community Update"),
         ("message", "Message"),
         ("alert", "Alert"),

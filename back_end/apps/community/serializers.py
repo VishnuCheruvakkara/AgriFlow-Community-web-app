@@ -241,6 +241,7 @@ class CommunityWithPendingUsersSerializer(serializers.ModelSerializer):
         return result
     
 #=================== cancell the request send by admin to user while community creation =====================#
+
 class CommunityMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
@@ -252,7 +253,72 @@ class CommunityMembershipSerializer(serializers.ModelSerializer):
         return instance
 
 
-########################## Get communities in the user side #######################
+
+####################################  part - 3  serializer ###############################################
+
+#====================== get pening reqest waiting for admin aproval ==========================#  
+#No serializer for get data and cancell |  refer the View logic 
+
+
+
+####################################  part - 4 serializer ###############################################
+
+#====================== show the request in the group admin ( get the dat ) ==========================#  
+
+class RequestedUserSerializer(serializers.ModelSerializer):
+    requested_at = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()
+    username = serializers.CharField(source='user.username')
+
+    class Meta:
+        model = CommunityMembership
+        fields = ['username', 'requested_at', 'profile_picture']
+
+    def get_requested_at(self, obj):
+        # Fetch notification created when user requested to join community
+        notification = Notification.objects.filter(
+            recipient=obj.user,
+            community=obj.community,
+            notification_type="community_request"
+        ).order_by('-created_at').first()
+
+        if notification:
+            return notification.created_at.strftime("%B %d, %Y, %I:%M %p")
+        return None
+
+    def get_profile_picture(self, obj):
+        return generate_secure_image_url(obj.user.profile_picture)
+
+class CommunityWithRequestsSerializer(serializers.ModelSerializer):
+    community_logo = serializers.SerializerMethodField()
+    requested_users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Community
+        fields = ['id', 'name', 'community_logo', 'requested_users']
+
+    def get_community_logo(self, obj):
+        return generate_secure_image_url(obj.community_logo)
+
+    def get_requested_users(self, obj):
+        memberships = obj.memberships.filter(status='requested').select_related('user')
+        return RequestedUserSerializer(memberships, many=True).data
+    
+#========================== Change status : aprove or rejected ========================# 
+class CommunityMembershipStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommunityMembership
+        fields = ['status']
+
+    def validate_status(self, value):
+        if value not in ['approved', 'ignored']:
+            raise serializers.ValidationError("Status must be either 'approved' or 'ignored'")
+        return value
+    
+
+
+
+##########################  Get communities in the user side #######################
 
 class CommunityMemberPreviewSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
@@ -287,7 +353,7 @@ class GetCommunitySerializer(serializers.ModelSerializer):
     
 #######################  request to join a community ##################3
 
-class CommunityMembershipSerializer(serializers.ModelSerializer):
+class CommunityMembershipRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
         fields = ['id', 'community', 'user', 'status', 'joined_at', 'is_admin']
