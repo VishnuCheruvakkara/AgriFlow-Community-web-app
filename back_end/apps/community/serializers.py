@@ -382,12 +382,19 @@ class CommunityMemberSerializer(serializers.ModelSerializer):
         return None 
     
 class CommunityDeatilsSerializer(serializers.ModelSerializer):
-    members = CommunityMemberSerializer(source='memberships',many=True)
+    members = serializers.SerializerMethodField()
     community_logo = serializers.SerializerMethodField()
 
     class Meta:
         model = Community 
         fields = ['id','name','description','is_private','created_at','members','community_logo']
+
+    def get_members(self, obj):
+        """
+        Return only approved members of the community.
+        """
+        approved_memberships = obj.memberships.filter(status='approved')
+        return CommunityMemberSerializer(approved_memberships, many=True).data
 
     def get_community_logo(self, obj):
         """

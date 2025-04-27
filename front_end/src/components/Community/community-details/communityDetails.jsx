@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from "framer-motion";
 import { FaUsers, FaInfoCircle, FaShieldAlt } from 'react-icons/fa';
 import DefaultCommunityImage from '../../../assets/images/user-group-default.png'
 import { MdGroupAdd } from "react-icons/md";
+import SelectMembersModal from '../CommunityModal/SelectMembersModal';
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
     if (!isOpen) return null; // safety check
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    // handle after submit
+    const handleModalSubmit = (selectedMembers) => {
+        console.log("Selected Members:", selectedMembers);
+        setIsModalOpen(false); // close after submit if you want
+    };
     return (
         <motion.div
             initial={{ x: '100%' }}
@@ -62,10 +68,12 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         {/* Add Member Button */}
                         <li
                             className="flex gap-5 items-center border-2 border-green-400 rounded-md py-3 hover:bg-green-50 cursor-pointer transition-colors duration-300"
-                            onClick={() => console.log('Open add member modal')}  // <-- You can change this to open a modal or navigate
+                            onClick={() => setIsModalOpen(true)} // <-- open modal
                         >
                             <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-green-100 mr-3 flex items-center justify-center">
-                                <span className="text-green-600 font-bold text-xl">  <MdGroupAdd /> </span>
+                                <span className="text-green-600 font-bold text-xl">
+                                    <MdGroupAdd />
+                                </span>
                             </div>
                             <span className="text-green-600 font-semibold">Add Members</span>
                         </li>
@@ -95,6 +103,16 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     </ul>
                 </div>
 
+                {/* Modal */}
+                <SelectMembersModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)} // <-- close modal
+                    onSubmit={handleModalSubmit}
+                    modalTitle="Add New Members"  // Custom title for adding members
+                    submitButtonText="Add Members"  // Custom submit button text
+                    actionType="add-new-members"
+                    communityId={communityData?.id}
+                />
 
 
                 {/* Exit Community Section */}

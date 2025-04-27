@@ -24,7 +24,7 @@ User = get_user_model()
 class LoginSerializer(serializers.Serializer):
     """Serializer for user login"""
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True) 
 
 ################################## User registration ####################################
 

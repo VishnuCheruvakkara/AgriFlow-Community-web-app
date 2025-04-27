@@ -1,5 +1,6 @@
 from django.db import models
-from users.models import CustomUser  # Assuming this is your custom user model
+from django.contrib.auth import get_user_model # Assuming this is your custom user model
+CustomUser = get_user_model()
 
 # Main community model 
 class Community(models.Model):

@@ -48,8 +48,20 @@ class ShowUsersWhileCreateCommunity(APIView):
         current_user = request.user
         # To get hte search value from the query params
         search_query = request.GET.get("search", "")
+        #get communtiy id for show the members who are not in the selected community
+        community_id = request.GET.get("community_id")
+     
+        
         users = User.objects.exclude(id=current_user.id).exclude(
             is_superuser=True).filter(is_active=True, is_aadhar_verified=True)
+
+        # Exclude users already part of the specified community
+        if community_id:
+            community = Community.objects.filter(id=community_id).first()
+            if community:
+                # Filter out users already part of the community
+                users = users.exclude(id__in=community.memberships.values_list('id', flat=True))
+
         if search_query:
             users = users.filter(
                 Q(username__icontains=search_query) |
