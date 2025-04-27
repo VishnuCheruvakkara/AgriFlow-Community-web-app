@@ -59,8 +59,8 @@ class ShowUsersWhileCreateCommunity(APIView):
         if community_id:
             community = Community.objects.filter(id=community_id).first()
             if community:
-                # Filter out users already part of the community
-                users = users.exclude(id__in=community.memberships.values_list('id', flat=True))
+                users = users.exclude(id__in=community.memberships.values_list('user__id', flat=True))
+
 
         if search_query:
             users = users.filter(

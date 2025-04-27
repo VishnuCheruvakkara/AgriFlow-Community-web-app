@@ -1,5 +1,5 @@
-import React, { useState, useRef} from 'react'
-import { FaInfoCircle,FaGlobe,FaLock } from 'react-icons/fa';
+import React, { useState, useRef } from 'react'
+import { FaInfoCircle, FaGlobe, FaLock } from 'react-icons/fa';
 import { IoMdAddCircle } from "react-icons/io";
 // improt loader spinner  
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
@@ -366,15 +366,18 @@ function CreateCommunity() {
                 </form>
 
                 {/* Use the SelectMembersModal component here */}
-                <SelectMembersModal 
+                <SelectMembersModal
                     isOpen={isModalOpen}
                     onClose={handleCloseModal}
                     onSubmit={handleModalSubmit}
                     buttonId="CommunityCreation"
                 />
+
+             
+
             </div>
         </>
     )
 }
 
-export default CreateCommunity
+export default CreateCommunity 

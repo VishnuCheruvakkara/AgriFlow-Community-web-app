@@ -80,7 +80,7 @@ function SelectMembersModal({
     };
 
     // Fetch members who are not part of the current community
-    const fetchMembers = async (pageNum = 1, query = searchQuery, communityId = communityId) => {
+    const fetchMembers = async (pageNum = 1, query = searchQuery) => {
         if (!hasMore && pageNum > 1) return; // Don't fetch if we know there's no more data
 
         try {
@@ -89,8 +89,8 @@ function SelectMembersModal({
             let url = `/community/get-users-create-community/?page=${pageNum}&search=${query}`;
 
             // Only append community_id parameter if it exists
-            if (commId) {
-                url += `&community_id=${commId}`;
+            if (communityId) {
+                url += `&community_id=${communityId}`;
             }
 
             const response = await AuthenticatedAxiosInstance.get(url);

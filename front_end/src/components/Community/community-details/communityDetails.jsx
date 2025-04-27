@@ -67,15 +67,17 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
                         {/* Add Member Button */}
                         <li
-                            className="flex gap-5 items-center border-2 border-green-400 rounded-md py-3 hover:bg-green-50 cursor-pointer transition-colors duration-300"
+                            className="bg-gradient-to-r from-green-700 to-green-400 flex gap-5 items-center rounded-md py-3 cursor-pointer 
+                              hover:bg-gradient-to-r hover:from-green-400 hover:to-green-700  transition-all duration-300 ease-in-out "
+
                             onClick={() => setIsModalOpen(true)} // <-- open modal
                         >
-                            <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-green-100 mr-3 flex items-center justify-center">
+                            <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-white mr-3 flex items-center justify-center">
                                 <span className="text-green-600 font-bold text-xl">
                                     <MdGroupAdd />
                                 </span>
                             </div>
-                            <span className="text-green-600 font-semibold">Add Members</span>
+                            <span className="text-white font-semibold">Add Members</span>
                         </li>
 
                         {communityData?.members?.map((member, index) => (
@@ -113,7 +115,6 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     actionType="add-new-members"
                     communityId={communityData?.id}
                 />
-
 
                 {/* Exit Community Section */}
                 <div className=" mt-2 p-4 border-b  bg-red-500 hover:bg-red-700 transition-colors ">
