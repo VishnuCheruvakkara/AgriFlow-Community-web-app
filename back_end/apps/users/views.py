@@ -1,4 +1,17 @@
 
+from .serializers import AadharResubmissionMessageSerializer
+from users.serializers import UserStatusSerializer
+from rest_framework import generics, filters
+from django.db.models import Q
+from rest_framework.pagination import PageNumberPagination
+from users.serializers import GetAllUsersInAdminSideSerializer
+from rest_framework.generics import RetrieveAPIView
+from .serializers import UserDashboardSerializer
+from users.serializers import ProfileUpdateSerializer
+from users.models import Address
+from django.contrib.auth import get_user_model
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import permissions
 from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
@@ -17,34 +30,54 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 ######### for refresh token view ##############
 from rest_framework.permissions import AllowAny
-######### for Forget password section ############# 
+######### for Forget password section #############
 from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerializer, ForgotPasswordSetSerializer
 from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.contrib.sessions.models import Session
 ############ for User profile update ##################
-#============ for user location updated =============#
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+# ============ for user location updated =============#
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 import requests
+
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 # from back_end.apps.users import serializers
 
-#========== for profile update =====================#
+# ========== for profile update =====================#
 
 User = get_user_model()
 
 ################################## User Login  ##################################
 
+
 class LoginView(APIView):
     """JWT based login"""
 
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data["email"]
             password = serializer.validated_data["password"]
+
+            # First, get the user from the database
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "Invalid email or password!"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            # Then check if the user is active
+            if not user.is_active:
+                return Response(
+                    {"error": "Your account has been blocked. Please contact support for assistance."},
+                    status=status.HTTP_403_FORBIDDEN,
+                ) 
+
 
             # Authenticate the user
             user = authenticate(request, username=email, password=password)
@@ -61,8 +94,8 @@ class LoginView(APIView):
             user_data = {
                 "name": user.username,
                 "email": user.email,
-                "profile_completed":user.profile_completed,
-                "aadhar_verification":user.is_aadhar_verified,
+                "profile_completed": user.profile_completed,
+                "aadhar_verification": user.is_aadhar_verified,
             }
 
             # Set access token in the response to handle that with redux state+local storage.
@@ -91,7 +124,7 @@ class LoginView(APIView):
 
 class RegisterView(APIView):
     """User Registration API with OTP Generation"""
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -137,10 +170,11 @@ class RegisterView(APIView):
 
 #####################################  Otp verification  #########################
 
+
 class VerifyOTPView(APIView):
     """OTP Verification API"""
 
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
@@ -172,8 +206,8 @@ class VerifyOTPView(APIView):
             user_data = {
                 "name": user.username,
                 "email": user.email,
-                "profile_completed":user.profile_completed,
-                "aadhar_verification":user.is_aadhar_verified,
+                "profile_completed": user.profile_completed,
+                "aadhar_verification": user.is_aadhar_verified,
             }
 
             # Set access token in the response to handle that with redux state+local storage.
@@ -236,7 +270,7 @@ class LogoutView(APIView):
 class GoogleAuthCallbackView(APIView):
     """Handles Google OAuth callback, verifies the token, and returns JWT access/refresh tokens."""
 
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         # Get the token from the frontend
@@ -268,12 +302,16 @@ class GoogleAuthCallbackView(APIView):
                 }
             )
 
+            # Check if the user is blocked (is_active=False)
+            if not user.is_active:
+                return Response(
+                    {"error": "You are blocked by admin."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
             # Generate JWT tokens
             refresh_token, access_token = generate_tokens(user)
-            print("access_token:", access_token)
-            print("refresh_token:", refresh_token)
-
-            from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+          
 
             try:
                 decoded_access = AccessToken(access_token)
@@ -292,8 +330,8 @@ class GoogleAuthCallbackView(APIView):
                         "name": user.username,
                         "email": user.email,
                         "first_name": first_name,
-                        "profile_completed":user.profile_completed,
-                        "aadhar_verification":user.is_aadhar_verified,
+                        "profile_completed": user.profile_completed,
+                        "aadhar_verification": user.is_aadhar_verified,
 
                     },
                 },
@@ -324,17 +362,18 @@ class GoogleAuthCallbackView(APIView):
 
 ############################ Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
 
-#========================== Token creation for users only =======================================#
+# ========================== Token creation for users only =======================================#
 class RefreshTokenView(APIView):
 
     permission_classes = [AllowAny]  # required
 
     def post(self, request):
-       
-        refresh_token = request.COOKIES.get('refresh_token')  # Get refresh token from cookies
-       
+
+        refresh_token = request.COOKIES.get(
+            'refresh_token')  # Get refresh token from cookies
+
         if not refresh_token:
-            
+
             return Response(
                 {'message': 'Refresh token not found!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -343,26 +382,26 @@ class RefreshTokenView(APIView):
         try:
             # Decode and validate refresh token
             refresh = RefreshToken(refresh_token)
-            access_token = str(refresh.access_token)  # Generate new access token
-
-           
+            # Generate new access token
+            access_token = str(refresh.access_token)
 
             return Response(
                 {'access': access_token},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-          
+
             return Response(
                 {'message': 'Invalid or expired refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-   
-#==============================   Token creation for Admin   =====================================#
+
+# ==============================   Token creation for Admin   =====================================#
 class AdminRefreshTokenView(APIView):
 
-    permission_classes = [AllowAny]  # Allow unauthenticated requests to refresh
+    # Allow unauthenticated requests to refresh
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         print("\n [DEBUG] Admin RefreshTokenView Called")
@@ -384,7 +423,8 @@ class AdminRefreshTokenView(APIView):
         try:
             # Decode and validate admin refresh token
             refresh = RefreshToken(admin_refresh_token)
-            access_token = str(refresh.access_token)  # Generate new access token
+            # Generate new access token
+            access_token = str(refresh.access_token)
 
             print("[SUCCESS] New Admin Access Token Generated:", access_token)
 
@@ -393,7 +433,8 @@ class AdminRefreshTokenView(APIView):
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            print(f" [ERROR] Invalid or expired admin refresh token! Exception: {str(e)}")
+            print(
+                f" [ERROR] Invalid or expired admin refresh token! Exception: {str(e)}")
             return Response(
                 {'message': 'Invalid or expired admin refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -405,7 +446,7 @@ class AdminRefreshTokenView(APIView):
 # =============================================== Forgot password email request view ============================
 class ForgotPasswordView(APIView):
 
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = ForgotPasswordSerialzier(data=request.data)
@@ -419,9 +460,10 @@ class ForgotPasswordView(APIView):
 
 # ============================================= Forgot password OTP Verifcation View =====================================
 
+
 class ForgotPasswordOTPVerifyView(APIView):
 
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = ForgotPasswordVerifyOTPSerializer(data=request.data)
@@ -430,11 +472,12 @@ class ForgotPasswordOTPVerifyView(APIView):
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 # ===========================================  Set new password after OTP verifiction View ====================================
-    
+
+
 class ForgotPasswordSetNewView(APIView):
     """API for resetting password and blacklisting old refresh tokens"""
-   
-    permission_classes=[AllowAny]
+
+    permission_classes = [AllowAny]
 
     def put(self, request):
         serializer = ForgotPasswordSetSerializer(data=request.data)
@@ -467,7 +510,6 @@ class ForgotPasswordSetNewView(APIView):
                 if str(data.get('_auth_user_id')) == str(user.id):
                     session.delete()  # Remove session
 
-            
             # Create response and remove refresh token from cookies
             response = Response(
                 {"message": "Password reset successful! Please log in with your new password."},
@@ -485,7 +527,8 @@ class ForgotPasswordSetNewView(APIView):
 
 class ResendOTPView(APIView):
     """Handles OTP resending for user authentication"""
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
+
     def post(self, request):
         email = request.data.get("email")
         # Default to "registration"
@@ -500,14 +543,15 @@ class ResendOTPView(APIView):
 
 
 ################################################################
-"""" Admin side set up below..."""                           
+"""" Admin side set up below..."""
 ################################################################
 
-################################### Admin Login View for authentication  ###########################3
+# Admin Login View for authentication  ###########################3
+
 
 class AdminLoginView(APIView):
     """JWT-based Admin Login"""
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = AdminLoginSerializer(data=request.data)
@@ -550,6 +594,7 @@ class AdminLoginView(APIView):
 
 # ====================  Admin logout view ======================
 
+
 class AdminLogoutView(APIView):
     """Admin Logout API to remove refresh token and clear cookies"""
     permission_classes = [AllowAny]  # Allow logout without authentication
@@ -576,11 +621,12 @@ class AdminLogoutView(APIView):
 
 #########################  User profile creation section by taking all the relevent data. ######################################
 
-#=============================  Location IQ view for take user location with logitude abnd latitude ================================#
+# =============================  Location IQ view for take user location with logitude abnd latitude ================================#
+
 
 class LocationAutocompleteView(APIView):
 
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         query = request.GET.get("q", "")
@@ -613,111 +659,106 @@ class LocationAutocompleteView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#==========================  User proflile update view  ===========================#
-
-
-from rest_framework import permissions
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser
-from django.contrib.auth import get_user_model
-from users.models import Address
-from users.serializers import ProfileUpdateSerializer
+# ==========================  User proflile update view  ===========================#
 
 
 class ProfileUpdateView(APIView):
     """API endpoint for updating user profile using POST"""
-    permission_classes = [permissions.IsAuthenticated]  # Only logged-in users can update
-    parser_classes = (MultiPartParser, FormParser)  # For handling image uploads
+    permission_classes = [
+        permissions.IsAuthenticated]  # Only logged-in users can update
+    # For handling image uploads
+    parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
         """Handle profile update via POST request"""
         user = request.user
-        serializer = ProfileUpdateSerializer(user, data=request.data, partial=True)
-        print("Arived data:",request.data)
+        serializer = ProfileUpdateSerializer(
+            user, data=request.data, partial=True)
+        print("Arived data:", request.data)
         if serializer.is_valid():
             print("Validated Data:", serializer.validated_data)
             serializer.save()
-            return Response({"message": "Profile updated successfully","profile_completed": user.profile_completed}, status=200)
-       
+            return Response({"message": "Profile updated successfully", "profile_completed": user.profile_completed}, status=200)
+
         return Response(serializer.errors, status=400)
 
 
 ########################## Get user data view When user login ##########################
 
-from .serializers import UserDashboardSerializer
-from rest_framework.generics import RetrieveAPIView
 
 class GetUserDataView(RetrieveAPIView):
     """Fetch user data for dashboard."""
-    
+
     serializer_class = UserDashboardSerializer
     permission_classes = [IsAuthenticated]  # Require authentication
 
     def get(self, request, *args, **kwargs):
         """Return authenticated user's details."""
         user = request.user  # Get logged-in user
-        print("Logged In user :", user )
+        print("Logged In user :", user)
         serializer = self.get_serializer(user)  # Serialize data
         return Response(serializer.data)  # Send response
-    
+
 
 ##################  Get all users data in the admin side #######################
 
-from rest_framework import generics,filters
-from users.serializers import GetAllUsersInAdminSideSerializer
-from rest_framework.pagination import PageNumberPagination
-from django.db.models import Q
 
-#=======================Pagination set up with get user data =======================#
-#Pagination part 
+# =======================Pagination set up with get user data =======================#
+# Pagination part
+
+
 class CustomUserPagination(PageNumberPagination):
-    page_size=5 # Deafault page size
-    page_size_query_param='page_size'
-    max_page_size=50 # Limit max page size to avoid performance issues
-#Data fetching part
+    page_size = 5  # Deafault page size
+    page_size_query_param = 'page_size'
+    max_page_size = 50  # Limit max page size to avoid performance issues
+# Data fetching part
+
+
 class GetAllUsersInAdminSideView(generics.ListAPIView):
     """
     API view to fetch all users' data.
     Only admin users should access this endpoint.
     """
     serializer_class = GetAllUsersInAdminSideSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser] 
-    pagination_class=CustomUserPagination
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    pagination_class = CustomUserPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', 'email']
 
     def get_queryset(self):
-        queryset=User.objects.filter(is_superuser=False,is_verified=True)
-        filter_type=self.request.query_params.get('filter',None)
-        search_query=self.request.query_params.get('search',None)
+        queryset = User.objects.filter(is_superuser=False, is_verified=True)
+        filter_type = self.request.query_params.get('filter', None)
+        search_query = self.request.query_params.get('search', None)
 
-        #Apply filtering 
-        if filter_type=='profile_not_updated':
-            queryset=queryset.filter(profile_completed=False)
+        # Apply filtering
+        if filter_type == 'profile_not_updated':
+            queryset = queryset.filter(profile_completed=False)
         elif filter_type == 'aadhaar_not_verified':
             print("This called")
-            queryset = queryset.filter(is_aadhar_verified=False, profile_completed=True)
+            queryset = queryset.filter(
+                is_aadhar_verified=False, profile_completed=True)
         elif filter_type == "active":
             queryset = queryset.filter(is_active=True)  # Active users
         elif filter_type == "blocked":
             queryset = queryset.filter(is_active=False)  # Blocked users
 
-        #Apply Search 
+        # Apply Search
         if search_query:
-            queryset=queryset.filter(
-                Q(username__icontains=search_query) | Q(email__icontains=search_query)
+            queryset = queryset.filter(
+                Q(username__icontains=search_query) | Q(
+                    email__icontains=search_query)
             )
 
         return queryset
-    
-#================== View for handle status of the user shwowed in the admin side user management ===============================#
 
-from users.serializers import UserStatusSerializer
+# ================== View for handle status of the user shwowed in the admin side user management ===============================#
+
+
 class UserStatusUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserStatusSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser]  # Only authenticated admins can change the status
+    # Only authenticated admins can change the status
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def patch(self, request, *args, **kwargs):
         user = self.get_object()
@@ -725,46 +766,49 @@ class UserStatusUpdateView(generics.UpdateAPIView):
         if not request.user.is_superuser and request.user != user:
             return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
         return self.update(request, *args, **kwargs)
-    
-#======================= Admin side user detail page view set up ======================# 
+
+# ======================= Admin side user detail page view set up ======================#
+
 
 class AdminSideUserDetailView(generics.RetrieveAPIView):
-        """Fetch complete user details by ID (Admin Access Only)."""
-        queryset=User.objects.filter(is_superuser=False)
-        serializer_class=AdminSideUserDetailPageSerializer
-        permission_classes=[IsAuthenticated,IsAdminUser]
-        lookup_field='id'
+    """Fetch complete user details by ID (Admin Access Only)."""
+    queryset = User.objects.filter(is_superuser=False)
+    serializer_class = AdminSideUserDetailPageSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    lookup_field = 'id'
 
-#==========================  Change Aadhar Verification status in the usertable View ==============================# 
+# ==========================  Change Aadhar Verification status in the usertable View ==============================#
 
 
 class VerifyAadhaarView(APIView):
-    permission_classes=[IsAdminUser]
+    permission_classes = [IsAdminUser]
 
-    def patch(self,request,user_id):
-        user=get_object_or_404(User,id=user_id)
-        serializer = AadhaarVerificationSerializer(user,data={'is_aadhar_verified':True},partial=True)
+    def patch(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        serializer = AadhaarVerificationSerializer(
+            user, data={'is_aadhar_verified': True}, partial=True)
 
         if serializer.is_valid():
-            serializer.save() 
+            serializer.save()
 
             # Send welcome email on Aadhaar verification
-            generate_otp_and_send_email(user.email, email_type="aadhaar_verified")
+            generate_otp_and_send_email(
+                user.email, email_type="aadhaar_verified")
 
-            return Response({'message':'Aadhaar verified successfully!','data':serializer.data},status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Aadhaar verified successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
 
-#============================= Add Resubmission message according the user to the aadhar card in Admin side ====================================#
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-from .serializers import AadharResubmissionMessageSerializer
+# ============================= Add Resubmission message according the user to the aadhar card in Admin side ====================================#
+
 
 class UpdateAadharResubmissionMessageView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def patch(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
-        serializer = AadharResubmissionMessageSerializer(user, data=request.data, partial=True)
+        serializer = AadharResubmissionMessageSerializer(
+            user, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -772,18 +816,19 @@ class UpdateAadharResubmissionMessageView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#==========================  Aadhar image resubmission view for user resubmission ==========================#
+# ==========================  Aadhar image resubmission view for user resubmission ==========================#
+
 
 class AadhaarResubmissionUpdateView(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
-    def patch(self,request):
+    def patch(self, request):
         user = request.user
 
-        serializer = AadhaarResubmissionSerializer(user,data=request.data,partial=True)
+        serializer = AadhaarResubmissionSerializer(
+            user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message":"Aadhaar resubmission image updated"},status=status.HTTP_200_OK)
+            return Response({"message": "Aadhaar resubmission image updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

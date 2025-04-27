@@ -78,10 +78,9 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
 
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="p-3 border-t-0 border rounded-b-lg border-gray-300 max-h-96 overflow-y-auto scrollbar-hide ">
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-72 overflow-y-auto scrollbar-hide">
 
                         {/* Community 1 */}
-
 
                         {isLoaded && joinRequest.length > 0 ? (
                             joinRequest

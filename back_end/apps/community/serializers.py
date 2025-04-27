@@ -358,3 +358,41 @@ class CommunityMembershipRequestSerializer(serializers.ModelSerializer):
         model = CommunityMembership
         fields = ['id', 'community', 'user', 'status', 'joined_at', 'is_admin']
         read_only_fields = ['id', 'joined_at', 'is_admin']
+
+###################  get community and the members who belong to the community in the community details section #################
+
+class CommunityMemberSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source = 'user.id')
+    username= serializers.CharField(source='user.username')
+    email= serializers.EmailField(source = 'user.email')
+    is_admin= serializers.BooleanField() 
+    profile_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model= CommunityMembership
+        fields = ['id','username','email','is_admin','profile_image']
+
+    def get_profile_image(self,obj):
+        """
+        Generate a secure URL for the user's image.
+        """
+        user=obj.user   
+        if user.profile_picture:
+            return generate_secure_image_url(user.profile_picture)
+        return None 
+    
+class CommunityDeatilsSerializer(serializers.ModelSerializer):
+    members = CommunityMemberSerializer(source='memberships',many=True)
+    community_logo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Community 
+        fields = ['id','name','description','is_private','created_at','members','community_logo']
+
+    def get_community_logo(self, obj):
+        """
+        Generate a secure URL for the community image.
+        """
+        if obj.community_logo: 
+            return generate_secure_image_url(obj.community_logo) 
+        return None

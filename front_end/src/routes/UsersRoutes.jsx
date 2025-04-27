@@ -13,6 +13,10 @@ import CreateCommunity from '../pages/community-user-side/CreateCommunity';
 import PendingRequest from '../pages/community-user-side/pendingRequest';
 import FarmerCommunityChat from '../pages/ChatPages/FarmerCommunityChat';
 
+// Importing PageNotFound component for 404
+import PageNotFound from '../components/StatusPages/PageNotFound';
+
+
 function UsersRoutes() {
 
   return (
@@ -37,6 +41,8 @@ function UsersRoutes() {
           <Route path="community-chat/:communityId" element={<FarmerCommunityChat />} /> */}
         </Route>
       </Route>
+      {/* Catch-all route for 404 Page */}
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   )
 }

@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers
 
 urlpatterns = [
     # Authentication urls
@@ -36,4 +36,7 @@ urlpatterns = [
     path('get-communities/', GetCommunityListAPIView.as_view(), name='get-communities'),
     ############# request to join a community  ###############
     path('join-community/<int:community_id>/', JoinCommunityView.as_view(), name='join-community'),
+
+    ######################  get community and the respective users datails ################### 
+    path('get-communities/<int:id>/',GetCommunityDetailsWithUsers.as_view(), name='community_detail'),
 ]

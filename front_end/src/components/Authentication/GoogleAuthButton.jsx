@@ -38,9 +38,15 @@ const GoogleAuthButton = () => {
             }
             
 
-        } catch (error) {
+        }catch (error) {
             console.error("Google Auth Failed", error);
-            showToast("Google login failed. Please try again.", "error");
+    
+            if (error.response && error.response.status === 403) {
+                // If the user is blocked
+                showToast("Your account has been blocked. Please contact support for assistance.", "error");
+            } else {
+                showToast("Google login failed. Please try again.", "error");
+            }
         }
     };
 

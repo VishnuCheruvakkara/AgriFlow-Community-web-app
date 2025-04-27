@@ -7,6 +7,7 @@ import AdminRoutes from './AdminRoutes'
 // importing the protected routes 
 import AdminProtectedRoute from './RoutesProtection/AdminProtectedRoute'
 import UserProtectedRoute from './RoutesProtection/UserProtectedRoute'
+import PageNotFound from '../components/StatusPages/PageNotFound'
 
 function RoutesConfig() {
     return (
@@ -25,6 +26,9 @@ function RoutesConfig() {
                 <Route path="/admin/*" element={<AdminProtectedRoute />}>
                     <Route path="*" element={<AdminRoutes />} />
                 </Route>
+
+                {/* Catch-all Route for 404 Page */}
+                <Route path="*" element={<PageNotFound />} />
 
             </Routes>
         </div >

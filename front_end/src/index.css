@@ -283,3 +283,12 @@ body.swal2-shown {
   background-size: 400% 400%;
   animation: gradientMove 10s ease infinite;
 }
+
+/* hide Scroll bar in the community detail section */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

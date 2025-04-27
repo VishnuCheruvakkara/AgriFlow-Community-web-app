@@ -14,6 +14,8 @@ import AuthLayout from '../layout/AuthLayout'
 // Import PublicRoute to prevent logged-in users from accessing auth pages
 import PublicProtectedRoute from "./RoutesProtection/PublicProtectedRoute"
 
+import PageNotFound from '../components/StatusPages/PageNotFound';
+
 const AuthenticationRoutes = () => {
     return (
 
@@ -33,6 +35,8 @@ const AuthenticationRoutes = () => {
                     <Route path="/forgot-password-new" element={<ForgotPasswordNew />} />
                 </Route>
             </Route>
+            {/* Catch-all Route for 404 Page in Authentication section */}
+            <Route path="*" element={<PageNotFound />} />
         </Routes>
     )
 }

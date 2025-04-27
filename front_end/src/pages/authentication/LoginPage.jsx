@@ -53,7 +53,7 @@ const Login = () => {
 
         } catch (error) {
             console.error("Login failed:", error.response?.data || error.message);
-            showToast("Incorrect Email or Password, Try again.", "error");
+            showToast(error.response?.data?.error || "Incorrect Email or Password, Try again.", "error");
         }
         finally {
             dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process

@@ -26,7 +26,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
     }, []);
 
     // Handle accept action
-    const handleAccept = async (inviteId, communityId) => {
+    const handleAccept = async (inviteId, communityId,communityName) => {
         const result = await showConfirmationAlert({
             title: 'Accept Invitation?',
             text: 'Are you sure you want to accept this invitation?',
@@ -44,7 +44,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                     action: 'accept'
                 });
                 console.log("Invitation accepted:", response.data);
-                showToast("You have successfully joined",'success')
+                showToast(`You have successfully joined to community "${communityName}"`,'success')
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove accepted invite
             } catch (error) {
@@ -55,7 +55,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
     };
 
     // Handle ignore action
-    const handleIgnore = async (inviteId, communityId) => {
+    const handleIgnore = async (inviteId, communityId,communityName) => {
         const result = await showConfirmationAlert({
             title: 'Ignore Invitation?',
             text: 'Are you sure you want to ignore this invitation?',
@@ -73,7 +73,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                     action: 'ignore'
                 });
                 console.log("Invitation ignored:", response.data);
-                showToast("Invitation ingored successfully","success")
+                showToast(`Invitation ignored for the community "${communityName}"`,"success")
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove ignored invite
             } catch (error) {
@@ -111,7 +111,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
 
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="p-3 border-t-0 border rounded-b-lg border-gray-300">
-                    <div className="space-y-3">
+                    <div className="space-y-3 max-h-72 overflow-y-auto scrollbar-hide">
 
                         {/* Invitation area wiht map*/}
 
@@ -142,13 +142,13 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                     <div className="flex gap-2">
                                         <button
                                             className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
-                                            onClick={() => handleAccept(invite.id, invite.community)}
+                                            onClick={() => handleAccept(invite.id, invite.community,invite.community_name)}
                                         >
                                             Join
                                         </button>
                                         <button
                                             className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
-                                            onClick={() => handleIgnore(invite.id, invite.community)}
+                                            onClick={() => handleIgnore(invite.id, invite.community,invite.community_name)}
                                         >
                                             Ignore
                                         </button>

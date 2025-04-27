@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer,CommunityDeatilsSerializer
 # get community data
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership
@@ -30,6 +30,7 @@ from notifications.models import Notification
 # import common image getter of cloudinary from common app
 from apps.common.cloudinary_utils import generate_secure_image_url
 from django.shortcuts import get_object_or_404
+
 
 ############### get the Usermodel ##################
 
@@ -416,3 +417,18 @@ class JoinCommunityView(APIView):
 
         serializer = CommunityMembershipRequestSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK if existing_membership else status.HTTP_201_CREATED)
+
+#################### Get community details and users in the communitydetails section #################### 
+
+class GetCommunityDetailsWithUsers(APIView):
+    """
+    Custom API View to retrieve a community with its members.
+    """
+
+    def get(self,rquest,id):
+        try:
+            community = Community.objects.get(id=id)
+            serializers = CommunityDeatilsSerializer(community)
+            return Response(serializers.data,status=status.HTTP_200_OK)
+        except Community.DoesNotExist:
+            return Response({"detail" : "Community not found ?"},status=status.HTTP_404_NOT_FOUND)
