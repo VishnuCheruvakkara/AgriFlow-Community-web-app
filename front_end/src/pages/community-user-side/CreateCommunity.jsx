@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { FaInfoCircle, FaGlobe, FaLock } from 'react-icons/fa';
 import { IoMdAddCircle } from "react-icons/io";
-// improt loader spinner  
-import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 //import image selector for community image upload 
 import ProfileImageSelector from '../../components/user-dash-board/ProfileImageSelector';
 //import Yup for front-end validation
@@ -23,16 +21,9 @@ function CreateCommunity() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     //debouncer state setup
-    const debounceTimeout = useRef(null);
     const [tagInput, setTagInput] = useState('');
     const [errors, setErrors] = useState({});
-    //set members get from backend to here : for select the community members.
-    const [members, setMembers] = useState([]);
-    //state for infinite scroll : show users data while creating community (Display in the modal)
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    //for search the members showed in the modal 
-    const [searchQuery, setSearchQuery] = useState("");
+  
     //controll community image with state 
     const [resetImage, setResetImage] = useState(false);
 
@@ -372,9 +363,6 @@ function CreateCommunity() {
                     onSubmit={handleModalSubmit}
                     buttonId="CommunityCreation"
                 />
-
-             
-
             </div>
         </>
     )

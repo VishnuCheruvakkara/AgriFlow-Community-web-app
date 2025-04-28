@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer,CommunityDeatilsSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer,CommunityDeatilsSerializer,AddNewCommunityMemberSerializer
 # get community data
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership
@@ -30,7 +30,8 @@ from notifications.models import Notification
 # import common image getter of cloudinary from common app
 from apps.common.cloudinary_utils import generate_secure_image_url
 from django.shortcuts import get_object_or_404
-
+#improt exceptions 
+from django.core.exceptions import PermissionDenied
 
 ############### get the Usermodel ##################
 
@@ -38,7 +39,7 @@ User = get_user_model()
 
 # Community creation View part ##########################
 
-# ==================== get user data for community creation : To shwo in the modal
+# ==================== get user data for community creation : To shwo in the modal ==========================#
 
 
 class ShowUsersWhileCreateCommunity(APIView):
@@ -59,8 +60,11 @@ class ShowUsersWhileCreateCommunity(APIView):
         if community_id:
             community = Community.objects.filter(id=community_id).first()
             if community:
-                users = users.exclude(id__in=community.memberships.values_list('user__id', flat=True))
-
+                # Get the list of users who have the 'cancelled' status
+                cancelled_users = community.memberships.filter(status='cancelled').values_list('user__id', flat=True)
+        
+                # Include only the users who have the 'cancelled' status (exclude all other users)
+                users = users.filter(id__in=cancelled_users)
 
         if search_query:
             users = users.filter(
@@ -430,7 +434,7 @@ class JoinCommunityView(APIView):
         serializer = CommunityMembershipRequestSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK if existing_membership else status.HTTP_201_CREATED)
 
-#################### Get community details and users in the communitydetails section #################### 
+#################### Get community details and users in the communitydetails section  #################### 
 
 class GetCommunityDetailsWithUsers(APIView):
     """
@@ -444,3 +448,50 @@ class GetCommunityDetailsWithUsers(APIView):
             return Response(serializers.data,status=status.HTTP_200_OK)
         except Community.DoesNotExist:
             return Response({"detail" : "Community not found ?"},status=status.HTTP_404_NOT_FOUND)
+
+############################# Add new memebers to the communitiy by admin view  #######################3
+
+
+class AddMembersToCommunity(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print("Request data:", request.data)
+        # Get the community_id and member_ids from the request body
+        community_id = request.data.get('community_id')
+        member_ids = request.data.get('member_ids', [])
+
+        if not community_id or not member_ids:
+            return Response({"error": "Community ID and member IDs are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get the community using the community_id from the body
+        community = get_object_or_404(Community, id=community_id)
+
+        # Check if the current user is an admin of the community
+        if not community.memberships.filter(user=request.user, is_admin=True).exists():
+            raise PermissionDenied("You must be an admin to add members to this community.")
+
+        # Validate member_ids (ensure users exist)
+        members = User.objects.filter(id__in=member_ids)
+
+        memberships = []
+        for member in members:
+            membership, created = CommunityMembership.objects.update_or_create(
+                user=member,
+                community=community,
+                defaults={
+                    'status': 'pending',
+                    'is_admin': False,
+                }
+            )
+            memberships.append({
+                'user': member.id,
+                'community': community.id,
+                'status': membership.status,
+                'is_admin': membership.is_admin,
+            })
+            
+        return Response(
+            {"message": "Members added successfully.", "members": memberships},
+            status=status.HTTP_201_CREATED,
+        )

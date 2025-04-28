@@ -403,3 +403,28 @@ class CommunityDeatilsSerializer(serializers.ModelSerializer):
         if obj.community_logo: 
             return generate_secure_image_url(obj.community_logo) 
         return None
+
+####################  Admin of a group can add new members to the community (send request) Serializer  ######################
+
+class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommunityMembership
+        fields = ['user', 'community', 'status', 'is_admin']
+
+    def validate(self, data):
+        # Check if the user has a cancelled membership
+        cancelled_membership = CommunityMembership.objects.filter(
+            user=data['user'], community=data['community'], status='cancelled'
+        ).first()
+
+        # If there is a cancelled membership, we allow re-adding the user
+        if cancelled_membership:
+            return data
+
+        # Otherwise, check if the user is already a member with a non-cancelled status
+        if CommunityMembership.objects.filter(
+            user=data['user'], community=data['community']
+        ).exclude(status='cancelled').exists():
+            raise serializers.ValidationError("This user is already a member of the community.")
+        
+        return data

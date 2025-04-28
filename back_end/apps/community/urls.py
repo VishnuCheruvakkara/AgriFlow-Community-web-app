@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity
 
 urlpatterns = [
     # Authentication urls
@@ -39,4 +39,8 @@ urlpatterns = [
 
     ######################  get community and the respective users datails ################### 
     path('get-communities/<int:id>/',GetCommunityDetailsWithUsers.as_view(), name='community_detail'),
+
+    ##################### Admin can add new members to the community ######################
+    path('add-members/', AddMembersToCommunity.as_view(), name='add_members_to_community'),  # Updated to handle POST body data
+    
 ]

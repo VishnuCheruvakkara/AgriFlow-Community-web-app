@@ -268,7 +268,7 @@ body.swal2-shown {
 
 @keyframes gradientMove {
   0% {
-    background-position: 0% 50%;
+    background-position: 0% 5%;
   }
   50% {
     background-position: 100% 50%;
@@ -279,7 +279,7 @@ body.swal2-shown {
 }
 
 .animate-gradient {
-  background: linear-gradient(-45deg, #15803d, #22c55e, #4ade80, #15803d);
+  background: linear-gradient(-45deg, #15803d, #22c55e, #53c97e, #15803d);
   background-size: 400% 400%;
   animation: gradientMove 10s ease infinite;
 }

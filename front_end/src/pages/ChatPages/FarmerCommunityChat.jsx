@@ -56,10 +56,10 @@ const FarmerCommunityChat = () => {
         <>
           <div className="bg-white border-b p-4 flex justify-between items-center">
             <div className="flex items-center">
-              <img src={ communityData?.community_logo || CommunityDefaultImage} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
+              <img  onClick={openDrawer} src={ communityData?.community_logo || CommunityDefaultImage} alt="Profile" className="w-12 h-12 rounded-full object-cover cursor-pointer" />
               <div className="ml-3 cursor-pointer" onClick={openDrawer}>
                   <h3 className="font-semibold text-gray-800">{ communityData?.name|| "Group Name not found "}</h3>
-                  <p className="text-xs text-gray-500"> {communityData?.members?.length} members, 45 online</p>
+                  <p className="text-xs text-gray-500"> {communityData?.members?.length} members,  1 online</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
