@@ -292,3 +292,19 @@ body.swal2-shown {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* adding pointer to the right side of the menu bar in the community details page   */
+
+.with-pointer::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right : -10px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid rgb(96, 96, 96);
+  z-index: 30;
+}

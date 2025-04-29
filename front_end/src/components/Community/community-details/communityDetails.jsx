@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from "framer-motion";
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
 import { FaUsers, FaInfoCircle, FaShieldAlt } from 'react-icons/fa';
 import DefaultCommunityImage from '../../../assets/images/user-group-default.png'
 import { MdGroupAdd } from "react-icons/md";
@@ -9,11 +9,32 @@ import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxios
 import { showToast } from '../../toast-notification/CustomToast';
 import { RxCross2 } from "react-icons/rx";
 import { MdExitToApp } from "react-icons/md";
+import { BsThreeDotsVertical } from "react-icons/bs";
+
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
     if (!isOpen) return null; // safety check
     const [isModalOpen, setIsModalOpen] = useState(false);
     const currentUser = useSelector((state) => state.user.user);
+    //state for handle menu bar for make users as admin and delete or remove user from a group
+    const [openMemberId, setOpenMemberId] = useState(null);  // not just true/false
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setOpenMemberId(null); // Close menu
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+
+
 
     // handle after submit by selecting members from teh resuable modal 
     const handleModalSubmit = async (selectedMembers) => {
@@ -110,30 +131,68 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                             </li>
                         )}
 
+
                         {/* Members list (Admin first) */}
                         {communityData?.members
-                            ?.slice() // make a shallow copy before sorting
-                            ?.sort((a, b) => (b.is_admin ? 1 : 0) - (a.is_admin ? 1 : 0)) // admins first
+                            ?.slice()
+                            ?.sort((a, b) => (b.is_admin ? 1 : 0) - (a.is_admin ? 1 : 0))
                             ?.map((member, index) => (
-                                <li key={index} className="flex gap-5 items-center border cursor-pointer border-gray-300 rounded-md py-3 hover:bg-gray-100 transition-colors duration-300 ">
-                                    <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-green-100 mr-3 flex items-center justify-center">
-                                        <img
-                                            src={member.profile_image}
-                                            alt={member.username}
-                                            className="w-full h-full object-cover"
-                                        />
+                                <li
+                                    key={index}
+                                    ref={openMemberId === member.id ? menuRef : null}
+                                    onClick={() => setOpenMemberId(openMemberId === member.id ? null : member.id)}
+
+
+                                    className="relative flex justify-between items-center border cursor-pointer border-gray-300 rounded-md py-3 hover:bg-gray-100 transition-colors duration-300 px-4"
+                                >
+                                    {/* Left part: image and username */}
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-green-100 flex items-center justify-center">
+                                            <img
+                                                src={member.profile_image}
+                                                alt={member.username}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+
+                                        <span className="flex items-center">
+                                            {member?.username || "No data found"}
+                                            {member?.is_admin && (
+                                                <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded ml-2">
+                                                    Admin
+                                                </span>
+                                            )}
+                                        </span>
                                     </div>
 
-                                    <span>
-                                        {member?.username || "No data found"}
-                                        {member?.is_admin && (
-                                            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded ml-2">
-                                                Admin
-                                            </span>
+                                    {/* Right part: 3 dots icon */}
+                                    <div className="text-gray-500 hover:text-gray-700 mr-2">
+                                        <BsThreeDotsVertical size={18} />
+                                    </div>
+
+                                    <AnimatePresence>
+                                        {openMemberId === member.id && currentUser.id !== member.id && (
+                                            <motion.ul
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="menu right-16 bg-white shadow-lg shadow-gray-400 border bg-base-200 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
+                                            >
+                                                <li className="hover:bg-gray-100 transition-colors  rounded-t-sm border-gray-400 p-2 ">Remove { member.username}</li>
+
+                                                {!member?.is_admin && <li className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make { member.username} as admin</li>}
+
+                                            </motion.ul>
                                         )}
-                                    </span>
+                                    </AnimatePresence>
+
+
+
+
                                 </li>
                             ))}
+
                     </ul>
                 </div>
 
