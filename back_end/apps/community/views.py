@@ -312,7 +312,7 @@ class IncomingMembershipRequestsView(APIView):
         serializer = CommunityWithRequestsSerializer(communities, many=True)
         return Response(serializer.data)
 
-# ==================== cancell the request =========================#
+# ==================== reject the request =========================#
 
 
 class UpdateMembershipRequestView(APIView):
@@ -495,3 +495,53 @@ class AddMembersToCommunity(APIView):
             {"message": "Members added successfully.", "members": memberships},
             status=status.HTTP_201_CREATED,
         )
+
+
+############################ Admin can remove the user from the community by making status from membership model into blocked  ##############################
+
+
+class RemoveMemberAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        community_id = request.data.get("community_id")
+        user_id = request.data.get("user_id")
+
+        if not community_id or not user_id:
+            return Response({"detail": "community_id and user_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        community = get_object_or_404(Community, id=community_id)
+        admin_membership = CommunityMembership.objects.filter(
+            community=community,
+            user=request.user,
+            is_admin=True,
+            status='approved'
+        ).first()
+
+        if not admin_membership:
+            return Response({"detail": "You are not authorized to remove members from this community."}, status=status.HTTP_403_FORBIDDEN)
+
+        member = get_object_or_404(User, id=user_id)
+
+        try:
+            membership = CommunityMembership.objects.get(user=member, community=community)
+
+            if membership.is_admin:
+                return Response({"detail": "You cannot remove another admin."}, status=status.HTTP_400_BAD_REQUEST)
+
+            membership.status = 'blocked'
+            membership.save()
+
+            # Create Notification
+            Notification.objects.create(
+                recipient=member,
+                sender=request.user,
+                community=community,
+                notification_type="community_update",
+                message=f"You have been removed from the community '{community.name}' by an admin."
+            )
+
+            return Response({"detail": "Member removed successfully"}, status=status.HTTP_200_OK)
+
+        except CommunityMembership.DoesNotExist:
+            return Response({"detail": "Membership not found."}, status=status.HTTP_404_NOT_FOUND)

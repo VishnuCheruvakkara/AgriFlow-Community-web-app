@@ -311,8 +311,8 @@ class CommunityMembershipStatusUpdateSerializer(serializers.ModelSerializer):
         fields = ['status']
 
     def validate_status(self, value):
-        if value not in ['approved', 'ignored']:
-            raise serializers.ValidationError("Status must be either 'approved' or 'ignored'")
+        if value not in ['approved', 'rejected']:
+            raise serializers.ValidationError("Status must be either 'approved' or 'rejected'")
         return value
     
 

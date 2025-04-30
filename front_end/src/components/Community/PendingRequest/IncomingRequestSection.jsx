@@ -52,9 +52,18 @@ function IncomingRequestsSection() {
                     { status: action }
                 );
                 console.log('Status updated:', response.data);
+                showToast(
+                    `Member ${isApproval ? 'approved' : 'rejected'} successfully`,
+                    'success'
+                );
                 fetchIncomingRequests(); // Refresh the list
             } catch (error) {
+                
                 console.error('Error updating membership status:', error);
+                showToast(
+                    `Failed to ${isApproval ? 'approve' : 'reject'} member request`,
+                    'error'
+                );
             }
         }
     };
@@ -137,10 +146,10 @@ function IncomingRequestsSection() {
                                                         Accept
                                                     </button>
                                                     <button
-                                                        onClick={() => handleRequestAction(community.id, user.username, 'ignored')}
+                                                        onClick={() => handleRequestAction(community.id, user.username, 'rejected')}
                                                         className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
                                                     >
-                                                        Ignore
+                                                        Reject
                                                     </button>
 
                                                 </div>

@@ -10,15 +10,22 @@ import { showToast } from '../../toast-notification/CustomToast';
 import { RxCross2 } from "react-icons/rx";
 import { MdExitToApp } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
     if (!isOpen) return null; // safety check
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [members, setMembers] = useState(communityData?.members || []);
     const currentUser = useSelector((state) => state.user.user);
     //state for handle menu bar for make users as admin and delete or remove user from a group
     const [openMemberId, setOpenMemberId] = useState(null);  // not just true/false
     const menuRef = useRef(null);
+    // set member while pageload 
+    useEffect(() => {
+        setMembers(communityData?.members || []);
+    }, [communityData]);
+
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -32,8 +39,6 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-
-
 
 
     // handle after submit by selecting members from teh resuable modal 
@@ -58,6 +63,30 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
             showToast("Error happened while adding members,please try again...", "error")
         }
     };
+    // Remove the farmer who are the member of the community but not an admin  
+    const handleRemoveUser = async (member) => {
+        const result = await showConfirmationAlert({
+            title: 'Remove Member?',
+            text: `Are you sure you want to remove "${member.username}" from the community?`,
+            confirmButtonText: 'Yes, Remove',
+            cancelButtonText: 'No, Cancel',
+        });
+        if (result) {
+            try {
+                const response = await AuthenticatedAxiosInstance.patch('/community/remove-member/', {
+                    community_id: communityData?.id,
+                    user_id: member.id,
+                });
+                showToast(`${member.username} has been removed successfully`, "success");
+                // remove from frontend list
+                setMembers(prev => prev.filter(m => m.id !== member.id));
+            } catch (error) {
+                console.error('Remove member error:', error);
+                showToast(`Failed to remove ${member.username}. Please try again.`, "error");
+            }
+        }
+    };
+
 
     return (
         <motion.div
@@ -133,7 +162,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
 
                         {/* Members list (Admin first) */}
-                        {communityData?.members
+                        {members
                             ?.slice()
                             ?.sort((a, b) => (b.is_admin ? 1 : 0) - (a.is_admin ? 1 : 0))
                             ?.map((member, index) => (
@@ -179,9 +208,9 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                                 transition={{ duration: 0.2 }}
                                                 className="menu right-16 bg-white shadow-lg shadow-gray-400 border bg-base-200 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
                                             >
-                                                <li className="hover:bg-gray-100 transition-colors  rounded-t-sm border-gray-400 p-2 ">Remove { member.username}</li>
+                                                <li onClick={() => handleRemoveUser(member)} className="hover:bg-gray-100 transition-colors  rounded-t-sm border-gray-400 p-2 ">Remove {member.username} {member.id}</li>
 
-                                                {!member?.is_admin && <li className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make { member.username} as admin</li>}
+                                                {!member?.is_admin && <li className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make {member.username} as admin</li>}
 
                                             </motion.ul>
                                         )}

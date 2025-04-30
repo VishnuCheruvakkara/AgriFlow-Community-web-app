@@ -34,6 +34,7 @@ class CommunityMembership(models.Model):
         ('cancelled','Cancelled'),
         ('blocked', 'Blocked'),
         ('requested','Requested'),
+        ('leaved','Leaved'),
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='community_memberships')
@@ -43,10 +44,10 @@ class CommunityMembership(models.Model):
     message = models.TextField(blank=True, null=True)
     approved_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.SET_NULL, related_name='approved_memberships')
     joined_at = models.DateTimeField(null=True,blank=True)
-
+    updated_at = models.DateTimeField(auto_now=True)
     class Meta:
         unique_together = ('user', 'community')  # Prevent duplicate memberships
-        ordering = ['-joined_at']  # Newest memberships first
+        ordering = ['-updated_at','-joined_at']  # Newest memberships first
 
     def __str__(self):
         return f"{self.user.email} - {self.community.name}"
