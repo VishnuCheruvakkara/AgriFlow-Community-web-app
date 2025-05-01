@@ -11,16 +11,21 @@ import { RxCross2 } from "react-icons/rx";
 import { MdExitToApp } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+import { useNavigate } from 'react-router-dom';
 
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
+
     if (!isOpen) return null; // safety check
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [members, setMembers] = useState(communityData?.members || []);
     const currentUser = useSelector((state) => state.user.user);
     //state for handle menu bar for make users as admin and delete or remove user from a group
     const [openMemberId, setOpenMemberId] = useState(null);  // not just true/false
     const menuRef = useRef(null);
+    // Find the member object that matches the current user
+    const currentMember = members?.find((m) => m.id === currentUser?.id);
     // set member while pageload 
     useEffect(() => {
         setMembers(communityData?.members || []);
@@ -83,6 +88,119 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
             } catch (error) {
                 console.error('Remove member error:', error);
                 showToast(`Failed to remove ${member.username}. Please try again.`, "error");
+            }
+        }
+    };
+
+    // Make the user as admin by another admin 
+    const handleMakeAdmin = async (member) => {
+        const result = await showConfirmationAlert({
+            title: 'Promote to Admin?',
+            text: `Are you sure you want to make "${member.username}" an admin of the community?`,
+            confirmButtonText: 'Yes, Promote',
+            cancelButtonText: 'No, Cancel',
+        });
+
+        if (result) {
+            try {
+                const response = await AuthenticatedAxiosInstance.patch('/community/make-admin/', {
+                    community_id: communityData?.id,
+                    user_id: member.id,
+                });
+
+                showToast(`${member.username} is now an admin`, "success");
+
+                // Update is_admin status in local state
+                setMembers(prev =>
+                    prev.map(m =>
+                        m.id === member.id ? { ...m, is_admin: true } : m
+                    )
+                );
+            } catch (error) {
+                console.error('Make admin error:', error);
+                showToast(`Failed to promote ${member.username} as admin. Please try again.`, "error");
+            }
+        }
+    };
+
+    // Revok the admin previlage of a user by another amdin 
+    const handleRevokeAdminPrivileges = async (member) => {
+        const result = await showConfirmationAlert({
+            title: 'Revoke Admin Privileges?',
+            text: `Are you sure you want to revoke admin privileges from "${member.username}"?`,
+            confirmButtonText: 'Yes, Revoke',
+            cancelButtonText: 'No, Cancel',
+        });
+
+        if (result) {
+            try {
+                const response = await AuthenticatedAxiosInstance.patch('/community/revoke-admin-privileges/', {
+                    community_id: communityData?.id,
+                    user_id: member.id,
+                });
+
+                showToast(`${member.username}'s admin privileges were revoked successfully.`, "success");
+
+                // Update the is_admin status in the local state
+                setMembers(prev =>
+                    prev.map(m =>
+                        m.id === member.id ? { ...m, is_admin: false } : m
+                    )
+                );
+            } catch (error) {
+                console.error('Revoke admin error:', error);
+                showToast(`Failed to revoke admin privileges from ${member.username}. Please try again.`, "error");
+            }
+        }
+    };
+
+    // Delete/Remove community logic by admin
+    const handleRemoveCommunity = async () => {
+        const result = await showConfirmationAlert({
+            title: 'Delete Community?',
+            text: 'Are you sure you want to remove this community? All members will be notified.',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'No, Cancel',
+        });
+
+        if (result) {
+            try {
+                await AuthenticatedAxiosInstance.patch('/community/soft-delete-community/', {
+                    community_id: communityData?.id,
+                });
+
+                showToast('Community has been removed and users notified.', "success");
+
+                // Optional: Redirect or update UI
+                navigate('/user-dash-board/farmer-community/my-communities');
+
+            } catch (error) {
+                console.error('Soft delete error:', error);
+                showToast('Failed to delete community. Please try again.', "error");
+            }
+        }
+    };
+
+    // User can exit the community whenever they want 
+    const handleExitCommunity = async () => {
+        const result = await showConfirmationAlert({
+            title: 'Leave Community?',
+            text: 'Are you sure you want to leave this community? You will lose access to chats and updates.',
+            confirmButtonText: 'Yes, Leave',
+            cancelButtonText: 'No, Stay',
+        });
+
+        if (result) {
+            try {
+                const res = await AuthenticatedAxiosInstance.patch('/community/user-leave-community/', {
+                    community_id: communityData?.id,
+                });
+
+                showToast(`You have left the community '${communityData?.name}' successfully.`, 'success');
+                navigate('/user-dash-board/farmer-community/my-communities');
+            } catch (error) {
+                console.error('Error while leaving the community:', error);
+                showToast('Something went wrong', 'error');
             }
         }
     };
@@ -164,7 +282,13 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         {/* Members list (Admin first) */}
                         {members
                             ?.slice()
-                            ?.sort((a, b) => (b.is_admin ? 1 : 0) - (a.is_admin ? 1 : 0))
+                            ?.sort((a, b) => {
+                                if (a.id === currentUser.id) return -1;  // Always put the current user at the top
+                                if (b.id === currentUser.id) return 1;   // If b is the current user, move it to the top
+
+                                // Then sort the rest by is_admin
+                                return (b.is_admin ? 1 : 0) - (a.is_admin ? 1 : 0);
+                            })
                             ?.map((member, index) => (
                                 <li
                                     key={index}
@@ -208,16 +332,30 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                                 transition={{ duration: 0.2 }}
                                                 className="menu right-16 bg-white shadow-lg shadow-gray-400 border bg-base-200 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
                                             >
-                                                <li onClick={() => handleRemoveUser(member)} className="hover:bg-gray-100 transition-colors  rounded-t-sm border-gray-400 p-2 ">Remove {member.username} {member.id}</li>
+                                                {/* View user option */}
+                                                <li
+                                                    onClick={() => handleViewUser(member)}
+                                                    className="hover:bg-gray-100 transition-colors rounded-t-sm p-2"
+                                                >
+                                                    View {member.username}
+                                                </li>
 
-                                                {!member?.is_admin && <li className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make {member.username} as admin</li>}
+                                                {currentMember?.is_admin && (
+                                                    <>
+                                                        {!member?.is_admin && <li onClick={() => handleRemoveUser(member)} className="hover:bg-gray-100 transition-colors  rounded-t-sm border-gray-400 p-2 ">Remove {member.username}</li>}
 
+                                                        {!member?.is_admin && <li onClick={() => handleMakeAdmin(member)} className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make {member.username} as admin</li>}
+                                                        {/* Revoke admin privileges option if the user is already an admin */}
+                                                        {member?.is_admin && (
+                                                            <li onClick={() => handleRevokeAdminPrivileges(member)} className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">
+                                                                Revoke admin privileges from {member.username}
+                                                            </li>
+                                                        )}
+                                                    </>
+                                                )}
                                             </motion.ul>
                                         )}
                                     </AnimatePresence>
-
-
-
 
                                 </li>
                             ))}
@@ -237,12 +375,25 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 />
 
                 {/* Exit Community Section */}
-                <button
-                    className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
-                >
-                    <MdExitToApp className="text-red-600 text-xl" />
-                    <span className="text-red-600 font-bold">Exit Community</span>
-                </button>
+                {/* Admins see "Remove Community", others see "Exit Community" */}
+                {currentMember?.is_admin ? (
+                    <button
+                        onClick={handleRemoveCommunity}
+                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
+                    >
+                        <MdExitToApp className="text-red-600 text-xl" />
+                        <span className="text-red-600 font-bold">Delete Community</span>
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleExitCommunity}
+                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
+                    >
+                        <MdExitToApp className="text-red-600 text-xl" />
+                        <span className="text-red-600 font-bold">Exit Community</span>
+                    </button>
+                )}
+
             </div>
         </motion.div>
     );

@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity,RemoveMemberAPIView
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity,RemoveMemberAPIView,MakeAdminAPIView,RevokeAdminAPIView,SoftDeleteCommunityAPIView,UserLeaveCommunityView
 
 urlpatterns = [
     # Authentication urls
@@ -46,4 +46,15 @@ urlpatterns = [
     ######################  Admin can remove user from the community ####################### 
     path('remove-member/', RemoveMemberAPIView.as_view(), name='remove-member'),
     
+    #################### Admin can make other user/member of a community into admin ###################
+    path('make-admin/', MakeAdminAPIView.as_view(), name='make-admin'),
+
+    #################### Admin can revoke the admin previlage of a user #################### 
+    path('revoke-admin-privileges/', RevokeAdminAPIView.as_view(), name='revoke-admin-privileges'),
+    
+    ######################  Admin can delete the community (Softdeletion )
+    path('soft-delete-community/', SoftDeleteCommunityAPIView.as_view(), name='soft_delete_community'),
+
+    ##################### User can leave from a community #################### 
+    path('user-leave-community/', UserLeaveCommunityView.as_view(), name='leave-community'),
 ]
