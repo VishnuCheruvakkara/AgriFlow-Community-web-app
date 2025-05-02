@@ -26,7 +26,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
     const [openMemberId, setOpenMemberId] = useState(null);  // not just true/false
     const menuRef = useRef(null);
 
-    //Set default current data before edit 
+    //Set default current data before edit (Set to the edit modal )
     const [community, setCommunity] = useState({
         id: communityData?.id,
         name: communityData?.name,
@@ -53,6 +53,17 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
         closeEditCommunityModal();  // Close modal after update
     };
 
+    // useEffect for set the local state community with the upcomming communityData 
+    useEffect(() => {
+        if (communityData) {
+            setCommunity({
+                id: communityData.id,
+                name: communityData.name,
+                description: communityData.description,
+                image: communityData.community_logo,
+            });
+        }
+    }, [communityData]);
 
 
     // Find the member object that matches the current user
@@ -260,9 +271,9 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
             {/* Community Image */}
             <div className="bg-white py-6 flex flex-col items-center border-b">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                    <img src={communityData?.community_logo || DefaultCommunityImage} alt="Community Logo" className="w-full h-full rounded-full object-cover" />
+                    <img src={community?.image || DefaultCommunityImage} alt="Community Logo" className="w-full h-full rounded-full object-cover" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800">{communityData?.name || "Not found"}</h3>
+                <h3 className="text-xl font-semibold text-gray-800">{community?.name || "Not found"}</h3>
                 <p className="text-sm text-gray-500 mt-1">
                     {communityData?.members?.length || 0} {communityData?.members?.length === 1 ? 'member' : 'members'}
                 </p>
@@ -292,7 +303,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         <div>
                             <h3 className="text-sm font-medium text-gray-500">About</h3>
                             <p className="text-gray-700 mt-1 break-all whitespace-pre-wrap pr-5">
-                                {communityData?.description || "About this community not provided."}
+                                {community?.description || "About this community not provided."}
                             </p>
                         </div>
                     </div>
