@@ -1,9 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 
-const ProfileImageSelector = ({ onImageSelect,reset }) => {
+const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState("");
+  console.log("initial image ::::", initialImage)
 
   useEffect(() => {
     if (reset) {
@@ -11,6 +12,9 @@ const ProfileImageSelector = ({ onImageSelect,reset }) => {
       setError("");
     }
   }, [reset]);
+
+  // Show initial image only if selectedImage is not set
+  const displayImage = selectedImage || (initialImage ? initialImage : null);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -49,9 +53,9 @@ const ProfileImageSelector = ({ onImageSelect,reset }) => {
       {/* Profile Image Upload Area */}
       <div className="relative w-32 h-32">
         <label className="w-32 h-32 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center cursor-pointer overflow-hidden relative">
-          {selectedImage ? (
+          {displayImage ? (
             <img
-              src={selectedImage}
+              src={displayImage}
               alt="Profile"
               className="w-full h-full object-cover border-4 border-white rounded-full"
             />
@@ -67,7 +71,7 @@ const ProfileImageSelector = ({ onImageSelect,reset }) => {
         </label>
 
         {/* Remove Image Button */}
-        {selectedImage && (
+        {displayImage && (
           <button
             className="absolute top-4 right-4 transform translate-x-1/2 -translate-y-1/2 bg-red-500 p-2 rounded-full text-white shadow-lg hover:bg-red-600 transition"
             onClick={removeImage}

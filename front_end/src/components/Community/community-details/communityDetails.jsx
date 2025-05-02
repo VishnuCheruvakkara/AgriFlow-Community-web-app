@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUsers, FaInfoCircle, FaShieldAlt } from 'react-icons/fa';
+import { FaUsers, FaInfoCircle, FaShieldAlt, FaRegEdit } from 'react-icons/fa';
 import DefaultCommunityImage from '../../../assets/images/user-group-default.png'
 import { MdGroupAdd } from "react-icons/md";
 import SelectMembersModal from '../CommunityModal/SelectMembersModal';
@@ -12,9 +12,10 @@ import { MdExitToApp } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { useNavigate } from 'react-router-dom';
-
+import EditCommunityModal from '../CommunityModal/EditCommunityModal';
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
+
 
     if (!isOpen) return null; // safety check
     const navigate = useNavigate();
@@ -24,6 +25,36 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
     //state for handle menu bar for make users as admin and delete or remove user from a group
     const [openMemberId, setOpenMemberId] = useState(null);  // not just true/false
     const menuRef = useRef(null);
+
+    //Set default current data before edit 
+    const [community, setCommunity] = useState({
+        id: communityData?.id,
+        name: communityData?.name,
+        description: communityData?.description,
+        image: communityData?.community_logo // Example image
+    });
+
+    const [isEditCommunityModalOpen, setIsEditCommunityModalOpen] = useState(false);
+    const openEditCommunityModal = () => {
+        setIsEditCommunityModalOpen(true); // Open Edit Community Modal
+    };
+
+    const closeEditCommunityModal = () => {
+        setIsEditCommunityModalOpen(false); // Close Edit Community Modal
+    };
+
+    const handleSaveChanges = (updatedFields) => {
+        // Update the community state with the new values returned from the modal
+        setCommunity(prev => ({
+            ...prev,
+            ...updatedFields,
+        }));
+
+        closeEditCommunityModal();  // Close modal after update
+    };
+
+
+
     // Find the member object that matches the current user
     const currentMember = members?.find((m) => m.id === currentUser?.id);
     // set member while pageload 
@@ -235,6 +266,20 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 <p className="text-sm text-gray-500 mt-1">
                     {communityData?.members?.length || 0} {communityData?.members?.length === 1 ? 'member' : 'members'}
                 </p>
+
+                {currentMember?.is_admin && (
+                    <button
+                        onClick={openEditCommunityModal}
+                        className="bg-green-500 mt-4 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300"
+                    >
+                        <div className="bg-white rounded-full p-2">
+                            <FaRegEdit className="text-green-500" />
+                        </div>
+                        <span className="text-sm pr-4">Edit Community</span>
+                    </button>
+                )}
+
+
             </div>
 
             {/* Content */}
@@ -246,7 +291,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         <FaInfoCircle className="text-gray-500 mt-1 mr-3" size={18} />
                         <div>
                             <h3 className="text-sm font-medium text-gray-500">About</h3>
-                            <p className="text-gray-700 mt-1">
+                            <p className="text-gray-700 mt-1 break-all whitespace-pre-wrap pr-5">
                                 {communityData?.description || "About this community not provided."}
                             </p>
                         </div>
@@ -266,7 +311,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         {communityData?.members?.some(member => member.id === currentUser?.id && member.is_admin) && (
                             <li
                                 className="bg-gradient-to-r bg-green-500 flex gap-5 items-center rounded-md py-3 cursor-pointer 
-                    transition-colors duration-300 hover:bg-green-600"
+                    transition-colors duration-300 hover:bg-green-600 hover:shadow-lg shadow-gray-300"
                                 onClick={() => setIsModalOpen(true)}
                             >
                                 <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-white mr-3 flex items-center justify-center">
@@ -296,7 +341,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                     onClick={() => setOpenMemberId(openMemberId === member.id ? null : member.id)}
 
 
-                                    className="relative flex justify-between items-center border cursor-pointer border-gray-300 rounded-md py-3 hover:bg-gray-100 transition-colors duration-300 px-4"
+                                    className="relative flex justify-between items-center border cursor-pointer border-gray-300 rounded-md py-3 hover:bg-gray-100 transition-colors duration-300 px-4 hover:shadow-lg shadow-gray-300"
                                 >
                                     {/* Left part: image and username */}
                                     <div className="flex items-center gap-5">
@@ -373,6 +418,17 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     actionType="add-new-members"
                     communityId={communityData?.id}
                 />
+
+
+                {/* Edit Community Modal */}
+                <EditCommunityModal
+                    isOpen={isEditCommunityModalOpen}
+                    onClose={closeEditCommunityModal}
+                    community={community}
+                    onSave={handleSaveChanges}
+                />
+
+
 
                 {/* Exit Community Section */}
                 {/* Admins see "Remove Community", others see "Exit Community" */}

@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer,CommunityDeatilsSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership
 # imports from the custom named app
@@ -29,7 +29,7 @@ from notifications.models import Notification
 # import common image getter of cloudinary from common app
 from apps.common.cloudinary_utils import generate_secure_image_url
 from django.shortcuts import get_object_or_404
-#improt exceptions 
+# improt exceptions
 from django.core.exceptions import PermissionDenied
 
 ############### get the Usermodel ##################
@@ -48,10 +48,9 @@ class ShowUsersWhileCreateCommunity(APIView):
         current_user = request.user
         # To get hte search value from the query params
         search_query = request.GET.get("search", "")
-        #get communtiy id for show the members who are not in the selected community
+        # get communtiy id for show the members who are not in the selected community
         community_id = request.GET.get("community_id")
-     
-        
+
         users = User.objects.exclude(id=current_user.id).exclude(
             is_superuser=True).filter(is_active=True, is_aadhar_verified=True)
 
@@ -60,8 +59,9 @@ class ShowUsersWhileCreateCommunity(APIView):
             community = Community.objects.filter(id=community_id).first()
             if community:
                 # Get the list of users who have the 'cancelled' status
-                cancelled_users = community.memberships.filter(status='cancelled').values_list('user__id', flat=True)
-        
+                cancelled_users = community.memberships.filter(
+                    status='cancelled').values_list('user__id', flat=True)
+
                 # Include only the users who have the 'cancelled' status (exclude all other users)
                 users = users.filter(id__in=cancelled_users)
 
@@ -434,22 +434,23 @@ class JoinCommunityView(APIView):
         serializer = CommunityMembershipRequestSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK if existing_membership else status.HTTP_201_CREATED)
 
-#################### Get community details and users in the communitydetails section  #################### 
+#################### Get community details and users in the communitydetails section  ####################
+
 
 class GetCommunityDetailsWithUsers(APIView):
     """
     Custom API View to retrieve a community with its members.
     """
 
-    def get(self,rquest,id):
+    def get(self, rquest, id):
         try:
             community = Community.objects.get(id=id)
             serializers = CommunityDeatilsSerializer(community)
-            return Response(serializers.data,status=status.HTTP_200_OK)
+            return Response(serializers.data, status=status.HTTP_200_OK)
         except Community.DoesNotExist:
-            return Response({"detail" : "Community not found ?"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Community not found ?"}, status=status.HTTP_404_NOT_FOUND)
 
-############################# Add new memebers to the communitiy by admin view  #######################3
+# Add new memebers to the communitiy by admin view  #######################3
 
 
 class AddMembersToCommunity(APIView):
@@ -469,7 +470,8 @@ class AddMembersToCommunity(APIView):
 
         # Check if the current user is an admin of the community
         if not community.memberships.filter(user=request.user, is_admin=True).exists():
-            raise PermissionDenied("You must be an admin to add members to this community.")
+            raise PermissionDenied(
+                "You must be an admin to add members to this community.")
 
         # Validate member_ids (ensure users exist)
         members = User.objects.filter(id__in=member_ids)
@@ -490,7 +492,7 @@ class AddMembersToCommunity(APIView):
                 'status': membership.status,
                 'is_admin': membership.is_admin,
             })
-            
+
         return Response(
             {"message": "Members added successfully.", "members": memberships},
             status=status.HTTP_201_CREATED,
@@ -524,7 +526,8 @@ class RemoveMemberAPIView(APIView):
         member = get_object_or_404(User, id=user_id)
 
         try:
-            membership = CommunityMembership.objects.get(user=member, community=community)
+            membership = CommunityMembership.objects.get(
+                user=member, community=community)
 
             if membership.is_admin:
                 return Response({"detail": "You cannot remove another admin."}, status=status.HTTP_400_BAD_REQUEST)
@@ -547,7 +550,8 @@ class RemoveMemberAPIView(APIView):
             return Response({"detail": "Membership not found."}, status=status.HTTP_404_NOT_FOUND)
 
 ############################  Admin of a comunity can make other member as admin ########################
- 
+
+
 class MakeAdminAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -563,7 +567,7 @@ class MakeAdminAPIView(APIView):
 
         current_user = request.user
 
-        #Check if current user is an admin in the community
+        # Check if current user is an admin in the community
         try:
             current_membership = CommunityMembership.objects.get(
                 user=current_user, community_id=community_id, status='approved'
@@ -574,7 +578,7 @@ class MakeAdminAPIView(APIView):
         if not current_membership.is_admin:
             return Response({'detail': 'Only admins can promote others.'}, status=status.HTTP_403_FORBIDDEN)
 
-        #Get the target user's membership
+        # Get the target user's membership
         try:
             target_membership = CommunityMembership.objects.get(
                 user_id=user_id, community_id=community_id, status='approved'
@@ -602,8 +606,9 @@ class MakeAdminAPIView(APIView):
             )
         )
         return Response({'detail': 'User promoted to admin successfully.'}, status=status.HTTP_200_OK)
-    
+
 ############################ Admin can revoke the other user amdin previlage ####################
+
 
 class RevokeAdminAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -659,8 +664,8 @@ class RevokeAdminAPIView(APIView):
         return Response({'detail': 'Admin privileges revoked successfully.'}, status=status.HTTP_200_OK)
 
 
-##############################  Admin can delete all the community and Notify all the other users  ######################## 
-# This is a soft delete : becuasa dont loss the actuall communtiy data from the data base ... 
+##############################  Admin can delete all the community and Notify all the other users  ########################
+# This is a soft delete : becuasa dont loss the actuall communtiy data from the data base ...
 
 class SoftDeleteCommunityAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -673,7 +678,8 @@ class SoftDeleteCommunityAPIView(APIView):
             return Response({'detail': 'community_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            community = Community.objects.get(id=community_id, is_deleted=False)
+            community = Community.objects.get(
+                id=community_id, is_deleted=False)
         except Community.DoesNotExist:
             return Response({'detail': 'Community not found or already deleted.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -693,7 +699,8 @@ class SoftDeleteCommunityAPIView(APIView):
         community.save()
 
         # Notify all members except the admin
-        members = CommunityMembership.objects.filter(community=community, status='approved').exclude(user=user)
+        members = CommunityMembership.objects.filter(
+            community=community, status='approved').exclude(user=user)
 
         notifications = [
             Notification(
@@ -709,14 +716,17 @@ class SoftDeleteCommunityAPIView(APIView):
 
         return Response({'detail': 'Community soft-deleted and members notified.'}, status=status.HTTP_200_OK)
 
-#################################  User can leave from a community (soft leaving mechanism) ##############################  
+#################################  User can leave from a community (soft leaving mechanism) ##############################
+
 
 class UserLeaveCommunityView(APIView):
-    permission_classes = [IsAuthenticated]  # Only authenticated users can perform this action
+    # Only authenticated users can perform this action
+    permission_classes = [IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
         user = request.user
-        community_id = request.data.get('community_id')  # Expect community_id in the request body
+        # Expect community_id in the request body
+        community_id = request.data.get('community_id')
 
         # Validate if community_id is provided
         if not community_id:
@@ -724,9 +734,11 @@ class UserLeaveCommunityView(APIView):
 
         # Check if the user is a member of the community
         try:
-            membership = CommunityMembership.objects.get(user=user, community_id=community_id)
+            membership = CommunityMembership.objects.get(
+                user=user, community_id=community_id)
         except CommunityMembership.DoesNotExist:
-            raise NotFound("Membership not found for this user in the specified community")
+            raise NotFound(
+                "Membership not found for this user in the specified community")
 
         # Only normal users can change status to 'left'
         if membership.is_admin:
@@ -737,3 +749,42 @@ class UserLeaveCommunityView(APIView):
         membership.save()
 
         return Response({'message': 'You have left the community successfully.'}, status=status.HTTP_200_OK)
+
+
+################### creator of a community can edit the name,description and community image View section ##################
+
+
+class EditCommunityDetailsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        community = get_object_or_404(Community, pk=pk)
+
+        # Check if user is creator or admin
+        is_creator = request.user == community.created_by
+        is_admin_member = CommunityMembership.objects.filter(
+            user=request.user,
+            community=community,
+            is_admin=True,
+            status='approved'
+        ).exists()
+
+        if not (is_creator or is_admin_member):
+            return Response(
+                {"detail": "You are not creator to edit this community."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Combine data and files
+        data = request.data.copy()
+        if 'image' in request.FILES:
+            data['community_logo'] = request.FILES['image']
+
+        # Pass request data to the serializer
+        serializer = CommunityEditSerializer(community, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Community updated successfully."}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

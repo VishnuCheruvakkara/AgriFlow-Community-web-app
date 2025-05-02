@@ -5,10 +5,10 @@ from cloudinary.utils import cloudinary_url
 #####################  Common image uploading and retrieving functions  #####################
 
 def upload_image_to_cloudinary(image_file, folder_name):
-    """
+    """  
     Securely uploads an image to Cloudinary with authenticated access.
-    Returns the public_id for later retrieval.
-    """
+    Returns the public_id for later retrieval.   
+    """    
     try:
         result = cloudinary.uploader.upload(
             image_file,
