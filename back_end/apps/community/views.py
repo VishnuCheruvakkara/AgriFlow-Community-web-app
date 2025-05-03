@@ -644,6 +644,16 @@ class RevokeAdminAPIView(APIView):
         if not target_membership.is_admin:
             return Response({'detail': 'User is not an admin.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        
+        # Prevent revoking privileges from the community creator
+        try:
+            community = Community.objects.get(id=community_id)
+        except Community.DoesNotExist:
+            return Response({'detail': 'Community not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if community.created_by.id == target_membership.user.id:
+            return Response({'detail': 'Cannot revoke admin privileges from the community creator.'}, status=status.HTTP_403_FORBIDDEN)
+
         # Revoke admin
         target_membership.is_admin = False
         target_membership.save()
@@ -716,7 +726,7 @@ class SoftDeleteCommunityAPIView(APIView):
 
         return Response({'detail': 'Community soft-deleted and members notified.'}, status=status.HTTP_200_OK)
 
-#################################  User can leave from a community (soft leaving mechanism) ##############################
+#################################  User and no-creator admin  can leave from a community (soft leaving mechanism) ##############################
 
 
 class UserLeaveCommunityView(APIView):
@@ -740,10 +750,12 @@ class UserLeaveCommunityView(APIView):
             raise NotFound(
                 "Membership not found for this user in the specified community")
 
-        # Only normal users can change status to 'left'
-        if membership.is_admin:
-            return Response({'error': 'Admins cannot leave the community'}, status=status.HTTP_400_BAD_REQUEST)
+        community = membership.community
 
+        # Prevent the creator from leaving the community
+        if community.created_by == user:
+            return Response({'error': 'The creator of the community cannot leave.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Update the status to 'left'
         membership.status = 'left'
         membership.save()

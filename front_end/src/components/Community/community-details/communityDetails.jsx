@@ -402,7 +402,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
                                                         {!member?.is_admin && <li onClick={() => handleMakeAdmin(member)} className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make {member.username} as admin</li>}
                                                         {/* Revoke admin privileges option if the user is already an admin */}
-                                                        {member?.is_admin && (
+                                                        {member?.is_admin && member.id !== communityData.created_by && (
                                                             <li onClick={() => handleRevokeAdminPrivileges(member)} className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">
                                                                 Revoke admin privileges from {member.username}
                                                             </li>
@@ -443,7 +443,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
                 {/* Exit Community Section */}
                 {/* Admins see "Remove Community", others see "Exit Community" */}
-                {currentMember?.is_admin ? (
+                {currentMember?.is_admin && currentUser?.id === communityData?.created_by ?(
                     <button
                         onClick={handleRemoveCommunity}
                         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
@@ -456,7 +456,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         onClick={handleExitCommunity}
                         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
                     >
-                        <MdExitToApp className="text-red-600 text-xl" />
+                        <MdExitToApp className="text-red-600 text-xl" /> 
                         <span className="text-red-600 font-bold">Exit Community</span>
                     </button>
                 )}
