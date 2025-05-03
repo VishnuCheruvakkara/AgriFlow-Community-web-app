@@ -11,8 +11,10 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { showToast } from '../../toast-notification/CustomToast';
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
+//To set up local loader 
+import { PulseLoader } from 'react-spinners';
 
-//Validation schema using Yup 
+
 const validationSchema = Yup.object({
     name: Yup.string()
         .matches(/^[a-zA-Z0-9\s]+$/, 'Name must contain only letters and numbers')
@@ -42,6 +44,8 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
     const [resetImage, setResetImage] = useState(false);
     const [communityImage, setCommunityImage] = useState(null); // image file
     const [initialImageUrl, setInitialImageUrl] = useState(''); // image URL
+    //local loading set up 
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (community) {
@@ -86,6 +90,7 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
         });
 
         if (result) {
+            setLoading(true); // Start loader
             try {
                 const response = await AuthenticatedAxiosInstance.patch(
                     `/community/edit-community-details/${community?.id}/`,
@@ -109,6 +114,8 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
             } catch (error) {
                 console.error("Error updating community:", error);
                 showToast("Something went wrong while updating the community", "error");
+            } finally {
+                setLoading(false); // Stop loader
             }
         }
     };
@@ -125,12 +132,22 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
     return (
         <AnimatePresence>
             <div className="fixed  inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+
                 <motion.div
                     initial={{ opacity: 0, scale: 0.85, y: 40 }}
                     animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 180, damping: 18 } }}
                     exit={{ opacity: 0, scale: 0.85, y: 40, transition: { duration: 0.2 } }}
                     className="bg-white rounded-lg shadow-xl w-[90%] max-w-md overflow-hidden "
                 >
+                    {/* Loader overlay INSIDE modal */}
+                    {loading && (
+                        <div className="absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
+                            <div className="flex flex-col items-center">
+                                <PulseLoader color="#16a34a" size={12} />
+                                <p className="mt-4 text-black font-medium">Updating community...</p>
+                            </div>
+                        </div>
+                    )}
                     {/* Modal Header */}
                     <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
                         <h2 className="text-white font-semibold text-lg">Edit Community</h2>
