@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, } from 'react-icons/fa';
+import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt,FaCalendarAlt } from 'react-icons/fa';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
@@ -60,7 +60,7 @@ function SideBar() {
                     </div>
 
                     {/* User Information */}
-                    <div onClick={handleViewProfile}  className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
+                    <div onClick={handleViewProfile} className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
                         <h3 className="font-semibold text-gray-800 text-ellipsis overflow-hidden whitespace-nowrap">{user?.username || "Farmer"}</h3>
                         <p className="text-sm text-gray-500 truncate text-ellipsis overflow-hidden whitespace-nowrap">{user?.farming_type || "Rice Cultivator"}</p>
                     </div>
@@ -93,6 +93,21 @@ function SideBar() {
                             <span>Community</span>
                         </Link>
                     </li>
+
+                    <li className="mb-1">
+                        <Link
+                            to="/user-dash-board/event-management"
+                            className={`flex items-center space-x-3 p-3 rounded-lg font-medium ${location.pathname.startsWith('/user-dash-board/event-management')
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'hover:bg-gray-100 text-gray-700 transition-colors'
+                                }`}
+                        >
+                            <FaCalendarAlt className="text-xl" />
+                            <span>Events</span>
+                        </Link>
+                    </li>
+
+
                     <li className="mb-1">
                         <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaChartLine className="text-xl" />
