@@ -19,11 +19,9 @@ class CommunityEvent(models.Model):
     location = models.TextField(blank=True, null=True, help_text="Only for offline events")
     online_link = models.URLField(blank=True, null=True, help_text="Only for online events (Google Meet/Zoom)")
     start_datetime = models.DateTimeField()
-    end_datetime = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_events')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    banner_image = models.URLField(blank=True, null=True)
 
     class Meta:
         ordering = ['-start_datetime']

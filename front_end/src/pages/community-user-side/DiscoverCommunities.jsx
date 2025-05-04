@@ -8,7 +8,8 @@ import { PulseLoader } from 'react-spinners';
 import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import { AiOutlineClose } from 'react-icons/ai';
 import { ImCancelCircle } from 'react-icons/im'
-
+// importing framer motion for animation
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { FaInfoCircle } from 'react-icons/fa';
 import { showToast } from '../../components/toast-notification/CustomToast';
@@ -21,6 +22,9 @@ function DiscoverCommunities() {
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [prevPageUrl, setPrevPageUrl] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
+  //local loading set up join community
+  const [joinCommunityLoading, setJoinCommunityLoading] = useState(false);
+
 
   // Modal data setup
   const [selectedCommunity, setSelectedCommunity] = useState(null);
@@ -99,13 +103,12 @@ function DiscoverCommunities() {
   };
 
   const handleJoinCommunity = async () => {
+    setJoinCommunityLoading(true);
     try {
       const response = await AuthenticatedAxiosInstance.patch(`community/join-community/${selectedCommunity.id}/`);
       if (selectedCommunity.is_private) {
-
         showToast("Request sent! Wait for admin approval.", "success")
       } else {
-
         showToast("You’ve joined the community successfully!", "success")
       }
       // Remove joined community from the current list
@@ -115,6 +118,8 @@ function DiscoverCommunities() {
     } catch (error) {
       console.error("Join error", error);
       showToast(error.response?.data?.detail || "Failed to join community.", "error");
+    } finally {
+      setJoinCommunityLoading(false);
     }
   };
 
@@ -206,132 +211,146 @@ function DiscoverCommunities() {
         </div>
       )}
 
-      {isModalOpen && selectedCommunity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white w-[90%] max-w-md rounded-lg shadow-xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">Community Info</h2>
-              <button
-                onClick={handleCloseModal}
-                className="text-white hover:bg-green-600 rounded-full p-1"
-              >
-                <AiOutlineClose size={20} />
-              </button>
-            </div>
+      <AnimatePresence>
+        {isModalOpen && selectedCommunity && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 180, damping: 18 } }}
+              exit={{ opacity: 0, scale: 0.85, y: 40, transition: { duration: 0.2 } }}
+              className="bg-white w-[90%] max-w-md rounded-lg shadow-xl overflow-hidden">
 
-            {/* Modal Body */}
-            <div className="p-6 text-gray-700 space-y-4 max-h-[450px] overflow-y-auto scrollbar-hide">
-
-              <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <FaInfoCircle className="text-yellow-700" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-yellow-700">
-                      {selectedCommunity.is_private ? (
-                        <>
-                          This is a <span className="font-semibold">private community</span>. You can send a request to join, and once approved by the admin, you’ll be able to participate.
-                        </>
-                      ) : (
-                        <>
-                          This is a <span className="font-semibold">public community</span>. You can join instantly and start engaging with other members right away.
-                        </>
-                      )}
-                    </p>
+              {/* loader set up  */}
+              {joinCommunityLoading && (
+                <div className="absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
+                  <div className="flex flex-col items-center">
+                    <PulseLoader color="#16a34a" size={12} />
+                    {selectedCommunity.is_private ?
+                      <p className="mt-4 text-black font-medium">Requesting to join community...</p>
+                      :
+                      <p className="mt-4 text-black font-medium">Joining community...</p>}
                   </div>
                 </div>
-              </div>
-
-              {/* Community Image Centered */}
-              <div className="flex justify-center">
-                <div className="w-28 h-28 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center">
-                  <img
-                    src={selectedCommunity.community_logo || DefaultCommunityIcon}
-                    alt={selectedCommunity.name}
-                    className="h-24 w-24 object-cover rounded-full border-gray-300"
-                  />
-                </div>
-              </div>
-
-              {/* Name and Description */}
-              <p>
-                <span className="font-semibold">Community:</span> {selectedCommunity.name}
-              </p>
-              <p>
-                <span className="font-semibold">Description:</span> {selectedCommunity.description}
-              </p>
-
-              {/* Privacy Status */}
-              <div
-                className={`border flex items-center px-2 py-1 rounded text-xs font-medium w-fit ${selectedCommunity.is_private
-                  ? 'border-red-500 bg-red-50 text-red-600'
-                  : 'border-green-500 bg-green-50 text-green-600'
-                  }`}
-              >
-                {selectedCommunity.is_private ? (
-                  <>
-                    <Lock className="mr-1 h-3 w-3" />
-                    <span>Private</span>
-                  </>
-                ) : (
-                  <>
-                    <Globe className="mr-1 h-3 w-3" />
-                    <span>Public</span>
-                  </>
-                )}
-              </div>
-
-              {/* Members List */}
-              <div>
-                {selectedCommunity.sample_members && selectedCommunity.sample_members.length > 0 && (
-                  <>
-                    <h3 className="font-semibold mb-2 text-gray-700">Members:</h3>
-                    <div>
-                      {selectedCommunity.sample_members.map((member) => (
-                        <div key={member.id} className="flex items-center gap-3 border border-gray-300 rounded-md my-2.5 p-2">
-                          <img
-                            src={member.profile_picture || DeafaultUserImage}
-                            alt={member.username}
-                            className="w-10 h-10 rounded-full object-cover border ml-3"
-                          />
-                          <span className="text-gray-800 font-medium">{member.username}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-
-
-
-
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex justify-end gap-3 px-6 py-2.5 bg-gray-100 border-t">
-              <div>
+              )}
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-white">Community Info</h2>
                 <button
-                  onClick={handleJoinCommunity}
-                  className={`px-4 py-2 rounded-md text-white font-medium transition ${selectedCommunity.is_private ? 'bg-green-500 hover:bg-green-600' : 'bg-green-500 hover:bg-green-600'
-                    }`}
+                  onClick={handleCloseModal}
+                  className="text-white hover:bg-green-600 rounded-full p-1"
                 >
-                  {selectedCommunity.is_private ? 'Request to Join' : 'Join Community'}
+                  <AiOutlineClose size={20} />
                 </button>
               </div>
-              <button
-                onClick={handleCloseModal}
-                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition"
-              >
-                Close
-              </button>
-            </div>
 
+              {/* Modal Body */}
+              <div className="p-6 text-gray-700 space-y-4 max-h-[450px] overflow-y-auto scrollbar-hide">
+
+                <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <FaInfoCircle className="text-yellow-700" />
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        {selectedCommunity.is_private ? (
+                          <>
+                            This is a <span className="font-semibold">private community</span>. You can send a request to join, and once approved by the admin, you’ll be able to participate.
+                          </>
+                        ) : (
+                          <>
+                            This is a <span className="font-semibold">public community</span>. You can join instantly and start engaging with other members right away.
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Community Image Centered */}
+                <div className="flex justify-center">
+                  <div className="w-28 h-28 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center">
+                    <img
+                      src={selectedCommunity.community_logo || DefaultCommunityIcon}
+                      alt={selectedCommunity.name}
+                      className="h-24 w-24 object-cover rounded-full border-gray-300"
+                    />
+                  </div>
+                </div>
+
+                {/* Name and Description */}
+                <p>
+                  <span className="font-semibold">Community:</span> {selectedCommunity.name}
+                </p>
+                <p>
+                  <span className="font-semibold">Description:</span> {selectedCommunity.description}
+                </p>
+
+                {/* Privacy Status */}
+                <div
+                  className={`border flex items-center px-2 py-1 rounded text-xs font-medium w-fit ${selectedCommunity.is_private
+                    ? 'border-red-500 bg-red-50 text-red-600'
+                    : 'border-green-500 bg-green-50 text-green-600'
+                    }`}
+                >
+                  {selectedCommunity.is_private ? (
+                    <>
+                      <Lock className="mr-1 h-3 w-3" />
+                      <span>Private</span>
+                    </>
+                  ) : (
+                    <>
+                      <Globe className="mr-1 h-3 w-3" />
+                      <span>Public</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Members List */}
+                <div>
+                  {selectedCommunity.sample_members && selectedCommunity.sample_members.length > 0 && (
+                    <>
+                      <h3 className="font-semibold mb-2 text-gray-700">Members:</h3>
+                      <div>
+                        {selectedCommunity.sample_members.map((member) => (
+                          <div key={member.id} className="flex items-center gap-3 border border-gray-300 rounded-md my-2.5 p-2">
+                            <img
+                              src={member.profile_picture || DeafaultUserImage}
+                              alt={member.username}
+                              className="w-10 h-10 rounded-full object-cover border ml-3"
+                            />
+                            <span className="text-gray-800 font-medium">{member.username}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex justify-end gap-3 px-6 py-2.5 bg-gray-100 border-t">
+                <div>
+                  <button
+                    onClick={handleJoinCommunity}
+                    className={`px-4 py-2 rounded-md text-white font-medium transition ${selectedCommunity.is_private ? 'bg-green-500 hover:bg-green-600' : 'bg-green-500 hover:bg-green-600'
+                      }`}
+                  >
+                    {selectedCommunity.is_private ? 'Request to Join' : 'Join Community'}
+                  </button>
+                </div>
+                <button
+                  onClick={handleCloseModal}
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition"
+                >
+                  Close
+                </button>
+              </div>
+
+            </motion.div>
           </div>
-        </div>
-      )}
-
+        )}
+      </AnimatePresence>
 
       <Pagination
         currentPage={currentPage}

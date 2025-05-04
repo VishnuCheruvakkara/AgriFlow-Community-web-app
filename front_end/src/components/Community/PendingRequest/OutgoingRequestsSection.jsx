@@ -4,7 +4,7 @@ import { FaChevronDown, FaChevronUp, FaUserClock } from 'react-icons/fa';
 import DefaultCommunityIcon from "../../../assets/images/user-group-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
-
+import { showToast } from '../../toast-notification/CustomToast';
 
 function OutgoingRequestsSection({ expanded, toggleSection }) {
 
@@ -38,7 +38,9 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
                 // Send a PATCH request to update the status to "cancelled"
                 await AuthenticatedAxiosInstance.patch(`/community/cancel-join-request/${communityId}/`);
                 setRequests((prev) => prev.filter(req => req.community_id !== communityId));  // Remove the cancelled request from the list
+                showToast(`Request to join the community "${communityName}" cancelled successfully`,"success")
             } catch (error) {
+                showToast("Error happen try again","error")
                 console.error("Error cancelling request:", error);
             }
         }
