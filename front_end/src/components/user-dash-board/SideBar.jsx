@@ -19,6 +19,11 @@ function SideBar() {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user)
 
+    // common handler for to navigate the user in to the user-profile view page 
+    const handleViewProfile = () => {
+        navigate('/user-dash-board/user-profile-view');
+    };
+
     const handleLogout = async () => {
         try {
 
@@ -46,7 +51,7 @@ function SideBar() {
                 {/* User profile section */}
                 <div className="flex items-center p-4 border-b">
                     {/* Profile Image Container */}
-                    <div className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                    <div onClick={handleViewProfile} className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
                         <img
                             src={user?.profile_picture || defaultUserImage}
                             alt="User profile"
@@ -55,7 +60,7 @@ function SideBar() {
                     </div>
 
                     {/* User Information */}
-                    <div className="ml-4 truncate max-w-[250px]"> {/* Increased max-width for larger name space */}
+                    <div onClick={handleViewProfile}  className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
                         <h3 className="font-semibold text-gray-800 text-ellipsis overflow-hidden whitespace-nowrap">{user?.username || "Farmer"}</h3>
                         <p className="text-sm text-gray-500 truncate text-ellipsis overflow-hidden whitespace-nowrap">{user?.farming_type || "Rice Cultivator"}</p>
                     </div>

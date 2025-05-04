@@ -22,9 +22,9 @@ import { showButtonLoader, hideButtonLoader } from "../../redux/slices/LoaderSpi
 import { IoMdRefreshCircle } from "react-icons/io";
 import { setUserDetails } from "../../redux/slices/userSlice";
 
-
+////////////////////////////////  This page is no thte actual  profile page is For collect the user correct data if they want to use the applicaiton |||| 
+/////////////////////////////// the correct user page where user can see thire data add post is set here =====>>>( UserProfileviewPage )
 function ProfilePage() {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

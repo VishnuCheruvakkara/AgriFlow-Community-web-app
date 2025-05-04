@@ -1,8 +1,11 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+//Base pages of the user side 
 import Home from '../pages/user-dash-board/Home'
 import UserLayout from '../layout/UserLayout'
 import ProfilePage from '../pages/user-dash-board/ProfilePage'
+import UserProfileViewPage from '../pages/user-dash-board/UserProfileViewPage'
+
 // Layout for community pages
 import CommunityLayout from '../layout/UserCommunityLayout';
 
@@ -27,6 +30,8 @@ function UsersRoutes() {
         <Route path="/" element={<Home />} />
         {/* Profile section routes of user  */}
         <Route path="/farmer-profile" element={<ProfilePage />} />
+        {/* ProfilePage section where user can see and edit thier data  */}
+        <Route path="/user-profile-view" element={<UserProfileViewPage />} />
         {/* Comunity set up */}
         <Route path="farmer-community" element={<CommunityLayout />}>
           <Route index element={<Navigate to="discover-communities" replace />} />
