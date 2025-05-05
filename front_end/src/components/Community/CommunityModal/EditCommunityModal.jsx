@@ -14,6 +14,8 @@ import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 //To set up local loader 
 import { PulseLoader } from 'react-spinners';
 
+import { shakeErrorInputVariant } from '../../common-animations/ShakingErrorInputVariant';
+
 
 const validationSchema = Yup.object({
     name: Yup.string()
@@ -28,13 +30,6 @@ const validationSchema = Yup.object({
         .required('Please enter a description'),
 
 });
-//shaking animation for the input field if any error found 
-const shakeErrorInputVariant = {
-    shake: {
-        x: [-5, 5, -5, 5, 0],
-        transition: { duration: 0.4 },
-    },
-}
 
 
 const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {

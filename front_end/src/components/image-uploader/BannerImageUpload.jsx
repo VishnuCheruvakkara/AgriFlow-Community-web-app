@@ -62,7 +62,7 @@ const BannerImageUpload = ({ onImageSelect, purpose }) => {
   };
 
   return (
-    <div>
+    <div >
       <div className="flex flex-col items-center gap-4 p-4 border rounded-lg shadow-md w-80 bg-white">
         <h2 className="text-lg font-semibold">{getLabel()}</h2>
 

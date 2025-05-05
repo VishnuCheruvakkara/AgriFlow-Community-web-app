@@ -312,9 +312,6 @@ body.swal2-shown {
 
 
 /* Custom styling for react-datepicker */
-
-/* Custom styling for react-datepicker */
-
 /* Date Selection */
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
@@ -351,4 +348,12 @@ body.swal2-shown {
   background-color: #f9fafb; /* Tailwind gray-50 */
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Default input, text area and select desgn set to None for outline  */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+  outline: none;
 }
