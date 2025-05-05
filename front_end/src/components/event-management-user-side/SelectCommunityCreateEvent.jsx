@@ -4,8 +4,9 @@ import { FaChevronRight, FaInfoCircle } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PulseLoader } from 'react-spinners';
 
-function SelectCommunityCreateEvent() {
+function SelectCommunityCreateEvent({ onCommunitySelect }) {
     const [communities, setCommunities] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredCommunities, setFilteredCommunities] = useState([]);
@@ -15,10 +16,10 @@ function SelectCommunityCreateEvent() {
     useEffect(() => {
         const fetchCommunities = async () => {
             try {
-                const response = await AuthenticatedAxiosInstance.get('events/communities/');
-                const adminCommunities = response.data.filter(c => c.is_admin);
-                setCommunities(adminCommunities);
-                setFilteredCommunities(adminCommunities);
+                const response = await AuthenticatedAxiosInstance.get('events/get-community-create-event/');
+                console.log("Admin Community ::::::34343::::", response.data);
+                setCommunities(response.data);
+                setFilteredCommunities(response.data);
             } catch (error) {
                 console.error('Error fetching communities:', error);
             } finally {
@@ -71,16 +72,18 @@ function SelectCommunityCreateEvent() {
                     </button>
                 )}
             </div>
-
             {/* Conditional Messages */}
             {loading ? (
-                <p className="text-center text-gray-600">Loading communities...</p>
+                <div className="flex flex-col justify-center items-center py-6">
+                    <PulseLoader color="#16a34a" speedMultiplier={1} />
+                    <p className="mt-4 text-sm text-gray-500">Loading Communities, please wait...</p>
+                </div>
             ) : communities.length === 0 ? (
                 <div className="text-center py-10 px-4 bg-gray-100 rounded-md border-2 border-dashed border-gray-300 text-gray-600">
                     <p className="text-lg font-semibold mb-2">You are not an admin of any community</p>
                     <p className="text-sm mb-4">To create an event, first create a community.</p>
                     <button
-                        onClick={() => navigate('/create-community')}
+                        onClick={() => navigate('/user-dash-board/farmer-community/create-communities')}
                         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
                     >
                         Create Community
@@ -96,6 +99,7 @@ function SelectCommunityCreateEvent() {
                     {filteredCommunities.map((community) => (
                         <div
                             key={community.id}
+                            onClick={() => onCommunitySelect(community)}
                             className="flex items-center p-4 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4"
                         >
                             <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
@@ -118,13 +122,7 @@ function SelectCommunityCreateEvent() {
                                 </p>
                             </div>
 
-                            {community.unread_notifications > 0 && (
-                                <div className="flex-shrink-0 mr-3">
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600">
-                                        {community.unread_notifications}
-                                    </span>
-                                </div>
-                            )}
+
 
                             <FaChevronRight className="text-gray-400 h-4 w-4 flex-shrink-0" />
                         </div>

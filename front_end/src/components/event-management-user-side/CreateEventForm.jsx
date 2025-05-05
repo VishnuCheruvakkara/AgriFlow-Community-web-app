@@ -1,21 +1,39 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { IoArrowBackCircleSharp } from "react-icons/io5";
 import * as Yup from 'yup';
 import DateTimePicker from '../../components/event-management-user-side/DateTimePicker';
 import BannerImageUpload from '../../components/image-uploader/BannerImageUpload';
 import { shakeErrorInputVariant } from '../../components/common-animations/ShakingErrorInputVariant';
 import { motion } from 'framer-motion';
-
+import { useParams, Link } from 'react-router-dom';
 import { eventValidationSchema } from '../common-erro-handling/EventCreationErrorHandler';
 
-function CreateEventForm() {
+function CreateEventForm({ selectedCommunity, onBack }) {
     const [startDate, setStartDate] = useState(null);
     return (
         <div className="max-w-full mx-auto px-4">
+
             <div className="text-center mb-4">
-                <h2 className="text-xl font-bold text-green-600 mb-2">Create a New Event</h2>
+                <div className="flex justify-center mb-3">
+                    <button
+                        onClick={onBack}
+                        className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300"
+                    >
+                        <div className="bg-white rounded-full p-2">
+                            <IoArrowBackCircleSharp className="text-green-500" />
+                        </div>
+                        <span className="text-sm pr-4">Back to Select Community</span>
+                    </button>
+                </div>
+
+                <h2 className="text-xl font-bold text-green-600 mb-2">
+                    Create Event for : <span className="text-green-600">{selectedCommunity?.name}</span>
+                </h2>
                 <p className="text-gray-600 text-sm">Share an amazing experience with your community</p>
             </div>
+
+
 
             <Formik
                 initialValues={{

@@ -7,5 +7,5 @@ urlpatterns = [
     path('',include('apps.Home.urls')),
     path('users/',include('apps.users.urls')),
     path('community/',include('apps.community.urls')),
-  
+    path('events/',include('apps.events.urls')),
 ]

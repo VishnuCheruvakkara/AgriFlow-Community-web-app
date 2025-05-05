@@ -120,10 +120,10 @@ class GetMyCommunityView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-####################################  Pending request section (Community section part)  ########################
+#################################### (((Community Invitations for You -- in front end))) Pending request section (Community section part)  ########################
 
 ######################## part - 1 (Community Invitation Section) ############################
-# ======================  Pending community invites to a specific uses View ============================#
+# ======================  Pending community invites to a specific users View ============================ #
 class PendingCommunityInvitesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -131,16 +131,15 @@ class PendingCommunityInvitesView(APIView):
         user = request.user
         print(f"User: {user}")
         pending_invites = CommunityMembership.objects.filter(
-            user=user, status='pending')
+            user=user, status='pending',community__is_deleted=False)
         print(f"Pending count: {pending_invites.count()}")
         for invite in pending_invites:
             print(f"Invite: {invite.community.name}, Status: {invite.status}")
 
         serializer = CommunityInviteSerializer(pending_invites, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data) 
 
 # ================== Pending community response from user accept or ignore =============================#
-
 
 class CommunityInvitationResponseView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -167,7 +166,7 @@ class CommunityInvitationResponseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-######################## part - 2 ( Admin Approvals section ) ############################
+######################## (((Your Pending Admin Request -- frontend side)))  part - 2 ( Admin Approvals section ) ############################
 # ======================  View for admin can know how man users are not accept the request that send while community creation ============================#
 
 class PendingAdminJoinRequestView(APIView):
@@ -175,7 +174,7 @@ class PendingAdminJoinRequestView(APIView):
 
     def get(self, request):
         communities = Community.objects.filter(
-            memberships__user=request.user, memberships__is_admin=True).order_by('-created_at')
+            memberships__user=request.user, memberships__is_admin=True, is_deleted=False ).order_by('-created_at')
         if not communities.exists():
             return Response({"detail": "No communities found."}, status=404)
 
@@ -222,7 +221,7 @@ class CancelAdminJoinRequestView(UpdateAPIView):
         )
 
 
-######################## part - 3 ( user sended request section | Outgoing request to other community admin  ) ############################
+######################## ((( Your Requests to Join Communities -- front end side ))) part - 3 ( user sended request section | Outgoing request to other community admin  ) ############################
 # ======================  View for user can know hwo many request done to all other community ============================#
 
 class OutgoingRequestsView(APIView):
@@ -234,7 +233,8 @@ class OutgoingRequestsView(APIView):
         # Get 'requested' community memberships
         memberships = CommunityMembership.objects.filter(
             user=user,
-            status='requested'
+            status='requested',
+            community__is_deleted=False
         ).select_related('community')
 
         data = []
@@ -258,7 +258,6 @@ class OutgoingRequestsView(APIView):
         return Response(data)
 
 # =========================  Cancel the request (user can cancell the request to join  a community ) ======================#
-
 
 class CancelJoinRequestView(APIView):
     permission_classes = [IsAuthenticated]
@@ -292,10 +291,9 @@ class CancelJoinRequestView(APIView):
 
         return Response({"detail": "Join request cancelled and notification updated."}, status=status.HTTP_200_OK)
 
-###########################  part-4  user requested for admin aproval to join a community ######################
+########################### ((( Member Requests for Your Communities -- front end side  ))) part-4  user requested for admin aproval to join a community ######################
 
 # ======================= get the data to shwo the users who requested to join the community (admin can aprove or reject) ==========================#
-
 
 class IncomingMembershipRequestsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -305,7 +303,8 @@ class IncomingMembershipRequestsView(APIView):
         communities = Community.objects.filter(
             memberships__user=request.user,
             memberships__is_admin=True,
-            memberships__community__memberships__status='requested'
+            memberships__community__memberships__status='requested',
+            is_deleted = False,
         ).distinct()
 
         # Serialize those communities along with requested users

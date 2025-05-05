@@ -123,7 +123,7 @@ function CreateCommunity() {
         setIsModalOpen(true);
     };
 
-    // Handle modal submit (selected members)
+    // Handle modal submit (selected members) Actual submission...
     const handleModalSubmit = async (selectedMembers) => {
         if (selectedMembers.length === 0) {
             showToast("Please select at least one member", "error");
@@ -185,7 +185,8 @@ function CreateCommunity() {
 
         } catch (error) {
             console.error("Error submitting community:", error);
-            showToast("Something went wrong while creating community", "error");
+            
+            showToast(`Something went wrong, ${error?.response?.data?.name[0]}...`, "error");
         } finally {
             dispatch(hideButtonLoader(buttonId))  // Hide loader afeter process
         }

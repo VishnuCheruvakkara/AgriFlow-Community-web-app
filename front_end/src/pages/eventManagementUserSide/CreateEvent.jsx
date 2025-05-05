@@ -3,14 +3,21 @@ import CreateEventForm from '../../components/event-management-user-side/CreateE
 import SelectCommunityCreateEvent from '../../components/event-management-user-side/SelectCommunityCreateEvent';
 
 function CreateEvent() {
+  const [selectedCommunity, setSelectedCommunity] = useState(null);
 
+  const handleCommunitySelect = (community) => {
+    setSelectedCommunity(community);
+  };
+  const handleBackToSelect = () => {
+    setSelectedCommunity(null);
+  };
   return (
     <div>
-      
-      <SelectCommunityCreateEvent />
-
-      <CreateEventForm />
-
+      {!selectedCommunity ? (
+        <SelectCommunityCreateEvent onCommunitySelect={handleCommunitySelect} />
+      ) : (
+        <CreateEventForm selectedCommunity={selectedCommunity} onBack={handleBackToSelect}/>
+      )}
     </div >
   );
 }

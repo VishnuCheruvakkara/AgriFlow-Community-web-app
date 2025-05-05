@@ -462,16 +462,19 @@ class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
 
 
 class CommunityEditSerializer(serializers.ModelSerializer):
-    community_logo = serializers.ImageField(required=False, write_only=True)  # Accept image file, not string
+    community_logo = serializers.ImageField(
+        required=False, write_only=True)  # Accept image file, not string
 
     class Meta:
         model = Community
         fields = ['name', 'description', 'community_logo']
 
     def update(self, instance, validated_data):
-        image_file = validated_data.pop('community_logo', None)  # Pop to avoid string error
+        image_file = validated_data.pop(
+            'community_logo', None)  # Pop to avoid string error
         if image_file:
-            public_id = upload_image_to_cloudinary(image_file, folder_name=instance.name)
+            public_id = upload_image_to_cloudinary(
+                image_file, folder_name=instance.name)
             if public_id:
                 instance.community_logo = public_id
 

@@ -8,14 +8,13 @@ import { showToast } from '../../toast-notification/CustomToast';
 function AdminApprovalsSection({ expanded, toggleSection }) {
 
     const [joinRequest, setJoinRequest] = useState([]);
-    const [isLoaded, setIsLoaded] = useState(false);
+   
 
     const fetchRequest = async () => {
         try {
             const response = await AuthenticatedAxiosInstance.get('community/pending-admin-join-request/');
             console.log("upcomming admin invited data :::::", response.data)
             setJoinRequest(response.data);
-            setIsLoaded(true);
         } catch (error) {
             console.log("Error fetching data:", error);
         }
@@ -82,8 +81,8 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
 
                         {/* Community 1 */}
 
-                        {isLoaded && joinRequest.length > 0 ? (
-                            joinRequest
+                        {visibleCommunities.length > 0 ? (
+                            visibleCommunities
                                 .filter(community => community.pending_users.length > 0)
                                 .map((community, index) => (
                                     <div key={index} className="bg-white border border-gray-300 rounded-lg">
@@ -137,8 +136,6 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                                 <p className="text-xs text-gray-500">Check after sometime...</p>
                             </div>
                         )}
-
-
                     </div>
                 </div>
             </div>
