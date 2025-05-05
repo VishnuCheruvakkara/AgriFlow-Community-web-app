@@ -292,7 +292,6 @@ class CancelJoinRequestView(APIView):
         return Response({"detail": "Join request cancelled and notification updated."}, status=status.HTTP_200_OK)
 
 ########################### ((( Member Requests for Your Communities -- front end side  ))) part-4  user requested for admin aproval to join a community ######################
-
 # ======================= get the data to shwo the users who requested to join the community (admin can aprove or reject) ==========================#
 
 class IncomingMembershipRequestsView(APIView):

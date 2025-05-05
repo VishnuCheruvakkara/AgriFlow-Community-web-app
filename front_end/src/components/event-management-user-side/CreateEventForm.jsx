@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { FaChevronRight } from 'react-icons/fa';
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import * as Yup from 'yup';
 import DateTimePicker from '../../components/event-management-user-side/DateTimePicker';
@@ -8,6 +9,7 @@ import { shakeErrorInputVariant } from '../../components/common-animations/Shaki
 import { motion } from 'framer-motion';
 import { useParams, Link } from 'react-router-dom';
 import { eventValidationSchema } from '../common-erro-handling/EventCreationErrorHandler';
+import DefaultCommunityImage from "../../assets/images/user-group-default.png"
 
 function CreateEventForm({ selectedCommunity, onBack }) {
     const [startDate, setStartDate] = useState(null);
@@ -15,21 +17,38 @@ function CreateEventForm({ selectedCommunity, onBack }) {
         <div className="max-w-full mx-auto px-4">
 
             <div className="text-center mb-4">
-                <div className="flex justify-center mb-3">
-                    <button
-                        onClick={onBack}
-                        className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300"
+                <div className="overflow-hidden rounded-lg">
+                    <div
+                        className="flex items-center justify-between p-3 mb-4 border border-gray-300 hover:bg-green-600 cursor-pointer rounded-lg  hover:shadow-gray-300  hover:shadow-md bg-green-500 transition-colors duration-300"
                     >
-                        <div className="bg-white rounded-full p-2">
-                            <IoArrowBackCircleSharp className="text-green-500" />
+                        {/* Back Button */}
+                        <button
+                            onClick={onBack}
+                            className="flex items-center space-x-2 text-sm text-green-600 hover:text-green-700"
+                        >
+                            <div className="bg-white rounded-full p-2">
+                                <IoArrowBackCircleSharp className="text-green-600 h-5 w-5" />
+                            </div>
+                            <span className="text-white">Back to Select Community</span>
+                        </button>
+
+                        {/* Community Info */}
+                        <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                                <img
+                                    src={selectedCommunity?.logo || DefaultCommunityImage}
+                                    alt="Community Logo"
+                                    className="h-12 w-12 rounded-full object-cover border-2 border-white"
+                                />
+                            </div>
+                            <div>
+                                <h3 className="font-medium text-white"> {selectedCommunity?.name || "Not found"}</h3>
+                            </div>
                         </div>
-                        <span className="text-sm pr-4">Back to Select Community</span>
-                    </button>
+                    </div>
                 </div>
 
-                <h2 className="text-xl font-bold text-green-600 mb-2">
-                    Create Event for : <span className="text-green-600">{selectedCommunity?.name}</span>
-                </h2>
+                
                 <p className="text-gray-600 text-sm">Share an amazing experience with your community</p>
             </div>
 
@@ -203,7 +222,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full bg-green-600 text-white py-3 rounded-lg font-medium text-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500"
+                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
                                 Create Event
                             </button>
