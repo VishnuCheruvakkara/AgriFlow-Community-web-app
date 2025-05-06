@@ -10,11 +10,19 @@ import DefaultCommunityImage from "../../assets/images/user-group-default.png"
 import UserLocation from '../user-dash-board/UserLocation';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 import { showToast } from '../toast-notification/CustomToast';
+import { useNavigate } from 'react-router-dom';
+//import the common button loader and redux reducers
+import ButtonLoader from '../LoaderSpinner/ButtonLoader';
+import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+//import redux related things 
+import { useDispatch } from 'react-redux';
 
 function CreateEventForm({ selectedCommunity, onBack }) {
     const [startDate, setStartDate] = useState(null);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const handleSubmit = async (values) => {
+    const handleSubmit = async (values, resetForm) => {
         console.log('Submitted values:', values);
 
         // Prepare FormData to send via multipart/form-data (especially for the image file)
@@ -31,7 +39,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
         if (values.eventType === 'offline') {
             formData.append('address', values.address);
-           
+
             // Send the whole location as a JSON string
             if (values.location) {
                 formData.append('location', JSON.stringify(values.location));
@@ -41,6 +49,9 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
         }
 
+        const buttonId = "createEvent";
+        dispatch(showButtonLoader(buttonId)); //show-loader
+
         try {
             // Send the form data to the backend using axios
             const response = await AuthenticatedAxiosInstance.post('/events/create-new-event/', formData, {
@@ -49,16 +60,16 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                 },
             });
 
-            if (response.status === 201) {
-                console.log('Event submitted successfully');
-                showToast("Event submitted successfully", "success")
-            } else {
-                console.error('Failed to submit event');
-                showToast("Failed to submit event", "error")
-            }
+            showToast("Event submitted successfully", "success");
+            resetForm();
+            navigate('/user-dash-board/event-management/my-events');
+            
+
         } catch (error) {
             console.error('An error occurred while submitting the event:', error);
             showToast("Failed to submit event", "error")
+        } finally {
+            dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
         }
     };
 
@@ -122,7 +133,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                 validationSchema={eventValidationSchema}
                 validateOnChange={true}
                 validateOnBlur={true}
-                onSubmit={handleSubmit}
+                onSubmit={(values, { resetForm }) => handleSubmit(values, resetForm)} 
             >
                 {({ setFieldValue, setFieldTouched, values, errors, touched, handleChange }) => (
                     <Form className="space-y-6">
@@ -305,12 +316,13 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                         />
 
                         <div>
-                            <button
+                            <ButtonLoader
+                                buttonId="createEvent"
                                 type="submit"
                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
-                                Create Event ,{selectedCommunity?.id}
-                            </button>
+                                Create Event
+                            </ButtonLoader>
                         </div>
                     </Form>
                 )}

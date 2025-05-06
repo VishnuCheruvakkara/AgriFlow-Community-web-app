@@ -30,7 +30,7 @@ class CommunityEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityEvent
         fields = [
-            'max_participants',
+            'max_participants', 
             'title',
             'description',
             'banner',
@@ -39,7 +39,7 @@ class CommunityEventSerializer(serializers.ModelSerializer):
             'start_datetime',
             'address',
             'online_link',
-            'location',  # Nested location field as JSON
+            'location',  # Nested location field as JSON 
         ]
 
     def create(self, validated_data):
@@ -71,3 +71,45 @@ class CommunityEventSerializer(serializers.ModelSerializer):
 
         # 4. Create the event
         return CommunityEvent.objects.create(**validated_data)
+
+
+############### Get all community events int the event section  ################# 
+
+
+class CommunityEventCombinedSerializer(serializers.ModelSerializer):
+    community_name = serializers.CharField(source='community.name', read_only=True)
+    community_id = serializers.IntegerField(source='community.id', read_only=True)
+    location_name = serializers.CharField(source='event_location.location_name', read_only=True)
+    full_location = serializers.CharField(source='event_location.full_location', read_only=True)
+    latitude = serializers.FloatField(source='event_location.latitude', read_only=True)
+    longitude = serializers.FloatField(source='event_location.longitude', read_only=True)
+    country = serializers.CharField(source='event_location.country', read_only=True)
+    banner_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunityEvent
+        fields = [
+            'id', 'title', 'description',
+            'event_type', 'start_datetime', 'max_participants', 'is_full',
+            'address', 'created_at', 'updated_at',
+
+            # Related Community fields
+            'community_id', 'community_name',
+
+            # Related EventLocation fields
+            'location_name', 'full_location', 'latitude', 'longitude', 'country',
+
+            # Secure Cloudinary banner
+            'banner_url',
+        ]
+
+    def get_banner_url(self, obj):
+        banner_id = obj.banner  # assuming 'banner' stores Cloudinary public_id
+        if not banner_id:
+            return None  # or return a default fallback URL
+        try:
+            url = generate_secure_image_url(banner_id)
+            return url
+        except Exception as e:
+            print(f"Error generating banner URL for event ID {obj.id}: {str(e)}")
+            return None
