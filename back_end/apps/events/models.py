@@ -14,7 +14,7 @@ class EventLocation(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.location_name}, {self.full_location}"
+        return f"{self.location_name}"
 
 class CommunityEvent(models.Model):
     EVENT_TYPE_CHOICES = [

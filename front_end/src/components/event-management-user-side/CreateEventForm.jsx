@@ -21,38 +21,35 @@ function CreateEventForm({ selectedCommunity, onBack }) {
         const formData = new FormData();
 
         // Append common fields
+        formData.append('max_participants', values.max_participants);
         formData.append('community', selectedCommunity?.id);
         formData.append('title', values.title);
         formData.append('description', values.description);
-        formData.append('eventType', values.eventType);
-        formData.append('startDate', values.startDate.toISOString()); // Convert date object to ISO string
+        formData.append('event_type', values.eventType);
+        formData.append('start_datetime', values.startDate.toISOString()); // Convert date object to ISO string
         formData.append('banner', values.banner); // File object
 
         if (values.eventType === 'offline') {
             formData.append('address', values.address);
-            // Append location details if available
+           
+            // Send the whole location as a JSON string
             if (values.location) {
-                formData.append('location[place_id]', values.location.place_id);
-                formData.append('location[full_location]', values.location.full_location);
-                formData.append('location[latitude]', values.location.latitude);
-                formData.append('location[longitude]', values.location.longitude);
-                formData.append('location[location_name]', values.location.location_name);
-                formData.append('location[country]', values.location.country);
+                formData.append('location', JSON.stringify(values.location));
             }
         } else if (values.eventType === 'online') {
-            formData.append('link', values.link);
-            formData.append('max_participants', values.max_participants);
+            formData.append('online_link', values.link);
+
         }
 
         try {
             // Send the form data to the backend using axios
-            const response = await AuthenticatedAxiosInstance.post('/events/create-new-event', formData, {
+            const response = await AuthenticatedAxiosInstance.post('/events/create-new-event/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data', // This is important to handle file uploads
                 },
             });
 
-            if (response.status === 200) {
+            if (response.status === 201) {
                 console.log('Event submitted successfully');
                 showToast("Event submitted successfully", "success")
             } else {
@@ -312,7 +309,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                 type="submit"
                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
-                                Create Event
+                                Create Event ,{selectedCommunity?.id}
                             </button>
                         </div>
                     </Form>
