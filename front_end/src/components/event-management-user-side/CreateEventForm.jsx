@@ -21,6 +21,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
         const formData = new FormData();
 
         // Append common fields
+        formData.append('community', selectedCommunity?.id);
         formData.append('title', values.title);
         formData.append('description', values.description);
         formData.append('eventType', values.eventType);
@@ -240,25 +241,17 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                 <div>
                                     <motion.div
                                         variants={shakeErrorInputVariant}
-                                        animate={errors.location && touched.location ? 'shake' : 'idle'}
+                                        animate={errors.location?.full_location && touched.location?.full_location ? 'shake' : 'idle'}
                                     >
                                         <UserLocation
                                             formData={values}
                                             setFormData={(updatedFormData) => {
-                                                // The UserLocation component already returns the correctly formatted location object
-                                                // We just need to extract it and update Formik
                                                 if (updatedFormData.location) {
-                                                    setFieldValue("location", updatedFormData.location);
-                                                    setFieldTouched("location", true);
+                                                    setFieldValue("location", updatedFormData.location); // updates location object
+                                                    setFieldTouched("location.full_location", true);     // tell Formik we touched this field
                                                 }
                                             }}
-                                            errors={
-                                                errors.location ?
-                                                    typeof errors.location === 'string'
-                                                        ? errors.location
-                                                        : "Please select a valid location"
-                                                    : null
-                                            }
+                                            errors={errors.location?.full_location} // pass full_location error string only
                                         />
                                     </motion.div>
                                 </div>

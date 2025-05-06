@@ -4,7 +4,7 @@ import { debounce } from "lodash"; // Import debounce from Lodash
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { TbInfoCircleFilled } from "react-icons/tb";
 
-const UserLocation = ({formData,setFormData,errors}) => {
+const UserLocation = ({formData,setFormData,errors,fieldErrors}) => {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);

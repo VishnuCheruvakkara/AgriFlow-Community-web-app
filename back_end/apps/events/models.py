@@ -26,12 +26,18 @@ class CommunityEvent(models.Model):
     is_full = models.BooleanField(default=False)
     title = models.CharField(max_length=150)
     description = models.TextField()
+    banner = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        help_text="Cloudinary public_id for the event banner (private image)"
+    )
     community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='events')
     event_type = models.CharField(max_length=10, choices=EVENT_TYPE_CHOICES)
     
     # For offline events, location details are stored in a related model
     event_location = models.ForeignKey(EventLocation, null=True, blank=True, on_delete=models.CASCADE, related_name="events", help_text="Only for offline events")
-    
+    address = models.TextField(blank=True, null=True, help_text="Manually entered address by the user")
     # For online events, the link will be stored here
     online_link = models.URLField(blank=True, null=True, help_text="Only for online events (Google Meet/Zoom)")
 

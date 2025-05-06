@@ -13,12 +13,7 @@ export const eventValidationSchema = Yup.object().shape({
   location: Yup.object().when('eventType', {
     is: 'offline',
     then: () => Yup.object({
-      full_location: Yup.string().required('Full location is required').min(3, 'Location must be at least 3 characters'),
-      latitude: Yup.string().required('Latitude is required'),
-      longitude: Yup.string().required('Longitude is required'),
-      place_id: Yup.string().nullable(),
-      location_name: Yup.string().nullable(),
-      country: Yup.string().nullable()
+      full_location: Yup.string().required('Full location is required').min(3, 'Location must be at least 3 characters').matches(/^[^<>]*$/, 'Special tags are not allowed!'),
     }),
     otherwise: () => Yup.object().nullable()
   }),
