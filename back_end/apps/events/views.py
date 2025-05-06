@@ -23,3 +23,5 @@ class GetCommunityForCreateEvent(APIView):
 
         serializer = CommunitySerializer(communities, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+################  

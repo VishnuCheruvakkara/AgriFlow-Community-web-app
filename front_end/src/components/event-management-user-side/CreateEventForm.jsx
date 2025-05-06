@@ -1,21 +1,72 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { FaChevronRight } from 'react-icons/fa';
 import { IoArrowBackCircleSharp } from "react-icons/io5";
-import * as Yup from 'yup';
 import DateTimePicker from '../../components/event-management-user-side/DateTimePicker';
 import BannerImageUpload from '../../components/image-uploader/BannerImageUpload';
 import { shakeErrorInputVariant } from '../../components/common-animations/ShakingErrorInputVariant';
 import { motion } from 'framer-motion';
-import { useParams, Link } from 'react-router-dom';
 import { eventValidationSchema } from '../common-erro-handling/EventCreationErrorHandler';
 import DefaultCommunityImage from "../../assets/images/user-group-default.png"
+import UserLocation from '../user-dash-board/UserLocation';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
+import { showToast } from '../toast-notification/CustomToast';
 
 function CreateEventForm({ selectedCommunity, onBack }) {
     const [startDate, setStartDate] = useState(null);
+
+    const handleSubmit = async (values) => {
+        console.log('Submitted values:', values);
+
+        // Prepare FormData to send via multipart/form-data (especially for the image file)
+        const formData = new FormData();
+
+        // Append common fields
+        formData.append('title', values.title);
+        formData.append('description', values.description);
+        formData.append('eventType', values.eventType);
+        formData.append('startDate', values.startDate.toISOString()); // Convert date object to ISO string
+        formData.append('banner', values.banner); // File object
+
+        if (values.eventType === 'offline') {
+            formData.append('address', values.address);
+            // Append location details if available
+            if (values.location) {
+                formData.append('location[place_id]', values.location.place_id);
+                formData.append('location[full_location]', values.location.full_location);
+                formData.append('location[latitude]', values.location.latitude);
+                formData.append('location[longitude]', values.location.longitude);
+                formData.append('location[location_name]', values.location.location_name);
+                formData.append('location[country]', values.location.country);
+            }
+        } else if (values.eventType === 'online') {
+            formData.append('link', values.link);
+            formData.append('max_participants', values.max_participants);
+        }
+
+        try {
+            // Send the form data to the backend using axios
+            const response = await AuthenticatedAxiosInstance.post('/events/create-new-event', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // This is important to handle file uploads
+                },
+            });
+
+            if (response.status === 200) {
+                console.log('Event submitted successfully');
+                showToast("Event submitted successfully", "success")
+            } else {
+                console.error('Failed to submit event');
+                showToast("Failed to submit event", "error")
+            }
+        } catch (error) {
+            console.error('An error occurred while submitting the event:', error);
+            showToast("Failed to submit event", "error")
+        }
+    };
+
+
     return (
         <div className="max-w-full mx-auto px-4">
-
             <div className="text-center mb-4">
                 <div className="overflow-hidden rounded-lg">
                     <div
@@ -33,7 +84,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                         </button>
 
                         {/* Community Info */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 mr-4">
                             <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
                                 <img
                                     src={selectedCommunity?.logo || DefaultCommunityImage}
@@ -48,18 +99,23 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                     </div>
                 </div>
 
-                
                 <p className="text-gray-600 text-sm">Share an amazing experience with your community</p>
             </div>
-
-
 
             <Formik
                 initialValues={{
                     title: '',
                     description: '',
                     eventType: '',
-                    location: '',
+                    max_participants: '',
+                    location: {
+                        place_id: "",
+                        full_location: "",
+                        latitude: "",
+                        longitude: "",
+                        location_name: "",
+                        country: ""
+                    },
                     address: '',
                     link: '',
                     startDate: null,
@@ -68,11 +124,9 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                 validationSchema={eventValidationSchema}
                 validateOnChange={true}
                 validateOnBlur={true}
-                onSubmit={(values) => {
-                    console.log('Submitted values:', values);
-                }}
+                onSubmit={handleSubmit}
             >
-                {({ setFieldValue, values, errors, touched, handleChange }) => (
+                {({ setFieldValue, setFieldTouched, values, errors, touched, handleChange }) => (
                     <Form className="space-y-6">
                         <div>
                             {/* Banner Image Upload */}
@@ -115,6 +169,29 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                             <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
                         </div>
 
+                        {/* Max Participants */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Max Participants
+                            </label>
+                            <motion.div
+                                variants={shakeErrorInputVariant}
+                                animate={errors.max_participants && touched.max_participants ? 'shake' : 'idle'}
+                            >
+                                <Field
+                                    name="max_participants"
+                                    type="number"
+                                    min="1"
+                                    className={`bg-white text-black w-full px-4 py-3 border ${errors.max_participants && touched.max_participants ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} rounded-lg`}
+                                    placeholder="Describe what your event is about"
+                                />
+                            </motion.div>
+                            {errors.max_participants && touched.max_participants && (
+                                <p className="text-red-500 text-sm mt-1">{errors.max_participants}</p>
+                            )}
+                        </div>
+
+
                         {/* Event Type */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
@@ -126,12 +203,20 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                     as="select"
                                     name="eventType"
                                     className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                       ${errors.eventType && touched.eventType ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
+                                    ${errors.eventType && touched.eventType ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
                                     onChange={(e) => {
                                         handleChange(e);
                                         // Reset conditional fields based on event type
                                         if (e.target.value === 'online') {
-                                            setFieldValue('location', '');
+                                            // Keep the structure but clear the values
+                                            setFieldValue('location', {
+                                                place_id: "",
+                                                full_location: "",
+                                                latitude: "",
+                                                longitude: "",
+                                                location_name: "",
+                                                country: ""
+                                            });
                                             setFieldValue('address', '');
                                         } else if (e.target.value === 'offline') {
                                             setFieldValue('link', '');
@@ -153,19 +238,29 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                             <>
                                 {/* Location */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
                                     <motion.div
                                         variants={shakeErrorInputVariant}
                                         animate={errors.location && touched.location ? 'shake' : 'idle'}
                                     >
-                                        <Field
-                                            name="location"
-                                            className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                           ${errors.location && touched.location ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
-                                            placeholder="Where will it be held?"
+                                        <UserLocation
+                                            formData={values}
+                                            setFormData={(updatedFormData) => {
+                                                // The UserLocation component already returns the correctly formatted location object
+                                                // We just need to extract it and update Formik
+                                                if (updatedFormData.location) {
+                                                    setFieldValue("location", updatedFormData.location);
+                                                    setFieldTouched("location", true);
+                                                }
+                                            }}
+                                            errors={
+                                                errors.location ?
+                                                    typeof errors.location === 'string'
+                                                        ? errors.location
+                                                        : "Please select a valid location"
+                                                    : null
+                                            }
                                         />
                                     </motion.div>
-                                    <ErrorMessage name="location" component="div" className="text-red-500 text-sm mt-2" />
                                 </div>
 
                                 {/* Address */}
@@ -178,7 +273,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                         <Field
                                             name="address"
                                             className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                           ${errors.address && touched.address ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
+                                            ${errors.address && touched.address ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
                                             placeholder="Full address of the venue"
                                         />
                                     </motion.div>
@@ -198,7 +293,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                         name="link"
                                         type="url"
                                         className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                         ${errors.link && touched.link ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
+                                        ${errors.link && touched.link ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
                                         placeholder="Enter the online meeting link"
                                     />
                                 </motion.div>
@@ -222,7 +317,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                         <div>
                             <button
                                 type="submit"
-                                 className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
+                                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
                                 Create Event
                             </button>
@@ -231,7 +326,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                 )}
             </Formik>
         </div>
-    )
+    );
 }
 
-export default CreateEventForm
+export default CreateEventForm;

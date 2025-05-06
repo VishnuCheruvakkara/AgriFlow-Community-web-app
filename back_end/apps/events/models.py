@@ -4,6 +4,18 @@ from community.models import Community  # Assuming your community app is named `
 
 CustomUser = get_user_model()
 
+# Create a separate model to handle location details for offline events
+class EventLocation(models.Model):
+    place_id = models.CharField(max_length=255, blank=True, null=True)
+    full_location = models.TextField(blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    location_name = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.location_name}, {self.full_location}"
+
 class CommunityEvent(models.Model):
     EVENT_TYPE_CHOICES = [
         ('online', 'Online'),
@@ -16,8 +28,13 @@ class CommunityEvent(models.Model):
     description = models.TextField()
     community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='events')
     event_type = models.CharField(max_length=10, choices=EVENT_TYPE_CHOICES)
-    location = models.TextField(blank=True, null=True, help_text="Only for offline events")
+    
+    # For offline events, location details are stored in a related model
+    event_location = models.ForeignKey(EventLocation, null=True, blank=True, on_delete=models.CASCADE, related_name="events", help_text="Only for offline events")
+    
+    # For online events, the link will be stored here
     online_link = models.URLField(blank=True, null=True, help_text="Only for online events (Google Meet/Zoom)")
+
     start_datetime = models.DateTimeField()
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_events')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -29,8 +46,7 @@ class CommunityEvent(models.Model):
     def __str__(self):
         return f"{self.title} - {self.community.name}"
 
-
-# RSVP part is here (User can accept of reject) 
+# RSVP part where users can participate in events
 class EventParticipation(models.Model):
     event = models.ForeignKey(CommunityEvent, on_delete=models.CASCADE, related_name='participations')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='event_participations')
@@ -38,7 +54,7 @@ class EventParticipation(models.Model):
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('event', 'user')  # Prevent multiple RSVPs by same user
+        unique_together = ('event', 'user')  # Prevent multiple RSVPs by the same user
         ordering = ['-joined_at']
 
     def __str__(self):
