@@ -12,7 +12,7 @@ import { MdExitToApp } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { useNavigate } from 'react-router-dom';
-import EditCommunityModal from '../CommunityModal/EditCommunityModal';
+import EditCommunityModal from '../CommunityModal/EditCommunityModal'
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 

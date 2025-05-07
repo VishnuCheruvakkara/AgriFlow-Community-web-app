@@ -52,9 +52,15 @@ function AllEvents() {
   );
 
   useEffect(() => {
-    debouncedFetch(searchTerm, currentPage);
+    if (searchTerm === '' && currentPage === 1) {
+      // Initial fetch: trigger immediately
+      fetchEvents();
+    } else {
+      // Debounced fetch for user interactions
+      debouncedFetch(searchTerm, currentPage);
+    }
   }, [searchTerm, currentPage, debouncedFetch]);
-
+  
 
   // Open modal to show event banner image
   const handleOpenModal = (imageUrl) => {

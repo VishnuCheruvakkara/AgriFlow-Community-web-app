@@ -4,6 +4,8 @@ import { X, Upload } from "lucide-react";
 const BannerImageUpload = ({ onImageSelect, purpose }) => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
+ 
+
 
   // Handle image file change
   const handleImageChange = (event) => {

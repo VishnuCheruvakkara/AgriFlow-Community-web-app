@@ -10,7 +10,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { PulseLoader } from 'react-spinners';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
-
+import EditEventModal from '../../components/event-management-user-side/EditEventModal';
 
 function CreatedEvents() {
     const [events, setEvents] = useState([]);
@@ -18,6 +18,31 @@ function CreatedEvents() {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+
+    const openModal = (event) => {
+        setSelectedEvent(event);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedEvent(null);
+    };
+
+    const handleEventSave = async (updatedEvent) => {
+        try {
+          await AuthenticatedAxiosInstance.put(`/events/update/${updatedEvent.id}/`, updatedEvent);
+          setEvents((prev) =>
+            prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+          );
+          closeModal();
+        } catch (error) {
+          console.error('Failed to update event:', error);
+        }
+      };
 
     const fetchUserEvents = async (page = 1, search = '') => {
         setLoading(true);
@@ -42,16 +67,16 @@ function CreatedEvents() {
         debounce((page, search) => {
             fetchUserEvents(page, search);
         }, 500),
-        [] 
+        []
     );
-   
+
     useEffect(() => {
         debouncedFetchUserEvents(currentPage, searchTerm);
         return () => {
             debouncedFetchUserEvents.cancel(); // cancel previous debounce on unmount or change
         };
     }, [currentPage, searchTerm, debouncedFetchUserEvents]);
-    
+
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -125,7 +150,7 @@ function CreatedEvents() {
                             </div>
 
                             <div className="mt-4">
-                                <button className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
+                                <button onClick={() => openModal(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
                                     <FaRegEdit size={21} />Edit Event
                                 </button>
                             </div>
@@ -142,6 +167,13 @@ function CreatedEvents() {
                 hasNext={currentPage < totalPages}
                 onPageChange={setCurrentPage}
             />
+            <EditEventModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                eventData={selectedEvent}
+                onSave={handleEventSave}
+            />
+
         </div>
     );
 }

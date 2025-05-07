@@ -164,7 +164,7 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                     </div>
 
                     {/* Modal Body */}
-                    <div className="px-6 py-5 max-h-[60vh] overflow-y-auto no-scrollbar">
+                    <div className="px-6 py-5 max-h-[60vh] w-full overflow-y-auto no-scrollbar">
 
                         {/* community image  */}
                         {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
