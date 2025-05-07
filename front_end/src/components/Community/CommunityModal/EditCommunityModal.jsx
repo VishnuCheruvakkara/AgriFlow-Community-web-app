@@ -258,6 +258,7 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                             Save
                         </button>
                     </div>
+                    
                 </motion.div>
             </div>
         </AnimatePresence>

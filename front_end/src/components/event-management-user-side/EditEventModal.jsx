@@ -8,6 +8,7 @@ import BannerImageUpload from '../image-uploader/BannerImageUpload';
 import { FaRegCircleCheck } from 'react-icons/fa6';
 import { ImCancelCircle } from 'react-icons/im';
 import { eventValidationSchema } from '../common-erro-handling/EventCreationErrorHandler';
+import { shakeErrorInputVariant } from '../common-animations/ShakingErrorInputVariant';
 
 const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
     if (!isOpen || !eventData) return null;
@@ -69,8 +70,8 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                     }
                                 }}
                             >
-                                {({ isSubmitting, setFieldValue, values, handleSubmit }) => (
-                                    <Form className="space-y-6">
+                                {({ isSubmitting, setFieldValue, values, handleSubmit, errors, touched }) => (
+                                    <Form id="edit-event-form" className="space-y-6 px-12">
                                         {/* Banner Upload */}
                                         <div className="flex justify-center">
                                             <BannerImageUpload
@@ -82,40 +83,78 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
 
                                         {/* Title */}
                                         <div>
-                                            <label className="block text-sm font-medium">Title</label>
-                                            <Field
-                                                name="title"
-                                                className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                                placeholder="Event Title"
-                                            />
+                                            <label className="block text-sm font-medium mb-2">Event title</label>
+                                            <motion.div
+                                                variants={shakeErrorInputVariant}
+                                                animate={errors.title && touched.title ? 'shake' : ''}>
+                                                <Field
+                                                    name="title"
+                                                    className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                ${errors.title && touched.title ? ' ring-2 ring-red-500' : ' border-gray-300  focus:ring-2 focus:ring-green-500'} 
+                                                rounded-lg transition duration-500 ease-out`}
+                                                    placeholder="Event Title"
+                                                />
+                                            </motion.div>
+
                                             <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
                                         </div>
 
                                         {/* Description */}
                                         <div>
-                                            <label className="block text-sm font-medium">Description</label>
-                                            <Field
-                                                as="textarea"
-                                                name="description"
-                                                rows="4"
-                                                className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                                placeholder="Event Description"
-                                            />
+                                            <label className="block text-sm font-medium mb-2">Description</label>
+                                            <motion.div
+                                                variants={shakeErrorInputVariant}
+                                                animate={errors.description && touched.description ? 'shake' : ''}
+                                            >
+                                                <Field
+                                                    as="textarea"
+                                                    name="description"
+                                                    rows="4"
+                                                    className={`bg-white text-black w-full px-4  py-3 border 
+                                                        ${errors.description && touched.description ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                        rounded-lg transition duration-500 ease-out`}
+                                                    placeholder="Event Description"
+                                                />
+                                            </motion.div>
                                             <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
+                                        </div>
+
+                                        {/* Max Participants */}
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Max Participants</label>
+                                            <motion.div
+                                                variants={shakeErrorInputVariant}
+                                                animate={errors.max_participants && touched.max_participants ? 'shake' : ''}>
+                                                <Field
+                                                    name="max_participants"
+                                                    type="number"
+                                                    className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                        ${errors.max_participants && touched.max_participants ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                        rounded-lg transition duration-500 ease-out`}
+                                                    placeholder="Enter a positive number "
+                                                />
+                                            </motion.div>
+                                            <ErrorMessage name="max_participants" component="div" className="text-red-500 text-sm" />
                                         </div>
 
                                         {/* Event Type */}
                                         <div>
-                                            <label className="block text-sm font-medium">Event Type</label>
-                                            <Field
-                                                as="select"
-                                                name="eventType"
-                                                className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                            >
-                                                <option value="" disabled hidden>-- Select Type --</option>
-                                                <option value="online">Online</option>
-                                                <option value="offline">Offline</option>
-                                            </Field>
+                                            <label className="block text-sm font-medium mb-2">Event Type</label>
+                                            <motion.div
+                                                variants={shakeErrorInputVariant}
+                                                animate={errors.eventType && touched.eventType ? 'shake' : ''}>
+                                                <Field
+                                                    as="select"
+                                                    name="eventType"
+                                                    className={`bg-white text-black w-full px-4 mb-1 py-3 border cursor-pointer
+                                                        ${errors.eventType && touched.eventType ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                        rounded-lg transition duration-500 ease-out`}
+                                                >
+                                                    <option value="" disabled hidden>-- Select Type --</option>
+                                                    <option value="online">Online</option>
+                                                    <option value="offline">Offline</option>
+                                                </Field>
+                                            </motion.div>
                                             <ErrorMessage name="eventType" component="div" className="text-red-500 text-sm" />
                                         </div>
 
@@ -124,19 +163,31 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                             <>
                                                 <div>
                                                     <label className="block text-sm font-medium">Address</label>
-                                                    <Field
-                                                        name="address"
-                                                        className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                                    />
+                                                    <motion.div
+                                                        variants={shakeErrorInputVariant}
+                                                        animate={errors.address && touched.address ? 'shake' : ''}>
+                                                        <Field
+                                                            name="address"
+                                                            className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                                ${errors.address && touched.address ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                                rounded-lg transition duration-500 ease-out`}
+                                                        />
+                                                    </motion.div>
                                                     <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
                                                 </div>
 
                                                 <div>
                                                     <label className="block text-sm font-medium">Full Location</label>
-                                                    <Field
-                                                        name="location.full_location"
-                                                        className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                                    />
+                                                    <motion.div
+                                                        variants={shakeErrorInputVariant}
+                                                        animate={errors['location.full_location'] && touched['location.full_location'] ? 'shake' : ''}>
+                                                        <Field
+                                                            name="location.full_location"
+                                                            className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                                ${errors['location.full_location'] && touched['location.full_location'] ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                                 rounded-lg transition duration-500 ease-out`}
+                                                        />
+                                                    </motion.div>
                                                     <ErrorMessage name="location.full_location" component="div" className="text-red-500 text-sm" />
                                                 </div>
                                             </>
@@ -144,63 +195,63 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                         {values.eventType === 'online' && (
                                             <div>
                                                 <label className="block text-sm font-medium">Event Link</label>
-                                                <Field
-                                                    name="link"
-                                                    className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                                />
+                                                <motion.div
+                                                    variants={shakeErrorInputVariant}
+                                                    animate={errors.link && touched.link ? 'shake' : ''}>
+                                                    <Field
+                                                        name="link"
+                                                        className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                            ${errors.link && touched.link ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                             rounded-lg transition duration-500 ease-out`}
+                                                    />
+                                                </motion.div>
                                                 <ErrorMessage name="link" component="div" className="text-red-500 text-sm" />
                                             </div>
                                         )}
 
                                         {/* Start Date */}
                                         <div>
-                                            <label className="block text-sm font-medium">Start Date</label>
-                                            <Field
-                                                name="startDate"
-                                                type="datetime-local"
-                                                className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                            />
+                                            <label className="block text-sm font-medium mb-2">Start Date</label>
+                                            <motion.div
+                                                variants={shakeErrorInputVariant}
+                                                animate={errors.startDate && touched.startDate ? 'shake' : ''}>
+                                                <Field
+                                                    name="startDate"
+                                                    type="datetime-local"
+                                                    className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                        ${errors.startDate && touched.startDate ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                         rounded-lg transition duration-500 ease-out`}
+                                                />
+                                            </motion.div>
                                             <ErrorMessage name="startDate" component="div" className="text-red-500 text-sm" />
                                         </div>
 
-                                        {/* Max Participants */}
-                                        <div>
-                                            <label className="block text-sm font-medium">Max Participants</label>
-                                            <Field
-                                                name="max_participants"
-                                                type="number"
-                                                className="bg-white text-black w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-green-500 rounded-lg"
-                                            />
-                                            <ErrorMessage name="max_participants" component="div" className="text-red-500 text-sm" />
-                                        </div>
+                                        
 
-                                        {/* Footer Buttons */}
-                                        <div className="bg-gray-100 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
-                                            <button
-                                                type="button"
-                                                className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium flex items-center gap-2"
-                                                onClick={onClose}
-                                            >
-                                                <ImCancelCircle />
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                disabled={isSubmitting}
-                                                className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium flex items-center gap-2"
-                                            >
-                                                {isSubmitting ? <PulseLoader size={8} color="#fff" /> : (
-                                                    <>
-                                                        <FaRegCircleCheck />
-                                                        Save changes
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
                                     </Form>
                                 )}
                             </Formik>
                         </div>
+                        {/* Footer Buttons */}
+                        <div className="bg-gray-100 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
+                            <button
+                                type="button"
+                                className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium flex items-center gap-2"
+                                onClick={onClose}
+                            >
+                                <ImCancelCircle />
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                form="edit-event-form"
+                                className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium flex items-center gap-2"
+                            >
+                                <FaRegCircleCheck />
+                                Save Changes
+                            </button>
+                        </div>
+
                     </motion.div>
                 </div>
             </div>
