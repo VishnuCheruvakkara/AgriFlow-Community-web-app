@@ -47,11 +47,11 @@ class CommunityEventSerializer(serializers.ModelSerializer):
         location_data = validated_data.pop("location", None)  # Get location data from the validated data
         banner_file = validated_data.pop("banner")  # Handle the banner file
 
-        # 1. Upload banner to Cloudinary
+        # Upload banner to Cloudinary
         public_id = upload_image_to_cloudinary(banner_file, folder_name="event_banners")
         validated_data['banner'] = public_id
 
-        # 2. Handle event type
+        # Handle event type
         if event_type == 'offline':
             if not location_data:
                 raise serializers.ValidationError({"location": "Offline events require a location."})
@@ -65,7 +65,7 @@ class CommunityEventSerializer(serializers.ModelSerializer):
             validated_data['address'] = None  # Optional: clear address for online events
             validated_data['online_link'] = validated_data.get("online_link")
 
-        # 3. Set the user
+        # Set the user
         request = self.context.get('request')
         validated_data['created_by'] = request.user
 
@@ -73,7 +73,8 @@ class CommunityEventSerializer(serializers.ModelSerializer):
         return CommunityEvent.objects.create(**validated_data)
 
 
-############### Get all community events int the event section  ################# 
+############################### Get all community events int the event section  ################# 
+############################### Events Created by the logged in user serializer  ###################### 
 
 
 class CommunityEventCombinedSerializer(serializers.ModelSerializer):
@@ -113,3 +114,5 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(f"Error generating banner URL for event ID {obj.id}: {str(e)}")
             return None
+        
+##############################  Events Created by the logged in user serializer  ###################### 

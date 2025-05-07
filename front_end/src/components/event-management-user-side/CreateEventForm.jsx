@@ -67,7 +67,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
         } catch (error) {
             console.error('An error occurred while submitting the event:', error);
-            showToast("Failed to submit event", "error")
+            showToast( error.response.data.error|| "Failed to submit event","error")
         } finally {
             dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
         }

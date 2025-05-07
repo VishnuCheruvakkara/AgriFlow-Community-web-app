@@ -1,0 +1,149 @@
+import React, { useState, useEffect } from 'react';
+import { FaMapMarkerAlt, FaRegCalendarAlt } from 'react-icons/fa';
+import { MdOutlineZoomOutMap } from "react-icons/md";
+import Pagination from '../../components/Common-Pagination/UserSidePagination';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
+import DeafultBannerImage from '../../assets/images/banner_default_user_profile.png';
+import { Search } from 'lucide-react';
+import { ImCancelCircle } from "react-icons/im";
+import { FaRegEdit } from "react-icons/fa";
+import { PulseLoader } from 'react-spinners';
+import { debounce } from 'lodash';
+import { useCallback } from 'react';
+
+
+function CreatedEvents() {
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const fetchUserEvents = async (page = 1, search = '') => {
+        setLoading(true);
+        try {
+            const response = await AuthenticatedAxiosInstance.get('/events/created-events-by-user/', {
+                params: {
+                    page: page,
+                    search: search
+                }
+            });
+            setEvents(response.data.results);
+            setTotalPages(Math.ceil(response.data.count / 6)); // 6 is your page_size
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Debounce for fetchUserEvents
+    const debouncedFetchUserEvents = useCallback(
+        debounce((page, search) => {
+            fetchUserEvents(page, search);
+        }, 500),
+        [] 
+    );
+   
+    useEffect(() => {
+        debouncedFetchUserEvents(currentPage, searchTerm);
+        return () => {
+            debouncedFetchUserEvents.cancel(); // cancel previous debounce on unmount or change
+        };
+    }, [currentPage, searchTerm, debouncedFetchUserEvents]);
+    
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to first page when searching
+    };
+
+    const handleClearSearch = () => {
+        setSearchTerm('');
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* Search Bar */}
+            <div className="relative mb-6">
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    placeholder="Search events, Online, Offline, location..."
+                    className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
+                {searchTerm && (
+                    <button onClick={handleClearSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 transition-colors duration-300">
+                        <ImCancelCircle size={20} />
+                    </button>
+                )}
+            </div>
+
+            {/* Events Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {loading ? (
+                    <div className="col-span-3 flex flex-col justify-center items-center h-60">
+                        <PulseLoader color="#16a34a" speedMultiplier={1} />
+                        <p className="mt-4 text-sm text-gray-500 text-center">Loading Events...</p>
+                    </div>
+                ) : events.length === 0 ? (
+                    <div className="col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
+                        <p className="text-lg font-semibold">No Events Found!</p>
+                        <p className="text-xs text-gray-500">
+                            {searchTerm ? "Try using a different search keyword." : "There are currently no events available."}
+                        </p>
+                    </div>
+                ) : (
+                    events.map((event) => (
+                        <div key={event.id} className="bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full">
+                            <div className="flex-1">
+                                <div className="relative group">
+                                    <img
+                                        src={event.banner_url || DeafultBannerImage}
+                                        alt="Event Banner"
+                                        className="w-full h-40 object-cover rounded-md mb-3"
+                                    />
+                                    <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${event.event_type === 'online' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'}`}>
+                                        {event.event_type === 'online' ? 'Online' : 'Offline'}
+                                    </div>
+                                </div>
+
+                                <h3 className="text-md font-bold text-green-700 border-t border-green-500 pt-2">{event.title}</h3>
+                                <p className="text-gray-500 text-xs mb-1">Hosted by: {event.community_name}</p>
+                                <p className="mt-1 text-gray-700 text-xs line-clamp-3">{event.description}</p>
+
+                                <div className="flex items-center mt-2 text-xs text-gray-600">
+                                    <FaRegCalendarAlt className="mr-1 text-green-500" />
+                                    <span>Starts at: {new Date(event.start_datetime).toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center mt-1 text-xs text-gray-600">
+                                    <FaMapMarkerAlt className="mr-1 text-green-500" />
+                                    <span>{event.event_type === 'online' ? 'Online Event' : event.location_name}</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-4">
+                                <button className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
+                                    <FaRegEdit size={21} />Edit Event
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Pagination Component */}
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                hasPrev={currentPage > 1}
+                hasNext={currentPage < totalPages}
+                onPageChange={setCurrentPage}
+            />
+        </div>
+    );
+}
+
+export default CreatedEvents;

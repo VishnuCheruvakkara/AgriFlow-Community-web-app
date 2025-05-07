@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -11,4 +11,6 @@ urlpatterns = [
     ##############  get all Events ###############
     path('get-all-events/', GetAllCommunityEventsView.as_view(), name='get_all_events'),
 
+    ############ get Events created by the user ############### 
+    path('created-events-by-user/', UserCreatedEventsView.as_view(), name='created-events-by-user'),
 ]

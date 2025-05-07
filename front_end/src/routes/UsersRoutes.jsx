@@ -19,12 +19,11 @@ import FarmerCommunityChat from '../pages/ChatPages/FarmerCommunityChat';
 
 //Event management pages 
 import CreateEvent from '../pages/eventManagementUserSide/CreateEvent'
-import MyEvents from '../pages/eventManagementUserSide/MyEvents'
+import JoinedEvents from '../pages/eventManagementUserSide/JoinedEvents'
 import AllEvents from '../pages/eventManagementUserSide/AllEvents'
-
+import CreatedEvents from '../pages/eventManagementUserSide/CreatedEvents'
 // Importing PageNotFound component for 404
-import PageNotFound from '../components/StatusPages/PageNotFound';
-
+import PageNotFound from '../components/StatusPages/PageNotFound'; 
 
 function UsersRoutes() {
 
@@ -57,8 +56,9 @@ function UsersRoutes() {
         <Route path="event-management" element={<EventLayout />}>
           <Route index element={<Navigate to="all-events" replace />} />
           <Route path="all-events" element={<AllEvents />} />
-          <Route path="my-events" element={<MyEvents />} />
+          <Route path="my-events" element={<JoinedEvents/>} />
           <Route path="create-event" element={<CreateEvent />} />
+          <Route path="created-events" element={<CreatedEvents />} />
         </Route>
 
       </Route>

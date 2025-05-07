@@ -51,8 +51,20 @@ function EventLayout() {
                                 : 'text-gray-600'}`
                         }
                     >
-                        My Events
+                        Joined events
                     </NavLink>
+
+                    <NavLink
+                        to="created-events"
+                        className={({ isActive }) =>
+                            `py-3 px-6 ${isActive
+                                ? 'border-b-2 border-green-600 text-green-600 font-medium'
+                                : 'text-gray-600'}`
+                        }
+                    >
+                        Created Events
+                    </NavLink>
+
 
                     <NavLink
                         to="create-event"

@@ -107,7 +107,7 @@ function MyCommunities() {
                     onChange={handleSearchChange}
                     className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className=" absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 {searchTerm && (
                     <button
                         onClick={clearSearchBar}

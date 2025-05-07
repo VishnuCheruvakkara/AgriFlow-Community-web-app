@@ -47,7 +47,7 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
                     </div>
                     <div className="ml-3 space-y-2">
                         <p className="text-sm text-red-700">
-                            You must be an Admin of a group to create a community Event...
+                            You must be an Admin of a group to create a community Event, Select community below to create an event...
                         </p>
                     </div>
                 </div>
