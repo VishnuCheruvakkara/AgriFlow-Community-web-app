@@ -9,9 +9,12 @@ import { FaRegCircleCheck } from 'react-icons/fa6';
 import { ImCancelCircle } from 'react-icons/im';
 import { eventValidationSchema } from '../common-erro-handling/EventCreationErrorHandler';
 import { shakeErrorInputVariant } from '../common-animations/ShakingErrorInputVariant';
+import DateTimePicker from './DateTimePicker';
 
 const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
+    console.log("Event data while click ::::: ", eventData)
     if (!isOpen || !eventData) return null;
+
 
     const initialValues = {
         title: eventData.title || '',
@@ -20,10 +23,11 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
         eventType: eventData.eventType || '',
         address: eventData.address || '',
         link: eventData.link || '',
-        startDate: eventData.startDate || '',
+        startDate: eventData.start_datetime ? new Date(eventData.start_datetime) : null,
         banner: eventData.banner || null,
         location: eventData.location || { full_location: '' },
     };
+
 
     return (
         <AnimatePresence>
@@ -71,7 +75,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                 }}
                             >
                                 {({ isSubmitting, setFieldValue, values, handleSubmit, errors, touched }) => (
-                                    <Form id="edit-event-form" className="space-y-6 px-12">
+                                    <Form id="edit-event-form" className="space-y-6 px-12 mb-6">
                                         {/* Banner Upload */}
                                         <div className="flex justify-center">
                                             <BannerImageUpload
@@ -90,8 +94,8 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                                 <Field
                                                     name="title"
                                                     className={`bg-white text-black w-full px-4 mb-1 py-3 border 
-                                                ${errors.title && touched.title ? ' ring-2 ring-red-500' : ' border-gray-300  focus:ring-2 focus:ring-green-500'} 
-                                                rounded-lg transition duration-500 ease-out`}
+                                                    ${errors.title && touched.title ? ' ring-2 ring-red-500' : ' border-gray-300  focus:ring-2 focus:ring-green-500'} 
+                                                    rounded-lg transition duration-500 ease-out`}
                                                     placeholder="Event Title"
                                                 />
                                             </motion.div>
@@ -162,7 +166,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                         {values.eventType === 'offline' && (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-medium">Address</label>
+                                                    <label className="block text-sm font-medium mb-2">Address</label>
                                                     <motion.div
                                                         variants={shakeErrorInputVariant}
                                                         animate={errors.address && touched.address ? 'shake' : ''}>
@@ -177,7 +181,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                                 </div>
 
                                                 <div>
-                                                    <label className="block text-sm font-medium">Full Location</label>
+                                                    <label className="block text-sm font-medium mb-2">Full Location</label>
                                                     <motion.div
                                                         variants={shakeErrorInputVariant}
                                                         animate={errors['location.full_location'] && touched['location.full_location'] ? 'shake' : ''}>
@@ -194,7 +198,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                         )}
                                         {values.eventType === 'online' && (
                                             <div>
-                                                <label className="block text-sm font-medium">Event Link</label>
+                                                <label className="block text-sm font-medium mb-2">Event Link</label>
                                                 <motion.div
                                                     variants={shakeErrorInputVariant}
                                                     animate={errors.link && touched.link ? 'shake' : ''}>
@@ -210,23 +214,15 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                         )}
 
                                         {/* Start Date */}
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">Start Date</label>
-                                            <motion.div
-                                                variants={shakeErrorInputVariant}
-                                                animate={errors.startDate && touched.startDate ? 'shake' : ''}>
-                                                <Field
-                                                    name="startDate"
-                                                    type="datetime-local"
-                                                    className={`bg-white text-black w-full px-4 mb-1 py-3 border 
-                                                        ${errors.startDate && touched.startDate ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
-                                                         rounded-lg transition duration-500 ease-out`}
-                                                />
-                                            </motion.div>
-                                            <ErrorMessage name="startDate" component="div" className="text-red-500 text-sm" />
-                                        </div>
-
-                                        
+                                        <DateTimePicker
+                                            label="Start Date"
+                                            selected={values.startDate}
+                                            onChange={(date) => setFieldValue('startDate', date)}
+                                            required={true}
+                                            error={errors.startDate}
+                                            touched={touched.startDate}
+                                            shake={true}
+                                        />
 
                                     </Form>
                                 )}

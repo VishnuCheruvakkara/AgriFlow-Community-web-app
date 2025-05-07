@@ -41,7 +41,7 @@ const DateTimePicker = ({
           placeholderText="Select date and time"
           className={`bg-white text-black w-full px-4 py-3 border rounded-lg focus:outline-none 
             ${showError ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
-          required={required}
+         
           minDate={new Date()}
           wrapperClassName="w-full"
         />
