@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaMapMarkerAlt, FaRegCalendarAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaRegCalendarAlt,FaEye } from 'react-icons/fa';
 import { MdOutlineZoomOutMap } from "react-icons/md";
 import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
@@ -11,6 +11,7 @@ import { PulseLoader } from 'react-spinners';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import EditEventModal from '../../components/event-management-user-side/EditEventModal';
+import EventDetailsPage from '../../components/event-management-user-side/EventDetailsPage';
 
 function CreatedEvents() {
     const [events, setEvents] = useState([]);
@@ -21,6 +22,9 @@ function CreatedEvents() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+
+    // state for the view Event set up  
+    const [viewedEvent, setViewedEvent] = useState(null);
 
     const openModal = (event) => {
         setSelectedEvent(event);
@@ -89,6 +93,19 @@ function CreatedEvents() {
 
     return (
         <div className="space-y-6">
+
+            {viewedEvent ? (
+                <div>
+                    <button
+                        onClick={() => setViewedEvent(null)}
+                        className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm"
+                    >
+                        ← Back to All Events
+                    </button>
+                    <EventDetailsPage event={viewedEvent} />
+                </div>
+            ) : (
+                <>
             {/* Search Bar */}
             <div className="relative mb-6">
                 <input
@@ -153,6 +170,9 @@ function CreatedEvents() {
                                 <button onClick={() => openModal(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
                                     <FaRegEdit size={21} />Edit Event
                                 </button>
+                                        <button onClick={() => setViewedEvent(event)} className="w-full  mt-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
+                                            <FaEye className="text-white" size={21} /> View Event
+                                </button>
                             </div>
                         </div>
                     ))
@@ -173,7 +193,8 @@ function CreatedEvents() {
                 eventData={selectedEvent}
                 onSave={handleEventSave}
             />
-
+                </>
+            )}
         </div>
     );
 }
