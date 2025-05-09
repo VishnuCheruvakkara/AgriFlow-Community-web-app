@@ -17,6 +17,7 @@ const ToastNotifications = () => {
                 transition={Slide}
                 closeButton={false}
                 toastClassName="border border-gray-300 "
+                style={{ zIndex: 99999 }}
               
             />
         </>

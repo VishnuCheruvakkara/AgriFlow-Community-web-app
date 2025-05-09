@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AiOutlineClose } from 'react-icons/ai';
+import { FaInfoCircle } from 'react-icons/fa';
 import { PulseLoader } from 'react-spinners';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -10,22 +11,53 @@ import { ImCancelCircle } from 'react-icons/im';
 import { eventValidationSchema } from '../common-erro-handling/EventCreationErrorHandler';
 import { shakeErrorInputVariant } from '../common-animations/ShakingErrorInputVariant';
 import DateTimePicker from './DateTimePicker';
+import { showToast } from '../toast-notification/CustomToast';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 
 const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
     console.log("Event data while click ::::: ", eventData)
     if (!isOpen || !eventData) return null;
 
-
     const initialValues = {
         title: eventData.title || '',
         description: eventData.description || '',
         max_participants: eventData.max_participants || '',
-        eventType: eventData.eventType || '',
-        address: eventData.address || '',
-        link: eventData.link || '',
+        eventType: eventData.event_type || '',
         startDate: eventData.start_datetime ? new Date(eventData.start_datetime) : null,
-        banner: eventData.banner || null,
-        location: eventData.location || { full_location: '' },
+        banner: eventData.banner_url || null,
+
+        address: eventData.address || '',
+        link: eventData.online_link || '',
+
+    };
+
+    const onSubmit = async (values, { setSubmitting }) => {
+        try {
+            const formData = new FormData();
+            formData.append('title', values.title);
+            formData.append('description', values.description);
+            formData.append('max_participants', values.max_participants);
+            formData.append('start_datetime', values.startDate.toISOString());
+            formData.append('address', values.address);
+            formData.append('online_link', values.link);
+            formData.append('event_type', eventData.event_type);
+
+            if (values.banner instanceof File) {
+                formData.append('banner', values.banner);
+            }
+
+            const response = await AuthenticatedAxiosInstance.patch(`/events/edit-event/${eventData.id}/`, formData);
+            console.log('Event updated:', response.data);
+
+            onSave(response.data);
+            onClose();
+            showToast("Event updated successfully","success")
+        } catch (error) {
+            console.error('Error updating event:', error);
+            showToast("Error updating event","error")
+        } finally {
+            setSubmitting(false);
+        }
     };
 
 
@@ -63,16 +95,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                 initialValues={initialValues}
                                 validationSchema={eventValidationSchema}
                                 enableReinitialize
-                                onSubmit={async (values, { setSubmitting }) => {
-                                    try {
-                                        await onSave(values);
-                                        onClose();
-                                    } catch (error) {
-                                        console.error('Error saving:', error);
-                                    } finally {
-                                        setSubmitting(false);
-                                    }
-                                }}
+                                onSubmit={onSubmit}
                             >
                                 {({ isSubmitting, setFieldValue, values, handleSubmit, errors, touched }) => (
                                     <Form id="edit-event-form" className="space-y-6 px-12 mb-6">
@@ -81,6 +104,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                             <BannerImageUpload
                                                 onImageSelect={(file) => setFieldValue('banner', file)}
                                                 purpose="eventBanner"
+                                                defaultImage={eventData?.banner_url}
                                             />
                                         </div>
                                         <ErrorMessage name="banner" component="div" className="text-red-500 text-sm text-center" />
@@ -115,7 +139,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                                     name="description"
                                                     rows="4"
                                                     className={`bg-white text-black w-full px-4  py-3 border 
-                                                        ${errors.description && touched.description ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                        ${errors.description && touched.description ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} 
                                                         rounded-lg transition duration-500 ease-out`}
                                                     placeholder="Event Description"
                                                 />
@@ -133,70 +157,58 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                                     name="max_participants"
                                                     type="number"
                                                     className={`bg-white text-black w-full px-4 mb-1 py-3 border 
-                                                        ${errors.max_participants && touched.max_participants ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
+                                                        ${errors.max_participants && touched.max_participants ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} 
                                                         rounded-lg transition duration-500 ease-out`}
                                                     placeholder="Enter a positive number "
                                                 />
                                             </motion.div>
                                             <ErrorMessage name="max_participants" component="div" className="text-red-500 text-sm" />
                                         </div>
-
-                                        {/* Event Type */}
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">Event Type</label>
-                                            <motion.div
-                                                variants={shakeErrorInputVariant}
-                                                animate={errors.eventType && touched.eventType ? 'shake' : ''}>
-                                                <Field
-                                                    as="select"
-                                                    name="eventType"
-                                                    className={`bg-white text-black w-full px-4 mb-1 py-3 border cursor-pointer
-                                                        ${errors.eventType && touched.eventType ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
-                                                        rounded-lg transition duration-500 ease-out`}
-                                                >
-                                                    <option value="" disabled hidden>-- Select Type --</option>
-                                                    <option value="online">Online</option>
-                                                    <option value="offline">Offline</option>
-                                                </Field>
-                                            </motion.div>
-                                            <ErrorMessage name="eventType" component="div" className="text-red-500 text-sm" />
+                                        {/* Alert Box */}
+                                        <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6">
+                                            <div className="flex">
+                                                <div className="flex-shrink-0">
+                                                    <FaInfoCircle className="text-red-700" />
+                                                </div>
+                                                <div className="ml-3 space-y-2">
+                                                    <p className="text-sm text-red-700">
+                                                        You can’t change the event type, but you can edit the address or link.
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        {/* Address or Link depending on eventType */}
-                                        {values.eventType === 'offline' && (
-                                            <>
-                                                <div>
-                                                    <label className="block text-sm font-medium mb-2">Address</label>
-                                                    <motion.div
-                                                        variants={shakeErrorInputVariant}
-                                                        animate={errors.address && touched.address ? 'shake' : ''}>
-                                                        <Field
-                                                            name="address"
-                                                            className={`bg-white text-black w-full px-4 mb-1 py-3 border 
-                                                                ${errors.address && touched.address ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
-                                                                rounded-lg transition duration-500 ease-out`}
-                                                        />
-                                                    </motion.div>
-                                                    <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
-                                                </div>
+                                        {/* Event Type Display - This field is disabled */}
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Event Type</label>
+                                            <div className="bg-gray-100 text-gray-500 w-full px-4 mb-1 py-3 border border-gray-300 rounded-lg cursor-not-allowed opacity-75">
+                                                {/* Display event type */}
+                                                {eventData.event_type === 'online' ? 'Online' : 'Offline'}
+                                            </div>
+                                        </div>
 
-                                                <div>
-                                                    <label className="block text-sm font-medium mb-2">Full Location</label>
-                                                    <motion.div
-                                                        variants={shakeErrorInputVariant}
-                                                        animate={errors['location.full_location'] && touched['location.full_location'] ? 'shake' : ''}>
-                                                        <Field
-                                                            name="location.full_location"
-                                                            className={`bg-white text-black w-full px-4 mb-1 py-3 border 
-                                                                ${errors['location.full_location'] && touched['location.full_location'] ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
-                                                                 rounded-lg transition duration-500 ease-out`}
-                                                        />
-                                                    </motion.div>
-                                                    <ErrorMessage name="location.full_location" component="div" className="text-red-500 text-sm" />
-                                                </div>
-                                            </>
+                                        {/* Conditionally show Address or Link based on Event Type */}
+                                        {/* If Event Type is Offline, show the Address field - NOW EDITABLE */}
+                                        {eventData.event_type === 'offline' && (
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Event Address</label>
+                                                <motion.div
+                                                    variants={shakeErrorInputVariant}
+                                                    animate={errors.address && touched.address ? 'shake' : ''}>
+                                                    <Field
+                                                        name="address"
+                                                        className={`bg-white text-black w-full px-4 mb-1 py-3 border 
+                                                        ${errors.address && touched.address ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} 
+                                                        rounded-lg transition duration-500 ease-out`}
+                                                        placeholder="Enter the event address"
+                                                    />
+                                                </motion.div>
+                                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                                            </div>
                                         )}
-                                        {values.eventType === 'online' && (
+
+                                        {/* If Event Type is Online, show the Link field - NOW EDITABLE */}
+                                        {eventData.event_type === 'online' && (
                                             <div>
                                                 <label className="block text-sm font-medium mb-2">Event Link</label>
                                                 <motion.div
@@ -205,8 +217,9 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                                                     <Field
                                                         name="link"
                                                         className={`bg-white text-black w-full px-4 mb-1 py-3 border 
-                                                            ${errors.link && touched.link ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-green-500'} 
-                                                             rounded-lg transition duration-500 ease-out`}
+                                                        ${errors.link && touched.link ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} 
+                                                        rounded-lg transition duration-500 ease-out`}
+                                                        placeholder="Enter the online event link"
                                                     />
                                                 </motion.div>
                                                 <ErrorMessage name="link" component="div" className="text-red-500 text-sm" />

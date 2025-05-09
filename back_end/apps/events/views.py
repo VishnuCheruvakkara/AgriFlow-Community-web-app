@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 from apps.common.pagination import CustomUserPagination,CustomEventPagination
-from .serializers import CommunitySerializer,CommunityEventCombinedSerializer
+from .serializers import CommunitySerializer,CommunityEventCombinedSerializer,CommunityEventEditSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
@@ -14,6 +14,7 @@ from .models import CommunityEvent,EventLocation
 import json
 from community.models import Community
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 
 ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -125,3 +126,18 @@ class UserCreatedEventsView(APIView):
         serializer = CommunityEventCombinedSerializer(paginated_events, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+################### Edit the commmunity event ######################### 
+
+
+class CommunityEventUpdateAPIView(APIView):
+    permission_classes = [ IsAuthenticated ]
+    def patch(self, request, pk):
+        event = get_object_or_404(CommunityEvent, pk=pk)
+        serializer = CommunityEventEditSerializer(event, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            updated_event = serializer.save()
+            return Response(CommunityEventEditSerializer(updated_event).data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

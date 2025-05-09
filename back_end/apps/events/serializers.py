@@ -69,7 +69,7 @@ class CommunityEventSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         validated_data['created_by'] = request.user
 
-        # 4. Create the event
+        # Create the event
         return CommunityEvent.objects.create(**validated_data)
 
 
@@ -92,7 +92,7 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description',
             'event_type', 'start_datetime', 'max_participants', 'is_full',
-            'address', 'created_at', 'updated_at',
+            'address', 'created_at', 'updated_at','online_link',
 
             # Related Community fields
             'community_id', 'community_name',
@@ -115,4 +115,25 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
             print(f"Error generating banner URL for event ID {obj.id}: {str(e)}")
             return None
         
-##############################  Events Created by the logged in user serializer  ###################### 
+##############################  Edit event / Update event  ###################### 
+
+class CommunityEventEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommunityEvent
+        fields = [
+            'id', 'title', 'description', 'max_participants', 'event_type',
+            'start_datetime', 'banner', 'address', 'online_link'
+        ]
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        # Only update fields that have changed
+        updated = False
+        for field, value in validated_data.items():
+            if getattr(instance, field) != value:
+                setattr(instance, field, value)
+                updated = True
+
+        if updated:
+            instance.save()
+        return instance

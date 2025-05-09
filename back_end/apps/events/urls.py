@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -13,4 +13,8 @@ urlpatterns = [
 
     ############ get Events created by the user ############### 
     path('created-events-by-user/', UserCreatedEventsView.as_view(), name='created-events-by-user'),
+
+    ############# Edit the community event #####################
+    path('edit-event/<int:pk>/', CommunityEventUpdateAPIView.as_view(), name='event-update'),
+
 ]

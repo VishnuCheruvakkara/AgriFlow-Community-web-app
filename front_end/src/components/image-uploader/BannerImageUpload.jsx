@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Upload } from "lucide-react";
 
-const BannerImageUpload = ({ onImageSelect, purpose }) => {
+const BannerImageUpload = ({ onImageSelect, purpose, defaultImage }) => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
- 
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const fileInputRef = useRef(null); // Create a reference to the file input
 
+  // Only set the preview image if a defaultImage exists and preview is not already set
+  useEffect(() => {
+    if (defaultImage) {
+      setPreviewUrl(defaultImage); // Set the default image for preview
+    }
+  }, [defaultImage]);
 
   // Handle image file change
   const handleImageChange = (event) => {
@@ -45,8 +52,14 @@ const BannerImageUpload = ({ onImageSelect, purpose }) => {
 
   const clearImage = () => {
     setImage(null);
+    setPreviewUrl(null); // Clear preview URL as well
     setError("");
     onImageSelect(null); // Clear the image selection in the parent component
+
+    // Reset the file input so that a new file can be selected
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   // Determine the label based on the 'purpose' prop
@@ -64,15 +77,15 @@ const BannerImageUpload = ({ onImageSelect, purpose }) => {
   };
 
   return (
-    <div >
+    <div>
       <div className="flex flex-col items-center gap-4 p-4 border rounded-lg shadow-md w-80 bg-white">
         <h2 className="text-lg font-semibold">{getLabel()}</h2>
 
         {/* Image Preview Section */}
-        {image ? (
+        {previewUrl || image ? (
           <div className="relative">
             <img
-              src={image}
+              src={previewUrl || image} // Use defaultImage if it exists, else use uploaded image
               alt={`${purpose} Preview`}
               className="w-full h-40 object-cover rounded-lg border"
             />
@@ -87,7 +100,13 @@ const BannerImageUpload = ({ onImageSelect, purpose }) => {
           <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400">
             <Upload size={24} className="text-gray-500" />
             <span className="text-sm text-gray-500">Select {getLabel()}</span>
-            <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            <input
+              ref={fileInputRef} // Attach ref to the file input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </label>
         )}
       </div>
@@ -98,26 +117,3 @@ const BannerImageUpload = ({ onImageSelect, purpose }) => {
 };
 
 export default BannerImageUpload;
-
-
-
-
-//use this according to the need
-
-
-
-{/* <BannerUpload
-  onImageSelect={(file, purpose) => {
-    console.log("File uploaded:", file);
-    console.log("Purpose:", purpose);
-  }}
-  purpose="userBanner" // Use for user banners
-/>
-
-<BannerUpload
-  onImageSelect={(file, purpose) => {
-    console.log("File uploaded:", file);
-    console.log("Purpose:", purpose);
-  }}
-  purpose="communityBanner" // Use for community banners
-/> */} 
