@@ -48,13 +48,20 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
 
             const response = await AuthenticatedAxiosInstance.patch(`/events/edit-event/${eventData.id}/`, formData);
             console.log('Event updated:', response.data);
-
-            onSave(response.data);
+            onSave({
+                ...eventData,
+                ...values,
+                banner_url: typeof values.banner === 'string'
+                    ? values.banner
+                    : URL.createObjectURL(values.banner), // Show preview if a file is selected
+                start_datetime: values.startDate.toISOString(),
+            });
+            
             onClose();
-            showToast("Event updated successfully","success")
+            showToast("Event updated successfully", "success")
         } catch (error) {
             console.error('Error updating event:', error);
-            showToast("Error updating event","error")
+            showToast("Error updating event", "error")
         } finally {
             setSubmitting(false);
         }

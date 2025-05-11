@@ -118,6 +118,8 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
 ##############################  Edit event / Update event  ###################### 
 
 class CommunityEventEditSerializer(serializers.ModelSerializer):
+    banner = serializers.FileField(required=False, write_only=True)
+
     class Meta:
         model = CommunityEvent
         fields = [
@@ -127,8 +129,17 @@ class CommunityEventEditSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def update(self, instance, validated_data):
-        # Only update fields that have changed
         updated = False
+
+        # Handle new banner upload
+        banner_file = validated_data.pop('banner', None)
+        if banner_file:
+            public_id = upload_image_to_cloudinary(banner_file, folder_name="event_banners")
+            if public_id:
+                instance.banner = public_id
+                updated = True
+
+        # Update other fields if changed
         for field, value in validated_data.items():
             if getattr(instance, field) != value:
                 setattr(instance, field, value)

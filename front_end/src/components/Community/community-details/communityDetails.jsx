@@ -13,6 +13,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { useNavigate } from 'react-router-dom';
 import EditCommunityModal from '../CommunityModal/EditCommunityModal'
+import { RiDeleteBin5Fill } from 'react-icons/ri';
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
@@ -448,7 +449,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         onClick={handleRemoveCommunity}
                         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
                     >
-                        <MdExitToApp className="text-red-600 text-xl" />
+                        <RiDeleteBin5Fill className="text-red-600 text-xl" />
                         <span className="text-red-600 font-bold">Delete Community</span>
                     </button>
                 ) : (

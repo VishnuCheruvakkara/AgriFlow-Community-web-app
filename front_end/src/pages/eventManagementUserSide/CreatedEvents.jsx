@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaMapMarkerAlt, FaRegCalendarAlt,FaEye } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaRegCalendarAlt, FaEye } from 'react-icons/fa';
 import { MdOutlineZoomOutMap } from "react-icons/md";
 import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
@@ -10,8 +10,8 @@ import { FaRegEdit } from "react-icons/fa";
 import { PulseLoader } from 'react-spinners';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
-import EditEventModal from '../../components/event-management-user-side/EditEventModal';
 import EventDetailsPage from '../../components/event-management-user-side/EventDetailsPage';
+import { motion,AnimatePresence } from 'framer-motion';
 
 function CreatedEvents() {
     const [events, setEvents] = useState([]);
@@ -38,15 +38,15 @@ function CreatedEvents() {
 
     const handleEventSave = async (updatedEvent) => {
         try {
-          await AuthenticatedAxiosInstance.put(`/events/update/${updatedEvent.id}/`, updatedEvent);
-          setEvents((prev) =>
-            prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
-          );
-          closeModal();
+            await AuthenticatedAxiosInstance.put(`/events/update/${updatedEvent.id}/`, updatedEvent);
+            setEvents((prev) =>
+                prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+            );
+            closeModal();
         } catch (error) {
-          console.error('Failed to update event:', error);
+            console.error('Failed to update event:', error);
         }
-      };
+    };
 
     const fetchUserEvents = async (page = 1, search = '') => {
         setLoading(true);
@@ -58,6 +58,7 @@ function CreatedEvents() {
                 }
             });
             setEvents(response.data.results);
+            console.log("Data of the events ::::",response.data.results)
             setTotalPages(Math.ceil(response.data.count / 6)); // 6 is your page_size
         } catch (error) {
             console.error('Error fetching events:', error);
@@ -93,108 +94,105 @@ function CreatedEvents() {
 
     return (
         <div className="space-y-6">
+            <AnimatePresence>
+                {viewedEvent ? (
 
-            {viewedEvent ? (
-                <div>
-                    <button
-                        onClick={() => setViewedEvent(null)}
-                        className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm"
+                    <motion.div
+                        key="event-details"
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0 }} 
+                        transition={{ duration: 0.4 }}
+                       
+
                     >
-                        ← Back to All Events
-                    </button>
-                    <EventDetailsPage event={viewedEvent} />
-                </div>
-            ) : (
-                <>
-            {/* Search Bar */}
-            <div className="relative mb-6">
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    placeholder="Search events, Online, Offline, location..."
-                    className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
-                {searchTerm && (
-                    <button onClick={handleClearSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 transition-colors duration-300">
-                        <ImCancelCircle size={20} />
-                    </button>
-                )}
-            </div>
-
-            {/* Events Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {loading ? (
-                    <div className="col-span-3 flex flex-col justify-center items-center h-60">
-                        <PulseLoader color="#16a34a" speedMultiplier={1} />
-                        <p className="mt-4 text-sm text-gray-500 text-center">Loading Events...</p>
-                    </div>
-                ) : events.length === 0 ? (
-                    <div className="col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
-                        <p className="text-lg font-semibold">No Events Found!</p>
-                        <p className="text-xs text-gray-500">
-                            {searchTerm ? "Try using a different search keyword." : "There are currently no events available."}
-                        </p>
-                    </div>
+                        <EventDetailsPage event={viewedEvent} onClose={() => setViewedEvent(null)} />
+                    </motion.div>
                 ) : (
-                    events.map((event) => (
-                        <div key={event.id} className="bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full">
-                            <div className="flex-1">
-                                <div className="relative group">
-                                    <img
-                                        src={event.banner_url || DeafultBannerImage}
-                                        alt="Event Banner"
-                                        className="w-full h-40 object-cover rounded-md mb-3"
-                                    />
-                                    <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${event.event_type === 'online' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'}`}>
-                                        {event.event_type === 'online' ? 'Online' : 'Offline'}
-                                    </div>
-                                </div>
-
-                                <h3 className="text-md font-bold text-green-700 border-t border-green-500 pt-2">{event.title}</h3>
-                                <p className="text-gray-500 text-xs mb-1">Hosted by: {event.community_name}</p>
-                                <p className="mt-1 text-gray-700 text-xs line-clamp-3">{event.description}</p>
-
-                                <div className="flex items-center mt-2 text-xs text-gray-600">
-                                    <FaRegCalendarAlt className="mr-1 text-green-500" />
-                                    <span>Starts at: {new Date(event.start_datetime).toLocaleString()}</span>
-                                </div>
-                                <div className="flex items-center mt-1 text-xs text-gray-600">
-                                    <FaMapMarkerAlt className="mr-1 text-green-500" />
-                                    <span>{event.event_type === 'online' ? 'Online Event' : event.location_name}</span>
-                                </div>
-                            </div>
-
-                            <div className="mt-4">
-                                <button onClick={() => openModal(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
-                                    <FaRegEdit size={21} />Edit Event
+                    <>
+                        {/* Search Bar */}
+                        <div className="relative mb-6">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                placeholder="Search events, Online, Offline, location..."
+                                className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
+                            />
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
+                            {searchTerm && (
+                                <button onClick={handleClearSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 transition-colors duration-300">
+                                    <ImCancelCircle size={20} />
                                 </button>
-                                        <button onClick={() => setViewedEvent(event)} className="w-full  mt-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
-                                            <FaEye className="text-white" size={21} /> View Event
-                                </button>
-                            </div>
+                            )}
                         </div>
-                    ))
-                )}
-            </div>
 
-            {/* Pagination Component */}
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                hasPrev={currentPage > 1}
-                hasNext={currentPage < totalPages}
-                onPageChange={setCurrentPage}
-            />
-            <EditEventModal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                eventData={selectedEvent}
-                onSave={handleEventSave}
-            />
-                </>
-            )}
+                        {/* Events Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {loading ? (
+                                <div className="col-span-3 flex flex-col justify-center items-center h-60">
+                                    <PulseLoader color="#16a34a" speedMultiplier={1} />
+                                    <p className="mt-4 text-sm text-gray-500 text-center">Loading Events...</p>
+                                </div>
+                            ) : events.length === 0 ? (
+                                <div className="col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
+                                    <p className="text-lg font-semibold">No Events Found!</p>
+                                    <p className="text-xs text-gray-500">
+                                        {searchTerm ? "Try using a different search keyword." : "There are currently no events available."}
+                                    </p>
+                                </div>
+                            ) : (
+                                events.map((event) => (
+                                    <div key={event.id} className="bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full">
+                                        <div className="flex-1">
+                                            <div className="relative group">
+                                                <img
+                                                    src={event.banner_url || DeafultBannerImage}
+                                                    alt="Event Banner"
+                                                    className="w-full h-40 object-cover rounded-md mb-3"
+                                                />
+                                                <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${event.event_type === 'online' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'}`}>
+                                                    {event.event_type === 'online' ? 'Online' : 'Offline'}
+                                                </div>
+                                            </div>
+
+                                            <h3 className="text-md font-bold text-green-700 border-t border-green-500 pt-2">{event.title}</h3>
+                                            <p className="text-gray-500 text-xs mb-1">Hosted by: {event.community_name}</p>
+                                            <p className="mt-1 text-gray-700 text-xs line-clamp-3">{event.description}</p>
+
+                                            <div className="flex items-center mt-2 text-xs text-gray-600">
+                                                <FaRegCalendarAlt className="mr-1 text-green-500" />
+                                                <span>Starts at: {new Date(event.start_datetime).toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex items-center mt-1 text-xs text-gray-600">
+                                                <FaMapMarkerAlt className="mr-1 text-green-500" />
+                                                <span>{event.event_type === 'online' ? 'Online Event' : event.location_name}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4">
+                                           
+                                            <button onClick={() => setViewedEvent(event)} className="w-full  mt-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
+                                                <FaEye className="text-white" size={21} /> View Event
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* Pagination Component */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            hasPrev={currentPage > 1}
+                            hasNext={currentPage < totalPages}
+                            onPageChange={setCurrentPage}
+                        />
+                       
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
