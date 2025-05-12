@@ -13,7 +13,7 @@ import { showToast } from '../toast-notification/CustomToast';
 import { useNavigate } from 'react-router-dom';
 //import the common button loader and redux reducers
 import ButtonLoader from '../LoaderSpinner/ButtonLoader';
-import { showButtonLoader,hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
+import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 //import redux related things 
 import { useDispatch } from 'react-redux';
 
@@ -44,9 +44,6 @@ function CreateEventForm({ selectedCommunity, onBack }) {
             if (values.location) {
                 formData.append('location', JSON.stringify(values.location));
             }
-        } else if (values.eventType === 'online') {
-            formData.append('online_link', values.link);
-
         }
 
         const buttonId = "createEvent";
@@ -63,11 +60,11 @@ function CreateEventForm({ selectedCommunity, onBack }) {
             showToast("Event submitted successfully", "success");
             resetForm();
             navigate('/user-dash-board/event-management/my-events');
-            
+
 
         } catch (error) {
             console.error('An error occurred while submitting the event:', error);
-            showToast( error.response.data.error|| "Failed to submit event","error")
+            showToast(error.response.data.error || "Failed to submit event", "error")
         } finally {
             dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
         }
@@ -126,14 +123,49 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                         country: ""
                     },
                     address: '',
-                    link: '',
                     startDate: null,
                     banner: null,
                 }}
                 validationSchema={eventValidationSchema}
                 validateOnChange={true}
                 validateOnBlur={true}
-                onSubmit={(values, { resetForm }) => handleSubmit(values, resetForm)} 
+                onSubmit={(values, { setTouched, resetForm }) => {
+                    // Touch all fields including nested fields when form is submitted
+                    if (values.eventType === 'offline') {
+                        setTouched({
+                            title: true,
+                            description: true,
+                            eventType: true,
+                            max_participants: true,
+                            banner: true,
+                            startDate: true,
+                            address: true,
+                            location: {
+                                full_location: true
+                            }
+                        }, true);
+                    } else {
+                        setTouched({
+                            title: true,
+                            description: true,
+                            eventType: true,
+                            max_participants: true,
+                            banner: true,
+                            startDate: true
+                        }, true);
+                    }
+
+                    // Check if the form is valid before submitting
+                    const isLocationRequiredAndMissing = values.eventType === 'offline' &&
+                        (!values.location || !values.location.full_location);
+
+                    if (isLocationRequiredAndMissing) {
+                        // Don't submit if location is required but missing
+                        return;
+                    }
+
+                    handleSubmit(values, resetForm);
+                }}
             >
                 {({ setFieldValue, setFieldTouched, values, errors, touched, handleChange }) => (
                     <Form className="space-y-6">
@@ -227,8 +259,6 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                                 country: ""
                                             });
                                             setFieldValue('address', '');
-                                        } else if (e.target.value === 'offline') {
-                                            setFieldValue('link', '');
                                         }
                                     }}
                                 >
@@ -259,9 +289,10 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                                     setFieldTouched("location.full_location", true);     // tell Formik we touched this field
                                                 }
                                             }}
-                                            errors={errors.location?.full_location} // pass full_location error string only
+
                                         />
                                     </motion.div>
+
                                 </div>
 
                                 {/* Address */}
@@ -283,24 +314,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                             </>
                         )}
 
-                        {values.eventType === 'online' && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Google Meet Link</label>
-                                <motion.div
-                                    variants={shakeErrorInputVariant}
-                                    animate={errors.link && touched.link ? 'shake' : 'idle'}
-                                >
-                                    <Field
-                                        name="link"
-                                        type="url"
-                                        className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                                        ${errors.link && touched.link ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
-                                        placeholder="Enter the online meeting link"
-                                    />
-                                </motion.div>
-                                <ErrorMessage name="link" component="div" className="text-red-500 text-sm mt-2" />
-                            </div>
-                        )}
+
 
                         {/* Date Picker */}
                         <DateTimePicker

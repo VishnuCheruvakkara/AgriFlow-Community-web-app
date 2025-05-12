@@ -38,7 +38,6 @@ class CommunityEventSerializer(serializers.ModelSerializer):
             'event_type',
             'start_datetime',
             'address',
-            'online_link',
             'location',  # Nested location field as JSON 
         ]
 
@@ -63,7 +62,7 @@ class CommunityEventSerializer(serializers.ModelSerializer):
         else:
             validated_data['event_location'] = None
             validated_data['address'] = None  # Optional: clear address for online events
-            validated_data['online_link'] = validated_data.get("online_link")
+           
 
         # Set the user
         request = self.context.get('request')
@@ -92,7 +91,7 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description',
             'event_type', 'start_datetime', 'max_participants', 'is_full',
-            'address', 'created_at', 'updated_at','online_link',
+            'address', 'created_at', 'updated_at',
 
             # Related Community fields
             'community_id', 'community_name',
@@ -124,7 +123,7 @@ class CommunityEventEditSerializer(serializers.ModelSerializer):
         model = CommunityEvent
         fields = [
             'id', 'title', 'description', 'max_participants', 'event_type',
-            'start_datetime', 'banner', 'address', 'online_link'
+            'start_datetime', 'banner', 'address',
         ]
         read_only_fields = ['id']
 

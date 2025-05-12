@@ -10,21 +10,10 @@ export const eventValidationSchema = Yup.object().shape({
     .integer("Must be an integer")
     .max(1000, "Google Meet supports up to 1000 participants on Enterprise plans"),
   eventType: Yup.string().oneOf(['online', 'offline'], 'Invalid event type').required('Please select an event type').trim(),
-  location: Yup.object().when('eventType', {
-    is: 'offline',
-    then: () => Yup.object({
-      full_location: Yup.string().required('Full location is required').min(3, 'Location must be at least 3 characters').matches(/^[^<>]*$/, 'Special tags are not allowed!'),
-    }),
-    otherwise: () => Yup.object().nullable()
-  }),
+ 
   address: Yup.string().when('eventType', {
     is: 'offline',
     then: () => Yup.string().required('Venue address is required').min(10, 'Address must be at least 10 characters').max(255, 'Address cannot exceed 255 characters').matches(/^[^<>]*$/, 'Special tags are not allowed!'),
-    otherwise: () => Yup.string()
-  }),
-  link: Yup.string().when('eventType', {
-    is: 'online',
-    then: () => Yup.string().url('Enter a valid URL').matches(/^https:\/\/meet\.google\.com\/.+$/, 'Only Google Meet links are accepted (must start with https://meet.google.com/)').required('Google Meet link is required').trim(),
     otherwise: () => Yup.string()
   }),
   startDate: Yup.date().required('Start date is required').min(new Date(), 'Start date cannot be in the past'),

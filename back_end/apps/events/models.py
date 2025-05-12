@@ -38,9 +38,7 @@ class CommunityEvent(models.Model):
     # For offline events, location details are stored in a related model
     event_location = models.ForeignKey(EventLocation, null=True, blank=True, on_delete=models.CASCADE, related_name="events", help_text="Only for offline events")
     address = models.TextField(blank=True, null=True, help_text="Manually entered address by the user")
-    # For online events, the link will be stored here
-    online_link = models.URLField(blank=True, null=True, help_text="Only for online events (Google Meet/Zoom)")
-
+   
     start_datetime = models.DateTimeField()
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_events')
     created_at = models.DateTimeField(auto_now_add=True)
