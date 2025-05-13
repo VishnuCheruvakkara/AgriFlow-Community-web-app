@@ -3,14 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 
-from apps.common.pagination import CustomUserPagination,CustomEventPagination
-from .serializers import CommunitySerializer,CommunityEventCombinedSerializer,CommunityEventEditSerializer
+from apps.common.pagination import CustomUserPagination, CustomEventPagination
+from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
 from apps.common.cloudinary_utils import upload_image_to_cloudinary
 from .serializers import CommunityEventSerializer
-from .models import CommunityEvent,EventLocation
+from .models import CommunityEvent, EventLocation
 import json
 from community.models import Community
 from django.db.models import Q
@@ -40,6 +40,7 @@ class GetCommunityForCreateEvent(APIView):
 
 ################  Admin User can Create Event -- View ##################
 
+
 class CommunityEventCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -51,7 +52,8 @@ class CommunityEventCreateAPIView(APIView):
 
         # Check if the user is an admin for the specified community
         try:
-            community_membership = CommunityMembership.objects.get(user=request.user, community_id=community_id)
+            community_membership = CommunityMembership.objects.get(
+                user=request.user, community_id=community_id)
             if not community_membership.is_admin:
                 return Response({"error": "You must be an admin of the community to create events."}, status=status.HTTP_403_FORBIDDEN)
         except CommunityMembership.DoesNotExist:
@@ -60,32 +62,36 @@ class CommunityEventCreateAPIView(APIView):
         # Check for duplicate event title for the same community
         if CommunityEvent.objects.filter(community_id=community_id, title=event_title).exists():
             return Response({"error": "An event with this title already exists for the selected community."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         print("Incoming request data:", request.data)
-        serializer = CommunityEventSerializer(data=request.data, context={"request": request})
+        serializer = CommunityEventSerializer(
+            data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Event created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
-################### Get all community events ################# 
+
+################### Get all community events #################
 
 class GetAllCommunityEventsView(APIView):
     permission_classes = [IsAuthenticated]
-    pagination_class = CustomEventPagination # Set custom pagination class
+    pagination_class = CustomEventPagination  # Set custom pagination class
 
     def get(self, request, *args, **kwargs):
         try:
             # Get the search term from query params, if any
             search_term = request.query_params.get('search', '').strip()
-
+            user = request.user
+            print("user is ::",user.id)
             # Filter the queryset based on search term if it exists
             events = CommunityEvent.objects.select_related('community', 'event_location').filter(
                 is_deleted=False,
                 community__is_deleted=False
-            )
+            ).exclude(created_by=user)
             
+            print("user event :: ",events)
+
             if search_term:
                 events = events.filter(
                     Q(title__icontains=search_term) |
@@ -96,8 +102,9 @@ class GetAllCommunityEventsView(APIView):
             # Paginate the queryset
             paginator = self.pagination_class()
             result_page = paginator.paginate_queryset(events, request)
-            serializer = CommunityEventCombinedSerializer(result_page, many=True)
-            
+            serializer = CommunityEventCombinedSerializer(
+                result_page, many=True)
+
             # Return paginated response
             return paginator.get_paginated_response(serializer.data)
         except Exception as e:

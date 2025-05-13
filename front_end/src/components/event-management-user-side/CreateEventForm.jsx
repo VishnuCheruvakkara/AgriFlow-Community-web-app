@@ -59,7 +59,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
             showToast("Event submitted successfully", "success");
             resetForm();
-            navigate('/user-dash-board/event-management/my-events');
+            navigate('/user-dash-board/event-management/created-events');
 
 
         } catch (error) {

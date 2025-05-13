@@ -12,6 +12,7 @@ import { Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useCallback } from 'react';
 import { MdOutlineLibraryAdd } from 'react-icons/md';
+import JoinEventModal from '../../components/event-management-user-side/JoinEventModal';
 
 function AllEvents() {
   const [loading, setLoading] = useState(false);
