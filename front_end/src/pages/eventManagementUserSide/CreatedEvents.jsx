@@ -11,7 +11,7 @@ import { PulseLoader } from 'react-spinners';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import EventDetailsPage from '../../components/event-management-user-side/EventDetailsPage';
-import { motion,AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function CreatedEvents() {
     const [events, setEvents] = useState([]);
@@ -58,7 +58,7 @@ function CreatedEvents() {
                 }
             });
             setEvents(response.data.results);
-            console.log("Data of the events ::::",response.data.results)
+            console.log("Data of the events ::::", response.data.results)
             setTotalPages(Math.ceil(response.data.count / 6)); // 6 is your page_size
         } catch (error) {
             console.error('Error fetching events:', error);
@@ -101,12 +101,18 @@ function CreatedEvents() {
                         key="event-details"
                         initial={{ opacity: 0, x: '100%' }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0 }} 
+                        exit={{ opacity: 0 }}
                         transition={{ duration: 0.4 }}
-                       
+
 
                     >
-                        <EventDetailsPage event={viewedEvent} onClose={() => setViewedEvent(null)} />
+                        <EventDetailsPage
+                            event={viewedEvent}
+                            onClose={() => setViewedEvent(null)}
+                            onDelete={(deletedId) => {
+                                setEvents((prevEvents) => prevEvents.filter((e) => e.id !== deletedId));
+                                setViewedEvent(null); // Close the detail view
+                            }} />
                     </motion.div>
                 ) : (
                     <>
@@ -171,9 +177,9 @@ function CreatedEvents() {
                                         </div>
 
                                         <div className="mt-4">
-                                           
+
                                             <button onClick={() => setViewedEvent(event)} className="w-full  mt-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
-                                                <FaEye className="text-white" size={21} /> View Event
+                                                <FaEye className=" text-white" size={21} /> View Event
                                             </button>
                                         </div>
                                     </div>
@@ -189,7 +195,7 @@ function CreatedEvents() {
                             hasNext={currentPage < totalPages}
                             onPageChange={setCurrentPage}
                         />
-                       
+
                     </>
                 )}
             </AnimatePresence>

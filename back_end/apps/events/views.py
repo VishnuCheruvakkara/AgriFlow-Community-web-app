@@ -81,7 +81,10 @@ class GetAllCommunityEventsView(APIView):
             search_term = request.query_params.get('search', '').strip()
 
             # Filter the queryset based on search term if it exists
-            events = CommunityEvent.objects.select_related('community', 'event_location')
+            events = CommunityEvent.objects.select_related('community', 'event_location').filter(
+                is_deleted=False,
+                community__is_deleted=False
+            )
             
             if search_term:
                 events = events.filter(
@@ -112,7 +115,11 @@ class UserCreatedEventsView(APIView):
         user = request.user
         search_query = request.query_params.get('search', '')
 
-        events = CommunityEvent.objects.filter(created_by=user)
+        events = CommunityEvent.objects.filter(
+            created_by=user,
+            is_deleted=False,
+            community__is_deleted=False
+        )
 
         if search_query:
             events = events.filter(
@@ -141,3 +148,32 @@ class CommunityEventUpdateAPIView(APIView):
             return Response(CommunityEventEditSerializer(updated_event).data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+####################### Soft delete the community event  ############## 
+
+class DeleteCommunityEventView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            event = CommunityEvent.objects.get(pk=pk, is_deleted=False)
+        except CommunityEvent.DoesNotExist:
+            return Response({'error': 'Event not found or already deleted.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if the user is an admin in the event's community
+        is_admin = CommunityMembership.objects.filter(
+            user=request.user,
+
+            community=event.community,
+            is_admin=True,
+            status='approved'
+        ).exists()
+
+        if not is_admin:
+            return Response({'error': 'You do not have permission to delete this event.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Perform soft delete
+        event.is_deleted = True
+        event.save()
+
+        return Response({'message': 'Event deleted successfully.'}, status=status.HTTP_200_OK)

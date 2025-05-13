@@ -357,3 +357,43 @@ select:focus,
 button:focus {
   outline: none;
 }
+
+/* Global ripple effect set up for the button and other area  */
+.ripple-parent {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Base style */
+.ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-animation 1500ms normal;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* White ripple */
+.ripple-white .ripple-span {
+  background-color: rgb(255, 255, 255);
+}
+
+/* Black ripple */
+.ripple-black .ripple-span {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Green ripple */
+.ripple-green .ripple-span {
+  background-color: rgba(58, 255, 130, 0.893); /* Tailwind's green-500 with alpha */
+}
+
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(5);
+    opacity: 0;
+  }
+}

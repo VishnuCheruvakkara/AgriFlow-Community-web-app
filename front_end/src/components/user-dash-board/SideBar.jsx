@@ -67,12 +67,12 @@ function SideBar() {
                 </div>
 
                 {/* Sidebar Navigation */}
-                <ul className="p-2">
-                    <li className="mb-1">
+                <ul className="">
+                    <li className="">
                         <Link
                             to="/user-dash-board/"
-                            className={`flex items-center space-x-3 p-3 rounded-lg font-medium ${location.pathname === '/user-dash-board/'
-                                ? 'bg-green-100 text-green-700'
+                            className={`ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname === '/user-dash-board/'
+                                ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700'
                                 : 'hover:bg-gray-100 text-gray-700 transition-colors'
                                 }`}
                         >
@@ -81,11 +81,11 @@ function SideBar() {
                         </Link>
                     </li>
 
-                    <li className="mb-1">
+                    <li className="">
                         <Link
                             to="/user-dash-board/farmer-community/"
-                            className={`flex items-center space-x-3 p-3 rounded-lg font-medium ${location.pathname.startsWith('/user-dash-board/farmer-community')
-                                ? 'bg-green-100 text-green-700'
+                            className={`ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/farmer-community')
+                                ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700'
                                 : 'hover:bg-gray-100 text-gray-700 transition-colors'
                                 }`}
                         >
@@ -94,11 +94,11 @@ function SideBar() {
                         </Link>
                     </li>
 
-                    <li className="mb-1">
+                    <li className="">
                         <Link
                             to="/user-dash-board/event-management"
-                            className={`flex items-center space-x-3 p-3 rounded-lg font-medium ${location.pathname.startsWith('/user-dash-board/event-management')
-                                    ? 'bg-green-100 text-green-700'
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname.startsWith('/user-dash-board/event-management')
+                                    ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700'
                                     : 'hover:bg-gray-100 text-gray-700 transition-colors'
                                 }`}
                         >
@@ -108,20 +108,20 @@ function SideBar() {
                     </li>
 
 
-                    <li className="mb-1">
-                        <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
+                    <li className="">
+                        <a href="#" className="flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaChartLine className="text-xl" />
                             <span>Activity</span>
                         </a>
                     </li>
-                    <li className="mb-1">
-                        <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
+                    <li className="">
+                        <a href="#" className="flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaStore className="text-xl" />
                             <span>Products</span>
                         </a>
                     </li>
-                    <li className="mb-1">
-                        <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition-colors">
+                    <li className="">
+                        <a href="#" className="flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaScroll className="text-xl" />
                             <span>Schemes</span>
                         </a>
@@ -129,11 +129,11 @@ function SideBar() {
                 </ul>
 
                 {/* Logout Button */}
-                <div className="p-2 pt-0">
-                    <li className="list-none mt-3 pt-3 border-t">
+                <div className="">
+                    <li className="list-none  py-3 border-t">
                         <button
                             onClick={handleLogout}
-                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors w-full"
+                            className="flex items-center space-x-3 p-3 hover:bg-red-100 text-red-600 transition duration-500 ease-in-out w-full"
                         >
                             <FaSignOutAlt className="text-xl" />
                             <span>Logout</span>

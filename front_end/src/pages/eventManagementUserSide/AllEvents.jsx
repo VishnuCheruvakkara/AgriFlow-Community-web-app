@@ -11,7 +11,7 @@ import { ImCancelCircle } from "react-icons/im";
 import { Search } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useCallback } from 'react';
-
+import { MdOutlineLibraryAdd } from 'react-icons/md';
 
 function AllEvents() {
   const [loading, setLoading] = useState(false);
@@ -48,7 +48,7 @@ function AllEvents() {
     debounce((term, page) => {
       fetchEvents(page, term);
     }, 500),
-    [] 
+    []
   );
 
   useEffect(() => {
@@ -60,7 +60,7 @@ function AllEvents() {
       debouncedFetch(searchTerm, currentPage);
     }
   }, [searchTerm, currentPage, debouncedFetch]);
-  
+
 
   // Open modal to show event banner image
   const handleOpenModal = (imageUrl) => {
@@ -121,7 +121,7 @@ function AllEvents() {
 
             return (
               <div key={event.id} className="bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full">
-                <div className="flex-1">
+                <div className="flex-1 ">
                   <div className="relative group">
                     <img
                       src={event.banner_url || DeafultBannerImage}
@@ -129,12 +129,12 @@ function AllEvents() {
                       className="w-full h-40 object-cover rounded-md mb-3"
                       onError={(e) => e.target.src = DeafultBannerImage}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ">
                       <button
                         onClick={() => handleOpenModal(event.banner_url)}
-                        className="p-3 bg-white rounded-full shadow-lg hover:bg-green-500 group transition-colors duration-300"
+                        className="p-3 bg-white border border-green-500 rounded-full shadow-lg  hover:bg-green-100 group transition-colors duration-300"
                       >
-                        <MdOutlineZoomOutMap className="text-green-600 group-hover:text-green-600 text-2xl" />
+                        <MdOutlineZoomOutMap className="text-green-600 text-2xl " />
                       </button>
                     </div>
                     <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${event.event_type === 'online' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'}`}>
@@ -155,10 +155,11 @@ function AllEvents() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <button className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
-                    <FaEye className="text-white" />
-                    View Event
+                  <button  className=" ripple-parent ripple-white w-full ripple py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
+                    <MdOutlineLibraryAdd className="text-white text-xl" />
+                    Join to Event
                   </button>
+                 
                 </div>
               </div>
             );

@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -17,4 +17,6 @@ urlpatterns = [
     ############# Edit the community event #####################
     path('edit-event/<int:pk>/', CommunityEventUpdateAPIView.as_view(), name='event-update'),
 
+    ############# Soft Delete community event ###################### 
+    path('delete-event/<int:pk>/', DeleteCommunityEventView.as_view(), name='delete-community-event'),
 ]

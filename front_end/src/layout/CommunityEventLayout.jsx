@@ -35,7 +35,7 @@ function EventLayout() {
                     <NavLink
                         to="all-events"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            ` ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
@@ -46,7 +46,7 @@ function EventLayout() {
                     <NavLink
                         to="my-events"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            `  ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
@@ -57,7 +57,7 @@ function EventLayout() {
                     <NavLink
                         to="created-events"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
@@ -69,7 +69,7 @@ function EventLayout() {
                     <NavLink
                         to="create-event"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            ` ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }

@@ -43,6 +43,7 @@ class CommunityEvent(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_events')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-start_datetime']

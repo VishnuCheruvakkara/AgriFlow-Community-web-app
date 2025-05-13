@@ -10,8 +10,12 @@ import { LiaUsersSolid } from "react-icons/lia";
 import EditEventModal from "./EditEventModal";
 import { MdExitToApp } from "react-icons/md";
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import { AnimatePresence } from "framer-motion";
+import { showConfirmationAlert } from "../SweetAlert/showConfirmationAlert";
+import { showToast } from "../toast-notification/CustomToast";
+import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 
-const EventDetailsPage = ({ event, onClose }) => {
+const EventDetailsPage = ({ event, onClose,onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(event);
   // Format the date and time in a more readable way
@@ -24,7 +28,7 @@ const EventDetailsPage = ({ event, onClose }) => {
   };
 
   const handleSave = async (updatedEvent) => {
-    console.log("Events after update ::444::",updatedEvent)
+    console.log("Events after update ::444::", updatedEvent)
     try {
       setCurrentEvent(updatedEvent);
       setIsEditModalOpen(false);
@@ -53,11 +57,33 @@ const EventDetailsPage = ({ event, onClose }) => {
 
     scrollToTopByScreenSize();
   }, []);
-  
+
   //Using a local state to handle the event data 
   useEffect(() => {
     setCurrentEvent(event);
   }, [event]);
+
+  const handleDelete = async () => {
+    const result = await showConfirmationAlert({
+      title: 'Delete Event?',
+      text: 'Are you sure you want to delete this event? This action cannot be undone.',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'No, Cancel',
+    });
+
+    if (result) {
+      try {
+        const response = await AuthenticatedAxiosInstance.patch(`/events/delete-event/${currentEvent.id}/`);
+        console.log(response.data);
+        showToast("Event deleted successfully", "success")
+        onDelete(currentEvent.id);
+        onClose(); // Close the page
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        showToast("Failed to delete the event.","error")
+      }
+    }
+  };
 
 
   return (
@@ -86,7 +112,7 @@ const EventDetailsPage = ({ event, onClose }) => {
       <div className="bg-white py-4 flex flex-col items-center border-b-2">
 
         <div className=" border-b-2 text-center w-full pb-3">
-          <h3 className=" text-md font-semibold text-green-700 ">Event Name "{ currentEvent.title || "Not found"}" </h3>
+          <h3 className=" text-md font-semibold text-green-700 ">Event Name "{currentEvent.title || "Not found"}" </h3>
         </div>
 
         <button
@@ -202,20 +228,28 @@ const EventDetailsPage = ({ event, onClose }) => {
           </div>
         )}
       </div>
-      <button
 
+      <button
+        onClick={handleDelete}
         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
       >
         <RiDeleteBin5Fill className="text-red-600 text-xl" />
         <span className="text-red-600 font-bold">Delete Event</span>
       </button>
+
+
       {/* Edit Event Modal */}
-      <EditEventModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        eventData={currentEvent}
-        onSave={handleSave}
-      />
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <EditEventModal
+            key="edit-event-modal"
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            eventData={currentEvent}
+            onSave={handleSave}
+          />
+        )}
+      </AnimatePresence>
     </div >
 
   );

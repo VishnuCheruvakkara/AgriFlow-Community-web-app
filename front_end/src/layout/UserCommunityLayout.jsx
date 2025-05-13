@@ -19,7 +19,7 @@ function CommunityLayout() {
                     <NavLink
                         to="discover-communities"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
@@ -30,7 +30,7 @@ function CommunityLayout() {
                     <NavLink
                         to="my-communities"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
@@ -41,7 +41,7 @@ function CommunityLayout() {
                     <NavLink
                         to="create-communities"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
@@ -52,7 +52,7 @@ function CommunityLayout() {
                     <NavLink
                         to="pending-request"
                         className={({ isActive }) =>
-                            `py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
