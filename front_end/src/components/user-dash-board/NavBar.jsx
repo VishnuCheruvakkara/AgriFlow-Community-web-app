@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
-import { useDispatch, useSelector  } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 //import from redux-auth-slice 
 import { logout } from '../../redux/slices/AuthSlice'
 // persitor imported from the redux store to purge the data in the local storage
@@ -16,14 +16,14 @@ import { showToast } from '../toast-notification/CustomToast';
 import defaultUserImage from '../../assets/images/user-default.png'
 import { FaSignOutAlt, FaCog } from 'react-icons/fa';
 import agriFlowLogo from '../../assets/images/agriflowwhite.png'
-
+import ThemeToggle from '../ThemeController/ThemeToggle';
 
 
 function NavBar() {
 
     const user = useSelector((state) => state.auth.user);
     const AadharVerified = user?.aadhar_verification;
-    const userData=useSelector((state)=>state.user.user)
+    const userData = useSelector((state) => state.user.user)
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -79,7 +79,7 @@ function NavBar() {
                     </div>
 
                     {/* Search Bar */}
-                    {AadharVerified  &&
+                    {AadharVerified &&
                         <div className="hidden md:block flex-1 max-w-xl mx-6">
                             <div className="relative">
                                 <input
@@ -94,14 +94,17 @@ function NavBar() {
 
                     {/* Navigation Icons */}
                     <div className="flex items-center space-x-4">
-                        {AadharVerified  ? (
+
+
+
+                        {AadharVerified ? (
                             <>
                                 {/* Show Other Icons if Profile is Completed */}
-                                <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors">
+                                <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors tooltip tooltip-bottom" data-tip="Notification">
                                     <FaBell className="text-xl" />
                                     <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs flex items-center justify-center">3</span>
                                 </button>
-                                <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors">
+                                <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors tooltip tooltip-bottom" data-tip="Messages">
                                     <FaEnvelope className="text-xl" />
                                     <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs flex items-center justify-center">5</span>
                                 </button>
@@ -111,7 +114,7 @@ function NavBar() {
                                         onClick={toggleDropdown} // Toggle on click
                                     >
                                         <img
-                                            src={ userData?.profile_picture|| defaultUserImage}
+                                            src={userData?.profile_picture || defaultUserImage}
                                             alt="User profile"
                                             className="h-full w-full object-cover"
                                         />
@@ -139,6 +142,13 @@ function NavBar() {
                                 </div>
 
 
+                                {/* Put the theme toggle button here */}
+
+                                <ThemeToggle />
+
+
+
+
 
                             </>
                         ) : (
@@ -149,6 +159,8 @@ function NavBar() {
                                         <IoMdLogOut className="text-2xl text-white group-hover:text-red-600 transition duration-500 ease-in-out" />
                                     </button>
                                 </div>
+
+                                <ThemeToggle />
 
 
                             </>

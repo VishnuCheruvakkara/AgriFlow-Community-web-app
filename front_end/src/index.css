@@ -4,18 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 
 input, textarea, select {
   @apply bg-white text-black  ;
 }
 
 h3,h2,label{
   @apply text-black;
+} */
+
+* {
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 
 body,html {
   font-family: 'Poppins', sans-serif;
   background-color: white !important;
+  
 }
 
 /* This will hide the scrollbar but still allow horizontal scrolling */
@@ -397,3 +403,4 @@ button:focus {
     opacity: 0;
   }
 }
+

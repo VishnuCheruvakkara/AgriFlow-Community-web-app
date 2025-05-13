@@ -130,7 +130,7 @@ function DiscoverCommunities() {
         <input
           type="text"
           placeholder="Search communities..."
-          className="w-full py-3 pl-12 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out"
+          className="w-full py-3 pl-12 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out "
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -152,14 +152,14 @@ function DiscoverCommunities() {
           <p className="mt-4 text-sm text-gray-500">Loading Communities, please wait...</p>
         </div>
       ) : communities.length === 0 ? (
-        <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
-          <p className="text-lg font-semibold">No Communities found!</p>
-          <p className="text-xs text-gray-500">Try using a different search keyword.</p>
+        <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700 ">
+          <p className="text-lg font-semibold dark:text-zinc-400">No Communities found!</p>
+          <p className="text-xs text-gray-500 dark:text-zinc-400">Try using a different search keyword.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {communities.map((community) => (
-            <div key={community.id} className="bg-white rounded-lg p-5 flex lex-row items-start shadow-xs border border-gray-30f0 hover:shadow-lg transition-shadow duration-300 h-full">
+            <div key={community.id} className="dark:bg-zinc-900 bg-white rounded-lg p-5 flex lex-row items-start shadow-xs border border-gray-30f0 hover:shadow-lg transition-shadow duration-300 h-full">
               <div className=" border border-gray-300 h-16 w-16 rounded-lg bg-gray-200 overflow-hidden mr-4 flex-shrink-0 mt-1 ">
                 <img
                   src={community.community_logo || DefaultCommunityIcon}
@@ -218,7 +218,7 @@ function DiscoverCommunities() {
               initial={{ opacity: 0, scale: 0.85, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 180, damping: 18 } }}
               exit={{ opacity: 0, scale: 0.85, y: 40, transition: { duration: 0.2 } }}
-              className="bg-white w-[90%] max-w-md rounded-lg shadow-xl overflow-hidden">
+              className="bg-white dark:bg-zinc-900 w-[90%] max-w-md rounded-lg shadow-xl overflow-hidden">
 
               {/* loader set up  */}
               {joinCommunityLoading && (

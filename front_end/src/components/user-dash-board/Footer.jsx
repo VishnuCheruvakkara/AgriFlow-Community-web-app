@@ -6,17 +6,17 @@ import { MdCopyright } from "react-icons/md";
 function Footer() {
     return (
 
-        <footer className="bg-white shadow-inner mt-8 py-6 px-4 md:px-8 hidden lg:block">
+        <footer className="bg-white dark:bg-zinc-800 shadow-inner mt-8 py-6 px-4 md:px-8 hidden lg:block">
             <div className="container mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center">
                     <div className="mb-4 md:mb-0">
                         <h3 className="font-bold text-xl text-green-700">AgriFlow</h3>
-                        <p className="text-gray-600">Connecting farmers, growing together</p>
+                        <p className="text-gray-600 dark:text-white">Connecting farmers, growing together</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
                         <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Company</h4>
-                            <ul className="space-y-2 text-gray-600">
+                            <h4 className="font-semibold text-gray-800 mb-3 dark:text-white">Company</h4>
+                            <ul className="space-y-2 text-gray-600 dark:text-zinc-400">
                                 <li><a href="#" className="hover:text-green-600">About Us</a></li>
                                 <li><a href="#" className="hover:text-green-600">Careers</a></li>
                                 <li><a href="#" className="hover:text-green-600">Partners</a></li>
@@ -24,8 +24,8 @@ function Footer() {
                             </ul>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Resources</h4>
-                            <ul className="space-y-2 text-gray-600">
+                            <h4 className="font-semibold text-gray-800 mb-3 dark:text-white">Resources</h4>
+                            <ul className="space-y-2 text-gray-600 dark:text-zinc-400">
                                 <li><a href="#" className="hover:text-green-600">Blog</a></li>
                                 <li><a href="#" className="hover:text-green-600">Guides</a></li>
                                 <li><a href="#" className="hover:text-green-600">Events</a></li>
@@ -33,8 +33,8 @@ function Footer() {
                             </ul>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Legal</h4>
-                            <ul className="space-y-2 text-gray-600">
+                            <h4 className="font-semibold text-gray-800 mb-3 dark:text-white">Legal</h4>
+                            <ul className="space-y-2 text-gray-600 dark:text-zinc-400">
                                 <li><a href="#" className="hover:text-green-600">Privacy Policy</a></li>
                                 <li><a href="#" className="hover:text-green-600">Terms of Use</a></li>
                                 <li><a href="#" className="hover:text-green-600">Data Policy</a></li>
@@ -42,8 +42,8 @@ function Footer() {
                             </ul>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Follow Us</h4>
-                            <div className="flex space-x-3 text-gray-600">
+                            <h4 className="font-semibold text-gray-800 mb-3 dark:text-white">Follow Us</h4>
+                            <div className="flex space-x-3 text-gray-600 dark:text-zinc-400">
                                 <a href="#" className="hover:text-green-600">
                                     <span className="sr-only">Facebook</span>
                                     <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -73,7 +73,7 @@ function Footer() {
                         </div>
                     </div>
                 </div>
-                <div className="mt-8 pt-6 border-t text-center text-gray-500 text-sm">
+                <div className="mt-8 pt-6 border-t text-center text-gray-500 text-sm  dark:text-zinc-400">
                     <p className="flex justify-center items-center gap-1">
                         <MdCopyright className="text-base" />  {new Date().getFullYear()} AgriFlow. All rights reserved.
                     </p>

@@ -4,8 +4,12 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', //talwind dark modle set up 
   theme: {
     extend: {
+      colors: {
+        
+      },
       fontFamily: {
         lora: ['Lora', 'serif'],
       },
@@ -13,7 +17,8 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: false, // Forces Light Mode
+    themes: ["light", "dark"], // Forces Light Mode
+   
   },
 }
 

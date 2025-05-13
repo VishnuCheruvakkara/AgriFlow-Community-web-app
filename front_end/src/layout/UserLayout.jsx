@@ -83,7 +83,7 @@ const UserLayout = () => {
     }, []);
 
     return (
-        <div className="bg-gray-100 min-h-screen ">
+        <div className="bg-gray-100 min-h-screen dark:bg-zinc-950">
             {/* NAVBAR HERE */}
             <NavBar />
 

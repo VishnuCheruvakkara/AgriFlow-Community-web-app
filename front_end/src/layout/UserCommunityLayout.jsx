@@ -6,22 +6,25 @@ function CommunityLayout() {
 
     return (
         <div className="container mx-auto py-4 max-w-full">
-                <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
-                    <h1 className="text-2xl font-bold">Communities</h1>
-                </div>
-               
-            <div className="bg-white rounded-b-lg shadow-sm p-6 mb-8">
-                
-                <p className="text-gray-600">Connect with fellow farmers, share knowledge, and grow together</p>
+            <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
+                <h1 className="text-2xl font-bold dark:text-zinc-100">Communities</h1>
+            </div>
+
+            <div className="bg-white rounded-b-lg shadow-sm p-6 mb-8 dark:bg-zinc-800">
+                <p className="text-gray-600 dark:text-zinc-200">
+                    Connect with fellow farmers, share knowledge, and grow together
+                </p>
 
                 {/* Tab navigation using NavLink for routing */}
-                <div className="flex border-b mt-4 overflow-x-auto">
+                <div className="flex border-b dark:border-zinc-700 mt-4 overflow-x-auto">
                     <NavLink
                         to="discover-communities"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
-                                ? 'border-b-2 border-green-600 text-green-600 font-medium'
-                                : 'text-gray-600'}`
+                            `py-3 px-6 ripple-parent ripple-green  ${
+                                isActive
+                                    ? 'border-b-2 border-green-600 text-green-600 font-medium dark:text-green-500 dark:border-green-500'
+                                    : 'text-gray-500 dark:text-zinc-400'
+                            }`
                         }
                     >
                         Discover Communities
@@ -30,9 +33,11 @@ function CommunityLayout() {
                     <NavLink
                         to="my-communities"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
-                                ? 'border-b-2 border-green-600 text-green-600 font-medium'
-                                : 'text-gray-600'}`
+                            `py-3 px-6 ripple-parent ripple-green  ${
+                                isActive
+                                    ? 'border-b-2 border-green-600 text-green-600 font-medium dark:text-green-500 dark:border-green-500'
+                                    : 'text-gray-600 dark:text-zinc-400'
+                            }`
                         }
                     >
                         My Communities
@@ -41,9 +46,11 @@ function CommunityLayout() {
                     <NavLink
                         to="create-communities"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
-                                ? 'border-b-2 border-green-600 text-green-600 font-medium'
-                                : 'text-gray-600'}`
+                            `py-3 px-6 ripple-parent ripple-green ${
+                                isActive
+                                    ? 'border-b-2 border-green-600 text-green-600 font-medium dark:text-green-500 dark:border-green-500'
+                                    : 'text-gray-600 dark:text-zinc-400'
+                            }`
                         }
                     >
                         Create Community
@@ -52,9 +59,11 @@ function CommunityLayout() {
                     <NavLink
                         to="pending-request"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
-                                ? 'border-b-2 border-green-600 text-green-600 font-medium'
-                                : 'text-gray-600'}`
+                            `py-3 px-6 ripple-parent ripple-green  ${
+                                isActive
+                                    ? 'border-b-2 border-green-600 text-green-600 font-medium dark:text-green-500 dark:border-green-500'
+                                    : 'text-gray-600 dark:text-zinc-400'
+                            }`
                         }
                     >
                         Pending Requests
@@ -63,7 +72,7 @@ function CommunityLayout() {
 
                 {/* Animated Outlet */}
                 <div className="mt-6">
-                  <Outlet/>
+                    <Outlet />
                 </div>
             </div>
         </div>
