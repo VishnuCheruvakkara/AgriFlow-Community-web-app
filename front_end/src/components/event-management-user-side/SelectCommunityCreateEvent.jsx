@@ -5,6 +5,7 @@ import { ImCancelCircle } from 'react-icons/im';
 import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PulseLoader } from 'react-spinners';
+import SelectCommunityCreateEventShimmer from '../shimmer-ui-component/SelectCommunityCreateEventShimmer';
 
 function SelectCommunityCreateEvent({ onCommunitySelect }) {
     const [communities, setCommunities] = useState([]);
@@ -74,10 +75,7 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
             </div>
             {/* Conditional Messages */}
             {loading ? (
-                <div className="flex flex-col justify-center items-center py-6">
-                    <PulseLoader color="#16a34a" speedMultiplier={1} />
-                    <p className="mt-4 text-sm text-gray-500">Loading Communities, please wait...</p>
-                </div>
+                <SelectCommunityCreateEventShimmer/>
             ) : communities.length === 0 ? (
                 <div className="text-center py-10 px-4 bg-gray-100 rounded-md border-2 border-dashed border-gray-300 text-gray-600">
                     <p className="text-lg font-semibold mb-2">You are not an admin of any community</p>

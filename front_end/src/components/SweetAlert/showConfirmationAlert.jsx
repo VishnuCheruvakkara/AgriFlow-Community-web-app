@@ -1,10 +1,23 @@
-
 import Swal from "sweetalert2";
+import ReactDOMServer from "react-dom/server"; // Import ReactDOMServer to render React components as HTML
+import { FaExclamationTriangle } from "react-icons/fa"; // Example icon import
 
-export const showConfirmationAlert = async ({ title, text,confirmButtonText = "Yes, Proceed", cancelButtonText = "Cancel" }) => {
+// showConfirmationAlert now accepts the icon as a React component
+export const showConfirmationAlert = async ({
+  title,
+  text,
+  iconComponent = null, // Icon is passed as a React component
+  confirmButtonText = "Yes, Proceed",
+  cancelButtonText = "Cancel"
+}) => {
+  // Convert React component to static HTML string
+  const iconHtml = iconComponent ? ReactDOMServer.renderToStaticMarkup(iconComponent) : '';
+
   const result = await Swal.fire({
-    title,
-    text,
+    title: `<div>${title}</div>`, // Title without icon here
+    html: `
+      <div class="icon-container">${iconHtml}</div> 
+      <div>${text}</div>`,  // Icon placed between title and content (text)
     showCancelButton: true,
     confirmButtonText,
     cancelButtonText,
@@ -22,5 +35,6 @@ export const showConfirmationAlert = async ({ title, text,confirmButtonText = "Y
       cancelButton: 'my-swal-cancel',
     },
   });
+
   return result.isConfirmed;
 };

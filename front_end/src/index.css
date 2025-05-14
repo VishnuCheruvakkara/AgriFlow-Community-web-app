@@ -404,3 +404,53 @@ button:focus {
   }
 }
 
+/* shimmer ui common animation setup  */
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
+}
+
+/* Main shimmer class */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--shimmer-base, #e5e7eb); /* fallback bg */
+}
+
+
+/* shimmer ui set up for loading  */
+/* The animated gradient bar inside shimmer */
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--shimmer-highlight, rgba(255, 255, 255, 0.6)),
+    transparent
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Light mode colors */
+.shimmer-light {
+  --shimmer-base: #e5e7eb;
+  --shimmer-highlight: rgba(255, 255, 255, 0.6);
+}
+
+/* Dark mode colors */
+.dark .shimmer-dark {
+  --shimmer-base: #3f3f46;
+  --shimmer-highlight: rgba(255, 255, 255, 0.1);
+}

@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -19,4 +19,10 @@ urlpatterns = [
 
     ############# Soft Delete community event ###################### 
     path('delete-event/<int:pk>/', DeleteCommunityEventView.as_view(), name='delete-community-event'),
+
+    ############# Join to a community event #################
+    path("join-to-event/", JoinEventAPIView.as_view(), name="join-event"),
+
+    ############## Get all the enrolled events ################## 
+    path('get-enrolled-events/', EnrolledEventsView.as_view(), name='get-enrolled-events'),
 ]

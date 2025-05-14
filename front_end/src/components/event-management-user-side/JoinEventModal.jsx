@@ -1,45 +1,203 @@
 import React from 'react';
-import { ImCancelCircle } from 'react-icons/im';
-import { FaRegCircleCheck } from 'react-icons/fa6';
+import { MdClose } from 'react-icons/md';
+import { FaInfoCircle, FaCalendarAlt, FaMapMarkerAlt, FaLaptop } from 'react-icons/fa';
+import { HiOutlineTag } from 'react-icons/hi';
+import MapModal from '../MapLocation/MapModal';
+import { GrMapLocation } from "react-icons/gr";
+import { showToast } from '../toast-notification/CustomToast';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
+import { showConfirmationAlert } from '../SweetAlert/showConfirmationAlert';
+import { FaExclamationTriangle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { MdOutlineLocationCity } from "react-icons/md";
+import { RiVideoOnAiLine } from 'react-icons/ri';
 
-function JoinEventModal({title = "Edit Event", onClose,onSubmit, children }) {
+function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideConfirmBtn = false, cancelBtnLabel = "Cancel" }) {
+    const [showMapModal, setShowMapModal] = React.useState(false);
+    //set up the navigate 
+    const navigate = useNavigate();
+    if (!event) return null;
+
+
+    const openInGoogleMaps = (lat, lng) => {
+        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(googleMapsUrl, '_blank');
+    };
+
+    const handleJoinEvent = async () => {
+        const result = await showConfirmationAlert({
+            title: 'Enroll in the Event?',
+            text: 'Once enrolled, you must participate. Skipping can result in restrictions. After enrollment, you cannot edit or leave the event.',
+            confirmButtonText: 'Yes, Enroll',
+            cancelButtonText: 'No, Cancel',
+            iconComponent: (
+                <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4 border-2 border-red-600">
+                    <FaExclamationTriangle className="text-red-600 text-3xl" />
+                </div>
+            )
+
+        });
+
+        if (result) {
+            try {
+                const response = await AuthenticatedAxiosInstance.post('/events/join-to-event/', {
+                    event_id: event.id, // adjust this field as per your backend
+                });
+                showToast("Enrolled to the event successfully!", "success")
+                navigate('/user-dash-board/event-management/enrolled-events');
+            } catch (error) {
+                console.error('Error while enrolling:', error);
+                showToast("Failed to enroll the event, try agian!", "error")
+            }
+        }
+    };
+
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg overflow-hidden">
+        <div className="fixed inset-0 z-[999]">
+            {/* Overlay */}
+            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
 
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+            {/* Modal content */}
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+                <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-white">{title}</h2>
+                        <button
+                            onClick={onClose}
+                            className="text-white hover:bg-green-600 rounded-full p-1"
+                            aria-label="Close modal"
+                        >
+                            <MdClose size={20} />
+                        </button>
+                    </div>
+
+                    {/* Event content */}
+                    <div className="p-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
+                        {!hideConfirmBtn && (
+                            <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6">
+                                <div className="flex">
+                                    <div className="flex-shrink-0">
+                                        <FaInfoCircle className="text-red-700" />
+                                    </div>
+                                    <div className="ml-3 space-y-2">
+                                        <p className="text-sm text-red-700">
+                                            If you’re enrolled but don’t attend the event, you might not be able to join future events.
+                                            So please enroll only if you’re sure you can attend.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {hideConfirmBtn && (
+                            <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6">
+                                <div className="flex">
+                                    <div className="flex-shrink-0">
+                                        <FaInfoCircle className="text-red-700" />
+                                    </div>
+                                    <div className="ml-3 space-y-2">
+                                        <p className="text-sm text-red-700">
+                                            Kindly ensure you join on time. Missing the session may lead to disciplinary measures.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="text-sm text-gray-500 mb-2">
+                            <HiOutlineTag className="inline text-green-700 mr-1 text-lg" /> <strong>Hosted by community : </strong> <span className="font-medium">{event.community_name}</span>
+                        </p>
+
+                        <img
+                            src={event.banner_url || '/default_banner.png'}
+                            onError={(e) => (e.target.src = '/default_banner.png')}
+                            alt="Event Banner"
+                            className="w-full object-cover rounded-md mb-4"
+                        />
+
+                        <p className="border-t border-green-600 pt-3 text-sm font-semibold text-green-700 mb-2">
+                            Event Name : {event.title}
+                        </p>
+                        <p className="text-sm text-gray-700 mb-4"><strong>Description :</strong> {event.description}</p>
+
+                        <div className="text-sm text-gray-600 space-y-3 border-t border-b border-green-600 py-4 mb-5">
+                            <p>
+                                <FaCalendarAlt className="inline mr-2 text-green-700" />
+                                <strong>Starts at:</strong> {new Date(event.start_datetime).toLocaleString()}
+                            </p>
+                            <p>
+                                <FaLaptop className="inline mr-2 text-green-700" />
+                                <strong>Type:</strong> {event.event_type === 'online' ? 'Online' : 'Offline'}
+                            </p>
+                            <p>
+                                <FaMapMarkerAlt className="inline mr-2 text-green-700" />
+                                <strong>Location:</strong> {event.event_type === 'online' ? 'Online Event' : event.location_name}
+                            </p>
+
+                            {event.event_type === 'offline' &&
+                                <p>
+                                    <MdOutlineLocationCity className="inline mr-2 text-green-700 text-lg" />
+                                    <strong>Venue Address : </strong>{event.address}
+                                </p>
+                            }
+                        </div>
+
+                        {event.event_type == "offline" ?
+
+                            <button
+                                onClick={() => setShowMapModal(true)}
+                                className=" bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
+                            >
+                                <div className="bg-white rounded-full p-2">
+                                    < GrMapLocation className="text-green-500 text-lg" />
+                                </div>
+                                <span className="text-sm pr-10 pl-4">View Location on Map</span>
+                            </button>
+                            :
+                            <button
+                                
+                                className=" bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
+                            >
+                                <div className="bg-white rounded-full p-2">
+                                    <RiVideoOnAiLine className="text-green-500 text-lg" />
+                                </div>
+                                <span className="text-sm pr-10 pl-4">Join the Video Call Now</span>
+                            </button>
+
+                        }
+                    </div>
+
+                    {/* Footer */}
+                    <div className="bg-gray-100 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
+                        <button
+                            type="button"
+                            className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium"
+                            onClick={onClose}
+                        >
+                            {cancelBtnLabel}
+                        </button>
+                        {!hideConfirmBtn && (
+                            <button
+                                type="button"
+                                onClick={handleJoinEvent}
+                                className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
+                            >
+                                Confirm Enrollment
+                            </button>
+                        )}
+                    </div>
                 </div>
-
-                {/* Body */}
-                <div className="p-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                    {children}
-                </div>
-
-                {/* Footer */}
-                <div className="bg-gray-100 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
-                    <button
-                        type="button"
-                        className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium flex items-center gap-2"
-                        onClick={onClose}
-                    >
-                        <ImCancelCircle />
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onSubmit}
-                        className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium flex items-center gap-2"
-                    >
-                        <FaRegCircleCheck />
-                        Save Changes
-                    </button>
-                </div>
-
             </div>
-        </div>
+            {showMapModal && (
+                <MapModal
+                    lat={event.latitude}
+                    lng={event.longitude}
+                    onClose={() => setShowMapModal(false)}
+                />
+            )}
 
+        </div>
     );
 }
 

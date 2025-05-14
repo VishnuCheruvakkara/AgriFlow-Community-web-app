@@ -282,6 +282,7 @@ function Home() {
           </ul>
         </div>
       </div>
+      
     </>
   )
 }

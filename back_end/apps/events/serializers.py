@@ -147,3 +147,85 @@ class CommunityEventEditSerializer(serializers.ModelSerializer):
         if updated:
             instance.save()
         return instance
+    
+################### Join to a community event #################
+
+class EventParticipationSerializer(serializers.ModelSerializer):
+    event_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = EventParticipation
+        fields = ['event_id', 'message']
+
+    def validate_event_id(self, event_id):
+        try:
+            event = CommunityEvent.objects.get(id=event_id, is_deleted=False)
+        except CommunityEvent.DoesNotExist:
+            raise serializers.ValidationError("Event not found.")
+        if event.is_full:
+            raise serializers.ValidationError("Event is already full.")
+        return event_id
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        event = CommunityEvent.objects.get(id=validated_data['event_id'])
+
+        # Check if user already joined
+        if EventParticipation.objects.filter(user=user, event=event).exists():
+            raise serializers.ValidationError("You are already enrolled in this event.")
+
+        # Create participation
+        participation = EventParticipation.objects.create(
+            user=user,
+            event=event,
+            message=validated_data.get('message', '')
+        )
+
+        # Check if event is full
+        if event.max_participants:
+            if event.participations.count() >= event.max_participants:
+                event.is_full = True
+                event.save()
+
+        return participation
+
+########################## Get events and the users who are the participant of that event ##################3
+
+
+class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
+    community_name = serializers.CharField(source='community.name', read_only=True)
+    community_id = serializers.IntegerField(source='community.id', read_only=True)
+    location_name = serializers.CharField(source='event_location.location_name', read_only=True)
+    full_location = serializers.CharField(source='event_location.full_location', read_only=True)
+    latitude = serializers.FloatField(source='event_location.latitude', read_only=True)
+    longitude = serializers.FloatField(source='event_location.longitude', read_only=True)
+    country = serializers.CharField(source='event_location.country', read_only=True)
+    banner_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunityEvent
+        fields = [
+            'id', 'title', 'description',
+            'event_type', 'start_datetime', 'max_participants', 'is_full',
+            'address', 'created_at', 'updated_at',
+
+            # Related Community fields
+            'community_id', 'community_name',
+
+            # Related EventLocation fields
+            'location_name', 'full_location', 'latitude', 'longitude', 'country',
+
+            # Secure Cloudinary banner
+            'banner_url',
+        ]
+
+    def get_banner_url(self, obj):
+        banner_id = obj.banner  # assuming 'banner' stores Cloudinary public_id
+        if not banner_id:
+            return None  # or return a default fallback URL
+        try:
+            url = generate_secure_image_url(banner_id)
+            return url
+        except Exception as e:
+            print(f"Error generating banner URL for event ID {obj.id}: {str(e)}")
+            return None

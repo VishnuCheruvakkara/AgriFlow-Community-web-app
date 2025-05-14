@@ -12,7 +12,7 @@ function EventLayout() {
             </div>
 
             {/* Card Container */}
-            <div className="bg-white rounded-b-lg shadow-sm p-6 mb-8">
+            <div className="bg-white rounded-b-lg shadow-sm p-6 mb-8 dark:bg-zinc-800">
                 <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
                     <div className="flex">
                         <div className="flex-shrink-0">
@@ -44,14 +44,14 @@ function EventLayout() {
                     </NavLink>
 
                     <NavLink
-                        to="my-events"
+                        to="enrolled-events"
                         className={({ isActive }) =>
                             `  ripple-parent ripple-green py-3 px-6 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600'}`
                         }
                     >
-                        Joined events
+                        Enrolled events
                     </NavLink>
 
                     <NavLink

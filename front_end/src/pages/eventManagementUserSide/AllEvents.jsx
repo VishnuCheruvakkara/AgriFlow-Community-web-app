@@ -13,16 +13,21 @@ import debounce from 'lodash/debounce';
 import { useCallback } from 'react';
 import { MdOutlineLibraryAdd } from 'react-icons/md';
 import JoinEventModal from '../../components/event-management-user-side/JoinEventModal';
+import EventPageShimmer from '../../components/shimmer-ui-component/EventPageShimmer';
 
 function AllEvents() {
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  // to zoom the event 
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({ totalPages: 1, hasNext: false, hasPrev: false });
+  // to shwo the event details 
+  const [modalEvent, setModalEvent] = useState(null);
+
 
 
   // Fetch events with pagination
@@ -30,7 +35,7 @@ function AllEvents() {
     try {
       setLoading(true);
       const response = await AuthenticatedAxiosInstance.get(`/events/get-all-events/?page=${page}&search=${searchTerm}`);
-      console.log("API 762364873246234    Response:", response.data);
+
       setEvents(response.data.results);  // 'results' holds the events list
       setPagination({
         totalPages: Math.ceil(response.data.count / 6),
@@ -103,12 +108,8 @@ function AllEvents() {
 
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-3 flex flex-col justify-center items-center h-60">
-            <PulseLoader color="#16a34a" speedMultiplier={1} />
-            <p className="mt-4 text-sm text-gray-500 text-center">Loading Events...</p>
-          </div>
-        ) : events.length === 0 ? (
+        {loading ? Array.from({ length: 6 }).map((_, index) => < EventPageShimmer key={index} />)
+          : events.length === 0 ? (
           <div className="col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
             <p className="text-lg font-semibold">No Events Found!</p>
             <p className="text-xs text-gray-500">
@@ -156,17 +157,25 @@ function AllEvents() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <button  className=" ripple-parent ripple-white w-full ripple py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
+                  <button onClick={() => setModalEvent(event)} className=" w-full ripple py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2">
                     <MdOutlineLibraryAdd className="text-white text-xl" />
-                    Join to Event
+                    Enroll to the Event
                   </button>
-                 
+
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Modal */}
+      {modalEvent && (
+        <JoinEventModal
+          event={modalEvent}
+          onClose={() => setModalEvent(null)}
+        />
+      )}
 
       {/* Pagination */}
       <Pagination

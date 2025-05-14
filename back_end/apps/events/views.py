@@ -1,16 +1,14 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-
-
 from apps.common.pagination import CustomUserPagination, CustomEventPagination
-from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer
+from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer,EventParticipationSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
 from apps.common.cloudinary_utils import upload_image_to_cloudinary
 from .serializers import CommunityEventSerializer
-from .models import CommunityEvent, EventLocation
+from .models import CommunityEvent, EventLocation,EventParticipation
 import json
 from community.models import Community
 from django.db.models import Q
@@ -84,11 +82,16 @@ class GetAllCommunityEventsView(APIView):
             search_term = request.query_params.get('search', '').strip()
             user = request.user
             print("user is ::",user.id)
+            # Get events the user is already participating in
+            participated_event_ids = EventParticipation.objects.filter(
+                user=user
+            ).values_list('event_id', flat=True)
+
             # Filter the queryset based on search term if it exists
             events = CommunityEvent.objects.select_related('community', 'event_location').filter(
                 is_deleted=False,
                 community__is_deleted=False
-            ).exclude(created_by=user)
+            ).exclude(created_by=user).exclude(id__in=participated_event_ids)
             
             print("user event :: ",events)
 
@@ -184,3 +187,30 @@ class DeleteCommunityEventView(APIView):
         event.save()
 
         return Response({'message': 'Event deleted successfully.'}, status=status.HTTP_200_OK)
+    
+############# Join to a community event #################
+
+class JoinEventAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = EventParticipationSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Successfully enrolled in the event."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+######################  Get al events where the current user is a pariticipant  ####################
+class EnrolledEventsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        participations = EventParticipation.objects.select_related('event').filter(user=user)
+
+        # Extract only the events from participations
+        events = [p.event for p in participations]
+
+        # Serialize using your provided serializer
+        serializer = CommunityEventCombinedSerializer(events, many=True, context={'request': request})
+        return Response(serializer.data)

@@ -12,6 +12,7 @@ import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import EventDetailsPage from '../../components/event-management-user-side/EventDetailsPage';
 import { motion, AnimatePresence } from 'framer-motion';
+import EventPageShimmer from '../../components/shimmer-ui-component/EventPageShimmer';
 
 function CreatedEvents() {
     const [events, setEvents] = useState([]);
@@ -135,19 +136,16 @@ function CreatedEvents() {
 
                         {/* Events Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {loading ? (
-                                <div className="col-span-3 flex flex-col justify-center items-center h-60">
-                                    <PulseLoader color="#16a34a" speedMultiplier={1} />
-                                    <p className="mt-4 text-sm text-gray-500 text-center">Loading Events...</p>
-                                </div>
-                            ) : events.length === 0 ? (
-                                <div className="col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
-                                    <p className="text-lg font-semibold">No Events Found!</p>
-                                    <p className="text-xs text-gray-500">
-                                        {searchTerm ? "Try using a different search keyword." : "There are currently no events available."}
-                                    </p>
-                                </div>
-                            ) : (
+                            {loading ? 
+                                    Array.from({ length: 6 }).map((_, index) => < EventPageShimmer key={index} />)
+                                    : events.length === 0 ? (
+                                    <div className="col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
+                                        <p className="text-lg font-semibold">No Events Found!</p>
+                                        <p className="text-xs text-gray-500">
+                                            {searchTerm ? "Try using a different search keyword." : "There are currently no events available."}
+                                        </p>
+                                    </div>
+                                ) : (
                                 events.map((event) => (
                                     <div key={event.id} className="bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full">
                                         <div className="flex-1">
