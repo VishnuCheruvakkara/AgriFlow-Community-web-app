@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaMapMarkerAlt, FaCalendarAlt, FaInfoCircle, FaUsers, FaRegEdit } from "react-icons/fa";
+import { FaMapMarkerAlt, FaCalendarAlt, FaInfoCircle, FaUsers, FaRegEdit, FaEye } from "react-icons/fa";
 import { BsClock } from "react-icons/bs";
 import DefaultBannerImage from "../../assets/images/banner_default_user_profile.png";
 import { RxCross2 } from "react-icons/rx";
@@ -14,8 +14,10 @@ import { AnimatePresence } from "framer-motion";
 import { showConfirmationAlert } from "../SweetAlert/showConfirmationAlert";
 import { showToast } from "../toast-notification/CustomToast";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
+import DefaultUserImage from "../../assets/images/user-default.png"
 
-const EventDetailsPage = ({ event, onClose,onDelete }) => {
+
+const EventDetailsPage = ({ event, onClose, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(event);
   // Format the date and time in a more readable way
@@ -80,7 +82,7 @@ const EventDetailsPage = ({ event, onClose,onDelete }) => {
         onClose(); // Close the page
       } catch (error) {
         console.error("Error deleting event:", error);
-        showToast("Failed to delete the event.","error")
+        showToast("Failed to delete the event.", "error")
       }
     }
   };
@@ -216,17 +218,54 @@ const EventDetailsPage = ({ event, onClose,onDelete }) => {
           </div>
         </div>
 
-        {/* Additional Information could be added here */}
-        {currentEvent.attendees && (
+        {/* Participants Section */}
+        {currentEvent.participants && currentEvent.participants.length > 0 && (
           <div className="bg-white mt-2 p-4 border-b">
-            <div className="flex items-center">
-              <FaUsers className="text-gray-500 mr-3" size={18} />
-              <h3 className="text-gray-700 font-medium">
-                {event.attendees.length} {event.attendees.length === 1 ? 'Attendee' : 'Attendees'}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <FaUsers className="text-gray-500 mt-1 mr-2" size={18} />
+                <h3 className="text-sm font-medium text-gray-500 mt-1">Participants</h3>
+              </div>
+              <h3 className="text-sm font-medium text-gray-500 mt-1 mr-2">
+                Total members joined: {currentEvent.participants.length}
               </h3>
+            </div>
+
+
+            <div className="mx-2 overflow-hidden rounded-lg ">
+              {currentEvent.participants.map((participant, index) => (
+                <div
+                  key={participant.id}
+                  className="flex items-center p-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4"
+                >
+                  <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
+                    <img
+                      src={participant.profile_picture_url || DefaultUserImage}
+                      alt="User Avatar"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center">
+                      <h3 className="font-medium text-gray-900 truncate">{participant.username}</h3>
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                        Participant
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{participant.email}</p>
+                  </div>
+
+                  <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left " data-tip="View">
+                    <FaEye className="text-green-600 text-xl hover:text-green-800" />
+                  </div>
+
+                </div>
+              ))}
             </div>
           </div>
         )}
+
       </div>
 
       <button

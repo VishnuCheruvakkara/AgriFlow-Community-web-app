@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from apps.common.pagination import CustomUserPagination, CustomEventPagination
-from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer,EventParticipationSerializer
+from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer,EventParticipationSerializer,CommunityEventParticipantGetSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
@@ -140,7 +140,7 @@ class UserCreatedEventsView(APIView):
        
         paginator = CustomEventPagination()
         paginated_events = paginator.paginate_queryset(events, request)
-        serializer = CommunityEventCombinedSerializer(paginated_events, many=True)
+        serializer = CommunityEventParticipantGetSerializer(paginated_events, many=True)
 
         return paginator.get_paginated_response(serializer.data)
 

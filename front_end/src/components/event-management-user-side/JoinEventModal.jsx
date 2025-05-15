@@ -143,29 +143,29 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                             }
                         </div>
 
-                        {event.event_type == "offline" ?
-
+                        {event.event_type === "offline" ? (
                             <button
                                 onClick={() => setShowMapModal(true)}
-                                className=" bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
+                                className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
                             >
                                 <div className="bg-white rounded-full p-2">
-                                    < GrMapLocation className="text-green-500 text-lg" />
+                                    <GrMapLocation className="text-green-500 text-lg" />
                                 </div>
                                 <span className="text-sm pr-10 pl-4">View Location on Map</span>
                             </button>
-                            :
-                            <button
-                                
-                                className=" bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
-                            >
-                                <div className="bg-white rounded-full p-2">
-                                    <RiVideoOnAiLine className="text-green-500 text-lg" />
-                                </div>
-                                <span className="text-sm pr-10 pl-4">Join the Video Call Now</span>
-                            </button>
+                        ) : (
+                            hideConfirmBtn && (
+                                <button
+                                    className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
+                                >
+                                    <div className="bg-white rounded-full p-2">
+                                        <RiVideoOnAiLine className="text-green-500 text-lg" />
+                                    </div>
+                                    <span className="text-sm pr-10 pl-4">Join the Video Call Now</span>
+                                </button>
+                            )
+                        )}
 
-                        }
                     </div>
 
                     {/* Footer */}

@@ -6,6 +6,7 @@ import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PulseLoader } from 'react-spinners';
 import SelectCommunityCreateEventShimmer from '../shimmer-ui-component/SelectCommunityCreateEventShimmer';
+import DefaultCommunityImage from "../../assets/images/user-group-default.png"
 
 function SelectCommunityCreateEvent({ onCommunitySelect }) {
     const [communities, setCommunities] = useState([]);
@@ -102,7 +103,7 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
                         >
                             <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
                                 <img
-                                    src={community.logo || "https://via.placeholder.com/48"}
+                                    src={community.logo || DefaultCommunityImage }
                                     alt="Community Logo"
                                     className="h-12 w-12 rounded-full object-cover"
                                 />
