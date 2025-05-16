@@ -200,17 +200,40 @@ class JoinEventAPIView(APIView):
             return Response({"message": "Successfully enrolled in the event."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-######################  Get al events where the current user is a pariticipant  ####################
+######################  (Enrolled Events section in the Event pages of the user side) all events where the current user is a pariticipant  ####################
+
 class EnrolledEventsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        participations = EventParticipation.objects.select_related('event').filter(user=user)
+        search_query = request.query_params.get('search', '')
 
-        # Extract only the events from participations
+        # Get participations with related events and locations/communities
+        participations = EventParticipation.objects.select_related(
+            'event__event_location', 'event__community'
+        ).filter(user=user, event__is_deleted=False, event__community__is_deleted=False)
+
+        # Extract related events
         events = [p.event for p in participations]
 
-        # Serialize using your provided serializer
-        serializer = CommunityEventCombinedSerializer(events, many=True, context={'request': request})
-        return Response(serializer.data)
+        # Convert list to queryset for pagination and search
+        from django.db.models import QuerySet
+        if not isinstance(events, QuerySet):
+            from .models import CommunityEvent  # Make sure CommunityEvent is imported
+            event_ids = [e.id for e in events]
+            events = CommunityEvent.objects.filter(id__in=event_ids)
+
+        # Apply search
+        if search_query:
+            events = events.filter(
+                Q(title__icontains=search_query) |
+                Q(event_type__icontains=search_query) |
+                Q(event_location__location_name__icontains=search_query)
+            )
+
+        # Pagination
+        paginator = CustomEventPagination()
+        paginated_events = paginator.paginate_queryset(events, request)
+        serializer = CommunityEventCombinedSerializer(paginated_events, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)

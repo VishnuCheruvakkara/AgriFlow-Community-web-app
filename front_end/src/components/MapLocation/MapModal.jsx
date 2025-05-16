@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MdClose } from 'react-icons/md';
 import { PulseLoader } from 'react-spinners';
+import { motion } from 'framer-motion';
 
 function MapModal({ lat, lng, onClose }) {
     const [loading, setLoading] = useState(true);
@@ -10,11 +11,21 @@ function MapModal({ lat, lng, onClose }) {
     return (
         <div className="fixed inset-0 z-[9999]">
             {/* Overlay */}
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+            <div
+                className="fixed inset-0 bg-black bg-opacity-50 dark:bg-zinc-900 dark:bg-opacity-80"
+                onClick={onClose}
+            />
 
             {/* Modal Content */}
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <div className="bg-white w-full max-w-screen-lg h-full rounded-lg shadow-xl overflow-hidden relative">
+                <motion.div
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0, scale: 0.85, y: 40 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="bg-white dark:bg-zinc-700 w-full max-w-screen-lg h-full rounded-lg shadow-xl overflow-hidden relative"
+                >
                     {/* Header */}
                     <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
                         <h2 className="text-xl font-bold text-white">Event Location</h2>
@@ -29,14 +40,15 @@ function MapModal({ lat, lng, onClose }) {
 
                     {/* Loading Spinner */}
                     {loading && (
-                        <div className="absolute top-[64px] bottom-0 left-0 right-0 flex items-center justify-center bg-white bg-opacity-80 z-10">
+                        <div className="absolute top-[64px] bottom-0 left-0 right-0 flex items-center justify-center bg-white dark:bg-zinc-700 bg-opacity-80 z-10">
                             <div className="flex flex-col items-center justify-center space-y-3">
                                 <PulseLoader color="#16a34a" speedMultiplier={1} />
-                                <p className="text-sm text-gray-500 text-center">Loading Location...</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-300 text-center">
+                                    Loading Location...
+                                </p>
                             </div>
                         </div>
                     )}
-
 
                     {/* Google Map Iframe */}
                     <iframe
@@ -49,7 +61,7 @@ function MapModal({ lat, lng, onClose }) {
                         allowFullScreen
                         onLoad={() => setLoading(false)}
                     ></iframe>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

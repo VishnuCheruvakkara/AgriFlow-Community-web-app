@@ -10,7 +10,7 @@ function Footer() {
             <div className="container mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center">
                     <div className="mb-4 md:mb-0">
-                        <h3 className="font-bold text-xl text-green-700">AgriFlow</h3>
+                        <h3 className="font-bold text-xl text-green-500">AgriFlow</h3>
                         <p className="text-gray-600 dark:text-white">Connecting farmers, growing together</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">

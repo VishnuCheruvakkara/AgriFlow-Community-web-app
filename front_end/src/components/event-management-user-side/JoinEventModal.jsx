@@ -11,6 +11,7 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineLocationCity } from "react-icons/md";
 import { RiVideoOnAiLine } from 'react-icons/ri';
+import { AnimatePresence, motion } from 'framer-motion';
 
 function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideConfirmBtn = false, cancelBtnLabel = "Cancel" }) {
     const [showMapModal, setShowMapModal] = React.useState(false);
@@ -56,11 +57,18 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
     return (
         <div className="fixed inset-0 z-[999]">
             {/* Overlay */}
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+            <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-90" onClick={onClose} />
 
             {/* Modal content */}
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+                <motion.div
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0, scale: 0.85, y: 40 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="bg-white dark:bg-zinc-700 w-full max-w-md rounded-lg shadow-xl overflow-hidden"
+                >
                     {/* Header */}
                     <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
                         <h2 className="text-xl font-bold text-white">{title}</h2>
@@ -76,37 +84,39 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                     {/* Event content */}
                     <div className="p-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
                         {!hideConfirmBtn && (
-                            <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6">
+                            <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6 shadow-sm dark:bg-red-950 dark:border-red-600">
                                 <div className="flex">
                                     <div className="flex-shrink-0">
-                                        <FaInfoCircle className="text-red-700" />
+                                        <FaInfoCircle className="text-red-700 dark:text-red-400" />
                                     </div>
                                     <div className="ml-3 space-y-2">
-                                        <p className="text-sm text-red-700">
+                                        <p className="text-sm text-red-800 dark:text-red-300">
                                             If you’re enrolled but don’t attend the event, you might not be able to join future events.
                                             So please enroll only if you’re sure you can attend.
                                         </p>
                                     </div>
                                 </div>
                             </div>
+
                         )}
                         {hideConfirmBtn && (
-                            <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6">
+                            <div className="bg-red-100 border-l-4 border-red-400 p-4 mb-6  shadow-sm dark:bg-red-950 dark:border-red-600">
                                 <div className="flex">
                                     <div className="flex-shrink-0">
-                                        <FaInfoCircle className="text-red-700" />
+                                        <FaInfoCircle className="text-red-700 dark:text-red-400" />
                                     </div>
                                     <div className="ml-3 space-y-2">
-                                        <p className="text-sm text-red-700">
+                                        <p className="text-sm text-red-800 dark:text-red-300">
                                             Kindly ensure you join on time. Missing the session may lead to disciplinary measures.
                                         </p>
                                     </div>
                                 </div>
                             </div>
+
                         )}
 
-                        <p className="text-sm text-gray-500 mb-2">
-                            <HiOutlineTag className="inline text-green-700 mr-1 text-lg" /> <strong>Hosted by community : </strong> <span className="font-medium">{event.community_name}</span>
+                        <p className="text-sm text-gray-500 dark:text-zinc-300 mb-2">
+                            <HiOutlineTag className="inline text-green-700 mr-1 text-lg dark:text-green-500" /> <strong>Hosted by community : </strong> <span className="font-medium">{event.community_name}</span>
                         </p>
 
                         <img
@@ -116,28 +126,28 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                             className="w-full object-cover rounded-md mb-4"
                         />
 
-                        <p className="border-t border-green-600 pt-3 text-sm font-semibold text-green-700 mb-2">
+                        <p className="border-t border-green-600 dark:border-green-400 pt-3 text-sm font-semibold text-green-700 mb-2 dark:text-green-400">
                             Event Name : {event.title}
                         </p>
-                        <p className="text-sm text-gray-700 mb-4"><strong>Description :</strong> {event.description}</p>
+                        <p className="text-sm text-gray-700 dark:text-zinc-300 mb-4"><strong>Description :</strong> {event.description}</p>
 
-                        <div className="text-sm text-gray-600 space-y-3 border-t border-b border-green-600 py-4 mb-5">
+                        <div className="text-sm text-gray-600 dark:text-zinc-300 space-y-3 border-t border-b border-green-600 dark:border-green-400 py-4 mb-5">
                             <p>
-                                <FaCalendarAlt className="inline mr-2 text-green-700" />
+                                <FaCalendarAlt className="inline mr-2 text-green-700 dark:text-green-400 " />
                                 <strong>Starts at:</strong> {new Date(event.start_datetime).toLocaleString()}
                             </p>
                             <p>
-                                <FaLaptop className="inline mr-2 text-green-700" />
+                                <FaLaptop className="inline mr-2 text-green-700 dark:text-green-400 " />
                                 <strong>Type:</strong> {event.event_type === 'online' ? 'Online' : 'Offline'}
                             </p>
                             <p>
-                                <FaMapMarkerAlt className="inline mr-2 text-green-700" />
+                                <FaMapMarkerAlt className="inline mr-2 text-green-700 dark:text-green-400 " />
                                 <strong>Location:</strong> {event.event_type === 'online' ? 'Online Event' : event.location_name}
                             </p>
 
                             {event.event_type === 'offline' &&
                                 <p>
-                                    <MdOutlineLocationCity className="inline mr-2 text-green-700 text-lg" />
+                                    <MdOutlineLocationCity className="inline mr-2 text-green-700 text-lg dark:text-green-400 " />
                                     <strong>Venue Address : </strong>{event.address}
                                 </p>
                             }
@@ -146,7 +156,7 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                         {event.event_type === "offline" ? (
                             <button
                                 onClick={() => setShowMapModal(true)}
-                                className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
+                                className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 dark:shadow-zinc-800"
                             >
                                 <div className="bg-white rounded-full p-2">
                                     <GrMapLocation className="text-green-500 text-lg" />
@@ -156,7 +166,7 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                         ) : (
                             hideConfirmBtn && (
                                 <button
-                                    className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 w-full"
+                                    className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 dark:shadow-zinc-800"
                                 >
                                     <div className="bg-white rounded-full p-2">
                                         <RiVideoOnAiLine className="text-green-500 text-lg" />
@@ -165,14 +175,13 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                                 </button>
                             )
                         )}
-
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-gray-100 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
+                    <div className="bg-gray-100 dark:bg-zinc-800 px-6 py-3 flex justify-end gap-3 border-t border-gray-200 dark:border-zinc-700">
                         <button
                             type="button"
-                            className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium"
+                            className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-zinc-200 rounded-md transition-colors font-medium"
                             onClick={onClose}
                         >
                             {cancelBtnLabel}
@@ -187,17 +196,20 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                             </button>
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
-            {showMapModal && (
-                <MapModal
-                    lat={event.latitude}
-                    lng={event.longitude}
-                    onClose={() => setShowMapModal(false)}
-                />
-            )}
 
+            <AnimatePresence>
+                {showMapModal && (
+                    <MapModal
+                        lat={event.latitude}
+                        lng={event.longitude}
+                        onClose={() => setShowMapModal(false)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
+
     );
 }
 

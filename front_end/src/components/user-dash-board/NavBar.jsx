@@ -100,23 +100,39 @@ function NavBar() {
                         {AadharVerified ? (
                             <>
                                 {/* Show Other Icons if Profile is Completed */}
-                                <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors tooltip tooltip-bottom" data-tip="Notification">
-                                    <FaBell className="text-xl" />
-                                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs flex items-center justify-center">3</span>
-                                </button>
-                                <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors tooltip tooltip-bottom" data-tip="Messages">
-                                    <FaEnvelope className="text-xl" />
-                                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs flex items-center justify-center">5</span>
-                                </button>
+                                <div className="relative inline-block tooltip tooltip-bottom " data-tip="Notification">
+                                    <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors ripple-parent ripple-white" >
+                                        <FaBell className="text-xl" />
+                                    </button>
+
+                                    {/* Notification badge OUTSIDE the ripple-parent */}
+                                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center z-[50]">
+                                        3
+                                    </span>
+                                </div>
+
+                                <div className="relative inline-block tooltip tooltip-bottom"  data-tip="Messages">
+                                    <button
+                                        className="p-2 rounded-full hover:bg-green-600 transition-colors  ripple-parent ripple-white"
+                                    >
+                                        <FaEnvelope className="text-xl" />
+                                    </button>
+
+                                    {/* Message badge outside of ripple-parent */}
+                                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center z-[50]">
+                                        5
+                                    </span>
+                                </div>
+
                                 <div className="relative">
                                     <div
-                                        className="h-8 w-8 cursor-pointer rounded-full overflow-hidden lg:hidden "
+                                        className="h-8 w-8 cursor-pointer rounded-full overflow-hidden lg:hidden ripple-parent ripple-white"
                                         onClick={toggleDropdown} // Toggle on click
                                     >
                                         <img
                                             src={userData?.profile_picture || defaultUserImage}
                                             alt="User profile"
-                                            className="h-full w-full object-cover"
+                                            className="h-full w-full object-cover "
                                         />
                                     </div>
 

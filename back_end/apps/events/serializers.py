@@ -217,16 +217,17 @@ class EventParticipationSerializer(serializers.ModelSerializer):
 
         return participation
 
-# Get events and the users who are the participant of that event ##################3
+################ Get events and the users who are the participant of that event ##################
 
 
 class EventParticipantSerializer(serializers.ModelSerializer):
-    location_name = serializers.CharField(source='address.location_name', read_only=True)
+    location_name = serializers.CharField(
+        source='address.location_name', read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username','profile_picture_url','location_name']
+        fields = ['id', 'username', 'profile_picture_url', 'location_name']
 
     def get_profile_picture_url(self, user):
         if not user.profile_picture:
@@ -234,25 +235,21 @@ class EventParticipantSerializer(serializers.ModelSerializer):
         try:
             return generate_secure_image_url(user.profile_picture)
         except Exception as e:
-            print(f"Error generating profile picture URL for user ID {user.id}: {str(e)}")
+            print(
+                f"Error generating profile picture URL for user ID {user.id}: {str(e)}")
             return None
+
+########################## Get Events created by the logged in user ##################
 
 
 class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
-    community_name = serializers.CharField(
-        source='community.name', read_only=True)
-    community_id = serializers.IntegerField(
-        source='community.id', read_only=True)
-    location_name = serializers.CharField(
-        source='event_location.location_name', read_only=True)
-    full_location = serializers.CharField(
-        source='event_location.full_location', read_only=True)
-    latitude = serializers.FloatField(
-        source='event_location.latitude', read_only=True)
-    longitude = serializers.FloatField(
-        source='event_location.longitude', read_only=True)
-    country = serializers.CharField(
-        source='event_location.country', read_only=True)
+    community_name = serializers.CharField(source='community.name', read_only=True)
+    community_id = serializers.IntegerField(source='community.id', read_only=True)
+    location_name = serializers.CharField(source='event_location.location_name', read_only=True)
+    full_location = serializers.CharField(source='event_location.full_location', read_only=True)
+    latitude = serializers.FloatField(source='event_location.latitude', read_only=True)
+    longitude = serializers.FloatField(source='event_location.longitude', read_only=True)
+    country = serializers.CharField(source='event_location.country', read_only=True)
     banner_url = serializers.SerializerMethodField()
     participants = serializers.SerializerMethodField()
 

@@ -72,30 +72,30 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
 
     return (
-        <div className="max-w-full mx-auto px-4">
+       <div className="max-w-full mx-auto px-4">
             <div className="text-center mb-4">
                 <div className="overflow-hidden rounded-lg">
                     <div
-                        className="flex items-center justify-between p-3 mb-4 border border-gray-300 hover:bg-green-600 cursor-pointer rounded-lg  hover:shadow-gray-300  hover:shadow-md bg-green-500 transition-colors duration-300"
+                        className="flex items-center justify-between p-3 mb-4 border border-gray-300 hover:bg-green-600 cursor-pointer rounded-lg hover:shadow-gray-300 dark:hover:shadow-zinc-700 hover:shadow-md bg-green-500 transition-colors duration-300 dark:border-zinc-700"
                     >
                         {/* Back Button */}
                         <button
                             onClick={onBack}
                             className="flex items-center space-x-2 text-sm text-green-600 hover:text-green-700"
                         >
-                            <div className="bg-white rounded-full p-2">
-                                <IoArrowBackCircleSharp className="text-green-600 h-5 w-5" />
+                            <div className="bg-white rounded-full p-2 dark:bg-zinc-800">
+                                <IoArrowBackCircleSharp className="text-green-600 dark:text-green-400 h-5 w-5" />
                             </div>
                             <span className="text-white">Back to Select Community</span>
                         </button>
 
                         {/* Community Info */}
                         <div className="flex items-center gap-3 mr-4">
-                            <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
                                 <img
                                     src={selectedCommunity?.logo || DefaultCommunityImage}
                                     alt="Community Logo"
-                                    className="h-12 w-12 rounded-full object-cover border-2 border-white"
+                                    className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-zinc-800"
                                 />
                             </div>
                             <div>
@@ -105,7 +105,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                     </div>
                 </div>
 
-                <p className="text-gray-600 text-sm">Share an amazing experience with your community</p>
+                <p className="text-gray-600 text-sm dark:text-zinc-400">Share an amazing experience with your community</p>
             </div>
 
             <Formik
@@ -184,11 +184,15 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
                         {/* Title */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Event Title</label>
                             <motion.div variants={shakeErrorInputVariant} animate={errors.title && touched.title ? 'shake' : 'idle'}>
                                 <Field
                                     name="title"
-                                    className={`bg-white text-black w-full px-4 py-3 border ${errors.title && touched.title ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} rounded-lg`}
+                                    className={`w-full px-4 py-3 border rounded-lg 
+                                    bg-white text-black dark:bg-zinc-900 dark:text-zinc-100 
+                                    ${errors.title && touched.title 
+                                        ? 'ring-2 ring-red-500 border-none' 
+                                        : ' dark:border-zinc-700 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600'}`}
                                     placeholder="Give your event a catchy title"
                                 />
                             </motion.div>
@@ -197,13 +201,17 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Description</label>
                             <motion.div variants={shakeErrorInputVariant} animate={errors.description && touched.description ? 'shake' : 'idle'}>
                                 <Field
                                     as="textarea"
                                     name="description"
                                     rows="4"
-                                    className={`bg-white text-black w-full px-4 py-3 border ${errors.description && touched.description ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} rounded-lg`}
+                                    className={`w-full px-4 py-3 border rounded-lg 
+                                    bg-white text-black dark:bg-zinc-900 dark:text-zinc-100 
+                                    ${errors.description && touched.description 
+                                        ? 'ring-2 ring-red-500 border-none' 
+                                        : ' dark:border-zinc-700 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600'}`}
                                     placeholder="Describe what your event is about"
                                 />
                             </motion.div>
@@ -212,7 +220,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
                         {/* Max Participants */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">
                                 Max Participants
                             </label>
                             <motion.div
@@ -223,7 +231,11 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                     name="max_participants"
                                     type="number"
                                     min="1"
-                                    className={`bg-white text-black w-full px-4 py-3 border ${errors.max_participants && touched.max_participants ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'} rounded-lg`}
+                                    className={`w-full px-4 py-3 border rounded-lg 
+                                    bg-white text-black dark:bg-zinc-900 dark:text-zinc-100 
+                                    ${errors.max_participants && touched.max_participants 
+                                        ? 'ring-2 ring-red-500 border-none' 
+                                        : ' dark:border-zinc-700 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600'}`}
                                     placeholder="Describe what your event is about"
                                 />
                             </motion.div>
@@ -235,7 +247,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
                         {/* Event Type */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Event Type</label>
                             <motion.div
                                 variants={shakeErrorInputVariant}
                                 animate={errors.eventType && touched.eventType ? 'shake' : 'idle'}
@@ -243,8 +255,11 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                 <Field
                                     as="select"
                                     name="eventType"
-                                    className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                                    ${errors.eventType && touched.eventType ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
+                                    className={`w-full px-4 py-3 border rounded-lg 
+                                    bg-white text-black dark:bg-zinc-900 dark:text-zinc-100 
+                                    ${errors.eventType && touched.eventType 
+                                        ? 'ring-2 ring-red-500 border-none' 
+                                        : ' dark:border-zinc-700 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600'}`}
                                     onChange={(e) => {
                                         handleChange(e);
                                         // Reset conditional fields based on event type
@@ -289,23 +304,24 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                                     setFieldTouched("location.full_location", true);     // tell Formik we touched this field
                                                 }
                                             }}
-
                                         />
                                     </motion.div>
-
                                 </div>
 
                                 {/* Address */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Venue Address</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Venue Address</label>
                                     <motion.div
                                         variants={shakeErrorInputVariant}
                                         animate={errors.address && touched.address ? 'shake' : 'idle'}
                                     >
                                         <Field
                                             name="address"
-                                            className={`bg-white text-black w-full px-4 py-3 border rounded-lg 
-                                            ${errors.address && touched.address ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
+                                            className={`w-full px-4 py-3 border rounded-lg 
+                                            bg-white text-black dark:bg-zinc-900 dark:text-zinc-100 
+                                            ${errors.address && touched.address 
+                                                ? 'ring-2 ring-red-500' 
+                                                : 'border-gray-300 dark:border-zinc-700 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600'}`}
                                             placeholder="Full address of the venue"
                                         />
                                     </motion.div>
@@ -313,8 +329,6 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                                 </div>
                             </>
                         )}
-
-
 
                         {/* Date Picker */}
                         <DateTimePicker
@@ -333,7 +347,7 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                             <ButtonLoader
                                 buttonId="createEvent"
                                 type="submit"
-                                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
+                                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 transition font-medium text-lg"
                             >
                                 Create Event
                             </ButtonLoader>

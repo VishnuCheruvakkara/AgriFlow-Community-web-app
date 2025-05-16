@@ -17,7 +17,7 @@ const DateTimePicker = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 dark:text-zinc-200 mb-1">
           {label}
         </label>
       )}
@@ -39,9 +39,10 @@ const DateTimePicker = ({
           timeIntervals={15}
           dateFormat="MMMM d, yyyy h:mm aa"
           placeholderText="Select date and time"
-          className={`bg-white text-black w-full px-4 py-3 border rounded-lg focus:outline-none 
-            ${showError ? 'ring-2 ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-green-500'}`}
-         
+          className={`w-full px-4 py-3 rounded-lg focus:outline-none 
+            ${showError ? 'ring-2 ring-red-500 border-none' : ' focus:ring-2 focus:ring-green-500'}
+            bg-white text-black border
+            dark:bg-zinc-900 dark:text-white dark:border-zinc-600 dark:placeholder-zinc-400`}
           minDate={new Date()}
           wrapperClassName="w-full"
         />
