@@ -9,6 +9,7 @@ import UserProfileViewPage from '../pages/user-dash-board/UserProfileViewPage'
 import UserLayout from '../layout/UserLayout';
 import CommunityLayout from '../layout/UserCommunityLayout';
 import EventLayout from '../layout/CommunityEventLayout';
+import UserConnectionLayout from '../layout/UserConnectionLayout'
 
 // Community pages
 import DiscoverCommunities from '../pages/community-user-side/DiscoverCommunities';
@@ -22,8 +23,15 @@ import CreateEvent from '../pages/eventManagementUserSide/CreateEvent'
 import EnrolledEvents from '../pages/eventManagementUserSide/EnrolledEvents'
 import AllEvents from '../pages/eventManagementUserSide/AllEvents'
 import CreatedEvents from '../pages/eventManagementUserSide/CreatedEvents'
+
+//Connection management pages
+import SuggestedFarmers from '../pages/connection-management-user-side/SuggestedFarmers'
+import PendingRequests from '../pages/connection-management-user-side/PendingRequests'
+import MyConnections from '../pages/connection-management-user-side/MyConnections'
+import BlockedUsers from '../pages/connection-management-user-side/BlockedUsers'
+
 // Importing PageNotFound component for 404
-import PageNotFound from '../components/StatusPages/PageNotFound'; 
+import PageNotFound from '../components/StatusPages/PageNotFound';
 
 function UsersRoutes() {
 
@@ -56,9 +64,18 @@ function UsersRoutes() {
         <Route path="event-management" element={<EventLayout />}>
           <Route index element={<Navigate to="all-events" replace />} />
           <Route path="all-events" element={<AllEvents />} />
-          <Route path="enrolled-events" element={<EnrolledEvents/>} />
+          <Route path="enrolled-events" element={<EnrolledEvents />} />
           <Route path="create-event" element={<CreateEvent />} />
           <Route path="created-events" element={<CreatedEvents />} />
+        </Route>
+
+        {/* Connection management setup */}
+        <Route path="connection-management" element={<UserConnectionLayout />}>
+          <Route index element={<Navigate to="suggested-farmers" replace />} />
+          <Route path="suggested-farmers" element={<SuggestedFarmers />} />
+          <Route path="pending-requests" element={<PendingRequests />} />
+          <Route path="my-connections" element={<MyConnections />} />
+          <Route path="blocked-users" element={<BlockedUsers />} />
         </Route>
 
       </Route>

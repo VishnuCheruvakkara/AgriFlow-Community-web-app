@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt,FaCalendarAlt } from 'react-icons/fa';
+import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, FaCalendarAlt } from 'react-icons/fa';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
@@ -98,14 +98,28 @@ function SideBar() {
                         <Link
                             to="/user-dash-board/event-management"
                             className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname.startsWith('/user-dash-board/event-management')
-                                    ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                                ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
                                 }`}
                         >
                             <FaCalendarAlt className="text-xl" />
                             <span>Events</span>
                         </Link>
                     </li>
+
+                    <li>
+                        <Link
+                            to="/user-dash-board/connection-management"
+                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/connection-management')
+                                    ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
+                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                                }`}
+                        >
+                            <FaUser className="text-xl" />
+                            <span>Connections</span>
+                        </Link>
+                    </li>
+
 
 
                     <li className="">

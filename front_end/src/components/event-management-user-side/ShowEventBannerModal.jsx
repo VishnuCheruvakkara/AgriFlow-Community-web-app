@@ -20,7 +20,7 @@ const ShowEventBannerModal = ({ imageUrl, onClose }) => {
    <div className="fixed inset-0 w-full h-full z-[9999]" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}>
       {/* Full screen overlay */}
       <div 
-        className="fixed inset-0 w-full h-full bg-black bg-opacity-80" 
+        className="fixed inset-0 w-full h-full bg-black bg-opacity-50 dark:bg-opacity-90" 
         onClick={onClose}
         style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
       />
@@ -28,7 +28,7 @@ const ShowEventBannerModal = ({ imageUrl, onClose }) => {
       {/* Modal content */}
       <div className="fixed inset-0 w-full h-full flex items-center justify-center p-4" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}>
         <motion.div
-          className="relative bg-white rounded-md p-10 max-w-3xl w-full mx-auto"
+          className="relative bg-white rounded-md p-10 max-w-3xl w-full mx-auto dark:bg-zinc-800"
           onClick={(e) => e.stopPropagation()}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -41,7 +41,7 @@ const ShowEventBannerModal = ({ imageUrl, onClose }) => {
             className="absolute top-2 right-2 z-10"
             aria-label="Close modal"
           >
-            <RxCrossCircled className="text-gray-500 text-3xl hover:text-gray-700 transition-colors" />
+            <RxCrossCircled className="text-gray-500 text-3xl hover:text-gray-700 transition-colors dark:hover:text-red-500" />
           </button>
           
           {/* Modal Image */}
