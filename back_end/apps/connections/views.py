@@ -3,13 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from connections.models import Connection, BlockedUser
-from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer
+from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer,ReceivedConnectionRequestsSerializer
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from apps.common.pagination import CustomConnectionPagination
 from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 # Create your views here.
@@ -65,8 +66,7 @@ class GetSuggestedFarmersView(APIView):
         serializer = GetSuggestedFarmersSerializer(paginated_users, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-##################  Pending request section ################### 
-
+##################  Pending request section ( Requests You Sent - front end section in the connection page  ) ################### 
 #================== view for send connection request ====================#
 
 class SendConnectionRequestView(APIView):
@@ -139,3 +139,49 @@ class CancelConnectionRequestView(APIView):
         connection.status = 'cancelled'
         connection.save()
         return Response({'detail': 'Request cancelled successfully.'}, status=status.HTTP_200_OK)
+    
+##################  Pending request section ( Received Connection Requests - front end section in the connection page  ) ################### 
+
+#================ Get recieved connection requests view =====================# 
+class ReceivedConnectionRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        connections = Connection.objects.filter(receiver=user, status='pending')
+        serializer = ReceivedConnectionRequestsSerializer(connections, many=True)
+        return Response(serializer.data)
+ 
+#=================  accept the connection request View ============================# 
+
+class AcceptConnectionRequestAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        connection = get_object_or_404(Connection, id=pk, receiver=request.user)
+
+        if connection.status != "pending":
+            return Response({"detail": "Request is not pending."}, status=status.HTTP_400_BAD_REQUEST)
+
+        connection.status = "accepted"
+        connection.save()
+        return Response({"detail": "Connection request accepted."}, status=status.HTTP_200_OK)
+    
+#======================= reject connection request View ======================#
+
+class RejectConnectionRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, request_id):
+        # Find the connection request by id and ensure the logged-in user is the receiver
+        connection_request = get_object_or_404(Connection, id=request_id, receiver=request.user)
+
+        # Only allow rejecting if the request is still pending
+        if connection_request.status != 'pending':
+            return Response({"detail": "This connection request cannot be rejected."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update status to rejected
+        connection_request.status = 'rejected'
+        connection_request.save()
+
+        return Response({"detail": "Connection request rejected successfully."}, status=status.HTTP_200_OK)

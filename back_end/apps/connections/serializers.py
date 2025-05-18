@@ -25,15 +25,16 @@ class GetSuggestedFarmersSerializer(serializers.ModelSerializer):
         public_id = obj.profile_picture 
         return generate_secure_image_url(public_id)
 
-############# serializer for send connection request ################33
+##################  Pending request section ( Requests You Sent - front end section in the connection page  ) ################### 
 
+#============== serializer for send connection request  =====================#
 class ConnectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Connection
         fields = ['id', 'sender', 'receiver', 'status', 'created_at']
         read_only_fields = ['id', 'sender', 'status', 'created_at']
 
-############### Get users in the Request you send section View  #################
+#================== Get users in the Request you send section View  =======================#
     
 class SentConnectionRequestSerializer(serializers.ModelSerializer):
     receiver_username = serializers.CharField(source='receiver.username', read_only=True)
@@ -50,3 +51,26 @@ class SentConnectionRequestSerializer(serializers.ModelSerializer):
         if public_id:
             return generate_secure_image_url(public_id)
         return None
+    
+##################  Pending request section ( Received Connection Requests - front end section in the connection page  ) ################### 
+
+#================ Get recieved connection requests Serializer =====================# 
+
+class ReceivedConnectionRequestsSerializer(serializers.ModelSerializer):
+    sender_id = serializers.IntegerField(source='sender.id', read_only=True)
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+    sender_profile_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Connection
+        fields = [
+            'id',
+            'sender_id',
+            'sender_username',
+            'sender_profile_picture',
+            'created_at'
+        ]
+
+    def get_sender_profile_picture(self, obj):
+        public_id = obj.sender.profile_picture
+        return generate_secure_image_url(public_id)
