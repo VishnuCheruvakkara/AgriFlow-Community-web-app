@@ -22,8 +22,6 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.location_name}"
 
-
-
 class CustomUser(AbstractUser):
     """User model with detailed farming and location information."""
     email = models.EmailField(unique=True)

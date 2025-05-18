@@ -3,12 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from connections.models import Connection, BlockedUser
-from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer
+from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from apps.common.pagination import CustomConnectionPagination
 from rest_framework import status
 from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 # Create your views here.
@@ -20,44 +21,53 @@ class GetSuggestedFarmersView(APIView):
 
     def get(self, request):
         current_user = request.user
-        search_query = request.query_params.get('search','').strip()
-
-        # Exclude self
-        users = User.objects.exclude(id=current_user.id)
-
-        # Exclude admin/staff/superuser users
-        users = users.exclude(is_staff=True)
+        search_query = request.query_params.get('search', '').strip()
+        users = User.objects.exclude(id=current_user.id).exclude(is_staff=True)
 
         # Exclude blocked users
-        blocked_users = BlockedUser.objects.filter(
-            blocker=current_user).values_list('blocked_id', flat=True)
-        users = users.exclude(id__in=blocked_users)
+        blocked_user_ids = BlockedUser.objects.filter(
+            blocker=current_user
+        ).values_list('blocked_id', flat=True)
+        users = users.exclude(id__in=blocked_user_ids)
 
-        # Exclude connected/pending users
-        connected_users = Connection.objects.filter(
-            sender=current_user).values_list('receiver_id', flat=True)
-        users = users.exclude(id__in=connected_users)
-
-        # Exclude users with incomplete profiles or unverified Aadhar
+        # Filter users with complete profile and verified Aadhar
         users = users.filter(profile_completed=True, is_aadhar_verified=True)
 
-        #search set up 
+        # Get all connections sent by current user
+        connections = Connection.objects.filter(sender=current_user)
+
+        # Exclude connected, pending, rejected
+        active_connection_user_ids = connections.filter(
+            ~Q(status='cancelled')
+        ).values_list('receiver_id', flat=True)
+
+        # Handle "cancelled" connections only if cancelled less than 3 days ago
+        three_days_ago = timezone.now() - timedelta(days=3)
+        recent_cancelled_user_ids = connections.filter(
+            status='cancelled',
+            updated_at__gte=three_days_ago
+        ).values_list('receiver_id', flat=True)
+
+        users = users.exclude(id__in=active_connection_user_ids)
+        users = users.exclude(id__in=recent_cancelled_user_ids)
+
+        # Apply search
         if search_query:
             users = users.filter(
-                Q(username__icontains=search_query) | 
-                Q(address__location_name__icontains = search_query) | 
-                Q(farming_type__icontains = search_query)
+                Q(username__icontains=search_query) |
+                Q(address__location_name__icontains=search_query) |
+                Q(farming_type__icontains=search_query)
             )
 
-        # pagination set ups  
+        # Paginate
         paginator = CustomConnectionPagination()
-        paginated_users = paginator.paginate_queryset(users,request)
-
-        serializer = GetSuggestedFarmersSerializer(paginated_users,many=True)
+        paginated_users = paginator.paginate_queryset(users, request)
+        serializer = GetSuggestedFarmersSerializer(paginated_users, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-###################### view for send connection request ####################
+##################  Pending request section ################### 
 
+#================== view for send connection request ====================#
 
 class SendConnectionRequestView(APIView):
     permission_classes = [IsAuthenticated]
@@ -100,3 +110,32 @@ class SendConnectionRequestView(APIView):
 
         except User.DoesNotExist:
             return Response({"error": "Receiver not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+#==================== Get users in the Request you send section View  =========================#
+
+class GetSentConnectionRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        sent_requests = Connection.objects.filter(sender=user, status='pending').select_related('receiver')
+        serializer = SentConnectionRequestSerializer(sent_requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+#===================== Cancell connection request View ============================#
+
+class CancelConnectionRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            connection = Connection.objects.get(pk=pk, sender=request.user)
+        except Connection.DoesNotExist:
+            return Response({'detail': 'Connection not found or permission denied.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if connection.status != 'pending':
+            return Response({'detail': 'Only pending requests can be cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        connection.status = 'cancelled'
+        connection.save()
+        return Response({'detail': 'Request cancelled successfully.'}, status=status.HTTP_200_OK)

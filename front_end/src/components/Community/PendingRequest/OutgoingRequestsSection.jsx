@@ -51,7 +51,7 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
     return (
         <div className="mb-6 rounded-lg shadow-lg">
             <div
-                className={`bg-gradient-to-r from-green-700 to-green-400 flex justify-between items-center p-4 cursor-pointer ${expanded ? 'rounded-t-lg' : 'rounded-lg'}`}
+                className={`ripple-parent ripple-white bg-gradient-to-r from-green-700 to-green-400 flex justify-between items-center p-4 cursor-pointer ${expanded ? 'rounded-t-lg' : 'rounded-lg'}`}
                 onClick={() => toggleSection('outgoingRequests')}
             >
                 <div className="flex items-center">

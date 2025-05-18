@@ -5,6 +5,7 @@ import DefaultUserIcon from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { showToast } from '../../toast-notification/CustomToast';
+
 function AdminApprovalsSection({ expanded, toggleSection }) {
 
     const [joinRequest, setJoinRequest] = useState([]);
@@ -54,7 +55,7 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
     return (
         <div className="mb-6 rounded-lg shadow-lg">
             <div
-                className={`bg-gradient-to-r from-green-700 to-green-400 flex justify-between items-center p-4 cursor-pointer ${expanded ? 'rounded-t-lg' : 'rounded-lg'}`}
+                className={`ripple-parent ripple-white bg-gradient-to-r from-green-700 to-green-400 flex justify-between items-center p-4 cursor-pointer ${expanded ? 'rounded-t-lg' : 'rounded-lg'}`}
                 onClick={() => toggleSection('pendingApprovals')}
             >
                 <div className="flex items-center">

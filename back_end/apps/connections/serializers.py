@@ -32,3 +32,21 @@ class ConnectionSerializer(serializers.ModelSerializer):
         model = Connection
         fields = ['id', 'sender', 'receiver', 'status', 'created_at']
         read_only_fields = ['id', 'sender', 'status', 'created_at']
+
+############### Get users in the Request you send section View  #################
+    
+class SentConnectionRequestSerializer(serializers.ModelSerializer):
+    receiver_username = serializers.CharField(source='receiver.username', read_only=True)
+    sent_at = serializers.DateTimeField(source='created_at', read_only=True)
+    profile_picture=serializers.SerializerMethodField()
+
+    class Meta:
+        model = Connection
+        fields = ['id', 'receiver_username', 'profile_picture', 'status', 'sent_at']
+    
+    def get_profile_picture(self, obj):
+        # Access receiver.profile_picture instead of obj.profile_picture
+        public_id = getattr(obj.receiver, 'profile_picture', None)
+        if public_id:
+            return generate_secure_image_url(public_id)
+        return None
