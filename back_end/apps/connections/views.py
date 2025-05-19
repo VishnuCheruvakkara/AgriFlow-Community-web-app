@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from connections.models import Connection, BlockedUser
-from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer,ReceivedConnectionRequestsSerializer
+from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer,ReceivedConnectionRequestsSerializer,GetMyConnectionSerializer,BlockUserSerializer
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from apps.common.pagination import CustomConnectionPagination
@@ -11,6 +11,7 @@ from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import get_object_or_404
+from notifications.models import Notification
 
 User = get_user_model()
 # Create your views here.
@@ -165,6 +166,14 @@ class AcceptConnectionRequestAPIView(APIView):
 
         connection.status = "accepted"
         connection.save()
+        
+        # Set up notification to inform the user that who accpeted the their request connection request
+        Notification.objects.create(
+            recipient=connection.sender,  # person who sent the request
+            sender=connection.receiver,   # person accepting the request
+            notification_type="custom",
+            message=f"{connection.receiver.username} accepted your connection request."
+        )
         return Response({"detail": "Connection request accepted."}, status=status.HTTP_200_OK)
     
 #======================= reject connection request View ======================#
@@ -185,3 +194,77 @@ class RejectConnectionRequestView(APIView):
         connection_request.save()
 
         return Response({"detail": "Connection request rejected successfully."}, status=status.HTTP_200_OK)
+
+
+############################### My Connection section ###########################################
+
+#============================ get all my connection serialzier ===========================# 
+
+class GetMyConnectionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        search_query = request.query_params.get('search', '').strip()
+
+        # Get users blocked by or who blocked the current user
+        blocked_user_ids = BlockedUser.objects.filter(
+            Q(blocker=user) | Q(blocked=user)
+        ).values_list('blocker', 'blocked')
+
+        # Flatten to a unique set of user IDs to exclude
+        exclude_user_ids = set()
+        for blocker_id, blocked_id in blocked_user_ids:
+            if blocker_id != user.id:
+                exclude_user_ids.add(blocker_id)
+            if blocked_id != user.id:
+                exclude_user_ids.add(blocked_id)
+
+        # Base queryset excluding blocked users
+        queryset = Connection.objects.filter(status='accepted').filter(
+            Q(sender=user) | Q(receiver=user)
+        ).exclude(
+            Q(sender__id__in=exclude_user_ids) | Q(receiver__id__in=exclude_user_ids)
+        )
+
+        # Optional search
+        if search_query:
+            queryset = queryset.filter(
+                Q(sender__username__icontains=search_query) |
+                Q(receiver__username__icontains=search_query) |
+                Q(sender__farming_type__icontains=search_query) |
+                Q(receiver__farming_type__icontains=search_query)
+            )
+
+        # Pagination
+        paginator = CustomConnectionPagination()
+        paginated_qs = paginator.paginate_queryset(queryset, request, view=self)
+
+        serializer = GetMyConnectionSerializer(paginated_qs, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
+
+
+
+##################################### Block user View ############################
+
+class BlockUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BlockUserSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            blocker = request.user
+            blocked_user_id = serializer.validated_data['user_id']
+            blocked = User.objects.get(id=blocked_user_id)
+
+            # Check if already blocked
+            if BlockedUser.objects.filter(blocker=blocker, blocked=blocked).exists():
+                return Response({'message': f"You already blocked {blocked}."}, status=status.HTTP_200_OK)
+
+            # Create BlockedUser
+            BlockedUser.objects.create(blocker=blocker, blocked=blocked)
+
+            return Response({'message': f"Successfully blocked {blocked}."}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

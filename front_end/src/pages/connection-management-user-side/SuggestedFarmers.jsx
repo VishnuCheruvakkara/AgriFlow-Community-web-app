@@ -9,6 +9,7 @@ import Pagination from "../../components/Common-Pagination/UserSidePagination"
 import SuggestedFarmersShimmer from '../../components/shimmer-ui-component/SuggestedFarmersShimmer';
 import SearchNotFound from "../../assets/images/connection_no_search_found.png"
 import { showToast } from '../../components/toast-notification/CustomToast';
+import { MdOutlineCancel } from "react-icons/md";
 
 const SuggestedFarmers = () => {
 
@@ -17,6 +18,7 @@ const SuggestedFarmers = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1)
     const [loading, setLoading] = useState(true);
+    const [notifications, setNotifications] = useState([]);
 
     const fetchSuggestedFarmers = async () => {
         try {
@@ -72,9 +74,72 @@ const SuggestedFarmers = () => {
         }
     };
 
+    // get the notificatiokn in the fornt-end side 
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const response = await AuthenticatedAxiosInstance.get('/notifications/get-connection-accpeted/');
+                setNotifications(response.data);
+                console.log("Notification accpeted ::", response.data)
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+
+            }
+        };
+
+        fetchNotifications();
+    }, []);
+
+    // clear notification 
+    const handleClearNotification = async (notificationId) => {
+        try {
+            await AuthenticatedAxiosInstance.patch(`/notifications/mark-read/${notificationId}/`);
+            setNotifications((prev) =>
+                prev.filter((notif) => notif.id !== notificationId)
+            );
+        } catch (error) {
+            console.error("Failed to mark notification as read:", error);
+        }
+    };
+
+
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-3">
+            {/* accepted user section  */}
+            {notifications.map((notif) => (
+                <div key={notif.id} className="overflow-hidden rounded-lg">
+                    <div className="flex items-center px-4 py-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4">
+                        <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
+                            <img
+                                src={notif.sender.profile_picture || DefaultUserImage}
+                                alt="User Avatar"
+                                className="h-12 w-12 rounded-full object-cover"
+                            />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 truncate">
+                                {notif.sender.username}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-1 capitalize">
+                                {notif.sender.farming_type} farmer
+                            </p>
+                        </div>
+
+                        <div
+                            onClick={()=> handleClearNotification(notif.id)}
+                            className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"
+                            data-tip="Clear"
+                        >
+                            <MdOutlineCancel className="text-red-600 text-xl hover:text-red-800 dark:text-red-400 dark:hover:text-red-200" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+
+
+            <h2 className="text-lg font-medium text-gray-800 ">Suggested Farmers</h2>
+
             {/* Search Bar */}
             <div className="relative mb-6">
                 <input

@@ -5,11 +5,15 @@ from community.models import Community
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
+        #for community notifications
         ("community_invite", "Community Invite"),
         ("community_request", "Community Request"),
         ("community_update", "Community Update"),
         ("message", "Message"),
         ("alert", "Alert"),
+
+        #for connection notifications 
+        ("connection_accepted", "Connection Accepted"), 
         ("custom", "Custom"),
     ]
 

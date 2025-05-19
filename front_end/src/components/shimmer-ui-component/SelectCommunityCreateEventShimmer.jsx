@@ -1,6 +1,6 @@
 const SelectCommunityCreateEventShimmer = () => {
   return (
-    <div className="mt-4">
+    <div >
       {/* Community List Shimmer (matching actual layout size) */}
       <div className="space-y-2">
         {Array.from({ length: 6 }).map((_, index) => (

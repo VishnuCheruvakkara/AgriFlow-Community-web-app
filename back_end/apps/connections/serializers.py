@@ -74,3 +74,51 @@ class ReceivedConnectionRequestsSerializer(serializers.ModelSerializer):
     def get_sender_profile_picture(self, obj):
         public_id = obj.sender.profile_picture
         return generate_secure_image_url(public_id)
+
+############################### My Connection section ###########################################
+
+#============================ get all my connection serialzier ===========================# 
+
+class ConnectedUserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'profile_picture', 'farming_type']
+
+    def get_profile_picture(self,obj):
+        public_id = obj.profile_picture 
+        return generate_secure_image_url(public_id)
+    
+class GetMyConnectionSerializer(serializers.ModelSerializer):
+    other_user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Connection
+        fields = ['id', 'other_user']
+
+    def get_other_user(self, obj):
+        request_user = self.context['request'].user
+        other = obj.receiver if obj.sender == request_user else obj.sender
+        return ConnectedUserSerializer(other).data
+
+########################## Block user serializer ######################### 
+
+class BlockUserSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+
+    def validate_user_id(self, value):
+        request_user = self.context['request'].user
+
+        if request_user.id == value:
+            raise serializers.ValidationError("You cannot block yourself.")
+
+        try:
+            blocked_user = User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+
+        if BlockedUser.objects.filter(blocker=request_user, blocked=blocked_user).exists():
+            raise serializers.ValidationError("You have already blocked this user.")
+
+        return value
