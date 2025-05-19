@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from connections.models import Connection, BlockedUser
-from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer,ReceivedConnectionRequestsSerializer,GetMyConnectionSerializer,BlockUserSerializer
+from .serializers import GetSuggestedFarmersSerializer,ConnectionSerializer,SentConnectionRequestSerializer,ReceivedConnectionRequestsSerializer,GetMyConnectionSerializer,BlockUserSerializer,BlockedUserSerializer
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from apps.common.pagination import CustomConnectionPagination
@@ -268,3 +268,26 @@ class BlockUserView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################  Get Blocked users View #############################
+
+class GetBlockedUsersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        search_query = request.query_params.get('search', '')
+        blocked_users = BlockedUser.objects.filter(blocker=user).select_related('blocked')
+
+        if search_query:
+            blocked_users = blocked_users.filter(
+                Q(blocked__username__icontains=search_query) |
+                Q(blocked__farming_type__icontains=search_query)
+            )
+
+        paginator = CustomConnectionPagination()
+        paginated_queryset = paginator.paginate_queryset(blocked_users, request)
+        serializer = BlockedUserSerializer(paginated_queryset, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+    
+    

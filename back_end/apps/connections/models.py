@@ -9,6 +9,7 @@ class Connection(models.Model):
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
         ('cancelled', 'Cancelled'),
+        ('blocked', 'Blocked'),
     ]
 
     sender = models.ForeignKey(User, related_name='sent_connections', on_delete=models.CASCADE)

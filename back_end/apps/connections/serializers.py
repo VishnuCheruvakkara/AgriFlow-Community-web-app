@@ -122,3 +122,12 @@ class BlockUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("You have already blocked this user.")
 
         return value
+
+############################ Get blocked user serializer #####################33
+
+class BlockedUserSerializer(serializers.ModelSerializer):
+    blocked = ConnectedUserSerializer()
+
+    class Meta:
+        model = BlockedUser
+        fields = ['id', 'blocked', 'blocked_at']
