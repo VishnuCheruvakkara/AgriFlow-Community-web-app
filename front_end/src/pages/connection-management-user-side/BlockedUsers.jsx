@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from 'react-icons/im';
-import { FaEye, FaUserPlus } from 'react-icons/fa';
+import { FaEye, FaUserPlus, FaExclamationTriangle } from 'react-icons/fa';
 import debounce from 'lodash/debounce';
 import DefaultUserImage from "../../assets/images/user-default.png";
 import SearchNotFound from "../../assets/images/connection_no_search_found.png";
@@ -9,6 +9,8 @@ import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosIns
 import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import SelectCommunityCreateEventShimmer from '../../components/shimmer-ui-component/SelectCommunityCreateEventShimmer';
 import { CgUnblock } from "react-icons/cg";
+import { showToast } from '../../components/toast-notification/CustomToast';
+import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 
 function BlockedUsers() {
     const [blockedUsers, setBlockedUsers] = useState([]);
@@ -74,6 +76,37 @@ function BlockedUsers() {
     useEffect(() => {
         fetchBlockedUsers(currentPage, debouncedSearchTerm);
     }, [currentPage, debouncedSearchTerm]);
+
+    // unblock user set up 
+    const unblockUser = async (userId, userName) => {
+        const result = await showConfirmationAlert({
+            title: 'Unblock User?',
+            text: `Are you sure you want to unblock the user "${userName}"? You will be able to see and reconnect with them after 3 days.`,
+            confirmButtonText: 'Yes, Unblock',
+            cancelButtonText: 'No, Cancel',
+            iconComponent: (
+                <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4 border-2 border-red-600">
+                    <FaExclamationTriangle className="text-red-600 text-3xl" />
+                </div>
+            )
+        });
+
+        if (result) {
+            try {
+                const response = await AuthenticatedAxiosInstance.post('/connections/unblock-user/', {
+                    user_id: userId,
+                });
+                console.log(response.data.message);
+                showToast("Unblocked the user successfully.", "success")
+                // Optionally refetch the blocked user list
+                fetchBlockedUsers(currentPage, debouncedSearchTerm);
+            } catch (error) {
+                console.error("Error unblocking user:", error.response?.data || error.message);
+                showToast("Failed to unblock user, Try again.", "error")
+            }
+        }
+    };
+
 
     return (
         <div className="mt-4">
@@ -149,7 +182,7 @@ function BlockedUsers() {
                             <div
                                 className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"
                                 data-tip="Unblock User"
-                                onClick={() => alert('Unblock functionality here')}
+                                onClick={() => unblockUser(blocked.id, blocked.username)}
                             >
                                 <CgUnblock className="text-red-600 text-xl hover:text-red-800 dark:text-red-400 dark:hover:text-red-200" />
                             </div>
@@ -159,7 +192,7 @@ function BlockedUsers() {
             </div>
 
             {/* Pagination */}
-            { !loading && blockedUsers.length > 0 && totalPages > 1 && (
+            {!loading && blockedUsers.length > 0 && totalPages > 1 && (
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}

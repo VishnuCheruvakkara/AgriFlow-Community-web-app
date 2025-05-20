@@ -1,5 +1,5 @@
 from django.urls import path
-from connections.views import GetSuggestedFarmersView,SendConnectionRequestView,GetSentConnectionRequestsView,CancelConnectionRequestView,ReceivedConnectionRequestsView,AcceptConnectionRequestAPIView,RejectConnectionRequestView,GetMyConnectionView,BlockUserView,GetBlockedUsersView
+from connections.views import GetSuggestedFarmersView,SendConnectionRequestView,GetSentConnectionRequestsView,CancelConnectionRequestView,ReceivedConnectionRequestsView,AcceptConnectionRequestAPIView,RejectConnectionRequestView,GetMyConnectionView,BlockUserView,GetBlockedUsersView,UnblockUserView
 
 urlpatterns = [
     ##############  Get all of the suggested farmers on the user side to connect and grow  #####################
@@ -33,5 +33,8 @@ urlpatterns = [
 
     ################## Get all the blocked users ##################
     path('get-blocked-users/', GetBlockedUsersView.as_view(), name='get-blocked-users'),
+
+    ####################  Unblock user ####################### 
+    path('unblock-user/', UnblockUserView.as_view(), name='unblock-user'),
     
 ]

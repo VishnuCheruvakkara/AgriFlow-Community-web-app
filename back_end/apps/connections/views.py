@@ -171,7 +171,7 @@ class AcceptConnectionRequestAPIView(APIView):
         Notification.objects.create(
             recipient=connection.sender,  # person who sent the request
             sender=connection.receiver,   # person accepting the request
-            notification_type="custom",
+            notification_type="connection_accepted",
             message=f"{connection.receiver.username} accepted your connection request."
         )
         return Response({"detail": "Connection request accepted."}, status=status.HTTP_200_OK)
@@ -261,8 +261,14 @@ class BlockUserView(APIView):
             if BlockedUser.objects.filter(blocker=blocker, blocked=blocked).exists():
                 return Response({'message': f"You already blocked {blocked}."}, status=status.HTTP_200_OK)
 
-            # Create BlockedUser
+            # Create BlockedUser entry
             BlockedUser.objects.create(blocker=blocker, blocked=blocked)
+
+            # Update connection status (in both directions if exists)
+            Connection.objects.filter(
+                Q(sender=blocker, receiver=blocked) |
+                Q(sender=blocked, receiver=blocker)
+            ).update(status='blocked')
 
             return Response({'message': f"Successfully blocked {blocked}."}, status=status.HTTP_201_CREATED)
 
@@ -290,4 +296,34 @@ class GetBlockedUsersView(APIView):
 
         return paginator.get_paginated_response(serializer.data)
     
-    
+################################ Unblock user View #############################
+
+class UnblockUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'error': 'User ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            blocked_user = get_object_or_404(User, id=user_id)
+            blocker = request.user
+
+            # Delete from BlockedUser
+            try:
+                blocked_entry = BlockedUser.objects.get(blocker=blocker, blocked=blocked_user)
+                blocked_entry.delete()
+            except BlockedUser.DoesNotExist:
+                return Response({'error': 'Blocked user not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Update Connection status to 'cancelled' if it was 'blocked'
+           
+            connection = Connection.objects.get(sender=blocker, receiver=blocked_user, status='blocked')
+            connection.status = 'cancelled'
+            connection.save()
+
+            return Response({'message': 'User unblocked successfully.'}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

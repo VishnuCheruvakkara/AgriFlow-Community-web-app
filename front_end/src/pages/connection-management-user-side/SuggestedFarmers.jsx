@@ -106,9 +106,13 @@ const SuggestedFarmers = () => {
 
     return (
         <div className="space-y-3">
+
             {/* accepted user section  */}
             {notifications.map((notif) => (
                 <div key={notif.id} className="overflow-hidden rounded-lg">
+
+                    <h2 className="text-lg font-medium text-gray-800 mb-3 ">Request accepted by</h2>
+
                     <div className="flex items-center px-4 py-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4">
                         <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
                             <img
@@ -122,12 +126,12 @@ const SuggestedFarmers = () => {
                                 {notif.sender.username}
                             </h3>
                             <p className="text-xs text-gray-500 mt-1 capitalize">
-                                {notif.sender.farming_type} farmer
+                                {notif.message} 
                             </p>
                         </div>
 
                         <div
-                            onClick={()=> handleClearNotification(notif.id)}
+                            onClick={() => handleClearNotification(notif.id)}
                             className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"
                             data-tip="Clear"
                         >
@@ -222,6 +226,7 @@ const SuggestedFarmers = () => {
                     ))}
                 </div>
             )}
+            
             {/* Pagination */}
             {totalPages > 1 && !loading && (
                 <Pagination
