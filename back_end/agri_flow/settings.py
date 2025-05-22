@@ -1,5 +1,5 @@
 
-
+import cloudinary
 import os
 from re import A
 import sys
@@ -10,11 +10,21 @@ from datetime import timedelta
 env = environ.Env()
 environ.Env.read_env()
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# To run the intial configuration for cloudinary 
+cloudinary.config(
+    cloud_name=env("CLOUDINARY_CLOUD_NAME"),
+    api_key=env("CLOUDINARY_API_KEY"),
+    api_secret=env("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 

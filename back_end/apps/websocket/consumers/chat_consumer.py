@@ -1,6 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-
+from apps.common.cloudinary_utils import generate_secure_image_url
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         print(f"Group name /ID is ::: {self.scope["url_route"]["kwargs"]}")
@@ -12,7 +12,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -35,6 +34,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 'username': user.username,
+                'user_id':user.id,
+                'user_image':  generate_secure_image_url(user.profile_picture) ,
             }
         )
 
@@ -43,4 +44,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'message': event['message'],
             'username': event['username'],
+            'user_id': event['user_id'],
+            'user_image': event['user_image']
         }))

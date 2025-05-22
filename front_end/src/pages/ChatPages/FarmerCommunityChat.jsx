@@ -20,6 +20,10 @@ const FarmerCommunityChat = () => {
 
   // get the access token of the JWT from the redux store 
   const token = useSelector((state) => state.auth.token)
+  const userId = useSelector((state) => state.user.user?.id)
+
+  console.log("userId chat:", userId)
+
   //useRef for proper socket connection nor re-renders
   const socketRef = useRef(null);
 
@@ -91,7 +95,7 @@ const FarmerCommunityChat = () => {
     <div className="flex flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
       {/* Chat Header */}
       {isDrawerOpen ? (
-        <CommunityDrawer isOpen={isDrawerOpen} closeDrawer={closeDrawer} communitData={communityData} />
+        <CommunityDrawer isOpen={isDrawerOpen} closeDrawer={closeDrawer} communityData={communityData} />
       ) : (
         <>
           <div className="bg-white dark:bg-zinc-900 border-b dark:border-zinc-700 p-4 flex justify-between items-center">
@@ -109,32 +113,34 @@ const FarmerCommunityChat = () => {
           </div>
 
           {/* Messages Area */}
-          <div className="relative flex-1 overflow-y-auto p-4 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+          <div className="relative flex-1 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
 
-            {/* Light Mode Doodle */}
+            {/* Fixed Doodle Background - Light Mode */}
             <div
               className="absolute inset-0 pointer-events-none z-0 dark:hidden"
               style={{
                 backgroundImage: "url('/images/message_doodle.png')",
                 backgroundRepeat: "repeat",
                 backgroundPosition: "center",
-                opacity: 4, // light mode opacity
+                backgroundAttachment: "local",
+                opacity: 5, // light mode opacity
               }}
             />
 
-            {/* Dark Mode Doodle */}
+            {/* Fixed Doodle Background - Dark Mode */}
             <div
               className="absolute inset-0 pointer-events-none z-0 hidden dark:block"
               style={{
                 backgroundImage: "url('/images/message_doodle.png')",
                 backgroundRepeat: "repeat",
                 backgroundPosition: "center",
+                backgroundAttachment: "local",
                 opacity: 0.08, // dark mode opacity
               }}
             />
 
-            {/* Content container to stay above background */}
-            <div className="relative z-10">
+            {/* Scrollable Content */}
+            <div className="relative z-10 h-full overflow-y-auto p-4 text-zinc-900 dark:text-zinc-100">
 
               {/*  Date Separator */}
               <div className="flex justify-center mb-4">
@@ -143,52 +149,15 @@ const FarmerCommunityChat = () => {
                 </span>
               </div>
 
-              {/*  Received Message */}
-              <div className="chat chat-end">
-                <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
-                    <img alt="User avatar" src={UserDefaultImage} />
-                  </div>
-                </div>
-                <div className="chat-header dark:text-zinc-300">You</div>
-                <div className="chat-bubble gradient-bubble-green text-white">
-                  Hello Guys...
-                </div>
-                <div className="chat-footer opacity-50 mt-1  ">Sent at • 12:46</div>
-              </div>
-
-              {/*  Sent Message */}
-              <div className="chat chat-start">
-                <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
-                    <img alt="User avatar" src={UserDefaultImage} />
-                  </div>
-                </div>
-                <div className="chat-header dark:text-zinc-300">Friend</div>
-                <div className="chat-bubble gradient-bubble-gray text-white">
-                  Hey, welcome!
-                </div>
-                <div className="chat-footer opacity-50 mt-1">Sent at • 12:47</div>
-              </div>
-
-              {/* Messages list */}
-              <ul className="text-zinc-900 dark:text-zinc-100">
-                {messages.map((msg, idx) => (
-                  <li key={idx} className="dark:text-zinc-100">
-                    <strong className="dark:text-zinc-200">{msg.username}</strong>: {msg.message}
-                  </li>
-                ))}
-              </ul>
-
-              {/* <ul className="text-zinc-900 dark:text-zinc-100 space-y-4">
+              <ul className="text-zinc-900 dark:text-zinc-100 space-y-4">
                 {messages.map((msg, idx) => {
-                  const isOwnMessage = msg.username === currentUsername; // Replace `currentUsername` with your logic
-
+                  const isOwnMessage = msg.user_id === userId; // Replace `currentUsername` with your logic
+                  console.log("isOwnMessage::", isOwnMessage)
                   return (
                     <li key={idx} className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
                       <div className="chat-image avatar">
                         <div className="w-10 rounded-full">
-                          <img alt="User avatar" src={UserDefaultImage} />
+                          <img alt="User avatar" src={msg?.user_image || UserDefaultImage} />
                         </div>
                       </div>
                       <div className="chat-header dark:text-zinc-300">
@@ -201,10 +170,10 @@ const FarmerCommunityChat = () => {
                     </li>
                   );
                 })}
-              </ul> */}
+              </ul>
 
               {/*  System Message */}
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center my-4">
                 <div className="bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-100 text-xs px-3 py-1 rounded-full">
                   James joined the group
                 </div>
@@ -253,9 +222,8 @@ const FarmerCommunityChat = () => {
           </div>
 
         </>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 
