@@ -80,8 +80,12 @@ ASGI_APPLICATION = 'agri_flow.asgi.application'
 # Add channel layer backend (for now, use in-memory for dev)
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    }
+        'BACKEND' : 'channels_redis.core.RedisChannelLayer',
+        'CONFIG' : {
+            # Caution : Use hte WSL ip address here for the redis (currently redis is running in the wsl environment not in windows)
+            "hosts" : [("127.0.0.1",6379)], #Redis default host and port 
+        },
+    },
 }
 
 
@@ -147,6 +151,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Google authentication middleware
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    # WhiteNoice static file loader 
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
 ]
 
@@ -220,6 +226,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 

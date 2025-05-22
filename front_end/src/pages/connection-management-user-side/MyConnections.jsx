@@ -24,7 +24,7 @@ function MyConnections() {
         try {
             setLoading(true);
             const response = await AuthenticatedAxiosInstance.get(`/connections/get-my-connections/?page=${page}&search=${search}`);
-           console.log("my connection :: ", response.data.results)
+            console.log("my connection :: ", response.data.results)
             setConnections(response.data.results);
             setCurrentPage(page);
             setTotalPages(Math.ceil(response.data.count / 6));
@@ -104,9 +104,13 @@ function MyConnections() {
                     value={searchTerm}
                     onChange={handleSearch}
                     placeholder="Search connections..."
-                    className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
+                    className=" w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg 
+               focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent 
+               transition duration-500 ease-in-out
+               bg-white text-gray-800 placeholder-gray-400 
+               dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-500 dark:border-zinc-700"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className=" absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-zinc-400" size={20} />
                 {searchTerm && (
                     <button
                         onClick={clearSearch}

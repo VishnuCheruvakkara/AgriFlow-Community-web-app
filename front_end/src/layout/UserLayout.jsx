@@ -21,44 +21,42 @@ const UserLayout = () => {
     const token = useSelector((state) => state.auth.token);
     const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
-    
-    // websocket set-up under progress  
+
+    // // websocket set-up under progress
     // useEffect(() => {
     //     if (!token) {
     //         console.warn("No token found, skipping WebSocket connection.");
     //         return;
     //     }
-    
+
     //     const socket = new WebSocket(
-    //         `ws://localhost:8000/ws/notification/user/`,
-    //         token  // Sending token as subprotocol
+    //         `ws://localhost:8000/ws/notification/user/?token=${token}`
     //     );
-    
+
     //     socket.onopen = () => {
-    //         console.log("WebSocket connection opened");
+    //         console.log("WebSocket connected");
     //     };
-    
+
     //     socket.onmessage = (event) => {
     //         const data = JSON.parse(event.data);
     //         console.log("Notification received:", data);
-    //         // You can also use a toast or dispatch here
-    //         // dispatch(showToast({ type: "info", message: data.message }));
     //     };
-    
+
     //     socket.onerror = (error) => {
     //         console.error("WebSocket error:", error);
     //     };
-    
+
     //     socket.onclose = (event) => {
     //         console.log("WebSocket closed:", event.code, event.reason);
     //     };
-    
+
     //     return () => {
     //         socket.close();
     //     };
     // }, [token]);
     
-   
+
+
 
     useEffect(() => {
         const fetchUserData = async () => {

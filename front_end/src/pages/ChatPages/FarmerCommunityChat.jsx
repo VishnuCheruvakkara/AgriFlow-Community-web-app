@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BsThreeDotsVertical, BsEmojiSmile, BsPaperclip, BsMic } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
 import { IoMdSend } from "react-icons/io";
@@ -7,21 +7,28 @@ import { useParams } from "react-router-dom";
 import CommunityDefaultImage from '../../assets/images/user-group-default.png'
 import GardenImage from '../../assets/images/farmer-garden-image.jpg'
 import UserDefaultImage from '../../assets/images/user-default.png'
-
+import { useSelector } from "react-redux"
 import CommunityDrawer from "../../components/Community/community-details/communityDetails";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 const FarmerCommunityChat = () => {
   const [newMessage, setNewMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+
   const { communityId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [communityData, setCommunityData] = useState(null);
+
+  // get the access token of the JWT from the redux store 
+  const token = useSelector((state) => state.auth.token)
+  //useRef for proper socket connection nor re-renders
+  const socketRef = useRef(null);
 
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
 
         const response = await AuthenticatedAxiosInstance.get(`community/get-communities/${communityId}`)
-        console.log("CommunityData is ???:::::",response.data)
+        console.log("CommunityData is ???:::::", response.data)
         setCommunityData(response.data);
 
       } catch (error) {
@@ -29,7 +36,7 @@ const FarmerCommunityChat = () => {
       }
     }
     fetchCommunities();
-  },[communityId])
+  }, [communityId])
 
   const openDrawer = () => {
     setIsDrawerOpen(true);
@@ -39,133 +46,190 @@ const FarmerCommunityChat = () => {
     setIsDrawerOpen(false);
   };
 
+  //hand-shaking for the conenction in websocket from the front-end
+  useEffect(() => {
+    if (!token) return;
 
+    const wsUrl = `ws://localhost:8000/ws/community-chat/${communityId}/?token=${token}`;
+    socketRef.current = new WebSocket(wsUrl);
+
+    socketRef.current.onopen = () => {
+      console.log("✅ WebSocket handshake successful");
+    };
+
+    socketRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("📥 Received from WebSocket:", data);
+      setMessages((prevMessages) => [...prevMessages, data]);
+    };
+
+    socketRef.current.onclose = (event) => {
+      console.log("❌ WebSocket closed:", event.code, event.reason);
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    return () => {
+      socketRef.current.close();
+    };
+  }, [communityId, token]);
 
   const handleSendMessage = (e) => {
-    e.preventDefault();
-    // Message sending logic would go here
-    setNewMessage("");
+    e.preventDefault(); // Prevent form reload
+
+    if (newMessage.trim() === "" || !socketRef.current) return;
+
+    const messageData = { message: newMessage };
+    socketRef.current.send(JSON.stringify(messageData));
+    setNewMessage(""); // Clear input after sending
   };
 
+
   return (
-    <div className="flex flex-col w-full border border-gray-200 bg-gray-100 rounded-lg shadow-lg overflow-hidden h-[80vh]">
+    <div className="flex flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
       {/* Chat Header */}
       {isDrawerOpen ? (
-        <CommunityDrawer isOpen={isDrawerOpen} closeDrawer={closeDrawer} communityData={communityData} />
+        <CommunityDrawer isOpen={isDrawerOpen} closeDrawer={closeDrawer} communitData={communityData} />
       ) : (
         <>
-          <div className="bg-white border-b p-4 flex justify-between items-center">
+          <div className="bg-white dark:bg-zinc-900 border-b dark:border-zinc-700 p-4 flex justify-between items-center">
             <div className="flex items-center">
-              <img  onClick={openDrawer} src={ communityData?.community_logo || CommunityDefaultImage} alt="Profile" className="w-12 h-12 rounded-full object-cover cursor-pointer" />
+              <img onClick={openDrawer} src={communityData?.community_logo || CommunityDefaultImage} alt="Profile" className="w-12 h-12 rounded-full object-cover cursor-pointer" />
               <div className="ml-3 cursor-pointer" onClick={openDrawer}>
-                  <h3 className="font-semibold text-gray-800">{ communityData?.name|| "Group Name not found "}</h3>
-                  <p className="text-xs text-gray-500"> {communityData?.members?.length} members,  1 online</p>
+                <h3 className="font-semibold text-gray-800 dark:text-zinc-100">{communityData?.name || "Group Name not found "}</h3>
+                <p className="text-xs text-gray-500 dark:text-zinc-400"> {communityData?.members?.length} members,  1 online</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <FiSearch className="text-gray-600 text-xl cursor-pointer" />
-              <BsThreeDotsVertical className="text-gray-600 text-xl cursor-pointer" />
+              <FiSearch className="text-gray-600 dark:text-zinc-300 text-xl cursor-pointer" />
+              <BsThreeDotsVertical className="text-gray-600 dark:text-zinc-300 text-xl cursor-pointer" />
             </div>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 bg-green-50 bg-opacity-30">
-            {/* Date Separator */}
-            <div className="flex justify-center mb-4">
-              <span className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">Today</span>
-            </div>
+          <div className="relative flex-1 overflow-y-auto p-4 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
 
-            {/* Received Message */}
-            <div className="flex mb-4">
-              <img src={UserDefaultImage} alt="Profile" className="w-9 h-9 rounded-full self-end" />
-              <div className="ml-2 max-w-xs md:max-w-md">
-                <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm">
-                  <p className="text-gray-700">Good morning everyone! Any suggestions for natural fertilizers for tomato plants?</p>
-                </div>
-                <div className="flex items-center mt-1">
-                  <span className="text-xs text-gray-500">John Farmer • 10:30 AM</span>
-                </div>
+            {/* Light Mode Doodle */}
+            <div
+              className="absolute inset-0 pointer-events-none z-0 dark:hidden"
+              style={{
+                backgroundImage: "url('/images/message_doodle.png')",
+                backgroundRepeat: "repeat",
+                backgroundPosition: "center",
+                opacity: 4, // light mode opacity
+              }}
+            />
+
+            {/* Dark Mode Doodle */}
+            <div
+              className="absolute inset-0 pointer-events-none z-0 hidden dark:block"
+              style={{
+                backgroundImage: "url('/images/message_doodle.png')",
+                backgroundRepeat: "repeat",
+                backgroundPosition: "center",
+                opacity: 0.08, // dark mode opacity
+              }}
+            />
+
+            {/* Content container to stay above background */}
+            <div className="relative z-10">
+
+              {/*  Date Separator */}
+              <div className="flex justify-center mb-4">
+                <span className="bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 text-xs px-3 py-1 rounded-full">
+                  Today
+                </span>
               </div>
-            </div>
 
-            {/* Sent Message */}
-            <div className="flex justify-end mb-4">
-              <div className="max-w-xs md:max-w-md">
-                <div className="bg-green-100 p-3 rounded-lg rounded-tr-none shadow-sm">
-                  <p className="text-gray-700">I've had great results with composted manure and fish emulsion for my tomatoes. Very cost effective!</p>
-                </div>
-                <div className="flex justify-end mt-1">
-                  <span className="text-xs text-gray-500">10:35 AM ✓✓</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Received Message with Image */}
-            <div className="flex mb-4">
-              <img src={UserDefaultImage} alt="Profile" className="w-9 h-9 rounded-full self-end" />
-              <div className="ml-2 max-w-xs md:max-w-md">
-                <div className="bg-white rounded-lg rounded-tl-none shadow-sm overflow-hidden">
-                  <img src={GardenImage} alt="Garden image" className="w-full h-auto" />
-                  <div className="p-3">
-                    <p className="text-gray-700">Here's my garden using those techniques!</p>
+              {/*  Received Message */}
+              <div className="chat chat-end">
+                <div className="chat-image avatar">
+                  <div className="w-10 rounded-full">
+                    <img alt="User avatar" src={UserDefaultImage} />
                   </div>
                 </div>
-                <div className="flex items-center mt-1">
-                  <span className="text-xs text-gray-500">Sarah Fields • 10:40 AM</span>
+                <div className="chat-header dark:text-zinc-300">You</div>
+                <div className="chat-bubble gradient-bubble-green text-white">
+                  Hello Guys...
                 </div>
+                <div className="chat-footer opacity-50 mt-1  ">Sent at • 12:46</div>
               </div>
-            </div>
 
-            {/* System Message */}
-            <div className="flex justify-center mb-4">
-              <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
-                James joined the group
+              {/*  Sent Message */}
+              <div className="chat chat-start">
+                <div className="chat-image avatar">
+                  <div className="w-10 rounded-full">
+                    <img alt="User avatar" src={UserDefaultImage} />
+                  </div>
+                </div>
+                <div className="chat-header dark:text-zinc-300">Friend</div>
+                <div className="chat-bubble gradient-bubble-gray text-white">
+                  Hey, welcome!
+                </div>
+                <div className="chat-footer opacity-50 mt-1">Sent at • 12:47</div>
               </div>
-            </div>
 
-            {/* Sent Message */}
-            <div className="flex justify-end mb-4">
-              <div className="max-w-xs md:max-w-md">
-                <div className="bg-green-100 p-3 rounded-lg rounded-tr-none shadow-sm">
-                  <p className="text-gray-700">Welcome James! We were just discussing organic fertilizers for tomatoes.</p>
-                </div>
-                <div className="flex justify-end mt-1">
-                  <span className="text-xs text-gray-500">10:42 AM ✓</span>
-                </div>
-              </div>
-            </div>
+              {/* Messages list */}
+              <ul className="text-zinc-900 dark:text-zinc-100">
+                {messages.map((msg, idx) => (
+                  <li key={idx} className="dark:text-zinc-100">
+                    <strong className="dark:text-zinc-200">{msg.username}</strong>: {msg.message}
+                  </li>
+                ))}
+              </ul>
 
-            {/* Another Received Message */}
-            <div className="flex mb-4">
-              <img src={UserDefaultImage} alt="Profile" className="w-9 h-9 rounded-full self-end" />
-              <div className="ml-2 max-w-xs md:max-w-md">
-                <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm">
-                  <p className="text-gray-700">Thanks everyone! I'm new to organic farming. Could someone recommend good companion plants for tomatoes?</p>
-                </div>
-                <div className="flex items-center mt-1">
-                  <span className="text-xs text-gray-500">James • 10:45 AM</span>
-                </div>
-              </div>
-            </div>
+              {/* <ul className="text-zinc-900 dark:text-zinc-100 space-y-4">
+                {messages.map((msg, idx) => {
+                  const isOwnMessage = msg.username === currentUsername; // Replace `currentUsername` with your logic
 
-            {/* Typing Indicator */}
-            <div className="flex mb-4">
-              <img src={UserDefaultImage} alt="Profile" className="w-9 h-9 rounded-full self-end" />
-              <div className="ml-2 text-black bg-white p-3 rounded-lg rounded-tl-none shadow-sm inline-flex">
-                <span className="animate-bounce mx-0.5">•</span>
-                <span className="animate-bounce mx-0.5 animation-delay-200">•</span>
-                <span className="animate-bounce mx-0.5 animation-delay-400">•</span>
+                  return (
+                    <li key={idx} className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
+                      <div className="chat-image avatar">
+                        <div className="w-10 rounded-full">
+                          <img alt="User avatar" src={UserDefaultImage} />
+                        </div>
+                      </div>
+                      <div className="chat-header dark:text-zinc-300">
+                        {isOwnMessage ? "You" : msg.username}
+                      </div>
+                      <div className={`chat-bubble ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white`}>
+                        {msg.message}
+                      </div>
+                      <div className="chat-footer opacity-50 mt-1">Sent at • {msg.timestamp || "just now"}</div>
+                    </li>
+                  );
+                })}
+              </ul> */}
+
+              {/*  System Message */}
+              <div className="flex justify-center mb-4">
+                <div className="bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-100 text-xs px-3 py-1 rounded-full">
+                  James joined the group
+                </div>
               </div>
+
+              {/* Typing Indicator */}
+              <div className="flex mb-4">
+                <img src={UserDefaultImage} alt="Profile" className="w-9 h-9 rounded-full self-end" />
+                <div className="ml-2 bg-white dark:bg-zinc-800 text-black dark:text-white p-3 rounded-lg rounded-tl-none shadow-sm inline-flex">
+                  <span className="animate-bounce mx-0.5">•</span>
+                  <span className="animate-bounce mx-0.5 animation-delay-200">•</span>
+                  <span className="animate-bounce mx-0.5 animation-delay-400">•</span>
+                </div>
+              </div>
+
             </div>
           </div>
 
           {/* Message Input */}
-          <div className="bg-white p-3 border-t">
+          <div className="bg-white dark:bg-zinc-900 p-3 border-t dark:border-zinc-700">
             <form onSubmit={handleSendMessage} className="flex items-center">
-              <button type="button" className="text-gray-500 hover:text-green-500 focus:outline-none mx-2">
+              <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
                 <BsEmojiSmile className="text-xl" />
               </button>
-              <button type="button" className="text-gray-500 hover:text-green-500 focus:outline-none mx-2">
+              <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
                 <BsPaperclip className="text-xl" />
               </button>
               <input
@@ -173,23 +237,25 @@ const FarmerCommunityChat = () => {
                 placeholder="Type a message"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 py-2 px-4 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="flex-1 py-2 px-4 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
               />
-              <button type="button" className="text-gray-500 hover:text-green-500 focus:outline-none mx-2">
+              <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
                 <BsMic className="text-xl" />
               </button>
               <button
                 type="submit"
-                className={`p-2 rounded-full focus:outline-none ${newMessage ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}
+                className={`p-2 rounded-full focus:outline-none ${newMessage ? 'bg-green-500 text-white dark:bg-green-600 dark:text-white' : 'bg-gray-200 text-gray-400 dark:bg-zinc-700 dark:text-zinc-500'}`}
                 disabled={!newMessage}
               >
                 <IoMdSend className="text-xl" />
               </button>
             </form>
           </div>
+
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

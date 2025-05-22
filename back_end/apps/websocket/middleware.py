@@ -2,12 +2,13 @@ import jwt
 from django.conf import settings
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
+from urllib.parse import parse_qs
 from django.contrib.auth import get_user_model
 
 @database_sync_to_async
 def get_user(token):
     try:
-        User = get_user_model()  # Move this line inside the function
+        User = get_user_model()
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         print("Middleware payload is:", payload)
         user = User.objects.get(id=payload['user_id'])
@@ -18,14 +19,10 @@ def get_user(token):
 
 class JwtAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
-        headers = dict(scope["headers"])
-        token = None
+        query_string = scope.get("query_string", b"").decode("utf-8")
+        query_params = parse_qs(query_string)
 
-        if b"sec-websocket-protocol" in headers:
-            protocols = headers[b"sec-websocket-protocol"].decode("utf-8").split(",")
-            token = protocols[0].strip()
-            # Save the protocols in scope for later use
-            scope["subprotocols"] = protocols
+        token = query_params.get("token", [None])[0]
 
         if not token:
             await send({'type': 'websocket.close'})
@@ -37,4 +34,4 @@ class JwtAuthMiddleware(BaseMiddleware):
             await send({'type': 'websocket.close', 'code': 4001})
             return
 
-        return await super().__call__(scope, receive,send)
+        return await super().__call__(scope, receive, send)

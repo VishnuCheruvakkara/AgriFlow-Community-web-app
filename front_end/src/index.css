@@ -454,3 +454,25 @@ button:focus {
   --shimmer-base: #3f3f46;
   --shimmer-highlight: rgba(255, 255, 255, 0.1);
 }
+
+
+/* chat buble baground customization  */
+
+/* gradient green */
+.gradient-bubble-green {
+  background: linear-gradient(to right, #22c55e, #15803d) !important; /* from-green-500 to-green-700 */
+  position: relative;
+}
+
+.gradient-bubble-green::before {
+  background: #15803d !important;
+}
+/* gradient gray   */
+.gradient-bubble-gray {
+  background: linear-gradient(to right, #4b5563,#9ca3af) !important; /* from-gray-400 to-gray-700 */
+  position: relative;
+}
+
+.gradient-bubble-gray::before {
+  background:#4b5563 ;
+}
