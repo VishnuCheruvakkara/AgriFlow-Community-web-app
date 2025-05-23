@@ -19,6 +19,7 @@ const FarmerCommunityChat = () => {
   // state for the online user count
   const [onlineCount, setOnlineCount] = useState(0);
 
+  
 
   const { communityId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
