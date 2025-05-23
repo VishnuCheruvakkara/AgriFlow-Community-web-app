@@ -10,9 +10,15 @@ import UserDefaultImage from '../../assets/images/user-default.png'
 import { useSelector } from "react-redux"
 import CommunityDrawer from "../../components/Community/community-details/communityDetails";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
+
 const FarmerCommunityChat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  // inout box useref 
+  const textareaRef = useRef(null);
+  // state for the online user count
+  const [onlineCount, setOnlineCount] = useState(0);
+
 
   const { communityId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -58,23 +64,31 @@ const FarmerCommunityChat = () => {
     socketRef.current = new WebSocket(wsUrl);
 
     socketRef.current.onopen = () => {
-      console.log("✅ WebSocket handshake successful");
+      console.log("WebSocket handshake successful");
     };
-
+    // handle message from the backend to show that here in the front end
+    //handled the online user count with the reddis cache mechanism
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("📥 Received from WebSocket:", data);
-      setMessages((prevMessages) => [...prevMessages, data]);
+      console.log("Received from WebSocket:", data);
+
+      if (data.type === "user_count") {
+        console.log("Online Users:", data.count);
+        // Optionally store in state:
+        setOnlineCount(data.count);
+      } else {
+        setMessages((prevMessages) => [...prevMessages, data]);
+      }
     };
 
     socketRef.current.onclose = (event) => {
-      console.log("❌ WebSocket closed:", event.code, event.reason);
+      console.log(" WebSocket closed:", event.code, event.reason);
     };
 
     socketRef.current.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
-
+    // clean up to avoid the extra load 
     return () => {
       socketRef.current.close();
     };
@@ -90,6 +104,13 @@ const FarmerCommunityChat = () => {
     setNewMessage(""); // Clear input after sending
   };
 
+  // update height dynamicaaly for the message input
+  const handleInput = (e) => {
+    setNewMessage(e.target.value);
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  };
+
 
   return (
     <div className="flex flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
@@ -103,7 +124,7 @@ const FarmerCommunityChat = () => {
               <img onClick={openDrawer} src={communityData?.community_logo || CommunityDefaultImage} alt="Profile" className="w-12 h-12 rounded-full object-cover cursor-pointer" />
               <div className="ml-3 cursor-pointer" onClick={openDrawer}>
                 <h3 className="font-semibold text-gray-800 dark:text-zinc-100">{communityData?.name || "Group Name not found "}</h3>
-                <p className="text-xs text-gray-500 dark:text-zinc-400"> {communityData?.members?.length} members,  1 online</p>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400"> {communityData?.members?.length} members,  {onlineCount} online</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -163,7 +184,9 @@ const FarmerCommunityChat = () => {
                       <div className="chat-header dark:text-zinc-300">
                         {isOwnMessage ? "You" : msg.username}
                       </div>
-                      <div className={`chat-bubble ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white`}>
+                      <div
+                        className={`chat-bubble whitespace-pre-wrap break-words max-w-[80%] ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white`}
+                      >
                         {msg.message}
                       </div>
                       <div className="chat-footer opacity-50 mt-1">Sent at • {msg.timestamp || "just now"}</div>
@@ -201,12 +224,13 @@ const FarmerCommunityChat = () => {
               <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
                 <BsPaperclip className="text-xl" />
               </button>
-              <input
-                type="text"
-                placeholder="Type a message"
+              <textarea
+                ref={textareaRef}
+                rows={1}
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 py-2 px-4 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                onChange={handleInput}
+                placeholder="Type a message"
+                className="flex-1 py-2 px-4 resize-none bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 overflow-hidden"
               />
               <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
                 <BsMic className="text-xl" />

@@ -246,11 +246,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Setup of django cache for otp storage in temporary to avoid multi user login in single-time.
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "otp_cache",
-        "TIMEOUT": 300  # OTP expiry time in seconds (5 minutes)
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1", 
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "TIMEOUT": 300,
     }
 }
+
+# redis set up for define the define Redis URL globally for custom Redis usage (e.g., in WebSocket consumers)
+REDIS_URL = "redis://127.0.0.1:6379/2"
 
 ########################### smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.  ###########################
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
