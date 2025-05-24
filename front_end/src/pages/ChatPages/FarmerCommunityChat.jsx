@@ -19,7 +19,7 @@ const FarmerCommunityChat = () => {
   // state for the online user count
   const [onlineCount, setOnlineCount] = useState(0);
 
-  
+
 
   const { communityId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -103,6 +103,10 @@ const FarmerCommunityChat = () => {
     const messageData = { message: newMessage };
     socketRef.current.send(JSON.stringify(messageData));
     setNewMessage(""); // Clear input after sending
+    // Reset the height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
   };
 
   // update height dynamicaaly for the message input
@@ -125,7 +129,7 @@ const FarmerCommunityChat = () => {
               <img onClick={openDrawer} src={communityData?.community_logo || CommunityDefaultImage} alt="Profile" className="w-12 h-12 rounded-full object-cover cursor-pointer" />
               <div className="ml-3 cursor-pointer" onClick={openDrawer}>
                 <h3 className="font-semibold text-gray-800 dark:text-zinc-100">{communityData?.name || "Group Name not found "}</h3>
-                  <p className="text-xs text-gray-500 dark:text-zinc-400"> {communityData?.members?.length} members,  {onlineCount} online</p>
+                <p className="text-xs text-gray-500 dark:text-zinc-400"> {communityData?.members?.length} members,  {onlineCount} online</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -231,7 +235,7 @@ const FarmerCommunityChat = () => {
                 value={newMessage}
                 onChange={handleInput}
                 placeholder="Type a message"
-                className="flex-1 py-2 px-4 resize-none bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 overflow-hidden"
+                className="flex-1 py-2 px-4 resize-none bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 overflow-y-auto max-h-32"
               />
               <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
                 <BsMic className="text-xl" />
