@@ -1,15 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import RoutesConfig from "./routes/RoutesConfig";
+import ToastNotifications from "./components/toast-notification/CustomToast";
+import LoaderSpinner from "./components/LoaderSpinner/LoaderSpinner";
+import NoInternetPage from "./components/StatusPages/NoInternetPage";
+import useStatusHandler from "./components/StatusPages/useStatusHandler";
+import useGlobalRipple from "./components/CustomRipple/useGlobalRipple";
 
 function App() {
-  
+  useGlobalRipple();
+  const { isOnline } = useStatusHandler();
+
+  if (!isOnline) {
+    return <NoInternetPage />;
+  }
 
   return (
-    <>
+    <div>
+      <BrowserRouter>
+        <ToastNotifications />
+        <LoaderSpinner />
 
-       
-    </>
-  )
+        {/* JUST this — let RoutesConfig handle all routing */}
+        <RoutesConfig />
+      </BrowserRouter>
+    </div>
+  );
 }
 
-export default App
+export default App;

@@ -1,3 +1,478 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Lora:wght@400;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 
+input, textarea, select {
+  @apply bg-white text-black  ;
+}
+
+h3,h2,label{
+  @apply text-black;
+} */
+
+* {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+
+body,html {
+  font-family: 'Poppins', sans-serif;
+  background-color: white !important;
+  
+}
+
+/* This will hide the scrollbar but still allow horizontal scrolling */
+.scroll-container {
+    overflow-x: scroll;  /* Enable horizontal scrolling */
+    -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+  }
+  
+  .scroll-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+  }
+  
+/* Hide scrollbar but allow scrolling */
+
+/* Enable scrolling without showing scrollbar */
+body::-webkit-scrollbar {
+  display: none; /* For webkit-based browsers like Chrome, Safari */
+}
+
+/* Hide scroll bar for Sign up page right side section  */
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: black !important;
+}
+
+
+/* =============== Custom style for the phone number coutry code selection ==================  */
+
+  /* Base styling to match Tailwind's w-full p-3 border rounded-lg */
+  .react-tel-input .form-control {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    padding-left: 3rem !important;
+    border-width: 1px !important;
+    border-radius: 0.5rem !important;
+    height: 52px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Focus styling to match focus:outline-none focus:ring-2 focus:ring-green-500 */
+ 
+  .react-tel-input .form-control:focus {
+    outline: none !important;
+   
+  }
+
+
+  /* Flag container styling */
+  .react-tel-input .flag-dropdown {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .react-tel-input .selected-flag {
+    border-radius: 0.5rem 0 0 0.5rem !important;
+    background: transparent !important;
+  }
+
+  /* Adjust flag position to not interfere with your icon */
+  .react-tel-input .selected-flag {
+    padding-left: 22px !important; 
+  }
+
+  /* Dropdown styling */
+  .react-tel-input .country-list {
+    color:rgb(82, 82, 82);
+    border-radius: 0.2rem !important;
+    border: 0.5px solid #e5e7eb !important;
+    box-shadow: 0 4px 6px -1px rgb(255, 255, 255), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  }
+
+
+/* Hide the up/down arrows in number input fields */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide the default dropdown arrow  in the user profile updation section */
+select::-ms-expand {
+  display: none;
+}
+
+
+html, body {
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Hide the default dropdown arrow  in the user profile updation section */
+select::-ms-expand {
+  display: none;
+}
+
+select {
+  appearance: none; /* Hide default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+
+
+
+
+
+
+
+/* SweetAlert2 Custom Styling */
+/* ===================  Competly customized confirmation alert with ok and cancel button (Admin side users status controll)============================  */
+body.swal2-shown {
+  padding-right: 0 !important;
+  overflow: hidden !important;
+}
+/* Popup */
+.my-swal-popup {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 25rem; /* w-96 */
+  max-width: 24rem;
+  font-size: 0.85rem; /* text-sm */
+}
+
+/* Title */
+.my-swal-title {
+  font-size: 15px; /* text-xl */
+  font-weight: 600; /* font-semibold */
+  color: #5c5c5c; /* Green */
+  border-bottom: 2px solid #949494; /* light gray border */
+  padding-bottom: 8px; /* spacing between text and border */
+}
+
+.my-swal-content{
+  font-weight: 600;
+  border-bottom: 2px solid #949494; /* light gray border */
+}
+
+
+
+/* Confirm Button */
+.my-swal-confirm {
+  background-color: #dcfce7; /* Green-100 */
+  border: 1px solid #16a34a; /* Green-600 */
+  color: #16a34a; /* Green text */
+  font-weight: 600;
+  border-radius: 6px; /* rounded-md */
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.my-swal-confirm:hover {
+  background-color: #1fdf66;
+  color: white;
+  box-shadow: none;
+}
+
+/* Cancel Button */
+.my-swal-cancel {
+  background-color: #fee2e2; /* Red-100 */
+  color: #e82e2e; /* Red-600 */
+  font-weight: 600;
+  padding: 0.5rem 1.5rem; /* py-2 px-6 */
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e82e2e; /* Green-600 */
+  
+}
+
+.my-swal-cancel:hover {
+  background-color: #ff2b2b; /* Red */
+  color: white;
+  box-shadow: none;
+  
+}
+
+.my-swal-confirm,
+.my-swal-cancel {
+  outline: none !important; /* Removes focus outline */
+}
+
+.my-swal-confirm:focus,
+.my-swal-cancel:focus {
+  outline: none !important; /* Ensure no focus ring */
+  box-shadow: none !important;
+}
+
+/* Fade-in effect */
+.swal-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Fade-out effect */
+.swal-fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+/* Keyframes for fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Keyframes for fade-out */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* customized daisy UI tool tip, below.... */
+/* Tooltip Box */
+.tooltip::before {
+  background-color: #16a34a !important;  /* Tailwind's green-600 */
+  color: #ffffff !important;             /* White text */
+  font-weight: bold !important;          /* Bold text */
+  padding: 0.6rem 1rem !important; 
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Smooth shadow */           /* Optional: spacing inside tooltip */
+  border-radius: 0.5rem;   
+}
+
+/* Tooltip Pointer (Triangle) */
+.tooltip::after {
+  background-color: #16a34a !important;  /* Same green as box */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Smooth shadow */
+}
+
+/* Animation for the home page welcome div : User side  */
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 5%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background: linear-gradient(-45deg, #15803d, #22c55e, #53c97e, #15803d);
+  background-size: 400% 400%;
+  animation: gradientMove 10s ease infinite;
+}
+
+/* hide Scroll bar in the community detail section */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* adding pointer to the right side of the menu bar in the community details page   */
+
+.with-pointer::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right : -10px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid rgb(96, 96, 96);
+  z-index: 30;
+}
+
+
+
+/* Custom styling for react-datepicker */
+/* Date Selection */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #22c55e !important; /* Tailwind green-500 */
+  color: white !important;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover {
+  background-color: #16a34a !important; /* Tailwind green-600 */
+}
+
+/* Time Selection */
+.react-datepicker__time-list-item {
+  color: #4b5563; /* Tailwind gray-700 */
+  padding: 10px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: #22c55e !important; /* Tailwind green-500 */
+  color: white !important;
+}
+
+/* Styling for selected time */
+.react-datepicker__time-list-item--selected {
+  background-color: #16a34a !important; /* Tailwind green-600 */
+  color: white !important;
+  font-weight: bold;
+}
+
+/* Style for the time dropdown */
+.react-datepicker__time-container {
+  background-color: #f9fafb; /* Tailwind gray-50 */
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Default input, text area and select desgn set to None for outline  */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+  outline: none;
+}
+
+/* Global ripple effect set up for the button and other area  */
+.ripple-parent {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Base style */
+.ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-animation 1500ms normal;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* White ripple */
+.ripple-white .ripple-span {
+  background-color: rgb(255, 255, 255);
+}
+
+/* Black ripple */
+.ripple-black .ripple-span {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Green ripple */
+.ripple-green .ripple-span {
+  background-color: rgba(58, 255, 130, 0.893); /* Tailwind's green-500 with alpha */
+}
+
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(5);
+    opacity: 0;
+  }
+}
+
+/* shimmer ui common animation setup  */
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
+}
+
+/* Main shimmer class */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--shimmer-base, #e5e7eb); /* fallback bg */
+}
+
+
+/* shimmer ui set up for loading  */
+/* The animated gradient bar inside shimmer */
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--shimmer-highlight, rgba(255, 255, 255, 0.6)),
+    transparent
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Light mode colors */
+.shimmer-light {
+  --shimmer-base: #e5e7eb;
+  --shimmer-highlight: rgba(255, 255, 255, 0.6);
+}
+
+/* Dark mode colors */
+.dark .shimmer-dark {
+  --shimmer-base: #3f3f46;
+  --shimmer-highlight: rgba(255, 255, 255, 0.1);
+}
+
+
+/* chat buble baground customization  */
+
+/* gradient green */
+.gradient-bubble-green {
+  background: linear-gradient(to right, #22c55e, #15803d) !important; /* from-green-500 to-green-700 */
+  position: relative;
+}
+
+.gradient-bubble-green::before {
+  background: #15803d !important;
+}
+/* gradient gray   */
+.gradient-bubble-gray {
+  background: linear-gradient(to right, #4b5563,#9ca3af) !important; /* from-gray-400 to-gray-700 */
+  position: relative;
+}
+
+.gradient-bubble-gray::before {
+  background:#4b5563 ;
+}
