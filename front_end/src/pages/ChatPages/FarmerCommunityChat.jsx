@@ -14,12 +14,12 @@ import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosIns
 const FarmerCommunityChat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  // inout box useref 
+  // input box useref 
   const textareaRef = useRef(null);
+  // Add ref for messages container to enable auto-scroll
+  const messagesEndRef = useRef(null);
   // state for the online user count
   const [onlineCount, setOnlineCount] = useState(0);
-
-
 
   const { communityId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -33,6 +33,43 @@ const FarmerCommunityChat = () => {
 
   //useRef for proper socket connection nor re-renders
   const socketRef = useRef(null);
+
+  // Function to scroll to bottom
+  const scrollToBottom = () => {
+    const messagesContainer = messagesEndRef.current?.parentElement;
+    if (!messagesContainer) return;
+
+    const startPosition = messagesContainer.scrollTop;
+    const targetPosition = messagesContainer.scrollHeight - messagesContainer.clientHeight;
+    const distance = targetPosition - startPosition;
+
+    if (distance === 0) return; // Already at bottom
+
+    const duration = Math.min(1000, Math.max(500, Math.abs(distance) / 2));
+    const startTime = performance.now();
+
+    // Custom easing function for smoother animation (easeOutCubic)
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    // Animate scroll
+    const animateScroll = (currentTime) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const easeProgress = easeOutCubic(progress);
+
+      messagesContainer.scrollTop = startPosition + (distance * easeProgress);
+
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
+  };
+  // Auto-scroll when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const fetchCommunities = async () => {
@@ -109,13 +146,12 @@ const FarmerCommunityChat = () => {
     }
   };
 
-  // update height dynamicaaly for the message input
+  // update height dynamically for the message input
   const handleInput = (e) => {
     setNewMessage(e.target.value);
     textareaRef.current.style.height = "auto";
     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   };
-
 
   return (
     <div className="flex flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
@@ -217,6 +253,8 @@ const FarmerCommunityChat = () => {
                 </div>
               </div>
 
+              {/* Invisible div to scroll to - placed at the bottom */}
+              <div ref={messagesEndRef} />
             </div>
           </div>
 
