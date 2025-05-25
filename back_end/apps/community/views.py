@@ -11,9 +11,9 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer
 from community.serializers import GetMyCommunitySerializer
-from community.models import CommunityMembership
+from community.models import CommunityMembership,CommunityMessage
 # imports from the custom named app
 from apps.common.pagination import CustomCommunityPagination, CustomUserPagination
 from django.utils import timezone
@@ -798,3 +798,18 @@ class EditCommunityDetailsView(APIView):
             return Response({"detail": "Community updated successfully."}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+############################ View for get the community messages from the table ############################### 
+
+class CommunityMessageListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, community_id):
+        try:
+            community = Community.objects.get(pk=community_id, is_deleted=False)
+        except Community.DoesNotExist:
+            return Response({"detail": "Community not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        messages = CommunityMessage.objects.filter(community=community).order_by('timestamp')
+        serializer = CommunityMessageSerializer(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
