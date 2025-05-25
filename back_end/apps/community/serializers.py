@@ -1,7 +1,7 @@
 from tkinter import Y
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from community.models import Community, CommunityMembership, Tag
+from community.models import Community, CommunityMembership,Tag,CommunityMessage
 from apps.common.cloudinary_utils import upload_image_to_cloudinary, generate_secure_image_url
 # import the notificaiton set model from notifications named app
 from notifications.models import Notification
@@ -484,3 +484,21 @@ class CommunityEditSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+############################ Serializer for get the community messages from the table ############################### 
+
+
+class CommunityMessageSerializer(serializers.ModelSerializer):
+    message = serializers.CharField(source='content')
+    user_id = serializers.IntegerField(source='user.id')
+    username = serializers.CharField(source='user.username')
+    user_image = serializers.SerializerMethodField()
+    timestamp = serializers.DateTimeField() 
+
+    class Meta:
+        model = CommunityMessage
+        fields = ['message', 'user_id', 'user_image', 'username','timestamp']
+
+    def get_user_image(self, obj):
+        return generate_secure_image_url(obj.user.profile_picture)
+    
