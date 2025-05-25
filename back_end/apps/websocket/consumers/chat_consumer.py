@@ -49,7 +49,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Broadcast updated user count
         await self.send_user_count()
 
-    # Receive message from front end  then try to send that into the grouo or Broad cast 
+    # Receive message from front end  then try to send that into the group or Broad cast 
     async def receive(self, text_data):
         data = json.loads(text_data)
         message = data['message']
