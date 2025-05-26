@@ -27,10 +27,11 @@ from django.utils.timezone import now
 # import nodification model
 from notifications.models import Notification
 # import common image getter of cloudinary from common app
-from apps.common.cloudinary_utils import generate_secure_image_url
+from apps.common.cloudinary_utils import generate_secure_image_url,upload_to_cloudinary  
 from django.shortcuts import get_object_or_404
 # improt exceptions
 from django.core.exceptions import PermissionDenied
+from rest_framework.parsers import MultiPartParser
 
 ############### get the Usermodel ##################
 
@@ -813,3 +814,22 @@ class CommunityMessageListView(APIView):
         messages = CommunityMessage.objects.filter(community=community).order_by('timestamp')
         serializer = CommunityMessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+        
+##################### View for upload media file into cloudinary  ##############################
+
+class CloudinaryUploadView(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        file = request.FILES.get('file')  # Generic
+        folder_name = request.data.get('folder', 'default')
+
+        if not file:
+            return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        signed_url = upload_to_cloudinary(file, folder_name)
+
+        if signed_url:
+            return Response({'url': signed_url}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Upload failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -13,6 +13,7 @@ import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosIns
 //import message date badge here 
 import DateBadge from "../../components/Community/community-message/MessageDateBadge";
 import EmojiPicker from 'emoji-picker-react';
+import TwemojiText from "../../components/Community/community-message/TwemojiText";
 
 const FarmerCommunityChat = () => {
   const [newMessage, setNewMessage] = useState("");
@@ -28,8 +29,13 @@ const FarmerCommunityChat = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [communityData, setCommunityData] = useState(null);
 
+  // Imogie picker to send in message 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef(null);
+
+  // Send media file for message
+  const [mediafile, setMediaFile] = useState(null);
+  const [uploadedURL, setUploadedURL] = useState("");
 
   // get the access token of the JWT from the redux store 
   const token = useSelector((state) => state.auth.token)
@@ -273,7 +279,7 @@ const FarmerCommunityChat = () => {
                           className={`chat-bubble whitespace-pre-wrap break-words max-w-[80%] ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"
                             } text-white`}
                         >
-                          {msg.message}
+                          <TwemojiText text={msg.message} />
                         </div>
                         <div className="chat-footer opacity-50 mt-1">
                           Sent at • {formattedTime || "just now"}
@@ -303,15 +309,8 @@ const FarmerCommunityChat = () => {
               {/* Invisible div to scroll to - placed at the bottom */}
               <div ref={messagesEndRef} />
             </div>
-          </div>
-
-
-
-
-
-
-
-          {/* Message Input */}
+            </div>
+            
           {/* Message Input */}
           <div className="bg-white dark:bg-zinc-900 p-3 border-t dark:border-zinc-700">
             <form onSubmit={handleSendMessage} className="flex items-center relative">

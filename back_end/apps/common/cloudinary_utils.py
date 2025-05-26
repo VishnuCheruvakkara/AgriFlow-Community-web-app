@@ -1,6 +1,7 @@
 import time
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
+import mimetypes
 
 #####################  Common image uploading and retrieving functions  #####################
 
@@ -46,3 +47,39 @@ def generate_secure_image_url(public_id, expires_in=3600):
     return secure_url
 
 ########################################################
+
+def upload_to_cloudinary(file_obj, folder_name):
+    """
+    Uploads image, video, or PDF to Cloudinary securely.
+    Returns a signed private URL.
+    """
+    try:
+        mime_type, _ = mimetypes.guess_type(file_obj.name)
+
+        if mime_type:
+            if mime_type.startswith("image"):
+                resource_type = "image"
+            elif mime_type.startswith("video"):
+                resource_type = "video"
+            else:
+                resource_type = "raw"
+        else:
+            resource_type = "raw"
+
+        result = cloudinary.uploader.upload(
+            file_obj,
+            folder=f"private_files/{folder_name}/",
+            resource_type=resource_type,
+            type="authenticated",
+            transformation=[
+                {"width": 500, "height": 500, "crop": "limit"},
+                {"quality": "auto:good"},
+                {"fetch_format": "auto"}
+            ] if resource_type == "image" else None
+        )
+
+        return result.get("secure_url")
+
+    except Exception as e:
+        print("Cloudinary upload error:", e)
+        return None
