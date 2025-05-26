@@ -12,7 +12,7 @@ import CommunityDrawer from "../../components/Community/community-details/commun
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 //import message date badge here 
 import DateBadge from "../../components/Community/community-message/MessageDateBadge";
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker,{EmojiStyle} from 'emoji-picker-react';
 import TwemojiText from "../../components/Community/community-message/TwemojiText";
 
 const FarmerCommunityChat = () => {
@@ -152,6 +152,7 @@ const FarmerCommunityChat = () => {
     const messageData = { message: newMessage };
     socketRef.current.send(JSON.stringify(messageData));
     setNewMessage(""); // Clear input after sending
+    setShowEmojiPicker(val => !val);
     // Reset the height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -182,6 +183,7 @@ const FarmerCommunityChat = () => {
 
   const handleEmojiClick = (emojiData) => {
     setNewMessage(prev => prev + emojiData.emoji);
+    console.log(emojiData.imageUrl)
     textareaRef.current.focus();  // Optional: keep focus on input
   };
 
@@ -276,7 +278,7 @@ const FarmerCommunityChat = () => {
                           {isOwnMessage ? "You" : msg.username}
                         </div>
                         <div
-                          className={`chat-bubble whitespace-pre-wrap break-words max-w-[80%] ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"
+                          className={`chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%] ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"
                             } text-white`}
                         >
                           <TwemojiText text={msg.message} />
@@ -309,8 +311,8 @@ const FarmerCommunityChat = () => {
               {/* Invisible div to scroll to - placed at the bottom */}
               <div ref={messagesEndRef} />
             </div>
-            </div>
-            
+          </div>
+
           {/* Message Input */}
           <div className="bg-white dark:bg-zinc-900 p-3 border-t dark:border-zinc-700">
             <form onSubmit={handleSendMessage} className="flex items-center relative">
@@ -334,6 +336,8 @@ const FarmerCommunityChat = () => {
                     <EmojiPicker
                       onEmojiClick={handleEmojiClick}
                       theme={document.documentElement.classList.contains("dark") ? "dark" : "light"}
+                      emojiStyle={EmojiStyle.TWITTER}
+                      
                     />
                   </div>
                 )}
@@ -351,7 +355,7 @@ const FarmerCommunityChat = () => {
                 value={newMessage}
                 onChange={handleInput}
                 placeholder="Type a message"
-                className="flex-1 py-2 px-4 resize-none bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 overflow-y-auto max-h-32"
+                className="emoji-text flex-1 py-2 px-4 resize-none bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 overflow-y-auto max-h-32"
               />
 
               {/* Mic Button */}
