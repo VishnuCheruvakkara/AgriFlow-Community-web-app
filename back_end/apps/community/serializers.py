@@ -494,10 +494,11 @@ class CommunityMessageSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     user_image = serializers.SerializerMethodField()
     timestamp = serializers.DateTimeField() 
+    media_url = serializers.URLField()
 
     class Meta:
         model = CommunityMessage
-        fields = ['message', 'user_id', 'user_image', 'username','timestamp']
+        fields = ['message', 'user_id', 'user_image', 'username','timestamp','media_url']
 
     def get_user_image(self, obj):
         return generate_secure_image_url(obj.user.profile_picture)

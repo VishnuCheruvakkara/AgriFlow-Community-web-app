@@ -48,23 +48,28 @@ def generate_secure_image_url(public_id, expires_in=3600):
 
 ########################################################
 
+import mimetypes
+from django.core.exceptions import ValidationError
+import cloudinary.uploader
+
 def upload_to_cloudinary(file_obj, folder_name):
     """
-    Uploads image, video, or PDF to Cloudinary securely.
+    Uploads image or video to Cloudinary securely.
+    Rejects all other file types.
     Returns a signed private URL.
     """
     try:
         mime_type, _ = mimetypes.guess_type(file_obj.name)
 
-        if mime_type:
-            if mime_type.startswith("image"):
-                resource_type = "image"
-            elif mime_type.startswith("video"):
-                resource_type = "video"
-            else:
-                resource_type = "raw"
+        if not mime_type:
+            raise ValidationError("Unable to detect file type.")
+
+        if mime_type.startswith("image"):
+            resource_type = "image"
+        elif mime_type.startswith("video"):
+            resource_type = "video"
         else:
-            resource_type = "raw"
+            raise ValidationError("Only image and video files are allowed.")
 
         result = cloudinary.uploader.upload(
             file_obj,
@@ -80,6 +85,9 @@ def upload_to_cloudinary(file_obj, folder_name):
 
         return result.get("secure_url")
 
+    except ValidationError as ve:
+        print("Validation error:", ve)
+        return None
     except Exception as e:
         print("Cloudinary upload error:", e)
         return None

@@ -250,42 +250,42 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
 
     return (
-        <motion.div
+       <motion.div
             initial={{ x: '100%' }}
             animate={{ x: isOpen ? 0 : '100%' }}
             exit={{ x: '100%' }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="flex flex-col w-full h-full bg-gray-100 shadow-lg overflow-y-auto no-scrollbar"
+            className="flex flex-col w-full h-full bg-gray-100 dark:bg-zinc-800 shadow-lg overflow-y-auto no-scrollbar"
 
         >
             {/* Header */}
-            <div className=" text-white bg-gradient-to-r from-green-700 to-green-400 px-4 py-4 flex justify-between items-center">
+            <div className=" text-white bg-gradient-to-r from-green-700 to-green-400  px-4 py-4 flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-white ">Community Details</h2>
                 <button
                     onClick={closeDrawer}
-                    className="border-white hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300"
+                    className="border-white hover:border-transparent text-white hover:bg-green-700  rounded-full p-1 transition-colors duration-300"
                 >
                     <RxCross2 className='text-2xl' />
                 </button>
             </div>
 
             {/* Community Image */}
-            <div className="bg-white py-6 flex flex-col items-center border-b">
-                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-3">
+            <div className="bg-white dark:bg-zinc-900 py-6 flex flex-col items-center border-b dark:border-zinc-700">
+                <div className="w-24 h-24 bg-green-100 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-3">
                     <img src={community?.image || DefaultCommunityImage} alt="Community Logo" className="w-full h-full rounded-full object-cover" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800">{community?.name || "Not found"}</h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-zinc-200">{community?.name || "Not found"}</h3>
+                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
                     {communityData?.members?.length || 0} {communityData?.members?.length === 1 ? 'member' : 'members'}
                 </p>
 
                 {currentMember?.is_admin && (
                     <button
                         onClick={openEditCommunityModal}
-                        className="bg-green-500 mt-4 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300"
+                        className="bg-green-500 mt-4 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600  transition-colors duration-200 shadow-lg shadow-gray-300 dark:shadow-zinc-900"
                     >
-                        <div className="bg-white rounded-full p-2">
-                            <FaRegEdit className="text-green-500" />
+                        <div className="bg-white dark:bg-zinc-200 rounded-full p-2">
+                            <FaRegEdit className="text-green-500 " />
                         </div>
                         <span className="text-sm pr-4">Edit Community</span>
                     </button>
@@ -298,12 +298,12 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
             <div className="flex flex-col">
 
                 {/* About Section */}
-                <div className="bg-white mt-2 p-4 border-b">
+                <div className="bg-white dark:bg-zinc-900 mt-2 p-4 border-b dark:border-zinc-700">
                     <div className="flex items-start">
-                        <FaInfoCircle className="text-gray-500 mt-1 mr-3" size={18} />
+                        <FaInfoCircle className="text-gray-500 dark:text-zinc-400 mt-1 mr-3" size={18} />
                         <div>
-                            <h3 className="text-sm font-medium text-gray-500">About</h3>
-                            <p className="text-gray-700 mt-1 break-all whitespace-pre-wrap pr-5">
+                            <h3 className="text-sm font-medium text-gray-500 dark:text-zinc-400">About</h3>
+                            <p className="text-gray-700 dark:text-zinc-300 mt-1 break-all whitespace-pre-wrap pr-5">
                                 {community?.description || "About this community not provided."}
                             </p>
                         </div>
@@ -311,23 +311,23 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 </div>
 
                 {/* Members Section */}
-                <div className="bg-white mt-2 p-4 border-b">
+                <div className="bg-white dark:bg-zinc-900 mt-2 p-4 border-b dark:border-zinc-700">
                     <div className="flex items-center mb-3">
-                        <FaUsers className="text-gray-500 mr-3" size={18} />
-                        <h3 className="text-gray-700 font-medium">{communityData?.members?.length || 0} {communityData?.members?.length === 1 ? 'member' : 'members'}</h3>
+                        <FaUsers className="text-gray-500 dark:text-zinc-400 mr-3" size={18} />
+                        <h3 className="text-gray-700 dark:text-zinc-300 font-medium">{communityData?.members?.length || 0} {communityData?.members?.length === 1 ? 'member' : 'members'}</h3>
                     </div>
 
-                    <ul className="mt-2 text-gray-600 space-y-3">
+                    <ul className="mt-2 text-gray-600 dark:text-zinc-400 space-y-3">
 
                         {/* Add Member Button */}
                         {communityData?.members?.some(member => member.id === currentUser?.id && member.is_admin) && (
                             <li
-                                className="bg-gradient-to-r bg-green-500 flex gap-5 items-center rounded-md py-3 cursor-pointer 
-                    transition-colors duration-300 hover:bg-green-600 hover:shadow-lg shadow-gray-300"
+                                className="bg-gradient-to-r bg-green-500  flex gap-5 items-center rounded-md py-3 cursor-pointer 
+                    transition-colors duration-300 hover:bg-green-600  hover:shadow-lg shadow-gray-300 dark:shadow-zinc-900"
                                 onClick={() => setIsModalOpen(true)}
                             >
-                                <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-white mr-3 flex items-center justify-center">
-                                    <span className="text-green-600 font-bold text-xl">
+                                <div className="ml-4 w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-zinc-200 mr-3 flex items-center justify-center">
+                                    <span className="text-green-600  font-bold text-xl">
                                         <MdGroupAdd />
                                     </span>
                                 </div>
@@ -353,11 +353,11 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                     onClick={() => setOpenMemberId(openMemberId === member.id ? null : member.id)}
 
 
-                                    className="relative flex justify-between items-center border cursor-pointer border-gray-300 rounded-md py-3 hover:bg-gray-100 transition-colors duration-300 px-4 hover:shadow-lg shadow-gray-300"
+                                    className="relative flex justify-between items-center border cursor-pointer border-gray-300 dark:border-zinc-600 rounded-md py-3 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors duration-300 px-4 hover:shadow-lg shadow-gray-300 dark:shadow-zinc-900"
                                 >
                                     {/* Left part: image and username */}
                                     <div className="flex items-center gap-5">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-green-100 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-green-100 dark:bg-zinc-700 flex items-center justify-center">
                                             <img
                                                 src={member.profile_image}
                                                 alt={member.username}
@@ -366,9 +366,9 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                         </div>
 
                                         <span className="flex items-center">
-                                            {member?.username || "No data found"}
+                                            <span className="text-gray-800 dark:text-zinc-200">{member?.username || "No data found"}</span>
                                             {member?.is_admin && (
-                                                <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded ml-2">
+                                                <span className="text-xs bg-gray-200 dark:bg-zinc-600 text-gray-600 dark:text-zinc-300 px-2 py-0.5 rounded ml-2">
                                                     Admin
                                                 </span>
                                             )}
@@ -376,7 +376,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                     </div>
 
                                     {/* Right part: 3 dots icon */}
-                                    <div className="text-gray-500 hover:text-gray-700 mr-2">
+                                    <div className="text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300 mr-2">
                                         <BsThreeDotsVertical size={18} />
                                     </div>
 
@@ -387,24 +387,24 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 exit={{ opacity: 0, scale: 0.8 }}
                                                 transition={{ duration: 0.2 }}
-                                                className="menu right-16 bg-white shadow-lg shadow-gray-400 border bg-base-200 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
+                                                className="menu right-16 bg-white shadow-lg shadow-gray-400 dark:shadow-zinc-700 border dark:border-zinc-600 bg-base-200 dark:bg-zinc-800 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
                                             >
                                                 {/* View user option */}
                                                 <li
                                                     onClick={() => handleViewUser(member)}
-                                                    className="hover:bg-gray-100 transition-colors rounded-t-sm p-2"
+                                                    className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-t-sm p-2"
                                                 >
                                                     View {member.username}
                                                 </li>
 
                                                 {currentMember?.is_admin && (
                                                     <>
-                                                        {!member?.is_admin && <li onClick={() => handleRemoveUser(member)} className="hover:bg-gray-100 transition-colors  rounded-t-sm border-gray-400 p-2 ">Remove {member.username}</li>}
+                                                        {!member?.is_admin && <li onClick={() => handleRemoveUser(member)} className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors  rounded-t-sm border-gray-400 dark:border-zinc-600 p-2 ">Remove {member.username}</li>}
 
-                                                        {!member?.is_admin && <li onClick={() => handleMakeAdmin(member)} className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">Make {member.username} as admin</li>}
+                                                        {!member?.is_admin && <li onClick={() => handleMakeAdmin(member)} className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-b-sm p-2">Make {member.username} as admin</li>}
                                                         {/* Revoke admin privileges option if the user is already an admin */}
                                                         {member?.is_admin && member.id !== communityData.created_by && (
-                                                            <li onClick={() => handleRevokeAdminPrivileges(member)} className="hover:bg-gray-100 transition-colors rounded-b-sm p-2">
+                                                            <li onClick={() => handleRevokeAdminPrivileges(member)} className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-b-sm p-2">
                                                                 Revoke admin privileges from {member.username}
                                                             </li>
                                                         )}
@@ -447,18 +447,18 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 {currentMember?.is_admin && currentUser?.id === communityData?.created_by ?(
                     <button
                         onClick={handleRemoveCommunity}
-                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
+                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-red-100 dark:hover:bg-red-700  dark:hover:bg-red-900/20 transition-colors duration-300 group"
                     >
-                        <RiDeleteBin5Fill className="text-red-600 text-xl" />
-                        <span className="text-red-600 font-bold">Delete Community</span>
+                        <RiDeleteBin5Fill className="text-red-600  text-xl dark:group-hover:text-red-300" />
+                        <span className="text-red-600  font-bold dark:group-hover:text-red-300">Delete Community</span>
                     </button>
                 ) : (
                     <button
                         onClick={handleExitCommunity}
-                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300"
+                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-red-100 dark:hover:bg-red-700  dark:hover:bg-red-900/20 transition-colors duration-300 group"
                     >
-                        <MdExitToApp className="text-red-600 text-xl" /> 
-                        <span className="text-red-600 font-bold">Exit Community</span>
+                        <MdExitToApp className="text-red-600  text-xl dark:group-first:hover:text-red-300" /> 
+                        <span className="text-red-600 font-bold dark:group-hover:text-red-300">Exit Community</span>
                     </button>
                 )}
 

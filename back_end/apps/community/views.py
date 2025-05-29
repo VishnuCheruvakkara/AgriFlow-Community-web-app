@@ -32,6 +32,7 @@ from django.shortcuts import get_object_or_404
 # improt exceptions
 from django.core.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser
+from django.core.exceptions import ValidationError
 
 ############### get the Usermodel ##################
 
@@ -821,15 +822,19 @@ class CloudinaryUploadView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
-        file = request.FILES.get('file')  # Generic
+        file = request.FILES.get('file')
         folder_name = request.data.get('folder', 'default')
 
         if not file:
             return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        signed_url = upload_to_cloudinary(file, folder_name)
-
-        if signed_url:
-            return Response({'url': signed_url}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Upload failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            signed_url = upload_to_cloudinary(file, folder_name)
+            if signed_url:
+                return Response({'url': signed_url}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Upload failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except ValidationError as ve:
+            return Response({'error': str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': 'Something went wrong during upload.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

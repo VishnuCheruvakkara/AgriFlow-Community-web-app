@@ -65,6 +65,6 @@ urlpatterns = [
     path('get-community-messages/<int:community_id>/', CommunityMessageListView.as_view(), name='get-community-messages'),
 
     ################### upload media file ######################  
-    path("upload-media/", CloudinaryUploadView.as_view(), name="cloudinary-upload"),
+    path("community-chat-media-upload/", CloudinaryUploadView.as_view(), name="cloudinary-upload"),
 
 ]

@@ -65,6 +65,7 @@ class CommunityMessage(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='messages')
     community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='messages')
     content = models.TextField()
+    media_url = models.URLField(blank=True,null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
