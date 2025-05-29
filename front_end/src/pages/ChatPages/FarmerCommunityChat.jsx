@@ -173,7 +173,7 @@ const FarmerCommunityChat = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault(); // Prevent page reload
-
+    setShowEmojiPicker(false)
     if (!newMessage.trim() && !selectedFile) return;
 
     let fileURL = null;
@@ -222,13 +222,16 @@ const FarmerCommunityChat = () => {
         fileURL = response.data.url;
         setUploadedURL(fileURL);
         setSelectedFile(null); // clear the file after upload
+        setShowEmojiPicker(false)
       } catch (error) {
         console.error("Upload failed:", error);
         showToast("File upload failed, Try again", "error");
         setIsUploading(false);
+        setShowEmojiPicker(false)
         return;
       } finally {
         setIsUploading(false);
+        setShowEmojiPicker(false)
       }
     }
 

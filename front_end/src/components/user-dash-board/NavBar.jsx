@@ -158,8 +158,7 @@ function NavBar() {
                                 </div>
 
 
-                                {/* Put the theme toggle button here */}
-
+                                {/* Theme toggle button here */}
                                 <ThemeToggle />
 
 
