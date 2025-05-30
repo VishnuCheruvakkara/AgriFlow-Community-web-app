@@ -30,13 +30,28 @@ class GetSuggestedFarmersView(APIView):
         blocked_user_ids = BlockedUser.objects.filter(
             blocker=current_user
         ).values_list('blocked_id', flat=True)
+
+        # Exclude users who blocked current_user
+        blocked_by_other_user_ids = BlockedUser.objects.filter(
+            blocked=current_user
+        ).values_list('blocker_id', flat=True)
+
         users = users.exclude(id__in=blocked_user_ids)
+        users = users.exclude(id__in=blocked_by_other_user_ids)
 
         # Filter users with complete profile and verified Aadhar
         users = users.filter(profile_completed=True, is_aadhar_verified=True)
 
         # Get all connections sent by current user
         connections = Connection.objects.filter(sender=current_user)
+
+        # Get all connections received by current user (for reverse check)
+        reverse_connections = Connection.objects.filter(receiver=current_user)
+
+        # Exclude users who sent a pending request TO current_user
+        pending_received_user_ids = reverse_connections.filter(
+            status='pending'
+        ).values_list('sender_id', flat=True)
 
         # Exclude connected, pending, rejected
         active_connection_user_ids = connections.filter(
@@ -50,8 +65,15 @@ class GetSuggestedFarmersView(APIView):
             updated_at__gte=three_days_ago
         ).values_list('receiver_id', flat=True)
 
+        # Exclude users who already accepted your connection
+        accepted_received_user_ids = reverse_connections.filter(
+            status='accepted'
+        ).values_list('sender_id', flat=True)
+
         users = users.exclude(id__in=active_connection_user_ids)
+        users = users.exclude(id__in=pending_received_user_ids)
         users = users.exclude(id__in=recent_cancelled_user_ids)
+        users = users.exclude(id__in=accepted_received_user_ids)
 
         # Apply search
         if search_query:
