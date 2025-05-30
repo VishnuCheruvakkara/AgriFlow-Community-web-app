@@ -21,7 +21,7 @@ function SideBar() {
 
     // common handler for to navigate the user in to the user-profile view page 
     const handleViewProfile = () => {
-        navigate('/user-dash-board/user-profile-view');
+        navigate(`/user-dash-board/user-profile-view/${user.id}`);
     };
 
     const handleLogout = async () => {
@@ -47,20 +47,20 @@ function SideBar() {
 
     return (
         <div className=" mt-4 hidden lg:block md:w-1/2 lg:w-1/4 xl:w-1/5 2xl:w-1/4 lg:sticky lg:top-20 lg:self-start">
-            <div className="bg-white rounded-lg shadow-sm mb-4 dark:bg-zinc-800">
+            <div className="bg-white rounded-lg shadow-sm mb-4 dark:bg-zinc-800 ">
                 {/* User profile section */}
-                <div className="flex items-center p-4 border-b">
+                <div onClick={handleViewProfile} className="flex items-center p-4 border-b ripple-parent ripple-green ">
                     {/* Profile Image Container */}
-                    <div onClick={handleViewProfile} className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
+                    <div  className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
                         <img
                             src={user?.profile_picture || defaultUserImage}
                             alt="User profile"
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover "
                         />
                     </div>
 
                     {/* User Information */}
-                    <div onClick={handleViewProfile} className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
+                    <div  className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
                         <h3 className="font-semibold text-green-500 text-ellipsis overflow-hidden whitespace-nowrap">{user?.username || "Farmer"}</h3>
                         <p className="text-sm text-gray-400 truncate text-ellipsis overflow-hidden whitespace-nowrap">{user?.farming_type || "Rice Cultivator"}</p>
                     </div>

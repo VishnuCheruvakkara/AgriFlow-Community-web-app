@@ -44,7 +44,9 @@ function UsersRoutes() {
         {/* Profile section routes of user  */}
         <Route path="/farmer-profile" element={<ProfilePage />} />
         {/* ProfilePage section where user can see and edit thier data  */}
-        <Route path="/user-profile-view" element={<UserProfileViewPage />} />
+        <Route path="/user-profile-view/:userId" element={<UserProfileViewPage />} />
+        
+        
 
         {/* Comunity set up */}
         <Route path="farmer-community" element={<CommunityLayout />}>

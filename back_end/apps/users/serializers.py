@@ -13,8 +13,15 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.validators import EmailValidator
 # To authenticate the user
 from django.contrib.auth import authenticate
-# User profile updation
-
+# import model from community
+from community.models import CommunityMembership
+# impot model from connection 
+from connections.models import Connection
+from django.db.models import Q 
+# get secure image url using id, get image from cloudinary 
+from apps.common.cloudinary_utils import generate_secure_image_url
+from datetime import timedelta
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -27,7 +34,6 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True) 
 
 ################################## User registration ####################################
-
 
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(
@@ -535,3 +541,76 @@ class AadhaarResubmissionSerializer(serializers.ModelSerializer):
         instance.aadhar_resubmission_message = None
         instance.save()
         return instance
+    
+##################### Get the user details on the profile page of user and other user can see each other profiles ########################
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ['place_id', 'full_location', 'latitude', 'longitude', 'location_name', 'country', 'home_address']
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
+    community_count = serializers.SerializerMethodField()
+    connection_count = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()
+    connection_status = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'username', 'phone_number', 'profile_picture',
+            'is_verified', 'farming_type', 'experience', 'bio', 'aadhar_card',
+            'is_aadhar_verified', 'aadhar_resubmission_message', 'date_of_birth',
+            'profile_completed', 'created_at', 'updated_at',
+            'address', 'community_count', 'connection_count','connection_status'
+        ]
+
+    def get_community_count(self, obj):
+        return CommunityMembership.objects.filter(user=obj, status='approved').count()
+
+    def get_connection_count(self, obj):
+        
+        return Connection.objects.filter(
+            (Q(sender=obj) | Q(receiver=obj)) & Q(status='accepted')
+        ).count()
+
+    def get_profile_picture(self,obj):
+        return generate_secure_image_url(obj.profile_picture)
+
+    def get_connection_status(self, obj):
+        request = self.context.get('request')
+        if not request or not hasattr(request, 'user'):
+            return 'not_connected'
+
+        user = request.user
+
+        if user.id == obj.id:
+            return 'self'
+
+        connections = Connection.objects.filter(
+            (Q(sender=user, receiver=obj) | Q(sender=obj, receiver=user))
+        ).order_by('-updated_at')  # Most recent first
+
+        if not connections.exists():
+            return 'not_connected'
+
+        connection = connections.first()
+
+        if connection.status == 'accepted':
+            return 'connected'
+        elif connection.status == 'pending':
+            if connection.sender == user:
+                return 'pending_sent'
+            else:
+                return 'pending_received'
+        
+        elif connection.status == 'cancelled':
+            # Check if 3 days passed since update
+            days_passed = timezone.now() - connection.updated_at
+            if days_passed >= timedelta(days=3):
+                return 'can_reconnect'
+            else:
+                return 'wait_to_reconnect'
+
+        return 'not_connected'

@@ -14,6 +14,7 @@ import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { useNavigate } from 'react-router-dom';
 import EditCommunityModal from '../CommunityModal/EditCommunityModal'
 import { RiDeleteBin5Fill } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
@@ -250,7 +251,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
 
     return (
-       <motion.div
+        <motion.div
             initial={{ x: '100%' }}
             animate={{ x: isOpen ? 0 : '100%' }}
             exit={{ x: '100%' }}
@@ -390,12 +391,13 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                                 className="menu right-16 bg-white shadow-lg shadow-gray-400 dark:shadow-zinc-700 border dark:border-zinc-600 bg-base-200 dark:bg-zinc-800 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
                                             >
                                                 {/* View user option */}
-                                                <li
-                                                    onClick={() => handleViewUser(member)}
+                                                <Link to={`/user-dash-board/user-profile-view/${member.id}`}
                                                     className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-t-sm p-2"
                                                 >
-                                                    View {member.username}
-                                                </li>
+                                                   
+                                                        View {member.username}
+                                                    
+                                                </Link>
 
                                                 {currentMember?.is_admin && (
                                                     <>
@@ -444,7 +446,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
                 {/* Exit Community Section */}
                 {/* Admins see "Remove Community", others see "Exit Community" */}
-                {currentMember?.is_admin && currentUser?.id === communityData?.created_by ?(
+                {currentMember?.is_admin && currentUser?.id === communityData?.created_by ? (
                     <button
                         onClick={handleRemoveCommunity}
                         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-red-100 dark:hover:bg-red-700  dark:hover:bg-red-900/20 transition-colors duration-300 group"
@@ -457,7 +459,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                         onClick={handleExitCommunity}
                         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-red-100 dark:hover:bg-red-700  dark:hover:bg-red-900/20 transition-colors duration-300 group"
                     >
-                        <MdExitToApp className="text-red-600  text-xl dark:group-first:hover:text-red-300" /> 
+                        <MdExitToApp className="text-red-600  text-xl dark:group-first:hover:text-red-300" />
                         <span className="text-red-600 font-bold dark:group-hover:text-red-300">Exit Community</span>
                     </button>
                 )}

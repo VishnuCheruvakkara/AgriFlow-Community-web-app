@@ -31,7 +31,7 @@ from google.oauth2 import id_token
 ######### for refresh token view ##############
 from rest_framework.permissions import AllowAny
 ######### for Forget password section #############
-from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerializer, ForgotPasswordSetSerializer
+from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerializer, ForgotPasswordSetSerializer,UserProfileSerializer
 from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.contrib.sessions.models import Session
@@ -701,11 +701,8 @@ class GetUserDataView(RetrieveAPIView):
 
 
 ##################  Get all users data in the admin side #######################
-
-
 # =======================Pagination set up with get user data =======================#
 # Pagination part
-
 
 class CustomUserPagination(PageNumberPagination):
     page_size = 5  # Deafault page size
@@ -832,3 +829,16 @@ class AadhaarResubmissionUpdateView(APIView):
             serializer.save()
             return Response({"message": "Aadhaar resubmission image updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+##################### Get the user details on the profile page of user and other user can see each other profiles ########################
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.select_related('address').get(id=user_id)
+            serializer = UserProfileSerializer(user, context={'request':request})
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)

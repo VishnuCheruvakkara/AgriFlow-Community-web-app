@@ -108,38 +108,47 @@ const SuggestedFarmers = () => {
         <div>
 
             {/* accepted user section  */}
+            {notifications.length > 0 && (
+                <h2 className="text-lg font-medium text-gray-800 mb-3">
+                    Request accepted by
+                </h2>
+            )}
             {notifications.map((notif) => (
-                <div key={notif.id} className="overflow-hidden rounded-lg">
+                <>
 
-                    <h2 className="text-lg font-medium text-gray-800 mb-3 ">Request accepted by</h2>
+                    <div key={notif.id} className="overflow-hidden rounded-lg">
 
-                    <div className="flex items-center px-4 py-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4">
-                        <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
-                            <img
-                                src={notif.sender.profile_picture || DefaultUserImage}
-                                alt="User Avatar"
-                                className="h-12 w-12 rounded-full object-cover"
-                            />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-gray-900 truncate">
-                                {notif.sender.username}
-                            </h3>
-                            <p className="text-xs text-gray-500 mt-1 capitalize">
-                                {notif.message}
-                            </p>
-                        </div>
 
-                        <div
-                            onClick={() => handleClearNotification(notif.id)}
-                            className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"
-                            data-tip="Clear"
-                        >
-                            <MdOutlineCancel className="text-red-600 text-xl hover:text-red-800 dark:text-red-400 dark:hover:text-red-200" />
+
+                        <div className="flex items-center px-4 py-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4">
+                            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
+                                <img
+                                    src={notif.sender.profile_picture || DefaultUserImage}
+                                    alt="User Avatar"
+                                    className="h-12 w-12 rounded-full object-cover"
+                                />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-medium text-gray-900 truncate">
+                                    {notif.sender.username}
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1 capitalize">
+                                    {notif.message}
+                                </p>
+                            </div>
+
+                            <div
+                                onClick={() => handleClearNotification(notif.id)}
+                                className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"
+                                data-tip="Clear"
+                            >
+                                <MdOutlineCancel className="text-red-600 text-xl hover:text-red-800 dark:text-red-400 dark:hover:text-red-200" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>
             ))}
+
 
 
             <h2 className="text-lg font-medium text-gray-800 mb-3">Suggested Farmers</h2>
@@ -165,70 +174,70 @@ const SuggestedFarmers = () => {
                 )}
             </div>
 
-          
 
-                {/* Farmer Cards Grid */}
-                {loading ? (
-                    < SuggestedFarmersShimmer />
-                ) : farmers.length === 0 ? (
-                    <div className=" col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md 
+
+            {/* Farmer Cards Grid */}
+            {loading ? (
+                < SuggestedFarmersShimmer />
+            ) : farmers.length === 0 ? (
+                <div className=" col-span-3 text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md 
                     dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-300">
-                        <img
-                            src={SearchNotFound}
-                            alt="No Events"
-                            className="mx-auto w-64 object-contain"
-                        />
-                        <p className="text-lg font-semibold dark:text-zinc-100">No Farmers Found!</p>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400">
-                            {search ? "Try using a different search keyword." : "There are currently no suggested farmers available."}
-                        </p>
-                    </div>
-                ) : (
-                    <div className=" grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <img
+                        src={SearchNotFound}
+                        alt="No Events"
+                        className="mx-auto w-64 object-contain"
+                    />
+                    <p className="text-lg font-semibold dark:text-zinc-100">No Farmers Found!</p>
+                    <p className="text-xs text-gray-500 dark:text-zinc-400">
+                        {search ? "Try using a different search keyword." : "There are currently no suggested farmers available."}
+                    </p>
+                </div>
+            ) : (
+                <div className=" grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                        {/* Card */}
-                        {farmers.map((farmer) => (
-                            <div key={farmer.id} className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border dark:border-zinc-700 hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full">
-                                {/* Banner Image */}
-                                <div className="h-24 w-full bg-green-100 dark:bg-green-900 relative">
+                    {/* Card */}
+                    {farmers.map((farmer) => (
+                        <div key={farmer.id} className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border dark:border-zinc-700 hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full">
+                            {/* Banner Image */}
+                            <div className="h-24 w-full bg-green-100 dark:bg-green-900 relative">
+                                <img
+                                    src={DefaultBannerImage}
+                                    alt="Farm banner"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="p-5 pt-12 relative flex-1">
+                                {/* Profile Image - positioned to overlap banner */}
+                                <div className="absolute -top-10 left-5 w-20 h-20 rounded-full overflow-hidden bg-gray-200 border-4 border-white dark:border-zinc-900">
                                     <img
-                                        src={DefaultBannerImage}
-                                        alt="Farm banner"
-                                        className="w-full h-full object-cover"
+                                        src={farmer.profile_picture || DefaultUserImage}
+                                        alt="John Smith"
+                                        className="w-ful h-full object-cover"
                                     />
                                 </div>
-                                <div className="p-5 pt-12 relative flex-1">
-                                    {/* Profile Image - positioned to overlap banner */}
-                                    <div className="absolute -top-10 left-5 w-20 h-20 rounded-full overflow-hidden bg-gray-200 border-4 border-white dark:border-zinc-900">
-                                        <img
-                                            src={farmer.profile_picture || DefaultUserImage}
-                                            alt="John Smith"
-                                            className="w-ful h-full object-cover"
-                                        />
+                                <div className="flex flex-col">
+                                    <h4 className="font-semibold text-gray-800 dark:text-gray-200 text-md">{farmer.username || "No data"}</h4>
+                                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        <FaMapMarkerAlt className="mr-1" />
+                                        <span>{farmer.address?.location_name || "No data found"}, {farmer.address?.country}</span>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <h4 className="font-semibold text-gray-800 dark:text-gray-200 text-md">{farmer.username || "No data"}</h4>
-                                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                            <FaMapMarkerAlt className="mr-1" />
-                                            <span>{farmer.address?.location_name || "No data found"}, {farmer.address?.country}</span>
-                                        </div>
-                                        <div className="flex items-center text-sm text-green-600 dark:text-green-400 mt-1">
-                                            <FaSeedling className="mr-1" />
-                                            <span>{farmer.farming_type || "No data found for "} Farmer </span>
-                                        </div>
+                                    <div className="flex items-center text-sm text-green-600 dark:text-green-400 mt-1">
+                                        <FaSeedling className="mr-1" />
+                                        <span>{farmer.farming_type || "No data found for "} Farmer </span>
                                     </div>
-                                </div>
-                                <div className=" p-4 pt-0">
-                                    <button onClick={() => handleConnect(farmer.id, farmer.username)} className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2 transition-colors">
-                                        <FaUserPlus />
-                                        <span>Connect</span>
-                                    </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
-           
+                            <div className=" p-4 pt-0">
+                                <button onClick={() => handleConnect(farmer.id, farmer.username)} className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2 transition-colors">
+                                    <FaUserPlus />
+                                    <span>Connect</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
 
 
             {/* Pagination */}
@@ -241,7 +250,8 @@ const SuggestedFarmers = () => {
                     hasNext={page < totalPages}
                 />
             )}
-        </div>
+        </div >
+
     );
 };
 
