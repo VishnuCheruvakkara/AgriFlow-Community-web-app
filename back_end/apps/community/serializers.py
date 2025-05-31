@@ -286,10 +286,11 @@ class RequestedUserSerializer(serializers.ModelSerializer):
     requested_at = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username')
+    user_id = serializers.IntegerField(source='user.id')
 
     class Meta:
         model = CommunityMembership
-        fields = ['username', 'requested_at', 'profile_picture']
+        fields = ['user_id','username', 'requested_at', 'profile_picture']
 
     def get_requested_at(self, obj):
         # Fetch notification created when user requested to join community

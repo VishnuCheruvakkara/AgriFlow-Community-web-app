@@ -114,17 +114,37 @@ class SendConnectionRequestView(APIView):
             ).count()
 
             if daily_requests_count >= 10:
+
                 return Response({"error": "Max connection limit reached today. Try again later."}, status=status.HTTP_400_BAD_REQUEST)
 
-            connection, created = Connection.objects.get_or_create(
+            # Check for existing connection
+            connection = Connection.objects.filter(sender=request.user, receiver=receiver).first()
+
+            if connection:
+                if connection.status == 'accepted':
+                    return Response({"error": "Connection already exists."}, status=status.HTTP_400_BAD_REQUEST)
+                elif connection.status == 'blocked':
+                    return Response({"error": "You cannot send request. This user is blocked."}, status=status.HTTP_400_BAD_REQUEST)
+                elif connection.status in ['rejected', 'cancelled']:
+                    # Resend request
+                    connection.status = 'pending'
+                    connection.updated_at = timezone.now()
+                    connection.save()
+                    serializer = ConnectionSerializer(connection)
+                    return Response({
+                        "message": "Connection request re-sent.",
+                        "connection": serializer.data
+                    }, status=status.HTTP_200_OK)
+
+                else:
+                    return Response({"error": f"Connection already in {connection.status} status."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # No connection exists: create a new one
+            connection = Connection.objects.create(
                 sender=request.user,
                 receiver=receiver,
-                defaults={'status': 'pending'}
+                status='pending'
             )
-
-            if not created:
-                return Response({"error": "Connection already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
             serializer = ConnectionSerializer(connection)
             return Response({
                 "message": "Connection request sent.",
@@ -133,6 +153,7 @@ class SendConnectionRequestView(APIView):
 
         except User.DoesNotExist:
             return Response({"error": "Receiver not found."}, status=status.HTTP_404_NOT_FOUND)
+
         
 #==================== Get users in the Request you send section View  =========================#
 
@@ -181,6 +202,7 @@ class AcceptConnectionRequestAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
+       
         connection = get_object_or_404(Connection, id=pk, receiver=request.user)
 
         if connection.status != "pending":

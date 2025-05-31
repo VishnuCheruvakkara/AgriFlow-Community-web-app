@@ -5,6 +5,7 @@ import DefaultCommunityIcon from "../../../assets/images/user-group-default.png"
 import DefaultUserIcon from "../../../assets/images/user-default.png";
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { showToast } from '../../toast-notification/CustomToast';
+import { Link } from 'react-router-dom';
 
 function IncomingRequestsSection() {
     const [expanded, setExpanded] = useState(false);
@@ -35,7 +36,7 @@ function IncomingRequestsSection() {
 
     const handleRequestAction = async (communityId, username, action) => {
         const isApproval = action === 'approved';
-    
+
         const result = await showConfirmationAlert({
             title: isApproval ? 'Approve request?' : 'Reject request?',
             text: isApproval
@@ -44,7 +45,7 @@ function IncomingRequestsSection() {
             confirmButtonText: isApproval ? 'Yes, Approve' : 'Yes, Reject',
             cancelButtonText: 'No, Cancel',
         });
-    
+
         if (result) {
             try {
                 const response = await AuthenticatedAxiosInstance.patch(
@@ -58,7 +59,7 @@ function IncomingRequestsSection() {
                 );
                 fetchIncomingRequests(); // Refresh the list
             } catch (error) {
-                
+
                 console.error('Error updating membership status:', error);
                 showToast(
                     `Failed to ${isApproval ? 'approve' : 'reject'} member request`,
@@ -67,7 +68,7 @@ function IncomingRequestsSection() {
             }
         }
     };
-    
+
 
     const totalPending = requestsData.reduce((acc, community) => acc + community.requested_users.length, 0);
 
@@ -127,11 +128,13 @@ function IncomingRequestsSection() {
                                             <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50 transition">
                                                 <div className="flex items-center gap-4 ml-2">
                                                     <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200">
-                                                        <img
-                                                            src={user.profile_picture || DefaultUserIcon}
-                                                            alt="image"
-                                                            className="h-full w-full object-cover"
-                                                        />
+                                                        <Link to={`/user-dash-board/user-profile-view/${user.user_id}`}>
+                                                            <img
+                                                                src={user.profile_picture || DefaultUserIcon}
+                                                                alt="image"
+                                                                className="h-full w-full object-cover"
+                                                            />
+                                                        </Link>
                                                     </div>
                                                     <div>
                                                         <p className="font-medium text-gray-800">{user.username}</p>

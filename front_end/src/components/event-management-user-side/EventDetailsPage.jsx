@@ -15,7 +15,7 @@ import { showConfirmationAlert } from "../SweetAlert/showConfirmationAlert";
 import { showToast } from "../toast-notification/CustomToast";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import DefaultUserImage from "../../assets/images/user-default.png"
-
+import { Link } from "react-router-dom";
 
 const EventDetailsPage = ({ event, onClose, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -246,9 +246,10 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
                     <p className="text-xs text-gray-500 mt-1 dark:text-zinc-400">{participant.email}</p>
                   </div>
 
-                  <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800" data-tip="View">
+                  <Link to={`/user-dash-board/user-profile-view/${participant.id}`}
+                    className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800" data-tip="View">
                     <FaEye className="text-green-600 text-xl hover:text-green-800 dark:text-green-400 dark:hover:text-green-200" />
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>

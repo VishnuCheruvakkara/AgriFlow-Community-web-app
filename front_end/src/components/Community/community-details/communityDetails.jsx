@@ -394,9 +394,8 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                                 <Link to={`/user-dash-board/user-profile-view/${member.id}`}
                                                     className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-t-sm p-2"
                                                 >
-                                                   
-                                                        View {member.username}
-                                                    
+                                                    View {member.username}
+
                                                 </Link>
 
                                                 {currentMember?.is_admin && (

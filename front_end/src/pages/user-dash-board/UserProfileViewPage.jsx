@@ -15,7 +15,7 @@ import BannerImage from "../../assets/images/banner_default_user_profile.png"
 import { useSelector } from 'react-redux';
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { GoFileMedia } from "react-icons/go";
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { LuMessageSquareText } from "react-icons/lu";
 import UserProfileViewPageShimmer from '../../components/shimmer-ui-component/UserProfileViewPageShimmer';
 import { showToast } from '../../components/toast-notification/CustomToast';
@@ -61,6 +61,7 @@ function UserProfileViewPage() {
             fetchUserData();
         }
     }, [userId]);
+    
 
     // display shimmer UI while fetching the data 
     if (loading) {
@@ -108,18 +109,8 @@ function UserProfileViewPage() {
         });
     };
 
-    // accept connection request
-    const acceptRequest = async (requestId) => {
-        try {
-            const response = await AuthenticatedAxiosInstance.patch(`/connections/accept-connection-request/${requestId}/`);
-            console.log("Connection request accepted:", response.data);
-            showToast("Connection request accepted", "success")
-           
-        } catch (error) {
-            console.error("Error accepting connection request:", error);
-            showToast("Error accepting connection request. Try again", "error")
-        }
-    };
+    
+
 
     return (
         <>
@@ -190,13 +181,15 @@ function UserProfileViewPage() {
 
                                                     className="bg-gray-400 text-white px-6 py-2 rounded-md flex items-center hover:bg-gray-500"
                                                 >
-                                                    <FaUserFriends className="mr-2 text-xl" /> Pending ...
+                                                    <FaUserFriends className="mr-2 text-xl" /> Pending
                                                 </button>
                                             </div>
                                         ) : user?.connection_status === 'pending_received' ? (
-                                            <button onClick={() => acceptRequest(userId)} className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
-                                                <FaUserCheck className="mr-2 text-xl" /> Accept
-                                            </button>
+                                            <Link to="/user-dash-board/connection-management/pending-requests" classNmae="inline-block">
+                                                <button className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
+                                                    <FaUserCheck className="mr-2 text-xl" /> Accept
+                                                </button>
+                                            </Link>
                                         ) : user?.connection_status === 'can_reconnect' ? (
                                             <button onClick={() => handleConnect(userId, user?.username)} className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
                                                 <FaUserFriends className="mr-2 text-xl" /> Connect
