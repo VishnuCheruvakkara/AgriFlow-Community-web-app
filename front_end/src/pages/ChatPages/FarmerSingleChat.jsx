@@ -8,11 +8,17 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { RiGitRepositoryCommitsLine } from "react-icons/ri";
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 
 const FarmerSingleChat = () => {
+    // to scroll to bottom managing ref
+    const messagesEndRef = useRef(null);
     const [newMessage, setNewMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const socketRef = useRef(null)
+    // handle imoji
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const emojiPickerRef = useRef(null);
 
     const location = useLocation();
 
@@ -26,7 +32,7 @@ const FarmerSingleChat = () => {
     const { receiverId, username, profile_picture } = location.state || {};
 
     console.log("receiverId ::", receiverId, ":::", "userId:::", userId)
-    
+
     //  Websocket Mesaging set up
     const minId = Math.min(userId, receiverId)
     const maxId = Math.max(userId, receiverId)
@@ -76,6 +82,7 @@ const FarmerSingleChat = () => {
         if (socketRef.current && newMessage.trim()) {
             socketRef.current.send(JSON.stringify({ message: newMessage, receiver_id: receiverId }));
             setNewMessage("");
+            setShowEmojiPicker(false);
         }
     }
 
@@ -91,7 +98,48 @@ const FarmerSingleChat = () => {
             }
         }
         fetchMessages();
-    },[receiverId])
+    }, [receiverId])
+
+    // send the imoji 
+    const handleEmojiClick = (emojiData, event) => {
+        setNewMessage((prevMessage) => prevMessage + emojiData.emoji);
+    };
+
+    // scroll to bottm 
+    const scrollToBottom = () => {
+        const messagesContainer = messagesEndRef.current?.parentElement;
+        if (!messagesContainer) return;
+
+        const startPosition = messagesContainer.scrollTop;
+        const targetPosition = messagesContainer.scrollHeight - messagesContainer.clientHeight;
+        const distance = targetPosition - startPosition;
+
+        if (distance === 0) return;
+
+        const duration = Math.min(1000, Math.max(500, Math.abs(distance) / 2));
+        const startTime = performance.now();
+
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        const animateScroll = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            const easeProgress = easeOutCubic(progress);
+
+            messagesContainer.scrollTop = startPosition + (distance * easeProgress);
+
+            if (progress < 1) {
+                requestAnimationFrame(animateScroll);
+            }
+        };
+
+        requestAnimationFrame(animateScroll);
+    };
+
+    //apply scorll to bottom whenever send message 
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     // handle message input box height 
     useEffect(() => {
@@ -113,12 +161,12 @@ const FarmerSingleChat = () => {
             <header className="bg-gradient-to-r from-green-700 to-green-400 border-b dark:border-zinc-700 p-4 flex justify-between items-center">
                 <div className="flex items-center gap-3">
                     <img
-                        src={  profile_picture || UserDefaultImage } 
+                        src={profile_picture || UserDefaultImage}
                         alt="profile"
                         className="w-12 h-12 rounded-full object-cover"
                     />
                     <div>
-                        <h3 className="font-semibold text-white dark:text-zinc-100">{ username || "no data found"}</h3>
+                        <h3 className="font-semibold text-white dark:text-zinc-100">{username || "no data found"}</h3>
                         <p className="text-xs text-gray-200">online</p>
                     </div>
                 </div>
@@ -188,6 +236,7 @@ const FarmerSingleChat = () => {
                         );
                     })}
 
+                    <div ref={messagesEndRef} />
 
 
 
@@ -198,9 +247,32 @@ const FarmerSingleChat = () => {
             {/* Footer Composer */}
             <footer className="bg-white dark:bg-zinc-900 pt-3 pb-1 border-t dark:border-zinc-700">
                 <form className="flex items-end gap-2 w-full">
-                    <button type="button" className="p-2 mb-2 ml-2 text-gray-500 dark:text-zinc-400 hover:text-green-500">
-                        <BsEmojiSmile className="text-2xl" />
-                    </button>
+
+                    <div className="relative">
+                        <button
+                            type="button"
+                            className="p-2 mb-2 ml-2 text-gray-500 dark:text-zinc-400 hover:text-green-500"
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        >
+                            <BsEmojiSmile className="text-2xl" />
+                        </button>
+
+                        {showEmojiPicker && (
+                            <div
+                                ref={emojiPickerRef}
+                                className="absolute bottom-full mb-2 left-0 z-50"
+                                style={{ width: "280px" }} // optional, set width for better control
+                            >
+                                <EmojiPicker
+                                    onEmojiClick={handleEmojiClick}
+                                    theme={document.documentElement.classList.contains("dark") ? "dark" : "light"}
+                                    emojiStyle={EmojiStyle.TWITTER}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+
                     <div className="flex-1 relative">
                         <textarea
                             id="messageInput"
