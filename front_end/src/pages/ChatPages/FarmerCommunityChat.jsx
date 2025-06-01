@@ -345,6 +345,8 @@ const FarmerCommunityChat = () => {
               <ul className="text-zinc-900 dark:text-zinc-100 space-y-4">
                 {messages.map((msg, idx) => {
                   const isOwnMessage = msg.user_id === userId;
+                  
+                  //setup the date stamp
                   const dateObj = new Date(msg.timestamp);
 
                   // Get date part only for comparison

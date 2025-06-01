@@ -16,6 +16,9 @@ const FarmerSingleChat = () => {
     const [newMessage, setNewMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const socketRef = useRef(null)
+    //track online or offline for receiver user
+    const [receiverOnlineStatus, setReceiverOnlineStatus] = useState("offline");
+
     // handle imoji
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
@@ -47,13 +50,17 @@ const FarmerSingleChat = () => {
         socketRef.current.onmessage = (e) => {
             try {
                 const data = JSON.parse(e.data);
-                console.log("Arrived Message :::", data)
-                setMessages((prev) => [...prev, data]);
+                if (data.type === "user_status") {
+                    if (data.user_id === receiverId) {
+                        setReceiverOnlineStatus(data.status);
+                    }
+                } else {
+                    // it's a chat message
+                    setMessages((prev) => [...prev, data]);
+                }
             } catch (error) {
-                console.error("Invalid JSON from socket", err);
+                console.error("Invalid JSON from socket", error);
             }
-
-
         };
 
         // Check conection open  
@@ -167,7 +174,9 @@ const FarmerSingleChat = () => {
                     />
                     <div>
                         <h3 className="font-semibold text-white dark:text-zinc-100">{username || "no data found"}</h3>
-                        <p className="text-xs text-gray-200">online</p>
+                        <p className="text-xs text-gray-200">
+                            {receiverOnlineStatus === "online" ? "Online" : "Offline"}
+                        </p>
                     </div>
                 </div>
             </header>
@@ -200,39 +209,58 @@ const FarmerSingleChat = () => {
                 />
 
                 <div className="relative z-10 h-full overflow-y-auto p-4 space-y-4">
-                    <DateBadge date={new Date()} />
 
                     {/* message showing area  */}
                     {messages.map((msg, idx) => {
                         const isOwnMessage = msg.sender_id === userId;
 
-                        return (
-                            <div key={idx} className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
-                                <div className="chat-image avatar">
-                                    <div className="w-10 rounded-full">
-                                        <img src={msg.sender_image || UserDefaultImage} alt="avatar" />
-                                    </div>
-                                </div>
-                                <div className="chat-header dark:text-zinc-300">
-                                    {isOwnMessage ? "You" : msg.sender_name}
-                                </div>
+                        //set up the date stamp
+                        const dateObj = new Date(msg.timestamp);
 
-                                <div
-                                    className={`p-1 chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%]
+                        // Get date part only for comparison
+                        const msgDateOnly = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+
+                        // Get previous message date only
+                        let prevDateOnly = null;
+                        if (idx > 0) {
+                            const prevDateObj = new Date(messages[idx - 1].timestamp);
+                            prevDateOnly = new Date(prevDateObj.getFullYear(), prevDateObj.getMonth(), prevDateObj.getDate());
+                        }
+
+                        // Show date badge only if first message or date changed
+                        const showDateBadge = idx === 0 || (prevDateOnly && msgDateOnly.getTime() !== prevDateOnly.getTime());
+                        return (
+
+                            <>
+                                {showDateBadge && <DateBadge date={msgDateOnly} />}
+
+                                <div key={idx} className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
+                                    <div className="chat-image avatar">
+                                        <div className="w-10 rounded-full">
+                                            <img src={msg.sender_image || UserDefaultImage} alt="avatar" />
+                                        </div>
+                                    </div>
+                                    <div className="chat-header dark:text-zinc-300">
+                                        {isOwnMessage ? "You" : msg.sender_name}
+                                    </div>
+
+                                    <div
+                                        className={`p-1 chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%]
                     ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white
                     ${msg.message && !msg.media_url ? "px-3 py-2" : ""}
                 `}
-                                >
-                                    <TwemojiText text={msg.message} />
-                                </div>
+                                    >
+                                        <TwemojiText text={msg.message} />
+                                    </div>
 
-                                <div className="chat-footer opacity-50">
-                                    {new Date(msg.timestamp).toLocaleTimeString([], {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
+                                    <div className="chat-footer opacity-50">
+                                        {new Date(msg.timestamp).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                         );
                     })}
 
