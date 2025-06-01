@@ -50,10 +50,12 @@ const FarmerSingleChat = () => {
         socketRef.current.onmessage = (e) => {
             try {
                 const data = JSON.parse(e.data);
-                if (data.type === "user_status") {
-                    if (data.user_id === receiverId) {
-                        setReceiverOnlineStatus(data.status);
-                    }
+                console.log("data from socket :::",data)
+
+                if (data.type === "online_status") {
+                    // data.online_users is an array of user IDs currently online
+                    const isReceiverOnline = data.online_users.includes(String(receiverId));
+                    setReceiverOnlineStatus(isReceiverOnline ? "online" : "offline"); // true if online, false if offline
                 } else {
                     // it's a chat message
                     setMessages((prev) => [...prev, data]);
@@ -62,6 +64,7 @@ const FarmerSingleChat = () => {
                 console.error("Invalid JSON from socket", error);
             }
         };
+
 
         // Check conection open  
         socketRef.current.onopen = () => {
