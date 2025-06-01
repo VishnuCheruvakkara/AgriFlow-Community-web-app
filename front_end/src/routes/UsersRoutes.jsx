@@ -30,6 +30,9 @@ import PendingRequests from '../pages/connection-management-user-side/PendingReq
 import MyConnections from '../pages/connection-management-user-side/MyConnections'
 import BlockedUsers from '../pages/connection-management-user-side/BlockedUsers'
 
+// famre to farmer chat pages 
+import FarmerSingleChat from '../pages/ChatPages/FarmerSingleChat'
+
 // Importing PageNotFound component for 404
 import PageNotFound from '../components/StatusPages/PageNotFound';
 
@@ -45,9 +48,10 @@ function UsersRoutes() {
         <Route path="/farmer-profile" element={<ProfilePage />} />
         {/* ProfilePage section where user can see and edit thier data  */}
         <Route path="/user-profile-view/:userId" element={<UserProfileViewPage />} />
-        
-        
 
+        {/* Single to Single Chat Page set up */}
+        <Route path="/farmer-single-chat" element={<FarmerSingleChat />} />
+        
         {/* Comunity set up */}
         <Route path="farmer-community" element={<CommunityLayout />}>
           <Route index element={<Navigate to="discover-communities" replace />} />
