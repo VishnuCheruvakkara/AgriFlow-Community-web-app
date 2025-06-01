@@ -22,6 +22,7 @@ from django.db.models import Q
 from apps.common.cloudinary_utils import generate_secure_image_url
 from datetime import timedelta
 from django.utils import timezone
+from users.models import PrivateMessage
 
 User = get_user_model()
 
@@ -614,3 +615,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 return 'wait_to_reconnect'
 
         return 'not_connected'
+
+
+######################################   Get all the saved messages from the table of private chat message #######################
+
+class PrivateMessageSerializer(serializers.ModelSerializer):
+    sender_id = serializers.IntegerField(source='sender.id')
+    sender_name = serializers.SerializerMethodField()
+    sender_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PrivateMessage
+        fields = ['id', 'message','sender_id','sender_name','sender_image','timestamp' ]
+
+    def get_sender_name(self, obj):
+        return obj.sender.username or "Unknown"
+
+    def get_sender_image(self, obj):
+        return generate_secure_image_url(obj.sender.profile_picture)

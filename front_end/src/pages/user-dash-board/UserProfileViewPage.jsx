@@ -15,13 +15,15 @@ import BannerImage from "../../assets/images/banner_default_user_profile.png"
 import { useSelector } from 'react-redux';
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { GoFileMedia } from "react-icons/go";
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate,useParams } from 'react-router-dom';
 import { LuMessageSquareText } from "react-icons/lu";
 import UserProfileViewPageShimmer from '../../components/shimmer-ui-component/UserProfileViewPageShimmer';
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { showInfoAlert } from '../../components/SweetAlert/showInfoAlert';
 
 function UserProfileViewPage() {
+    //useNavigate set up 
+    const navigate = useNavigate();
     // Id from the previous page  while navigating
     const { userId } = useParams();
     //loading shimmer set up 
@@ -34,6 +36,16 @@ function UserProfileViewPage() {
     const [user, setUser] = useState({})
     // store the userId from redux store for further usage
     const loggedInUserId = userData?.id
+
+    const goToChatPage = () => {
+        navigate("/user-dash-board/farmer-single-chat/", {
+            state: {
+                receiverId: user?.id, // send the displayed user id to the next page 
+                username: user.username,
+                profile_picture: user.profile_picture,
+            }
+        })
+    }
 
     //format the phone number 
     const formatPhoneNumber = (number) => {
@@ -172,11 +184,9 @@ function UserProfileViewPage() {
                                 ) : (
                                     <div className="mt-4 md:mt-0 flex space-x-3">
                                         {user?.connection_status === 'connected' ? (
-                                            <Link to={`/user-dash-board/farmer-single-chat`}>
-                                                <button className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
-                                                    <LuMessageSquareText className="mr-2 text-xl" /> Message
-                                                </button>
-                                            </Link>
+                                            <button onClick={goToChatPage} className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
+                                                <LuMessageSquareText className="mr-2 text-xl" /> Message
+                                            </button>
                                         ) : user?.connection_status === 'pending_sent' ? (
                                             <div onClick={() => handlePendingClick(user?.username)} className="inline-block">
                                                 <button

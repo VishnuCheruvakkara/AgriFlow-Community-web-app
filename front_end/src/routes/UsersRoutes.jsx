@@ -50,7 +50,7 @@ function UsersRoutes() {
         <Route path="/user-profile-view/:userId" element={<UserProfileViewPage />} />
 
         {/* Single to Single Chat Page set up */}
-        <Route path="/farmer-single-chat" element={<FarmerSingleChat />} />
+        <Route path="/farmer-single-chat/" element={<FarmerSingleChat />} />
         
         {/* Comunity set up */}
         <Route path="farmer-community" element={<CommunityLayout />}>

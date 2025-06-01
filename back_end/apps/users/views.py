@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer
+from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer,PrivateMessageSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -40,7 +40,10 @@ from django.contrib.sessions.models import Session
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 import requests
 
+from users.models import PrivateMessage
+
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+
 
 # from back_end.apps.users import serializers
 
@@ -842,3 +845,19 @@ class UserProfileView(APIView):
             return Response(serializer.data)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
+        
+
+###################################  Get all the saved messages from the table of private chat message #######################
+
+class PrivateChatMessagesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,receiver_id):
+        user = request.user 
+        messages= PrivateMessage.objects.filter(
+            sender_id__in = [user.id,receiver_id],
+            receiver_id__in= [user.id,receiver_id]
+        ).order_by('timestamp')
+
+        serializers = PrivateMessageSerializer(messages,many=True) 
+        return Response(serializers.data,status=status.HTTP_200_OK)
