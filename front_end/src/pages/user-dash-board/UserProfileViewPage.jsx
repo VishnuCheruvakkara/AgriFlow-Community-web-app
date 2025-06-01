@@ -61,7 +61,7 @@ function UserProfileViewPage() {
             fetchUserData();
         }
     }, [userId]);
-    
+
 
     // display shimmer UI while fetching the data 
     if (loading) {
@@ -109,7 +109,7 @@ function UserProfileViewPage() {
         });
     };
 
-    
+
 
 
     return (
@@ -172,9 +172,11 @@ function UserProfileViewPage() {
                                 ) : (
                                     <div className="mt-4 md:mt-0 flex space-x-3">
                                         {user?.connection_status === 'connected' ? (
-                                            <button className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
-                                                <LuMessageSquareText className="mr-2 text-xl" /> Message
-                                            </button>
+                                            <Link to={`/user-dash-board/farmer-single-chat`}>
+                                                <button className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
+                                                    <LuMessageSquareText className="mr-2 text-xl" /> Message
+                                                </button>
+                                            </Link>
                                         ) : user?.connection_status === 'pending_sent' ? (
                                             <div onClick={() => handlePendingClick(user?.username)} className="inline-block">
                                                 <button

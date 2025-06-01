@@ -1,194 +1,239 @@
-import React, { useState, useRef, useEffect } from "react";
-import { BsEmojiSmile } from "react-icons/bs";
+import React, { useEffect, useState } from "react";
+import { BsThreeDotsVertical, BsEmojiSmile, BsPaperclip, BsMic } from "react-icons/bs";
+import { FiSearch } from "react-icons/fi";
 import { IoMdSend } from "react-icons/io";
-import { ChevronDown } from "lucide-react";
+import { RxCross2 } from "react-icons/rx";
+
+// static assets – replace with your own paths
+import UserDefaultImage from "../../assets/images/user-default.png";
+import ChatLoadingBanner from "../../assets/images/chat_image_loading_banner.png";
+import DateBadge from "../../components/Community/community-message/MessageDateBadge";
+import TwemojiText from "../../components/Community/community-message/TwemojiText";
+
+const DUMMY_MESSAGES = [
+    {
+        id: 1,
+        userId: 2,
+        username: "John",
+        avatar: UserDefaultImage,
+        text: "Hey! How are you doing?",
+        media: null,
+        timestamp: "2025-06-01T10:30:00",
+    },
+    {
+        id: 2,
+        userId: 1,
+        username: "You",
+        avatar: UserDefaultImage,
+        text: "I'm good – working on that 🌱 project!",
+        media: null,
+        timestamp: "2025-06-01T10:32:00",
+    },
+    {
+        id: 3,
+        userId: 2,
+        username: "John",
+        avatar: UserDefaultImage,
+        text: "Awesome! Send pics 🚀",
+        media: null,
+        timestamp: "2025-06-01T10:34:00",
+    },
+    {
+        id: 4,
+        userId: 1,
+        username: "You",
+        avatar: UserDefaultImage,
+        text: "",
+        media: ChatLoadingBanner,           // example image preview
+        timestamp: "2025-06-01T10:35:00",
+    },
+];
+
+
+
+
+
 
 const FarmerSingleChat = () => {
-  const [newMessage, setNewMessage] = useState("");
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hey! How are you doing?", isOwn: false, timestamp: "10:30 AM", username: "John" },
-    { id: 2, text: "I'm doing great! Just working on some new projects 😊", isOwn: true, timestamp: "10:32 AM", username: "You" },
-    { id: 3, text: "That sounds awesome! What kind of projects?", isOwn: false, timestamp: "10:33 AM", username: "John" },
-    { id: 4, text: "Building some React components and exploring new design patterns", isOwn: true, timestamp: "10:35 AM", username: "You" },
-    { id: 5, text: "Nice! I'd love to see them when you're done 🚀", isOwn: false, timestamp: "10:36 AM", username: "John" },
-  ]);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  
-  const textareaRef = useRef(null);
-  const messagesEndRef = useRef(null);
-  const messagesContainerRef = useRef(null);
 
-  // Common emojis for quick access
-  const commonEmojis = ["😀", "😂", "😍", "🥰", "😎", "🤔", "👍", "❤️", "🔥", "🎉", "😢", "😡"];
+    const [message, setMessage] = useState("");
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    const loggedUserId = 1; // static “you” for this mock
 
-  const handleScroll = () => {
-    const container = messagesContainerRef.current;
-    if (container) {
-      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-      setShowScrollButton(!isNearBottom);
-    }
-  };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+    useEffect(() => {
+        const textarea = document.getElementById('messageInput');
+        if (!textarea) return;
 
-    const newMsg = {
-      id: messages.length + 1,
-      text: newMessage.trim(),
-      isOwn: true,
-      timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-      username: "You"
-    };
+        const resize = () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        };
 
-    setMessages(prev => [...prev, newMsg]);
-    setNewMessage("");
-    setShowEmojiPicker(false);
-    
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
+        textarea.addEventListener('input', resize);
 
-    setTimeout(scrollToBottom, 100);
-  };
+        return () => textarea.removeEventListener('input', resize);
+    }, []);
 
-  const handleInput = (e) => {
-    setNewMessage(e.target.value);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
+    return (
+        <div className="flex mt-4 flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
+            {/* header */}
+            <header className="bg-gradient-to-r from-green-700 to-green-400 border-b dark:border-zinc-700 p-4 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                    <img
+                        src={UserDefaultImage}                // partner avatar
+                        alt="profile"
+                        className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div>
+                        <h3 className="font-semibold text-white dark:text-zinc-100">John Doe</h3>
+                        <p className="text-xs text-gray-200">online</p>
+                    </div>
+                </div>
 
-  const handleEmojiClick = (emoji) => {
-    setNewMessage(prev => prev + emoji);
-    textareaRef.current?.focus();
-  };
+            </header>
 
-  useEffect(() => {
-    scrollToBottom();
-  }, []);
+            {/*Messages List */}
+            <div className="relative flex-1 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+                {/* Fixed Doodle Background - Light Mode */}
+                <div
+                    className="absolute inset-0 pointer-events-none z-0 dark:hidden"
+                    style={{
+                        backgroundImage: "url('/images/message_doodle.png')",
+                        backgroundRepeat: "repeat",
+                        backgroundPosition: "center",
+                        backgroundAttachment: "local",
+                        opacity: 5, // light mode opacity
+                    }}
+                />
 
-  return (
-    <div className="flex flex-col w-full max-w-4xl mx-auto border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[600px]">
-      {/* Chat Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 flex items-center">
-        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 font-bold">
-          J
-        </div>
-        <div className="ml-3 text-white">
-          <h3 className="font-semibold">John Doe</h3>
-          <p className="text-xs opacity-90">Online</p>
-        </div>
-      </div>
+                {/* Fixed Doodle Background - Dark Mode */}
+                <div
+                    className="absolute inset-0 pointer-events-none z-0 hidden dark:block"
+                    style={{
+                        backgroundImage: "url('/images/message_doodle.png')",
+                        backgroundRepeat: "repeat",
+                        backgroundPosition: "center",
+                        backgroundAttachment: "local",
+                        opacity: 0.08, // dark mode opacity
+                    }}
+                />
 
-      {/* Messages Area */}
-      <div className="relative flex-1 overflow-hidden bg-gray-50 dark:bg-zinc-900">
-        {/* Background Pattern */}
-        <div 
-          className="absolute inset-0 opacity-5 dark:opacity-10"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.1'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm10 0c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z'/%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '40px 40px'
-          }}
-        />
 
-        {/* Messages Container */}
-        <div 
-          ref={messagesContainerRef}
-          onScroll={handleScroll}
-          className="relative z-10 h-full overflow-y-auto p-4 space-y-4"
-        >
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.isOwn ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                msg.isOwn 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white' 
-                  : 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-white shadow-md'
-              }`}>
-                <p className="whitespace-pre-wrap break-words">{msg.text}</p>
-                <p className={`text-xs mt-1 ${msg.isOwn ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
-                  {msg.timestamp}
-                </p>
-              </div>
+
+                <div className="relative z-10 h-full overflow-y-auto p-4 space-y-4">
+                    {DUMMY_MESSAGES.map((msg, idx) => {
+                        const isOwn = msg.userId === loggedUserId;
+                        const now = new Date(msg.timestamp);
+
+                        const showDateBadge =
+                            idx === 0 ||
+                            new Date(DUMMY_MESSAGES[idx - 1].timestamp).toDateString() !== now.toDateString();
+
+                        return (
+                            <React.Fragment key={msg.id}>
+                                {showDateBadge && <DateBadge date={now} />}
+
+                                <div className={`chat ${isOwn ? "chat-end" : "chat-start"}`}>
+                                    {/* avatar */}
+                                    <div className="chat-image avatar">
+                                        <div className="w-10 rounded-full">
+                                            <img src={msg.avatar} alt="avatar" />
+                                        </div>
+                                    </div>
+
+                                    {/* name */}
+                                    <div className="chat-header dark:text-zinc-300">
+                                        {isOwn ? "You" : msg.username}
+                                    </div>
+
+                                    {/* bubble */}
+                                    <div
+                                        className={`chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%]
+                      ${isOwn ? "gradient-bubble-green text-white" : "gradient-bubble-gray text-white"}`}
+                                    >
+                                        {/* media preview */}
+                                        {msg.media && (
+                                            <img
+                                                src={msg.media}
+                                                alt="media"
+                                                className="max-w-xs rounded-lg border border-gray-300 dark:border-zinc-700 mb-2"
+                                            />
+                                        )}
+
+                                        {/* text */}
+                                        {msg.text && <TwemojiText text={msg.text} />}
+                                    </div>
+
+                                    {/* time */}
+                                    <div className="chat-footer opacity-50">
+                                        {now.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}
+                                    </div>
+                                </div>
+                            </React.Fragment>
+                        );
+                    })}
+
+                    {/* typing indicator sample */}
+                    <div className="chat chat-start">
+                        <div className="chat-image avatar">
+                            <div className="w-10 rounded-full">
+                                <img src={UserDefaultImage} alt="typing avatar" />
+                            </div>
+                        </div>
+                        <div className="chat-header">John</div>
+                        <div className="chat-bubble rounded-xl gradient-bubble-gray text-white">
+                            <span className="inline-flex space-x-1">
+                                <span className="animate-bounce">•</span>
+                                <span className="animate-bounce" style={{ animationDelay: "120ms" }}>•</span>
+                                <span className="animate-bounce" style={{ animationDelay: "240ms" }}>•</span>
+                            </span>
+                        </div>
+                        <div className="chat-footer opacity-50">typing…</div>
+                    </div>
+                </div>
             </div>
-          ))}
-          <div ref={messagesEndRef} />
+
+            {/* <Composer></Composer> */}
+            <footer className="bg-white dark:bg-zinc-900 pt-3 pb-1 border-t dark:border-zinc-700">
+                <form className="flex items-end gap-2 w-full">
+                    {/* Emoji Button */}
+                    <button
+                        type="button"
+                        className="p-2 mb-2 ml-2 text-gray-500 dark:text-zinc-400 hover:text-green-500"
+                    >
+                        <BsEmojiSmile className="text-2xl" />
+                    </button>
+
+                    {/* Textarea Input */}
+                    <div className="flex-1 relative">
+                        <textarea
+                            id="messageInput"
+                            rows="1"
+                            placeholder="Type a message..."
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="w-full resize-none rounded-2xl px-4 py-3 text-base border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-500 ease-in-out max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-zinc-600"
+                        />
+                    </div>
+
+                    {/* Send Button */}
+                    <button
+                        type="button"
+                        id="sendBtn"
+                        disabled={message.trim() === ""}
+                        className={`p-2 mr-4 ml-2 mb-2 rounded-full text-white transition-colors ${message.trim() === ""
+                            ? 'bg-gray-200 text-gray-400 dark:bg-zinc-700 dark:text-zinc-500'
+                            : 'bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700'
+                            }`}
+                    >
+                        <IoMdSend className="text-2xl " />
+                    </button>
+                </form>
+            </footer>
+
         </div>
-
-        {/* Scroll to Bottom Button */}
-        {showScrollButton && (
-          <button
-            onClick={scrollToBottom}
-            className="absolute bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-lg transition-all duration-200 z-20"
-          >
-            <ChevronDown className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-
-      {/* Message Input */}
-      <div className="bg-white dark:bg-zinc-800 p-4 border-t dark:border-zinc-700">
-        <div className="flex items-end gap-3">
-          {/* Emoji Button */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-2 text-gray-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-            >
-              <BsEmojiSmile className="text-xl" />
-            </button>
-
-            {/* Simple Emoji Picker */}
-            {showEmojiPicker && (
-              <div className="absolute bottom-12 left-0 bg-white dark:bg-zinc-700 rounded-lg shadow-lg p-3 grid grid-cols-6 gap-2 z-50">
-                {commonEmojis.map((emoji, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleEmojiClick(emoji)}
-                    className="text-xl hover:bg-gray-100 dark:hover:bg-zinc-600 p-1 rounded transition-colors"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Input Area */}
-          <div className="flex-1 bg-gray-100 dark:bg-zinc-700 rounded-2xl overflow-hidden">
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              value={newMessage}
-              onChange={handleInput}
-              placeholder="Type a message..."
-              className="w-full py-3 px-4 resize-none bg-transparent text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 focus:outline-none max-h-20"
-            />
-          </div>
-
-          {/* Send Button */}
-          <button
-            type="submit"
-            disabled={!newMessage.trim()}
-            className={`p-3 rounded-full transition-all duration-200 ${
-              newMessage.trim()
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 transform hover:scale-105'
-                : 'bg-gray-200 dark:bg-zinc-600 text-gray-400 dark:text-zinc-500'
-            }`}
-          >
-            <IoMdSend className="text-xl" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default FarmerSingleChat;
