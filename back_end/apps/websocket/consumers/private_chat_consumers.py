@@ -2,7 +2,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from users.models import PrivateMessage  # You should create this model
+from users.models import PrivateMessage  # Model for save the messages 
 from apps.common.cloudinary_utils import generate_secure_image_url
 from redis.asyncio import Redis
 from django.conf import settings
@@ -19,7 +19,7 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
 
         # Add this user to the Redis set for this chat room
         await self.redis.sadd(self.redis_key, str(self.user.id))
-        # Set expiry to auto-clear stale data (optional)
+        # Set expiry to auto-clear stale data (10 minute)
         await self.redis.expire(self.redis_key, 600) 
 
         await self.channel_layer.group_add(

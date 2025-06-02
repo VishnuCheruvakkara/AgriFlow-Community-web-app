@@ -15,7 +15,7 @@ import BannerImage from "../../assets/images/banner_default_user_profile.png"
 import { useSelector } from 'react-redux';
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { GoFileMedia } from "react-icons/go";
-import { Link, useNavigate,useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { LuMessageSquareText } from "react-icons/lu";
 import UserProfileViewPageShimmer from '../../components/shimmer-ui-component/UserProfileViewPageShimmer';
 import { showToast } from '../../components/toast-notification/CustomToast';
@@ -139,9 +139,11 @@ function UserProfileViewPage() {
                             alt="Farm cover"
                             className="w-full h-full object-cover"
                         />
-                        <button className="absolute  bottom-4 right-4 bg-white dark:bg-zinc-800 text-green-700 dark:text-green-400 p-2 rounded-full shadow-md hover:bg-green-50 dark:hover:bg-zinc-700 ">
-                            <FaEdit className="text-xl" />
-                        </button>
+                        {userId == loggedInUserId &&
+                            <button className="absolute  bottom-4 right-4 bg-white dark:bg-zinc-800 text-green-700 dark:text-green-400 p-2 rounded-full shadow-md hover:bg-green-50 dark:hover:bg-zinc-700 ">
+                                <FaEdit className="text-xl" />
+                            </button>
+                        }
                     </div>
 
                     {/* Profile Info Bar */}
@@ -156,10 +158,11 @@ function UserProfileViewPage() {
                                 />
                             </div>
 
-                            {/* Move this outside the overflow-hidden container */}
-                            <div className="absolute dark:hover:bg-zinc-700 cursor-pointer top-[15px] md:left-[135px] left-[120px]  p-2 bg-white dark:bg-zinc-800 rounded-full shadow-md ">
-                                <FaEdit className="text-green-700 dark:text-green-400" />
-                            </div>
+                            {userId == loggedInUserId &&
+                                <div className="absolute dark:hover:bg-zinc-700 cursor-pointer top-[15px] md:left-[135px] left-[120px]  p-2 bg-white dark:bg-zinc-800 rounded-full shadow-md ">
+                                    <FaEdit className="text-green-700 dark:text-green-400" />
+                                </div>
+                            }
                         </div>
 
                         {/* Name and Basic Info */}
@@ -280,9 +283,6 @@ function UserProfileViewPage() {
                         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-4">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="font-bold text-lg text-gray-800 dark:text-zinc-200">About</h2>
-                                <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                                    <FaEdit />
-                                </button>
                             </div>
                             <div className="break-words lg:max-w-96">
                                 <p className="text-gray-700 dark:text-zinc-300">{user?.bio || "not data found"}</p>

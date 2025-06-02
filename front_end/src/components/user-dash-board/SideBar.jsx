@@ -120,6 +120,13 @@ function SideBar() {
                         </Link>
                     </li>
 
+                    <li className="">
+                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
+                            <FaStore className="text-xl" />
+                            <span>Products</span>
+                        </a>
+                    </li>
+
 
 
                     <li className="">
@@ -128,12 +135,7 @@ function SideBar() {
                             <span>Activity</span>
                         </a>
                     </li>
-                    <li className="">
-                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
-                            <FaStore className="text-xl" />
-                            <span>Products</span>
-                        </a>
-                    </li>
+                    
                     <li className="">
                         <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaScroll className="text-xl" />

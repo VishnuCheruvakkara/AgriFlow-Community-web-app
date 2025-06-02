@@ -5,12 +5,14 @@ import UserDefaultImage from "../../assets/images/user-default.png";
 import TwemojiText from "../../components/Community/community-message/TwemojiText";
 import DateBadge from "../../components/Community/community-message/MessageDateBadge";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { RiGitRepositoryCommitsLine } from "react-icons/ri";
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
+import { RxCross2 } from "react-icons/rx";
 
 const FarmerSingleChat = () => {
+    const navigate = useNavigate();
     // to scroll to bottom managing ref
     const messagesEndRef = useRef(null);
     const [newMessage, setNewMessage] = useState("");
@@ -50,7 +52,7 @@ const FarmerSingleChat = () => {
         socketRef.current.onmessage = (e) => {
             try {
                 const data = JSON.parse(e.data);
-                console.log("data from socket :::",data)
+                console.log("data from socket :::", data)
 
                 if (data.type === "online_status") {
                     // data.online_users is an array of user IDs currently online
@@ -182,6 +184,13 @@ const FarmerSingleChat = () => {
                         </p>
                     </div>
                 </div>
+               
+                <button
+                    onClick={()=>navigate(-1)}
+                    className="border-white hover:border-transparent text-white hover:bg-green-700  rounded-full p-1 transition-colors duration-300"
+                >
+                    <RxCross2 className='text-2xl' />
+                </button>
             </header>
 
             {/*Messages List */}
