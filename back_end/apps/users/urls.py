@@ -3,7 +3,7 @@ from .views import RegisterView, VerifyOTPView, LogoutView, LoginView, AdminLogi
 from .views import GoogleAuthCallbackView, RefreshTokenView, ResendOTPView
 from .views import ForgotPasswordView, ForgotPasswordOTPVerifyView, ForgotPasswordSetNewView
 from .views import LocationAutocompleteView, ProfileUpdateView
-from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView,UserProfileView
+from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView, UserProfileView, PrivateChatMessagesView
 
 
 urlpatterns = [
@@ -58,9 +58,12 @@ urlpatterns = [
     # ===============  addhar resubmission option for uesr =========================#
     path('aadhaar-resubmission/', AadhaarResubmissionUpdateView.as_view(),
          name='aadhaar-resubmission'),
-         
-    #################  get the users details in the profile page for each user ##################33
-    path('get-user-profile-data/<int:user_id>/', UserProfileView.as_view(), name='get_user_profile_data'),
 
+    # get the users details in the profile page for each user ##################33
+    path('get-user-profile-data/<int:user_id>/',
+         UserProfileView.as_view(), name='get_user_profile_data'),
 
+    ##################  Get all the saved messages from the table of private chat message ##########
+    path('get-private-chat-messages/<int:receiver_id>/', PrivateChatMessagesView.as_view(), name='get-private-messages'),
+    
 ]
