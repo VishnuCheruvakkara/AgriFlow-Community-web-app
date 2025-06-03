@@ -1,7 +1,7 @@
 # 🔹 Ignore Virtual Environment (Django)
 venv/
 .env
-backend/env/
+back_end/env/
 
 # 🔹 Ignore Python Compiled Files
 *.pyc
