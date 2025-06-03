@@ -1,6 +1,7 @@
 
 import cloudinary
 import os
+from celery import Celery
 from re import A
 import sys
 from pathlib import Path
@@ -257,6 +258,12 @@ CACHES = {
 
 # redis set up for define the define Redis URL globally for custom Redis usage (e.g., in WebSocket consumers)
 REDIS_URL = "redis://127.0.0.1:6379/2"
+
+########################### Celery setup ############################ 
+
+CELERY_BROKER_URL = 'redis://localhost:6379/3'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 ########################### smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.  ###########################
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

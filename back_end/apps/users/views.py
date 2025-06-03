@@ -44,6 +44,7 @@ from users.models import PrivateMessage
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
+from users.tasks import send_otp_email_task 
 
 # from back_end.apps.users import serializers
 
@@ -145,7 +146,7 @@ class RegisterView(APIView):
 
                 else:
                     # Generate OTP and send email (Controlled in utils.py)
-                    generate_otp_and_send_email(
+                    send_otp_email_task.delay(
                         email, email_type="registration")
                     return Response(
                         {"message": "OTP re-sent to your email. Please verify."},
@@ -163,7 +164,7 @@ class RegisterView(APIView):
                 )
 
             # Generate OTP and send email (Controlled in utils.py)
-            generate_otp_and_send_email(email)
+            send_otp_email_task.delay(email)
 
             return Response(
                 {"message": "OTP sent successfully to your email."},

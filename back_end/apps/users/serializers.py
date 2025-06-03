@@ -15,10 +15,10 @@ from django.core.validators import EmailValidator
 from django.contrib.auth import authenticate
 # import model from community
 from community.models import CommunityMembership
-# impot model from connection 
+# impot model from connection
 from connections.models import Connection
-from django.db.models import Q 
-# get secure image url using id, get image from cloudinary 
+from django.db.models import Q
+# get secure image url using id, get image from cloudinary
 from apps.common.cloudinary_utils import generate_secure_image_url
 from datetime import timedelta
 from django.utils import timezone
@@ -32,9 +32,10 @@ User = get_user_model()
 class LoginSerializer(serializers.Serializer):
     """Serializer for user login"""
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True, required=True) 
+    password = serializers.CharField(write_only=True, required=True)
 
 ################################## User registration ####################################
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(
@@ -45,7 +46,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'username', 'password', 'password2']
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'username': {'validators': []},  # Disable the default UniqueValidator
+        }
 
     def validate(self, data):
         """Ensure password and password2 match"""
@@ -98,9 +102,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Remove leading and trailing spaces
         value = value.strip()
 
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError(
-                "Username already taken. Please choose another one.")
+        existing_user = User.objects.filter(username=value).first()
+        if existing_user:
+            if existing_user.is_verified:
+                raise serializers.ValidationError(
+                    "Username already taken. Please choose another one.")
+            # else: allow reuse of username if not verified
 
         if len(value) < 4:
             raise serializers.ValidationError(
@@ -254,49 +261,55 @@ from django.contrib.auth import get_user_model
 from users.models import Address
 import json
 from .validators import (
-    validate_phone_number, validate_experience, validate_email, 
+    validate_phone_number, validate_experience, validate_email,
     validate_aadhaar_image, validate_profile_image, validate_name,
-    validate_date_of_birth,validate_text_field,validate_home_address
+    validate_date_of_birth, validate_text_field, validate_home_address
 )
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     """Unified serializer for updating user profile, address, and file uploads."""
 
-    profileImage = serializers.ImageField(required=False, write_only=True,validators=[validate_profile_image])
-    aadhaarImage = serializers.ImageField(required=False, write_only=True, validators=[validate_aadhaar_image])
-    location = serializers.JSONField(required=False)  # Directly handle JSON input
-    home_address = serializers.CharField(required=False, allow_blank=True,validators=[validate_home_address])
+    profileImage = serializers.ImageField(
+        required=False, write_only=True, validators=[validate_profile_image])
+    aadhaarImage = serializers.ImageField(
+        required=False, write_only=True, validators=[validate_aadhaar_image])
+    location = serializers.JSONField(
+        required=False)  # Directly handle JSON input
+    home_address = serializers.CharField(
+        required=False, allow_blank=True, validators=[validate_home_address])
 
     class Meta:
         model = get_user_model()
         fields = [
             'first_name', 'last_name', 'username', 'phone_number', 'email',
             'date_of_birth', 'farming_type', 'experience', 'bio',
-            'profileImage', 'aadhaarImage', 'location','home_address'
+            'profileImage', 'aadhaarImage', 'location', 'home_address'
         ]
         extra_kwargs = {
-            'first_name': {'required': True, 'label': "First Name",'validators': [validate_name]},
-            'last_name': {'required': True, 'label': "Last Name",'validators': [validate_name]},
-            'username': {'required': True, 'label': "Username",'validators': [validate_name]},
+            'first_name': {'required': True, 'label': "First Name", 'validators': [validate_name]},
+            'last_name': {'required': True, 'label': "Last Name", 'validators': [validate_name]},
+            'username': {'required': True, 'label': "Username", 'validators': [validate_name]},
             'phone_number': {'required': True, 'label': "Phone Number", 'validators': [validate_phone_number]},
             'email': {'required': True, 'label': "Email", 'validators': [validate_email]},
-            'date_of_birth': {'required': True, 'label': "Date of Birth",'validators': [validate_date_of_birth]},
+            'date_of_birth': {'required': True, 'label': "Date of Birth", 'validators': [validate_date_of_birth]},
             'farming_type': {'required': True, 'label': "Farming Type"},
-            'experience': {'required': True, 'label': "Experience",'validators': [validate_experience]},
-            'bio': {'required': True, 'label': "Bio",'validators': [validate_text_field]}
+            'experience': {'required': True, 'label': "Experience", 'validators': [validate_experience]},
+            'bio': {'required': True, 'label': "Bio", 'validators': [validate_text_field]}
         }
 
-    
-    # Validation for every fields are required 
+
+    # Validation for every fields are required
     def validate(self, data):
         """Ensure all fields are provided and not empty, with readable field names."""
-        
+
         # Mapping field names to human-readable labels
-        field_labels = {field: self.fields[field].label or field.replace("_", " ").title() for field in self.fields}
+        field_labels = {field: self.fields[field].label or field.replace(
+            "_", " ").title() for field in self.fields}
 
         required_fields = list(field_labels.keys())
 
-        missing_fields = [field for field in required_fields if field not in data or data[field] in [None, '', [],{}]]
+        missing_fields = [
+            field for field in required_fields if field not in data or data[field] in [None, '', [], {}]]
 
         if missing_fields:
             raise serializers.ValidationError({
@@ -304,12 +317,12 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             })
 
         return data
-    
+
     def update(self, instance, validated_data):
         """Handles updating user profile, address, and file uploads in a single method."""
-       
+
         location_data = validated_data.pop('location', None)
-        home_address=validated_data.pop('home_address','')
+        home_address = validated_data.pop('home_address', '')
         print("location_data:", location_data)  # Debugging
 
         if location_data:
@@ -327,24 +340,28 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             )
             instance.address = address  # Assign address to user
 
-      
+
         if 'profileImage' in validated_data:
             image = validated_data.pop('profileImage')
-            
+
             # Upload image to Cloudinary with transformations and security settings
             upload_result = cloudinary.uploader.upload(
                 image,
                 folder="private_files/profile_pictures/",  # Store images in a private folder
                 resource_type="image",  # Specify resource type
-                type="authenticated",  # Ensure secure access (authenticated delivery)
+                # Ensure secure access (authenticated delivery)
+                type="authenticated",
                 transformation=[
-                    {"width": 500, "height": 500, "crop": "limit"},  # Resize max 500x500
-                    {"quality": "auto:good"},  # Optimize quality while reducing size
-                    {"fetch_format": "auto"}  # Serve best format (e.g., WebP, JPEG)
+                    # Resize max 500x500
+                    {"width": 500, "height": 500, "crop": "limit"},
+                    # Optimize quality while reducing size
+                    {"quality": "auto:good"},
+                    # Serve best format (e.g., WebP, JPEG)
+                    {"fetch_format": "auto"}
                 ]
             )
 
-            # Store Cloudinary public ID 
+            # Store Cloudinary public ID
             instance.profile_picture = upload_result["public_id"]
 
         if 'aadhaarImage' in validated_data:
@@ -354,12 +371,16 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             upload_result = cloudinary.uploader.upload(
                 image,
                 folder="private_files/aadhaar_cards/",  # Secure storage path
-                resource_type="image",  
-                type="authenticated",  # Ensure secure access (authenticated delivery)
+                resource_type="image",
+                # Ensure secure access (authenticated delivery)
+                type="authenticated",
                 transformation=[
-                    {"width": 1000, "height": 1000, "crop": "limit"},  # Resize max 1000x1000
-                    {"quality": "auto:good"},  # Optimize quality while reducing size
-                    {"fetch_format": "auto"}  # Serve best format (e.g., WebP, JPEG)
+                    # Resize max 1000x1000
+                    {"width": 1000, "height": 1000, "crop": "limit"},
+                    # Optimize quality while reducing size
+                    {"quality": "auto:good"},
+                    # Serve best format (e.g., WebP, JPEG)
+                    {"fetch_format": "auto"}
                 ]
             )
 
@@ -368,22 +389,22 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-            
-        # mark profile was updated with proper data 
+
+        # mark profile was updated with proper data
         instance.profile_completed = True
         instance.save()
         return instance
 
 ####################### User Management Admin Side ######################
-    
-#================================== get users data serializers ========================#
+
+# ================================== get users data serializers ========================#
 
 from rest_framework import serializers
 
 
 class UserDashboardSerializer(serializers.ModelSerializer):
     """Serializer for fetching user dashboard data."""
-    
+
     profile_picture = serializers.SerializerMethodField()  # Secure URL
     address = serializers.SerializerMethodField()  # Format Address
 
@@ -393,7 +414,7 @@ class UserDashboardSerializer(serializers.ModelSerializer):
             "id", "email", "username", "phone_number",
             "profile_picture", "address", "farming_type",
             "experience", "bio", "date_of_birth", "profile_completed",
-            "created_at","is_active","is_aadhar_verified","aadhar_resubmission_message",
+            "created_at", "is_active", "is_aadhar_verified", "aadhar_resubmission_message",
         ]  # Only necessary fields
 
     def get_profile_picture(self, obj):
@@ -414,8 +435,8 @@ class UserDashboardSerializer(serializers.ModelSerializer):
         return None  # If no address is set
 
 
-   
-#=======================  Get all the usrs data in the admin side =======================#
+
+# =======================  Get all the usrs data in the admin side =======================#
 
 class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()  # Secure URL
@@ -423,12 +444,13 @@ class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'is_verified', 'address_details','profile_picture','profile_completed','is_aadhar_verified','is_active']  # Include only needed fields
-    
+        fields = ['id', 'email', 'username', 'is_verified', 'address_details', 'profile_picture',
+            'profile_completed', 'is_aadhar_verified', 'is_active']  # Include only needed fields
+
     def get_profile_picture(self, obj):
         """Return a secure profile picture URL."""
         return obj.get_secure_profile_picture_url()  # Uses model method
-  
+
     def get_address_details(self, obj):
         if obj.address:  # If the user has an address
             return {
@@ -438,17 +460,17 @@ class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
             }
         return None  # No address assigned
 
-#======================= Change user status in admin side ===========================#
+# ======================= Change user status in admin side ===========================#
 class UserStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'is_active']
 
-#===========================  User deatail view page serializer in the admin side for user management ========================#
+# ===========================  User deatail view page serializer in the admin side for user management ========================#
 
 class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
     """Serializer for fetching complete user details (for Admin use)."""
-    
+
     profile_picture = serializers.SerializerMethodField()  # Secure Profile Picture URL
     address = serializers.SerializerMethodField()  # Structured Address Data
     aadhar_card = serializers.SerializerMethodField()  # Secure Aadhar Card URL
@@ -459,12 +481,12 @@ class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
             "id", "email", "username", "phone_number",
             "profile_picture", "address", "farming_type",
             "experience", "bio", "aadhar_card", "is_aadhar_verified",
-            "date_of_birth", "profile_completed", "created_at", "updated_at","is_verified",'is_active',
+            "date_of_birth", "profile_completed", "created_at", "updated_at", "is_verified", 'is_active',
         ]  # Includes additional admin-specific fields
 
     def get_profile_picture(self, obj):
         """Return a secure profile picture URL."""
-        return obj.get_secure_profile_picture_url()  
+        return obj.get_secure_profile_picture_url()
 
     def get_aadhar_card(self, obj):
         """Return a secure Aadhar card URL."""
@@ -483,19 +505,20 @@ class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
             }
         return None  # If no address is set
 
-#==========================  Change Aadhar Verification status in the usertable Serializer ==============================# 
+# ==========================  Change Aadhar Verification status in the usertable Serializer ==============================#
 
 class AadhaarVerificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User 
+        model = User
         fields = ['is_aadhar_verified']
 
-    def update(self,instance,validated_data):
-        instance.is_aadhar_verified = validated_data.get('is_aadhar_verified',instance.is_aadhar_verified)
+    def update(self, instance, validated_data):
+        instance.is_aadhar_verified = validated_data.get(
+            'is_aadhar_verified', instance.is_aadhar_verified)
         instance.save()
-        return instance 
+        return instance
 
-#=========================== Adhar resubmission message end point for admin can notify to the user that any deffect in the submitted aadhar ===========================#
+# =========================== Adhar resubmission message end point for admin can notify to the user that any deffect in the submitted aadhar ===========================#
 
 
 class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
@@ -508,18 +531,19 @@ class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
         return validate_text_field(value)
 
     def update(self, instance, validated_data):
-        instance.aadhar_resubmission_message = validated_data.get('aadhar_resubmission_message', instance.aadhar_resubmission_message)
+        instance.aadhar_resubmission_message = validated_data.get(
+            'aadhar_resubmission_message', instance.aadhar_resubmission_message)
         instance.save()
         return instance
-    
-#========================  Adhar resubmission endpoint for uesr if admin notify any mistakes in the aadhar image ==========================#
+
+# ========================  Adhar resubmission endpoint for uesr if admin notify any mistakes in the aadhar image ==========================#
 
 class AadhaarResubmissionSerializer(serializers.ModelSerializer):
     aadhaarImage = serializers.ImageField(write_only=True, required=False)
     class Meta:
         model = User
-        fields = ['aadhar_card','aadhaarImage'] 
-    
+        fields = ['aadhar_card', 'aadhaarImage']
+
     def update(self, instance, validated_data):
         if 'aadhaarImage' in validated_data:
             image = validated_data.pop('aadhaarImage')
@@ -542,13 +566,14 @@ class AadhaarResubmissionSerializer(serializers.ModelSerializer):
         instance.aadhar_resubmission_message = None
         instance.save()
         return instance
-    
+
 ##################### Get the user details on the profile page of user and other user can see each other profiles ########################
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['place_id', 'full_location', 'latitude', 'longitude', 'location_name', 'country', 'home_address']
+        fields = ['place_id', 'full_location', 'latitude',
+            'longitude', 'location_name', 'country', 'home_address']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -564,19 +589,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'is_verified', 'farming_type', 'experience', 'bio', 'aadhar_card',
             'is_aadhar_verified', 'aadhar_resubmission_message', 'date_of_birth',
             'profile_completed', 'created_at', 'updated_at',
-            'address', 'community_count', 'connection_count','connection_status'
+            'address', 'community_count', 'connection_count', 'connection_status'
         ]
 
     def get_community_count(self, obj):
         return CommunityMembership.objects.filter(user=obj, status='approved').count()
 
     def get_connection_count(self, obj):
-        
+
         return Connection.objects.filter(
             (Q(sender=obj) | Q(receiver=obj)) & Q(status='accepted')
         ).count()
 
-    def get_profile_picture(self,obj):
+    def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.profile_picture)
 
     def get_connection_status(self, obj):
@@ -605,7 +630,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 return 'pending_sent'
             else:
                 return 'pending_received'
-        
+
         elif connection.status == 'cancelled':
             # Check if 3 days passed since update
             days_passed = timezone.now() - connection.updated_at
@@ -626,7 +651,8 @@ class PrivateMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrivateMessage
-        fields = ['id', 'message','sender_id','sender_name','sender_image','timestamp' ]
+        fields = ['id', 'message', 'sender_id',
+            'sender_name', 'sender_image', 'timestamp']
 
     def get_sender_name(self, obj):
         return obj.sender.username or "Unknown"
