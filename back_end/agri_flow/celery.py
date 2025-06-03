@@ -1,4 +1,4 @@
-git 
+
 # Celery configuration  
 
 import os 
