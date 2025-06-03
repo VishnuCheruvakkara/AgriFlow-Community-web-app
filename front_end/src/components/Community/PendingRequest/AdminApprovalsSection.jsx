@@ -5,11 +5,12 @@ import DefaultUserIcon from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { showToast } from '../../toast-notification/CustomToast';
+import { Link } from 'react-router-dom';
 
 function AdminApprovalsSection({ expanded, toggleSection }) {
 
     const [joinRequest, setJoinRequest] = useState([]);
-   
+
 
     const fetchRequest = async () => {
         try {
@@ -38,7 +39,7 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                 fetchRequest(); // Refresh the list after cancel
             } catch (error) {
                 console.error("Error cancelling request:", error);
-                showToast("Error happened, Try agian","error")
+                showToast("Error happened, Try agian", "error")
             }
         }
     };
@@ -105,9 +106,12 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                                             {community.pending_users.map((user, i) => (
                                                 <div key={i} className="flex items-center justify-between p-3 hover:bg-gray-50 transition">
                                                     <div className="flex items-center gap-4 ml-2">
-                                                        <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200">
-                                                            <img src={user.profile_picture || DefaultUserIcon} alt={user.username} className="h-full w-full object-cover" />
-                                                        </div>
+                                                        <Link to={`/user-dash-board/user-profile-view/${user.user_id}`}>
+                                                            <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200">
+                                                                <img src={user.profile_picture || DefaultUserIcon} alt={user.username} className="h-full w-full object-cover" />
+                                                            </div>
+                                                        </Link>
+
                                                         <div>
                                                             <p className="font-medium text-gray-800">{user.username}</p>
                                                             <p className="text-xs text-gray-500">

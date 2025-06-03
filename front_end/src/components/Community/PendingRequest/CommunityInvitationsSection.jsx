@@ -5,6 +5,7 @@ import DefaultUserIcon from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import { showToast } from '../../toast-notification/CustomToast';
+import { Link } from 'react-router-dom';
 
 function CommunityInvitationsSection({ expanded, toggleSection }) {
 
@@ -26,7 +27,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
     }, []);
 
     // Handle accept action
-    const handleAccept = async (inviteId, communityId,communityName) => {
+    const handleAccept = async (inviteId, communityId, communityName) => {
         const result = await showConfirmationAlert({
             title: 'Accept Invitation?',
             text: 'Are you sure you want to accept this invitation?',
@@ -44,18 +45,18 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                     action: 'accept'
                 });
                 console.log("Invitation accepted:", response.data);
-                showToast(`You have successfully joined to community "${communityName}"`,'success')
+                showToast(`You have successfully joined to community "${communityName}"`, 'success')
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove accepted invite
             } catch (error) {
                 console.error("Error accepting invite:", error);
-                showToast("Erro happened, try again","error")
+                showToast("Erro happened, try again", "error")
             }
         }
     };
 
     // Handle ignore action
-    const handleIgnore = async (inviteId, communityId,communityName) => {
+    const handleIgnore = async (inviteId, communityId, communityName) => {
         const result = await showConfirmationAlert({
             title: 'Ignore Invitation?',
             text: 'Are you sure you want to ignore this invitation?',
@@ -73,7 +74,7 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                     action: 'ignore'
                 });
                 console.log("Invitation ignored:", response.data);
-                showToast(`Invitation ignored for the community "${communityName}"`,"success")
+                showToast(`Invitation ignored for the community "${communityName}"`, "success")
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove ignored invite
             } catch (error) {
@@ -98,8 +99,8 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                         <FaUsers className="text-green-600 text-xl" />
                     </div>
                     <h2 className="text-md font-semibold text-white">Community Invitations for You</h2>
-                    <span className="ml-3 px-2 py-1 border border-green-600 bg-white text-green-600 font-semibold text-xs rounded-full">{ invitations.length || "0"}</span>
-                    
+                    <span className="ml-3 px-2 py-1 border border-green-600 bg-white text-green-600 font-semibold text-xs rounded-full">{invitations.length || "0"}</span>
+
                 </div>
                 <div className="transition-transform duration-300 ease-in-out">
                     {expanded ?
@@ -126,15 +127,20 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                             <h3 className="font-medium  text-gray-800">{invite.community_name || "No data found"}</h3>
                                             <div className="flex items-center text-xs text-gray-500 mt-1 ">
                                                 <span>Invited by : </span>
-                                                <div className="h-5 w-5 rounded-full overflow-hidden mx-1 border border-gray-400">
-                                                    <img src={invite?.invited_by?.profile_picture || DefaultUserIcon} alt="Admin" className="h-full w-full object-cover" />
-                                                </div>
-                                                <span>
-                                                    {invite.invited_by?.name} • {new Date(invite.invited_on).toLocaleString('en-US', {
-                                                        dateStyle: 'medium',
-                                                        timeStyle: 'short'
-                                                    })}
-                                                </span>
+                                                <Link to={`/user-dash-board/user-profile-view/${invite.invited_by?.id}`}>
+                                                    <div className="h-5 w-5 rounded-full overflow-hidden mx-1 border border-gray-400">
+                                                        <img src={invite?.invited_by?.profile_picture || DefaultUserIcon} alt="Admin" className="h-full w-full object-cover" />
+                                                    </div>
+                                                </Link>
+                                                    <span>
+                                                        {invite.invited_by?.name} • {new Date(invite.invited_on).toLocaleString('en-US', {
+                                                            dateStyle: 'medium',
+                                                            timeStyle: 'short'
+                                                        })}
+                                                    </span>
+                                                
+
+
 
                                             </div>
                                         </div>
@@ -142,13 +148,13 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                     <div className="flex gap-2">
                                         <button
                                             className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
-                                            onClick={() => handleAccept(invite.id, invite.community,invite.community_name)}
+                                            onClick={() => handleAccept(invite.id, invite.community, invite.community_name)}
                                         >
                                             Join
                                         </button>
                                         <button
                                             className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
-                                            onClick={() => handleIgnore(invite.id, invite.community,invite.community_name)}
+                                            onClick={() => handleIgnore(invite.id, invite.community, invite.community_name)}
                                         >
                                             Ignore
                                         </button>

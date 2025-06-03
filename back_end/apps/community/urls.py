@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity,RemoveMemberAPIView,MakeAdminAPIView,RevokeAdminAPIView,SoftDeleteCommunityAPIView,UserLeaveCommunityView,EditCommunityDetailsView,CommunityMessageListView
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity,RemoveMemberAPIView,MakeAdminAPIView,RevokeAdminAPIView,SoftDeleteCommunityAPIView,UserLeaveCommunityView,EditCommunityDetailsView,CommunityMessageListView,CloudinaryUploadView
 
 urlpatterns = [
     # Authentication urls
@@ -61,6 +61,10 @@ urlpatterns = [
     ################### creator of a community can edit the name,description and community image ##################
     path('edit-community-details/<int:pk>/', EditCommunityDetailsView.as_view(), name='edit-community'),
 
-    ###################  url for get the community messages from teh community-message table #########################
+    ###################  url for get the community messages from the community-message table #########################
     path('get-community-messages/<int:community_id>/', CommunityMessageListView.as_view(), name='get-community-messages'),
+
+    ################### upload media file ######################  
+    path("community-chat-media-upload/", CloudinaryUploadView.as_view(), name="cloudinary-upload"),
+
 ]

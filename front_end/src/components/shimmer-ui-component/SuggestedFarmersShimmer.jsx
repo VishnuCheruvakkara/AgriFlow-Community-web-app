@@ -2,7 +2,7 @@ import React from 'react';
 
 const SuggestedFarmersShimmer = () => {
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array.from({ length: 6 }).map((_, index) => (
         <div key={index} className="bg-white dark:bg-zinc-800 rounded-lg shadow-md border dark:border-zinc-700 overflow-hidden flex flex-col h-full">
           {/* Banner Image Shimmer */}

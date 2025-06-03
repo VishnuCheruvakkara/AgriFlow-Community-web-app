@@ -12,6 +12,7 @@ import { FaEye, FaUserSlash } from 'react-icons/fa';
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 function MyConnections() {
     const [connections, setConnections] = useState([]);
@@ -146,9 +147,9 @@ function MyConnections() {
                                     {connection.other_user?.farming_type || 'Unknown'} farmer
                                 </p>
                             </div>
-                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800" data-tip="View">
+                            <Link to={`/user-dash-board/user-profile-view/${connection.other_user?.id}`}  className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800" data-tip="View">
                                 <FaEye className="text-green-600 text-xl hover:text-green-800 dark:text-green-400 dark:hover:text-green-200" />
-                            </div>
+                            </Link>
                             <div
                                 onClick={() => handleBlockUser(connection.other_user?.id, connection.other_user?.username)}
                                 className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"

@@ -33,8 +33,10 @@
     "react-router-dom": "^7.2.0",
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
+    "react-tooltip": "^5.28.1",
     "redux-persist": "^6.0.0",
     "sweetalert2": "^11.17.2",
+    "twemoji": "^14.0.2",
     "yup": "^1.6.1"
   },
   "devDependencies": {

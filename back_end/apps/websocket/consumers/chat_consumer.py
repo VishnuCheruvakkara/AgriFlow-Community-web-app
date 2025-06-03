@@ -52,11 +52,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from front end  then try to send that into the group or Broad cast 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message = data['message']
+        event_type=data.get("type","message")
         user = self.scope["user"]
 
+        if event_type == "typing":
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'user_typing',
+                    'username': user.username,
+                    'user_id': user.id,
+                    'user_image':  generate_secure_image_url(user.profile_picture) ,
+                }
+            )
+            return
+
+        message = data['message']
+        file_url = data.get('file')
+        
+
         # Save message to the database
-        saved_message = await self.save_message(user, self.room_name, message)
+        saved_message = await self.save_message(user, self.room_name, message,file_url)
        
         # Send message to room group
         await self.channel_layer.group_send(
@@ -64,6 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message', # below method || function passed as a event argument
                 'message': message,
+                'media_url': file_url,
                 'username': user.username,
                 'user_id':user.id,
                 'user_image':  generate_secure_image_url(user.profile_picture) ,
@@ -75,6 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             'message': event['message'],
+            'media_url': event.get('media_url'),
             'username': event['username'],
             'user_id': event['user_id'],
             'user_image': event['user_image'],
@@ -108,12 +126,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def get_online_user_count(self):
         return await self.redis.scard(self.redis_key)
 
+    # save the message data into the table 
     @database_sync_to_async
-    def save_message(self, user, community_name, content):
+    def save_message(self, user, community_name, content, media_url=None):
         community = Community.objects.get(id=community_name)
         return CommunityMessage.objects.create(
             user=user,
             community=community,
-            content=content
+            content=content,
+            media_url=media_url
         )
+    
+    async def user_typing(self,event):
+        await self.send(text_data = json.dumps({
+            'type':'typing',
+            'username':event['username'],
+            'user_id':event['user_id'],
+            'user_image':event['user_image'],
+        }))
     

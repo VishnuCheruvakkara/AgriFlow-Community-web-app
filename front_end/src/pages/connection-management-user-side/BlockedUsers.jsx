@@ -11,6 +11,7 @@ import SelectCommunityCreateEventShimmer from '../../components/shimmer-ui-compo
 import { CgUnblock } from "react-icons/cg";
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
+import { Link } from 'react-router-dom'; 
 
 function BlockedUsers() {
     const [blockedUsers, setBlockedUsers] = useState([]);
@@ -175,12 +176,13 @@ function BlockedUsers() {
                             </div>
 
                             {/* View Profile */}
-                            <div
+                            <Link 
+                                to={`/user-dash-board/user-profile-view/${blocked?.id}`}
                                 className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mr-2 hover:bg-gray-200 border border-gray-300 cursor-pointer tooltip tooltip-left dark:bg-zinc-800 dark:border-zinc-600 dark:hover:bg-zinc-700"
                                 data-tip="View Profile"
                             >
                                 <FaEye className="text-gray-600 text-xl hover:text-gray-800 dark:text-zinc-300 dark:hover:text-white" />
-                            </div>
+                            </Link>
 
                             {/* Unblock User */}
                             <div

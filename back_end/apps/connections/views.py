@@ -30,13 +30,28 @@ class GetSuggestedFarmersView(APIView):
         blocked_user_ids = BlockedUser.objects.filter(
             blocker=current_user
         ).values_list('blocked_id', flat=True)
+
+        # Exclude users who blocked current_user
+        blocked_by_other_user_ids = BlockedUser.objects.filter(
+            blocked=current_user
+        ).values_list('blocker_id', flat=True)
+
         users = users.exclude(id__in=blocked_user_ids)
+        users = users.exclude(id__in=blocked_by_other_user_ids)
 
         # Filter users with complete profile and verified Aadhar
         users = users.filter(profile_completed=True, is_aadhar_verified=True)
 
         # Get all connections sent by current user
         connections = Connection.objects.filter(sender=current_user)
+
+        # Get all connections received by current user (for reverse check)
+        reverse_connections = Connection.objects.filter(receiver=current_user)
+
+        # Exclude users who sent a pending request TO current_user
+        pending_received_user_ids = reverse_connections.filter(
+            status='pending'
+        ).values_list('sender_id', flat=True)
 
         # Exclude connected, pending, rejected
         active_connection_user_ids = connections.filter(
@@ -50,8 +65,15 @@ class GetSuggestedFarmersView(APIView):
             updated_at__gte=three_days_ago
         ).values_list('receiver_id', flat=True)
 
+        # Exclude users who already accepted your connection
+        accepted_received_user_ids = reverse_connections.filter(
+            status='accepted'
+        ).values_list('sender_id', flat=True)
+
         users = users.exclude(id__in=active_connection_user_ids)
+        users = users.exclude(id__in=pending_received_user_ids)
         users = users.exclude(id__in=recent_cancelled_user_ids)
+        users = users.exclude(id__in=accepted_received_user_ids)
 
         # Apply search
         if search_query:
@@ -92,17 +114,37 @@ class SendConnectionRequestView(APIView):
             ).count()
 
             if daily_requests_count >= 10:
+
                 return Response({"error": "Max connection limit reached today. Try again later."}, status=status.HTTP_400_BAD_REQUEST)
 
-            connection, created = Connection.objects.get_or_create(
+            # Check for existing connection
+            connection = Connection.objects.filter(sender=request.user, receiver=receiver).first()
+
+            if connection:
+                if connection.status == 'accepted':
+                    return Response({"error": "Connection already exists."}, status=status.HTTP_400_BAD_REQUEST)
+                elif connection.status == 'blocked':
+                    return Response({"error": "You cannot send request. This user is blocked."}, status=status.HTTP_400_BAD_REQUEST)
+                elif connection.status in ['rejected', 'cancelled']:
+                    # Resend request
+                    connection.status = 'pending'
+                    connection.updated_at = timezone.now()
+                    connection.save()
+                    serializer = ConnectionSerializer(connection)
+                    return Response({
+                        "message": "Connection request re-sent.",
+                        "connection": serializer.data
+                    }, status=status.HTTP_200_OK)
+
+                else:
+                    return Response({"error": f"Connection already in {connection.status} status."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # No connection exists: create a new one
+            connection = Connection.objects.create(
                 sender=request.user,
                 receiver=receiver,
-                defaults={'status': 'pending'}
+                status='pending'
             )
-
-            if not created:
-                return Response({"error": "Connection already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
             serializer = ConnectionSerializer(connection)
             return Response({
                 "message": "Connection request sent.",
@@ -111,6 +153,7 @@ class SendConnectionRequestView(APIView):
 
         except User.DoesNotExist:
             return Response({"error": "Receiver not found."}, status=status.HTTP_404_NOT_FOUND)
+
         
 #==================== Get users in the Request you send section View  =========================#
 
@@ -159,6 +202,7 @@ class AcceptConnectionRequestAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
+       
         connection = get_object_or_404(Connection, id=pk, receiver=request.user)
 
         if connection.status != "pending":

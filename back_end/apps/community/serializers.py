@@ -286,10 +286,11 @@ class RequestedUserSerializer(serializers.ModelSerializer):
     requested_at = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username')
+    user_id = serializers.IntegerField(source='user.id')
 
     class Meta:
         model = CommunityMembership
-        fields = ['username', 'requested_at', 'profile_picture']
+        fields = ['user_id','username', 'requested_at', 'profile_picture']
 
     def get_requested_at(self, obj):
         # Fetch notification created when user requested to join community
@@ -494,10 +495,11 @@ class CommunityMessageSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     user_image = serializers.SerializerMethodField()
     timestamp = serializers.DateTimeField() 
+    media_url = serializers.URLField()
 
     class Meta:
         model = CommunityMessage
-        fields = ['message', 'user_id', 'user_image', 'username','timestamp']
+        fields = ['message', 'user_id', 'user_image', 'username','timestamp','media_url']
 
     def get_user_image(self, obj):
         return generate_secure_image_url(obj.user.profile_picture)

@@ -3,6 +3,7 @@ import { BsThreeDotsVertical, BsEmojiSmile, BsPaperclip, BsMic } from "react-ico
 import { FiSearch } from "react-icons/fi";
 import { IoMdSend } from "react-icons/io";
 import { useParams } from "react-router-dom";
+import { RxCross2 } from "react-icons/rx";
 //import images 
 import CommunityDefaultImage from '../../assets/images/user-group-default.png'
 import GardenImage from '../../assets/images/farmer-garden-image.jpg'
@@ -12,9 +13,13 @@ import CommunityDrawer from "../../components/Community/community-details/commun
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 //import message date badge here 
 import DateBadge from "../../components/Community/community-message/MessageDateBadge";
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
+import TwemojiText from "../../components/Community/community-message/TwemojiText";
+import { showToast } from "../../components/toast-notification/CustomToast";
+import ChatLoadingSampleImage from "../../assets/images/chat_image_loading_banner.png"
 
 const FarmerCommunityChat = () => {
+  const [isUploading, setIsUploading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   // input box useref 
@@ -24,12 +29,29 @@ const FarmerCommunityChat = () => {
   // state for the online user count
   const [onlineCount, setOnlineCount] = useState(0);
 
+  // Track typing user set up 
+  const [typingUser, setTypingUser] = useState(null);
+  const typingTimeoutRef = useRef(null);
+
+
   const { communityId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [communityData, setCommunityData] = useState(null);
 
+  // Imogie picker to send in message 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef(null);
+
+  // Handle media load and animation when get media from database table
+  const [mediaLoading, setMediaLoading] = useState(true);
+  const handleMediaLoad = () => setMediaLoading(false);
+
+  // Show the preview of the media file 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreviewURL, setFilePreviewURL] = useState(null);
+
+  //get url after upload the image th
+  const [uploadedURL, setUploadedURL] = useState(null);
 
   // get the access token of the JWT from the redux store 
   const token = useSelector((state) => state.auth.token)
@@ -111,7 +133,7 @@ const FarmerCommunityChat = () => {
       console.log("WebSocket handshake successful");
     };
     // handle message from the backend to show that here in the front end
-    //handled the online user count with the reddis cache mechanism
+    // handled the online user count with the reddis cache mechanism
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("Received from WebSocket:", data);
@@ -120,6 +142,17 @@ const FarmerCommunityChat = () => {
         console.log("Online Users:", data.count);
         // Optionally store in state:
         setOnlineCount(data.count);
+      } else if (data.type === "typing") {
+        setTypingUser({
+          userId: data.user_id,
+          username: data.username,
+          userImage: data.user_image,
+        });
+        // Clear typing indicator after timeout
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          setTypingUser(null);
+        }, 2000); // Clear after 2 seconds
       } else {
         setMessages((prevMessages) => [...prevMessages, data]);
       }
@@ -138,23 +171,93 @@ const FarmerCommunityChat = () => {
     };
   }, [communityId, token]);
 
-  const handleSendMessage = (e) => {
-    e.preventDefault(); // Prevent form reload
+  const handleSendMessage = async (e) => {
+    e.preventDefault(); // Prevent page reload
+    setShowEmojiPicker(false)
+    if (!newMessage.trim() && !selectedFile) return;
 
-    if (newMessage.trim() === "" || !socketRef.current) return;
+    let fileURL = null;
 
-    const messageData = { message: newMessage };
-    socketRef.current.send(JSON.stringify(messageData));
-    setNewMessage(""); // Clear input after sending
-    // Reset the height
+    // === FRONTEND VALIDATION START ===
+    if (selectedFile) {
+      const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      const allowedVideoTypes = ["video/mp4", "video/webm"];
+      const isImage = allowedImageTypes.includes(selectedFile.type);
+      const isVideo = allowedVideoTypes.includes(selectedFile.type);
+
+      const maxImageSize = 2 * 1024 * 1024; // 2 MB
+      const maxVideoSize = 20 * 1024 * 1024; // 20 MB
+
+      if (!isImage && !isVideo) {
+        showToast("Only JPG, PNG, GIF, MP4, and WEBM files are allowed.", "error");
+        return;
+      }
+
+      if (isImage && selectedFile.size > maxImageSize) {
+        showToast("Image size must be less than 2 MB.", "error");
+        return;
+      }
+
+      if (isVideo && selectedFile.size > maxVideoSize) {
+        showToast("Video size must be less than 20 MB.", "error");
+        return;
+      }
+    }
+    // === FRONTEND VALIDATION END ===
+
+    // Upload the file if selected
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("folder", "user_community_chat_uploads");
+
+      setIsUploading(true);
+
+      try {
+        const response = await AuthenticatedAxiosInstance.post("/community/community-chat-media-upload/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        fileURL = response.data.url;
+        setUploadedURL(fileURL);
+        setSelectedFile(null); // clear the file after upload
+        setShowEmojiPicker(false)
+      } catch (error) {
+        console.error("Upload failed:", error);
+        showToast("File upload failed, Try again", "error");
+        setIsUploading(false);
+        setShowEmojiPicker(false)
+        return;
+      } finally {
+        setIsUploading(false);
+        setShowEmojiPicker(false)
+      }
+    }
+
+    // Compose the message payload
+    const messagePayload = {
+      message: newMessage.trim(),
+      file: fileURL, // this will be null if no file uploaded
+    };
+
+    // Send the message over WebSocket
+    if (socketRef.current) {
+      socketRef.current.send(JSON.stringify(messagePayload));
+    }
+
+    // Reset input
+    setNewMessage("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
   };
 
+
   // update height dynamically for the message input
   const handleInput = (e) => {
     setNewMessage(e.target.value);
+    handleTyping(); // To send the typing evet to backend websocket to broadcast to the group 
     textareaRef.current.style.height = "auto";
     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   };
@@ -176,7 +279,15 @@ const FarmerCommunityChat = () => {
 
   const handleEmojiClick = (emojiData) => {
     setNewMessage(prev => prev + emojiData.emoji);
+    console.log(emojiData.imageUrl)
     textareaRef.current.focus();  // Optional: keep focus on input
+  };
+
+  // typing indicator set up  
+  const handleTyping = () => {
+    if (socketRef.current && newMessage.length > 0) {
+      socketRef.current.send(JSON.stringify({ type: "typing", username: userId }));
+    }
   };
 
 
@@ -193,12 +304,12 @@ const FarmerCommunityChat = () => {
               <div className="ml-3 cursor-pointer" onClick={openDrawer}>
                 <h3 className="font-semibold text-gray-800 dark:text-zinc-100">{communityData?.name || "Group Name not found "}</h3>
                 <p className="text-xs text-gray-500 dark:text-zinc-400"> {communityData?.members?.length} members,  {onlineCount} online</p>
+                {typingUser && typingUser.userId !== userId && (
+                  <p className="text-xs text-green-500 ">{typingUser.username} is typing ...</p>
+                )}
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <FiSearch className="text-gray-600 dark:text-zinc-300 text-xl cursor-pointer" />
-              <BsThreeDotsVertical className="text-gray-600 dark:text-zinc-300 text-xl cursor-pointer" />
-            </div>
+           
           </div>
 
           {/* Messages Area */}
@@ -269,12 +380,52 @@ const FarmerCommunityChat = () => {
                         <div className="chat-header dark:text-zinc-300">
                           {isOwnMessage ? "You" : msg.username}
                         </div>
+
                         <div
-                          className={`chat-bubble whitespace-pre-wrap break-words max-w-[80%] ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"
-                            } text-white`}
+                          className={`p-1 chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%] 
+                            ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white 
+                            ${msg.message && !msg.media_url ? "px-3 py-2" : ""}`}
                         >
-                          {msg.message}
+                          {/* Media Block */}
+                          {msg.media_url && (
+                            <div className="relative max-w-xs">
+                              {/* DaisyUI spinner */}
+                              {mediaLoading && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-lg z-10">
+                                  <span className="loading loading-spinner loading-lg text-white"></span>
+                                </div>
+                              )}
+
+                              {/* Image or Video */}
+                              {msg.media_url?.match(/\.(jpg|jpeg|png|gif)$/) ? (
+                                <img
+                                  src={msg.media_url || ChatLoadingSampleImage}
+                                  alt="uploaded"
+                                  onLoad={handleMediaLoad}
+                                  className={`max-w-xs rounded-lg border object-cover border-gray-300 dark:border-zinc-700 
+                                    ${msg.media_url ? '' : 'aspect-square blur-md object-cover'}`}
+                                />
+                              ) : msg.media_url.match(/\.(mp4|webm)$/) ? (
+                                <video
+                                  controls
+                                  onLoadedData={handleMediaLoad}
+                                  className="max-w-xs rounded-lg border border-gray-300 dark:border-zinc-700"
+                                >
+                                  <source src={msg.media_url} type="video/mp4" />
+                                  Your browser does not support the video tag.
+                                </video>
+                              ) : null}
+                            </div>
+                          )}
+
+                          {/* Text Block */}
+                          {msg.message && (
+                            <div className={`${msg.media_url ? "px-2 py-1" : ""}`}>
+                              <TwemojiText text={msg.message} />
+                            </div>
+                          )}
                         </div>
+
                         <div className="chat-footer opacity-50 mt-1">
                           Sent at • {formattedTime || "just now"}
                         </div>
@@ -291,86 +442,153 @@ const FarmerCommunityChat = () => {
               </div>
 
               {/* Typing Indicator */}
-              <div className="flex mb-4">
-                <img src={UserDefaultImage} alt="Profile" className="w-9 h-9 rounded-full self-end" />
-                <div className="ml-2 bg-white dark:bg-zinc-800 text-black dark:text-white p-3 rounded-lg rounded-tl-none shadow-sm inline-flex">
-                  <span className="animate-bounce mx-0.5">•</span>
-                  <span className="animate-bounce mx-0.5 animation-delay-200">•</span>
-                  <span className="animate-bounce mx-0.5 animation-delay-400">•</span>
+              {typingUser && typingUser.userId !== userId && (
+                <div className="chat chat-start">
+                  <div className="chat-image avatar">
+                    <div className="w-10 rounded-full">
+                      <img
+                        alt="Typing user avatar"
+                        src={typingUser.userImage || UserDefaultImage} // Replace with dynamic image if available
+                      />
+                    </div>
+                  </div>
+                  <div className="chat-header">
+                    {typingUser.username}
+                  </div>
+                  <div className="chat-bubble rounded-xl gradient-bubble-gray text-black dark:text-white">
+                    <span className="inline-flex space-x-1">
+                      <span className="animate-bounce mx-0.5">•</span>
+                      <span className="animate-bounce mx-0.5 animation-delay-200">•</span>
+                      <span className="animate-bounce mx-0.5 animation-delay-400">•</span>
+                    </span>
+                  </div>
+                  <div className="chat-footer opacity-50">Typing...</div>
                 </div>
-              </div>
+              )}
+
 
               {/* Invisible div to scroll to - placed at the bottom */}
               <div ref={messagesEndRef} />
             </div>
           </div>
 
-
-
-
-
-
-
-          {/* Message Input */}
           {/* Message Input */}
           <div className="bg-white dark:bg-zinc-900 p-3 border-t dark:border-zinc-700">
-            <form onSubmit={handleSendMessage} className="flex items-center relative">
+            <form onSubmit={handleSendMessage} className="flex items-end gap-2">
 
               {/* Emoji Button & Picker */}
-              <div className="relative mx-2 mt-2">
+              <div className="relative">
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(val => !val)}
-                  className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none"
+                  className="py-2 mb-1 ml-2 text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none"
                 >
-                  <BsEmojiSmile className="text-xl" />
+                  <BsEmojiSmile className="text-2xl" />
                 </button>
 
                 {/* Emoji Picker Panel */}
                 {showEmojiPicker && (
                   <div
                     ref={emojiPickerRef}
-                    className="absolute bottom-10 left-0 z-50"
+                    className="absolute  bottom-12 left-0 z-50"
                   >
                     <EmojiPicker
                       onEmojiClick={handleEmojiClick}
                       theme={document.documentElement.classList.contains("dark") ? "dark" : "light"}
+                      emojiStyle={EmojiStyle.TWITTER}
                     />
                   </div>
                 )}
               </div>
 
               {/* Attachment Button */}
-              <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
-                <BsPaperclip className="text-xl" />
-              </button>
+              <label className="cursor-pointer p-2 mb-1 text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none">
+                <BsPaperclip className="text-2xl" />
+                <input
+                  type="file"
+                  accept="image/*,video/*,application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setSelectedFile(file);
+                      setFilePreviewURL(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+              </label>
 
-              {/* Textarea */}
-              <textarea
-                ref={textareaRef}
-                rows={1}
-                value={newMessage}
-                onChange={handleInput}
-                placeholder="Type a message"
-                className="flex-1 py-2 px-4 resize-none bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 overflow-y-auto max-h-32"
-              />
+              {/* Textarea and Media Preview Inside Input Box */}
+              <div className="flex-1 mr-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-green-500 dark:focus-within:ring-green-400 transition duration-500 ease-in-out">
 
-              {/* Mic Button */}
-              <button type="button" className="text-gray-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 focus:outline-none mx-2">
-                <BsMic className="text-xl" />
-              </button>
+                {filePreviewURL && selectedFile && (
+                  <div className="p-3 pb-2 border-b border-gray-200 dark:border-zinc-600">
+                    <div className="relative inline-block">
+                      {selectedFile.type.startsWith("image/") ? (
+                        <img src={filePreviewURL} alt="preview" className="w-16 h-16 object-cover rounded-lg" />
+                      ) : selectedFile.type.startsWith("video/") ? (
+                        <video className="w-16 h-16 rounded-lg object-cover" muted>
+                          <source src={filePreviewURL} type={selectedFile.type} />
+                        </video>
+                      ) : selectedFile.type === "application/pdf" ? (
+                        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-red-600 dark:text-red-400 font-semibold">PDF</span>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-200 dark:bg-zinc-700 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">File</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setFilePreviewURL(null);
+                        }}
+                        type="button"
+                        className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-sm transition-colors"
+                      >
+                        <RxCross2 className="text-xs" />
+                      </button>
+                    </div>
+                    {selectedFile?.name && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate max-w-20">
+                        {selectedFile.name}
+                      </p>
+                    )}
+                  </div>
+                )}
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
+                  value={newMessage}
+                  onChange={handleInput}
+
+                  placeholder="Type a message"
+                  className="emoji-text w-full  mt-1 py-2 px-4 resize-none bg-transparent text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 focus:outline-none overflow-y-auto max-h-20"
+                />
+
+              </div>
+
 
               {/* Send Button */}
               <button
                 type="submit"
-                className={`p-2 rounded-full focus:outline-none ${newMessage ? 'bg-green-500 text-white dark:bg-green-600 dark:text-white' : 'bg-gray-200 text-gray-400 dark:bg-zinc-700 dark:text-zinc-500'}`}
-                disabled={!newMessage}
+                className={`p-2 mb-1 mr-2 rounded-full focus:outline-none transition-colors ${newMessage || selectedFile
+                  ? 'bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700'
+                  : 'bg-gray-200 text-gray-400 dark:bg-zinc-700 dark:text-zinc-500'
+                  }`}
+                disabled={!newMessage && !selectedFile || isUploading}
               >
-                <IoMdSend className="text-xl" />
+                {isUploading ? (
+                  <span className="loading loading-spinner loading-md"></span>
+                ) : (
+                  <IoMdSend className="text-2xl" />
+                )}
               </button>
+
+
             </form>
           </div>
-
 
         </>
       )}
