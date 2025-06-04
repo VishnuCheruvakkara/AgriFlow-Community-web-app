@@ -5,7 +5,7 @@ import { FaHome, FaUser, FaUsers, FaStore, FaCloudSun } from 'react-icons/fa';
 
 function MobileNavBar() {
     return (
-        <div className="lg:hidden fixed bottom-0 w-full bg-white shadow-lg border-t z-20">
+        <div className="lg:hidden fixed bottom-0 w-full bg-white shadow-lg border-t ">
             <div className="flex justify-around py-2">
                 <a href="#" className="flex flex-col items-center text-green-700">
                     <FaHome className="text-xl" />

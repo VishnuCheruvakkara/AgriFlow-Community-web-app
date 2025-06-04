@@ -17,9 +17,19 @@ import defaultUserImage from '../../assets/images/user-default.png'
 import { FaSignOutAlt, FaCog } from 'react-icons/fa';
 import agriFlowLogo from '../../assets/images/agriflowwhite.png'
 import ThemeToggle from '../ThemeController/ThemeToggle';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AiOutlineClose } from 'react-icons/ai';
+
+import NoSearchFound from '../../assets/images/no_messages_1.png'
 
 
 function NavBar() {
+    //Get notification from redux 
+    const notifications = useSelector((state) => state.notification.notifications)
+
+    //side bar set up for notification and messages 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [sidebarType, setSidebarType] = useState(null); // notification and messages 
 
     const user = useSelector((state) => state.auth.user);
     const AadharVerified = user?.aadhar_verification;
@@ -32,6 +42,18 @@ function NavBar() {
     const dropdownRef = useRef(null);
 
     const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
+
+    // side bar handlers 
+    //open sidebar
+    const openSidebar = (type) => {
+        setSidebarType(type);
+        setIsSidebarOpen(true);
+    };
+
+    //close sidebar 
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+    };
 
     // Close the dropdown if clicked outside
     useEffect(() => {
@@ -100,28 +122,42 @@ function NavBar() {
                         {AadharVerified ? (
                             <>
                                 {/* Show Other Icons if Profile is Completed */}
-                                <div className="relative inline-block tooltip tooltip-bottom " data-tip="Notification">
+                                {/* notification icons part */}
+                                <div onClick={() => openSidebar("notifications")} className="relative inline-block tooltip tooltip-bottom " data-tip="Notification">
                                     <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors ripple-parent ripple-white" >
                                         <FaBell className="text-xl" />
                                     </button>
-
-                                    {/* Notification badge OUTSIDE the ripple-parent */}
-                                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center z-[50]">
-                                        3
-                                    </span>
+                                    <div class="relative inline-block">
+                                        {/*  Ping Animation Circle */}
+                                        <span class="absolute -top-8 -right-1 flex h-5 w-5">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            {/*  Static Bubble with Count */}
+                                            <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
+                                                3
+                                            </span>
+                                        </span>
+                                    </div>
                                 </div>
-
-                                <div className="relative inline-block tooltip tooltip-bottom"  data-tip="Messages">
+                                {/* Message icons part  */}
+                                <div onClick={() => openSidebar("message")} className="relative inline-block tooltip tooltip-bottom" data-tip="Messages">
                                     <button
+
                                         className="p-2 rounded-full hover:bg-green-600 transition-colors  ripple-parent ripple-white"
                                     >
                                         <FaEnvelope className="text-xl" />
                                     </button>
 
                                     {/* Message badge outside of ripple-parent */}
-                                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center z-[50]">
-                                        5
-                                    </span>
+                                    <div class="relative inline-block">
+                                        {/*  Ping Animation Circle */}
+                                        <span class="absolute -top-8 -right-1 flex h-5 w-5">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            {/*  Static Bubble with Count */}
+                                            <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
+                                                5
+                                            </span>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div className="relative">
@@ -181,6 +217,114 @@ function NavBar() {
 
                 </div>
             </div>
+
+            {/* side bar for notification and messages  */}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <>
+                        {/* Overlay */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.6 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        />
+                        {/* Sidebar */}
+                        <motion.div
+                            className=" mt-16 rounded-tl-lg fixed top-4 right-0 w-[360px] h-full bg-white dark:bg-zinc-700 shadow-lg"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                        >
+                            <div className="flex rounded-tl-lg justify-between items-center p-4 bg-gradient-to-r from-green-700 to-green-400 ">
+                                <h2 className="text-lg font-bold ">
+                                    {sidebarType === "notifications" ? "Notifications" : "Messages"}
+                                </h2>
+                                <button
+                                    onClick={closeSidebar}
+                                    className="text-white hover:bg-green-600 rounded-full p-1"
+                                    aria-label="Close modal"
+                                >
+                                    <AiOutlineClose size={20} />
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="  overflow-y-auto max-h-[100vh]">
+                                {sidebarType === "notifications" ? (
+                                    <>
+                                        <div className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
+                                            <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
+                                            <div
+                                                className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
+                                            >
+                                                <img
+                                                    src={defaultUserImage}
+                                                    alt="User profile"
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            </div>
+                                            <span className="text-gray-500 text-sm flex-1 dark:text-zinc-200">
+                                                You have a new update from your crop community!
+                                            </span>
+                                        </div>
+                                        <div className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
+                                            <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
+                                            <div
+                                                className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
+                                            >
+                                                <img
+                                                    src={defaultUserImage}
+                                                    alt="User profile"
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            </div>
+                                            <span className="text-gray-500 text-sm flex-1 dark:text-zinc-200">
+                                                You have a new update from your crop community!
+                                            </span>
+                                        </div>
+
+
+                                    </>
+                                ) : (
+                                    <>
+                                        {notifications.length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center h-[70vh] text-center text-gray-500 dark:text-zinc-400">
+                                                <img
+                                                    src={NoSearchFound}
+                                                    alt="No Notifications"
+                                                    className="w-36 h-36 mb-4 object-contain"
+                                                />
+                                                <p className="text-md font-medium">No messages found</p>
+                                            </div>
+                                        ) :
+                                            (notifications.map((messages, index) => (
+                                                <div key={index} className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
+                                                    <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
+                                                    <div
+                                                        className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
+                                                    >
+                                                        <img
+                                                            src={defaultUserImage}
+                                                            alt="User profile"
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <span className="text-gray-500 text-sm flex-1 dark:text-zinc-200">
+                                                        You have a new update from your crop community!
+                                                    </span>
+                                                </div>
+                                            ))
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
         </nav>
 
     )

@@ -2,10 +2,13 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from back_end.apps import notifications
 from users.models import PrivateMessage  # Model for save the messages 
 from apps.common.cloudinary_utils import generate_secure_image_url
 from redis.asyncio import Redis
 from django.conf import settings
+# Handle notification 
+from apps.notifications.views import create_and_send_notification
 
 class PrivateChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -61,6 +64,8 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
                 "timestamp": saved_message.timestamp.isoformat(),
             }
         )
+
+        await self.send
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))

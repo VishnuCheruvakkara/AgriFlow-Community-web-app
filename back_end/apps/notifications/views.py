@@ -37,7 +37,7 @@ class MarkNotificationReadView(APIView):
 
 def create_and_send_notification(recipient, sender, type, message,community=None):
     # Save notification data into the table 
-    notification = Notification.objects.create(
+    notification = Notification.objects.acreate(
         recipient = recipient,
         sender = sender,
         notification_type = type,
