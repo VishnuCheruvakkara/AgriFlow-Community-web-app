@@ -9,6 +9,7 @@ from redis.asyncio import Redis
 from django.conf import settings
 # Handle notification 
 from apps.notifications.views import create_and_send_notification
+from asgiref.sync import sync_to_async
 
 class PrivateChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -51,6 +52,8 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
         receiver_id = data.get("receiver_id")
 
         saved_message = await self.save_private_message(self.user.id, receiver_id, message)
+        # Fetch the full message with related fields inside sync context
+        full_message = await self.get_message_with_related(saved_message.id)
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -64,12 +67,14 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        await create_and_send_notification(
-            recipient = saved_message.receiver,
-            sender = saved_message.sender,
+       # Call sync function for notification with proper model instances
+        await sync_to_async(create_and_send_notification)(
+            recipient=full_message.receiver,
+            sender=full_message.sender,
             type="private_message",
-            message=saved_message.message,
+            message=full_message.message,
         )
+       
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))
@@ -102,3 +107,8 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
             receiver_id=receiver_id,
             message=message
         )
+
+    @database_sync_to_async
+    def get_message_with_related(self, message_id):
+        # Fetch message with related sender and receiver to avoid lazy-loading errors
+        return PrivateMessage.objects.select_related("sender", "receiver").get(id=message_id)

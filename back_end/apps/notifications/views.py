@@ -35,9 +35,9 @@ class MarkNotificationReadView(APIView):
     
 #########################  Common function for handle the real-time notification and save that to the db table  #########################3
 
-async def create_and_send_notification(recipient, sender, type, message,community=None):
+def create_and_send_notification(recipient, sender, type, message,community=None):
     # Save notification data into the table 
-    notification = Notification.objects.acreate(
+    notification = Notification.objects.create(
         recipient = recipient,
         sender = sender,
         notification_type = type,
