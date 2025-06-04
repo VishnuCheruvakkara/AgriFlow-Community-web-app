@@ -2,7 +2,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from back_end.apps import notifications
+from django.dispatch import receiver
 from users.models import PrivateMessage  # Model for save the messages 
 from apps.common.cloudinary_utils import generate_secure_image_url
 from redis.asyncio import Redis
@@ -31,8 +31,7 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
-        # Broadcast updated online status to group
-        await self.send_online_status()
+       
 
     async def disconnect(self, close_code):
         # Remove user from Redis set
@@ -65,7 +64,12 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        await self.send
+        await create_and_send_notification(
+            recipient = saved_message.receiver,
+            sender = saved_message.sender,
+            type="private_message",
+            message=saved_message.message,
+        )
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))

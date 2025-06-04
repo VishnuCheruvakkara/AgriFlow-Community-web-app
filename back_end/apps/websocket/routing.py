@@ -9,6 +9,6 @@ websocket_urlpatterns = [
     #=============== route for user-to-user single private chat message (chat_id is gnerated from front-end) ================# 
     re_path(r"ws/private-chat/(?P<chat_id>[\w\-]+)/$", PrivateChatConsumer.as_asgi()),
     #=============== route for notification controlling (user_id is reciever id here...) =====================#
-    re_path(r"ws.notification/(?P<user_id>\d+)/$",NotificationConsumer.as_asgi()),
+    re_path(r"ws/notification/(?P<user_id>\d+)/$",NotificationConsumer.as_asgi()),
    
 ]

@@ -127,12 +127,12 @@ function NavBar() {
                                     <button className="relative p-2 rounded-full hover:bg-green-600 transition-colors ripple-parent ripple-white" >
                                         <FaBell className="text-xl" />
                                     </button>
-                                    <div class="relative inline-block">
+                                    <div className="relative inline-block">
                                         {/*  Ping Animation Circle */}
-                                        <span class="absolute -top-8 -right-1 flex h-5 w-5">
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                        <span className="absolute -top-8 -right-1 flex h-5 w-5">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                                             {/*  Static Bubble with Count */}
-                                            <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
+                                            <span className="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
                                                 3
                                             </span>
                                         </span>
@@ -148,12 +148,12 @@ function NavBar() {
                                     </button>
 
                                     {/* Message badge outside of ripple-parent */}
-                                    <div class="relative inline-block">
+                                    <div className="relative inline-block">
                                         {/*  Ping Animation Circle */}
-                                        <span class="absolute -top-8 -right-1 flex h-5 w-5">
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                        <span className="absolute -top-8 -right-1 flex h-5 w-5">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                                             {/*  Static Bubble with Count */}
-                                            <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
+                                            <span className="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
                                                 5
                                             </span>
                                         </span>

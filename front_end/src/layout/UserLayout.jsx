@@ -52,7 +52,7 @@ const UserLayout = () => {
 
     // websocket set-up under progress
     useEffect(() => {
-        if (!user) return;
+        if (!userId || !token) return;
 
         socketRef.current = new WebSocket(`ws://localhost:8000/ws/notification/${userId}/?token=${token}`);
 
