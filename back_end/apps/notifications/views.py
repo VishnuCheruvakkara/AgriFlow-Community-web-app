@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated 
 from rest_framework import status
 from notifications.models import Notification 
-from notifications.serializers import NotificationSerializer
+from notifications.serializers import NotificationSerializer,GetPrivateMessageSerializer
 from channels.layers import get_channel_layer 
 from asgiref.sync import async_to_sync 
 
@@ -63,3 +63,19 @@ def create_and_send_notification(recipient, sender, type, message,community=None
             }
         }
     )
+
+############################ Get messages for private user-to-user meessages  ####################3
+
+class PrivateMessageNotificationView(APIView):
+    permission_classes= [IsAuthenticated]
+
+    def get(self,request):
+        user = request.user 
+        private_msgs = Notification.objects.filter(
+            recipient=user,
+            notification_type = "private_message"
+        ).order_by('-created_at')
+
+        serializer = GetPrivateMessageSerializer(private_msgs,many=True)
+
+        return Response(serializer.data)

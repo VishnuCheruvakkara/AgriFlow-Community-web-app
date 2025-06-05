@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import ConnectionAcceptedNotificationView,MarkNotificationReadView
+from .views import ConnectionAcceptedNotificationView,MarkNotificationReadView,PrivateMessageNotificationView
 
 urlpatterns = [
     ########################## Notification for connections set up ######################
@@ -9,6 +9,7 @@ urlpatterns = [
     #======================= clear connection accepted notifications ======================#
     path('mark-read/<int:pk>/', MarkNotificationReadView.as_view(), name='mark-notification-read'),
 
-
+    #======================= get saved private messages ===========================# 
+    path('get-private_messages/',PrivateMessageNotificationView.as_view(),name="get-saved-private-messages")
 ]
 

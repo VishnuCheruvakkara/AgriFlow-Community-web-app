@@ -21,7 +21,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AiOutlineClose } from 'react-icons/ai';
 
 import NoSearchFound from '../../assets/images/no_messages_1.png'
-
+import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
+import { addNotification } from '../../redux/slices/notificationSlice';
 
 function NavBar() {
     //Get notification from redux 
@@ -118,9 +119,22 @@ function NavBar() {
         return Object.values(grouped);
     };
 
-
     const groupedNotifications = groupMessagesBySender(notifications);
 
+    //Get messages form db for private messages 
+    const getPrivateMessagesFromDb = async () => {
+        openSidebar('message');
+        try {
+            const response = await AuthenticatedAxiosInstance.get('/notifications/get-private_messages/');
+            const data = response.data
+            console.log("Saved messages :::",data)
+            dispatch(addNotification(data));
+            
+
+        } catch (error) {
+            console.error("Failed to fetch private messages:", error);
+        }
+    }
 
     return (
         <nav className="bg-green-700 text-white fixed top-0 w-full z-30 shadow-md">
@@ -171,7 +185,7 @@ function NavBar() {
                                     </div>
                                 </div>
                                 {/* Message icons part  */}
-                                <div onClick={() => openSidebar("message")} className="relative inline-block tooltip tooltip-bottom" data-tip="Messages">
+                                <div onClick={getPrivateMessagesFromDb} className="relative inline-block tooltip tooltip-bottom" data-tip="Messages">
                                     <button
 
                                         className="p-2 rounded-full hover:bg-green-600 transition-colors  ripple-parent ripple-white"

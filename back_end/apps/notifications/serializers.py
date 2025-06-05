@@ -6,6 +6,7 @@ from apps.common.cloudinary_utils import generate_secure_image_url
 
 User = get_user_model()
 
+###########################  Serializers for get the connection datas ######################
 class UserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -23,3 +24,14 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['id', 'message', 'notification_type', 'is_read', 'created_at', 'sender']
+
+############################## Serialziers for get the private messages  #######################
+
+class GetPrivateMessageSerializer(serializers.ModelSerializer):
+    sender = serializers.CharField(source = 'sender.username',read_only=True)
+    sender_id = serializers.IntegerField(source = 'sender.id',read_only=True)
+    timestamp = serializers.DateTimeField(source = 'created_at')
+
+    class Meta:
+        model = Notification
+        fields = ['id','image_url','message','sender','sender_id','timestamp','notification_type']
