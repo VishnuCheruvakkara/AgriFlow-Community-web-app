@@ -1,11 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import notificationReducer from "./slices/notificationSlice";
+import messageNotificationReducer from "./slices/messageNotificationSlice";
 import authReducer from "./slices/AuthSlice";
 import adminAuthReducer from "./slices/AdminAuthSlice";
 import loaderReducer from "./slices/LoaderSpinnerSlice";
 import userReducer from "./slices/userSlice";
+
 // Persist configuration for user authentication
 const userPersistConfig = {
     key: "auth", // User auth slice stored in localStorage
@@ -28,7 +29,7 @@ const store = configureStore({
         adminAuth: persistedAdminAuthReducer, // Persisted admin data
         loader: loaderReducer, // Loader should NOT be persisted
         user: userReducer,// Stores fetched user details separately with out persist it
-        notification: notificationReducer
+        messageNotification: messageNotificationReducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

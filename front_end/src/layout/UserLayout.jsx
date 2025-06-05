@@ -13,7 +13,7 @@ import { showToast } from "../components/toast-notification/CustomToast";
 import { persistor } from '../redux/Store';
 import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 import { loginSuccess } from "../redux/slices/AuthSlice";
-import { addNotification } from "../redux/slices/notificationSlice";
+import { addMessageNotification } from "../redux/slices/messageNotificationSlice";
 // import useWebSocketNotification from "../websocket-center/useWebSocketNotification";
 
 const UserLayout = () => {
@@ -23,7 +23,7 @@ const UserLayout = () => {
     const token = useSelector((state) => state.auth.token);
     const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
-    const socketRef = useRef(null)
+    const socketRef = useRef(null);
 
     console.log("userId::",userId)
 
@@ -64,7 +64,7 @@ const UserLayout = () => {
             const data = JSON.parse(event.data)
             console.log("Notification received:", data);
 
-            dispatch(addNotification(data.data));
+            dispatch(addMessageNotification(data.data));
         }
 
         socketRef.current.onclose = (event) => {

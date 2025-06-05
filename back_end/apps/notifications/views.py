@@ -33,37 +33,6 @@ class MarkNotificationReadView(APIView):
         except Notification.DoesNotExist:
             return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
     
-#########################  Common function for handle the real-time notification and save that to the db table  #########################3
-
-def create_and_send_notification(recipient, sender, type, message,community=None,image_url=None):
-    # Save notification data into the table 
-    notification = Notification.objects.create(
-        recipient = recipient,
-        sender = sender,
-        notification_type = type,
-        message = message,
-        community = community,
-        image_url = image_url,
-    )
-
-    #Send the real-time notification 
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        f"user_{recipient.id}",
-        {
-            "type":"send_notification",
-            "data":{
-                "id":notification.id,
-                "type":type,
-                "message":message,
-                "sender":sender.username if sender else None,
-                "sender_id":sender.id,
-                "timestamp":str(notification.created_at),
-                "image_url":image_url
-            }
-        }
-    )
-
 ############################ Get messages for private user-to-user meessages  ####################3
 
 class PrivateMessageNotificationView(APIView):

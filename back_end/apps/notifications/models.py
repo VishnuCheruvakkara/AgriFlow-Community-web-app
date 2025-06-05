@@ -24,9 +24,9 @@ class Notification(models.Model):
     sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="sent_notifications")
     community = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True,related_name="notifications")
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default="custom")
-    message = models.TextField()
+    message = models.TextField(null=True,blank=True)
     is_read = models.BooleanField(default=False)
-    image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional field
+    image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional file
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

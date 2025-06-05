@@ -8,7 +8,7 @@ from apps.common.cloudinary_utils import generate_secure_image_url
 from redis.asyncio import Redis
 from django.conf import settings
 # Handle notification 
-from apps.notifications.views import create_and_send_notification
+from apps.notifications.utils import create_and_send_notification
 from asgiref.sync import sync_to_async
 
 class PrivateChatConsumer(AsyncWebsocketConsumer):

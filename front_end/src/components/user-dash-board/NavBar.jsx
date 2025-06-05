@@ -22,11 +22,12 @@ import { AiOutlineClose } from 'react-icons/ai';
 
 import NoSearchFound from '../../assets/images/no_messages_1.png'
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
-import { addNotification } from '../../redux/slices/notificationSlice';
+import { addMessageNotification } from '../../redux/slices/messageNotificationSlice';
 
 function NavBar() {
     //Get notification from redux 
-    const notifications = useSelector((state) => state.notification.notifications)
+    const messageNotifications = useSelector((state) => state.messageNotification.notifications)
+
 
     //side bar set up for notification and messages 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -91,35 +92,7 @@ function NavBar() {
         }
     }
 
-    console.log("RAW NOTIFICATIONS", notifications);
-
-
-    // Count the message if one user send message multiple time  
-    const groupMessagesBySender = (notifications) => {
-        const grouped = {};
-
-        notifications.forEach((msg) => {
-            const id = msg.sender_id || "system";
-            const newTime = new Date(msg.timestamp);
-
-            if (!grouped[id]) {
-                grouped[id] = { ...msg, count: 1 };
-            } else {
-                grouped[id].count += 1;
-
-                const existingTime = new Date(grouped[id].timestamp);
-                if (newTime > existingTime) {
-                    // Update only the relevant fields to keep latest message and timestamp
-                    grouped[id].message = msg.message;
-                    grouped[id].timestamp = msg.timestamp;
-                }
-            }
-        });
-
-        return Object.values(grouped);
-    };
-
-    const groupedNotifications = groupMessagesBySender(notifications);
+    console.log("RAW NOTIFICATIONS", messageNotifications);
 
     //Get messages form db for private messages 
     const getPrivateMessagesFromDb = async () => {
@@ -127,9 +100,9 @@ function NavBar() {
         try {
             const response = await AuthenticatedAxiosInstance.get('/notifications/get-private_messages/');
             const data = response.data
-            console.log("Saved messages :::",data)
-            dispatch(addNotification(data));
-            
+            console.log("Saved messages :::", data)
+            dispatch(addMessageNotification(data));
+
 
         } catch (error) {
             console.error("Failed to fetch private messages:", error);
@@ -335,43 +308,52 @@ function NavBar() {
                                     </>
                                 ) : (
                                     <>
-                                        {groupedNotifications.length === 0 ? (
+                                        {messageNotifications.length === 0 ? (
                                             <div className="flex flex-col items-center justify-center h-[70vh] text-center text-gray-500 dark:text-zinc-400">
                                                 <img src={NoSearchFound} alt="No Notifications" className="w-36 h-36 mb-4 object-contain" />
                                                 <p className="text-md font-medium">No messages found</p>
                                             </div>
                                         ) : (
-                                            groupedNotifications.map((message, index) => (
-                                                <div key={index} className="px-4 py-5 flex items-center space-x-3 bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
-                                                    <span className="status animate-bounce bg-green-500 mt-1 flex-shrink-0"></span>
+                                            messageNotifications.map((message, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-4 py-5 flex items-start justify-between hover:bg-gray-200 hover:dark:bg-zinc-700 border-b border-gray-300 dark:border-zinc-500"
+                                                >
+                                                    {/* Left side: Profile and content */}
+                                                    <div className="flex items-start space-x-3">
+                                                        <span className="status animate-bounce bg-green-500 mt-4 flex-shrink-0 h-2 w-2 rounded-full"></span>
 
-                                                    <div className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0">
-                                                        <img
-                                                            src={message.image_url || defaultUserImage}
-                                                            alt="User profile"
-                                                            className="h-full w-full object-cover"
-                                                        />
+                                                        <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                                                            <img
+                                                                src={message.image_url || defaultUserImage}
+                                                                alt="User profile"
+                                                                className="h-full w-full object-cover"
+                                                            />
+                                                        </div>
+
+                                                        <div className="text-sm text-gray-700 dark:text-zinc-200">
+                                                            <p className="font-semibold">{message.sender || "System"} </p>
+                                                            <p className="text-gray-600 dark:text-zinc-300 max-w-[100px] truncate">
+                                                                {message.message}
+                                                            </p>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="flex-1 text-sm text-gray-700 dark:text-zinc-200">
-                                                        {message.count > 1 ? (
-                                                            <p className="font-medium">
-                                                                {message.sender || "System"} sent you {message.count} messages
-                                                            </p>
-                                                        ) : (
-                                                            <>
-                                                                <p className="font-medium">{message.sender || "System"}</p>
-                                                                <p>{message.message}</p>
-                                                                <p className="text-xs text-gray-400 mt-1">
-                                                                    {new Date(message.timestamp).toLocaleString()}
-                                                                </p>
-                                                            </>
-                                                        )}
+                                                    {/* Right side: Time */}
+                                                    <div className="text-xs text-gray-600 dark:text-gray-200 whitespace-nowrap pl-4">
+                                                        {new Date(message.timestamp).toLocaleString("en-IN", {
+                                                            day: '2-digit',
+                                                            month: 'short',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            hour12: true,
+                                                        })}
                                                     </div>
                                                 </div>
+
                                             ))
                                         )}
-
                                     </>
 
                                 )}
