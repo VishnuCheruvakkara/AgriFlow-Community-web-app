@@ -15,6 +15,9 @@ class Notification(models.Model):
         #for connection notifications 
         ("connection_accepted", "Connection Accepted"), 
         ("custom", "Custom"),
+
+        #for message notification 
+        ("private_message","Private Message")
     ]
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
@@ -23,6 +26,7 @@ class Notification(models.Model):
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default="custom")
     message = models.TextField()
     is_read = models.BooleanField(default=False)
+    image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional field
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

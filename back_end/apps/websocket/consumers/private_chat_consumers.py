@@ -73,6 +73,7 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
             sender=full_message.sender,
             type="private_message",
             message=full_message.message,
+            image_url= generate_secure_image_url(self.user.profile_picture),
         )
        
 

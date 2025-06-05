@@ -90,6 +90,38 @@ function NavBar() {
         }
     }
 
+    console.log("RAW NOTIFICATIONS", notifications);
+
+
+    // Count the message if one user send message multiple time  
+    const groupMessagesBySender = (notifications) => {
+        const grouped = {};
+
+        notifications.forEach((msg) => {
+            const id = msg.sender_id || "system";
+            const newTime = new Date(msg.timestamp);
+
+            if (!grouped[id]) {
+                grouped[id] = { ...msg, count: 1 };
+            } else {
+                grouped[id].count += 1;
+
+                const existingTime = new Date(grouped[id].timestamp);
+                if (newTime > existingTime) {
+                    // Update only the relevant fields to keep latest message and timestamp
+                    grouped[id].message = msg.message;
+                    grouped[id].timestamp = msg.timestamp;
+                }
+            }
+        });
+
+        return Object.values(grouped);
+    };
+
+
+    const groupedNotifications = groupMessagesBySender(notifications);
+
+
     return (
         <nav className="bg-green-700 text-white fixed top-0 w-full z-30 shadow-md">
             <div className="container mx-auto px-4">
@@ -289,35 +321,45 @@ function NavBar() {
                                     </>
                                 ) : (
                                     <>
-                                        {notifications.length === 0 ? (
+                                        {groupedNotifications.length === 0 ? (
                                             <div className="flex flex-col items-center justify-center h-[70vh] text-center text-gray-500 dark:text-zinc-400">
-                                                <img
-                                                    src={NoSearchFound}
-                                                    alt="No Notifications"
-                                                    className="w-36 h-36 mb-4 object-contain"
-                                                />
+                                                <img src={NoSearchFound} alt="No Notifications" className="w-36 h-36 mb-4 object-contain" />
                                                 <p className="text-md font-medium">No messages found</p>
                                             </div>
-                                        ) :
-                                            (notifications.map((messages, index) => (
-                                                <div key={index} className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
-                                                    <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
-                                                    <div
-                                                        className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
-                                                    >
+                                        ) : (
+                                            groupedNotifications.map((message, index) => (
+                                                <div key={index} className="px-4 py-5 flex items-center space-x-3 bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
+                                                    <span className="status animate-bounce bg-green-500 mt-1 flex-shrink-0"></span>
+
+                                                    <div className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0">
                                                         <img
-                                                            src={defaultUserImage}
+                                                            src={message.image_url || defaultUserImage}
                                                             alt="User profile"
                                                             className="h-full w-full object-cover"
                                                         />
                                                     </div>
-                                                    <span className="text-gray-500 text-sm flex-1 dark:text-zinc-200">
-                                                        You have a new update from your crop community!
-                                                    </span>
+
+                                                    <div className="flex-1 text-sm text-gray-700 dark:text-zinc-200">
+                                                        {message.count > 1 ? (
+                                                            <p className="font-medium">
+                                                                {message.sender || "System"} sent you {message.count} messages
+                                                            </p>
+                                                        ) : (
+                                                            <>
+                                                                <p className="font-medium">{message.sender || "System"}</p>
+                                                                <p>{message.message}</p>
+                                                                <p className="text-xs text-gray-400 mt-1">
+                                                                    {new Date(message.timestamp).toLocaleString()}
+                                                                </p>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ))
                                         )}
+
                                     </>
+
                                 )}
                             </div>
                         </motion.div>
