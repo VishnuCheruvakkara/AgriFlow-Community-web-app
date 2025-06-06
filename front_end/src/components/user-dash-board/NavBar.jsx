@@ -109,7 +109,7 @@ function NavBar() {
         }
     }
 
-    const goToChatPage = async(message) => {
+    const goToChatPage = async (message) => {
         closeSidebar();
 
         if (!message.is_read) {
@@ -129,7 +129,7 @@ function NavBar() {
         })
     }
 
-    const goToCommunityChatPage = async(message) => {
+    const goToCommunityChatPage = async (message) => {
         closeSidebar();
         if (!message.is_read) {
             try {
@@ -359,6 +359,7 @@ function NavBar() {
                                                 {/* Private Messages */}
                                                 {messageNotifications
                                                     .filter(msg => msg.notification_type === "private_message")
+                                                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                                                     .map((message, index) => (
                                                         <div
                                                             key={`private-${index}`}
@@ -377,7 +378,7 @@ function NavBar() {
                                                                     />
                                                                 </div>
                                                                 <div className="text-sm text-gray-700 dark:text-zinc-200">
-                                                                    <p className="truncate w-40"><b>{message.sender || "System"}</b>: {message.message}</p>
+                                                                    <p className="truncate w-40"><b>{message.sender || "System"}</b>: {message.message || "(Click to see details)"}</p>
                                                                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
                                                                         {new Date(message.timestamp).toLocaleDateString("en-IN", {
                                                                             day: '2-digit',
@@ -401,6 +402,7 @@ function NavBar() {
                                                 {/* Community Messages */}
                                                 {messageNotifications
                                                     .filter(msg => msg.notification_type === "community_message")
+                                                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                                                     .map((message, index) => (
                                                         <div
                                                             key={`community-${index}`}
@@ -421,7 +423,7 @@ function NavBar() {
                                                                 <div className="text-sm text-gray-700 dark:text-zinc-200">
                                                                     <p className="truncate w-40"><b>{message.community_name}</b> Community </p>
                                                                     <p className="text-xs text-gray-500 dark:text-zinc-300 truncate w-40">
-                                                                        <b>{message.sender}</b>: {message.message}
+                                                                        <b>{message.sender}</b>: {message.message || "(Click to see details)"}
                                                                     </p>
                                                                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
                                                                         {new Date(message.timestamp).toLocaleDateString("en-IN", {
