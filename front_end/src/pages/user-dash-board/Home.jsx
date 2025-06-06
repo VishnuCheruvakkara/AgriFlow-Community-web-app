@@ -18,21 +18,31 @@ function Home() {
       {/* for scroll set up  */}
       <CustomScrollToTop />
 
-      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 ">
+      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 " >
         {/* Welcome bar with ThemeToggle */}
-        <div className="animate-gradient bg-white rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%]">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                Welcome back, {user?.username || "Farmer"}!
-              </h1>
-              <p className="text-gray-100">
-                Stay informed with the latest news and trends in agriculture this season.
-              </p>
+
+          <div
+            className=" h-32 rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%] relative overflow-hidden"
+            style={{
+              backgroundImage: "url('/images/farmer_land_doodle.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="relative z-10 flex justify-between items-center text-white ">
+              <div>
+                <h1 className="text-2xl text-zinc-800/80 font-bold">
+                  Welcome back, {user?.username || "Farmer"}!
+                </h1>
+                <p className="text-gray-100 bg-black/40 p-2 rounded-lg">
+                  Stay informed with the latest news and trends in agriculture this season.
+                </p>
+              </div>
             </div>
-            
           </div>
-        </div>
+     
+
 
         {/* Create post card */}
         <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
@@ -282,7 +292,7 @@ function Home() {
           </ul>
         </div>
       </div>
-      
+
     </>
   )
 }
