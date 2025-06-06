@@ -17,7 +17,9 @@ class Notification(models.Model):
         ("custom", "Custom"),
 
         #for message notification 
-        ("private_message","Private Message")
+        ("private_message","Private Message"),
+        ("community_message","Community Message"),
+
     ]
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
@@ -29,5 +31,10 @@ class Notification(models.Model):
     image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional file
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('recipient', 'sender', 'community', 'notification_type')
+        ordering = ['-created_at']
+
     def __str__(self):
         return f"{self.recipient.email} - {self.notification_type}"
+

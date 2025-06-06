@@ -109,6 +109,47 @@ function NavBar() {
         }
     }
 
+    const goToChatPage = async(message) => {
+        closeSidebar();
+
+        if (!message.is_read) {
+            try {
+                await markNotificationAsRead(message.id);
+            } catch (error) {
+                console.error("Error marking as read:", error);
+            }
+        }
+
+        navigate("/user-dash-board/farmer-single-chat/", {
+            state: {
+                receiverId: message?.sender_id, // send the displayed user id to the next page 
+                username: message.sender || "Unknown",
+                profile_picture: message.image_url,
+            }
+        })
+    }
+
+    const goToCommunityChatPage = async(message) => {
+        closeSidebar();
+        if (!message.is_read) {
+            try {
+                await markNotificationAsRead(message.id);
+            } catch (error) {
+                console.error("Error marking as read:", error);
+            }
+        }
+        navigate(`/user-dash-board/farmer-community/my-communities/community-chat/${message.community_id}`);
+    }
+
+    // set the notifcation as read when user click over the message 
+    const markNotificationAsRead = async (notificationId) => {
+        try {
+            await AuthenticatedAxiosInstance.patch(`/notifications/mark-as-read-notifications/${notificationId}/`);
+        } catch (error) {
+            console.error("Error marking notification as read", error);
+        }
+    };
+
     return (
         <nav className="bg-green-700 text-white fixed top-0 w-full z-30 shadow-md">
             <div className="container mx-auto px-4">
@@ -273,7 +314,7 @@ function NavBar() {
                             <div className="  overflow-y-auto max-h-[100vh]">
                                 {sidebarType === "notifications" ? (
                                     <>
-                                        <div className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
+                                        <div className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-500 dark:border-zinc-500">
                                             <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
                                             <div
                                                 className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
@@ -314,45 +355,94 @@ function NavBar() {
                                                 <p className="text-md font-medium">No messages found</p>
                                             </div>
                                         ) : (
-                                            messageNotifications.map((message, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-4 py-5 flex items-start justify-between hover:bg-gray-200 hover:dark:bg-zinc-700 border-b border-gray-300 dark:border-zinc-500"
-                                                >
-                                                    {/* Left side: Profile and content */}
-                                                    <div className="flex items-start space-x-3">
-                                                        <span className="status animate-bounce bg-green-500 mt-4 flex-shrink-0 h-2 w-2 rounded-full"></span>
-
-                                                        <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
-                                                            <img
-                                                                src={message.image_url || defaultUserImage}
-                                                                alt="User profile"
-                                                                className="h-full w-full object-cover"
-                                                            />
+                                            <>
+                                                {/* Private Messages */}
+                                                {messageNotifications
+                                                    .filter(msg => msg.notification_type === "private_message")
+                                                    .map((message, index) => (
+                                                        <div
+                                                            key={`private-${index}`}
+                                                            onClick={() => goToChatPage(message)}
+                                                            className={`px-4 py-5 flex items-start justify-between border-b border-gray-500 dark:border-zinc-500 cursor-pointer hover:bg-white hover:dark:bg-zinc-700 ${!message.is_read ? 'bg-green-200 dark:bg-green-900' : ''
+                                                                }`}
+                                                        >
+                                                            {/* Left side */}
+                                                            <div className="flex items-start space-x-3">
+                                                                <span className="status animate-bounce bg-green-500 mt-4 flex-shrink-0 h-2 w-2 rounded-full"></span>
+                                                                <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                                                                    <img
+                                                                        src={message.image_url || defaultUserImage}
+                                                                        alt="User profile"
+                                                                        className="h-full w-full object-cover"
+                                                                    />
+                                                                </div>
+                                                                <div className="text-sm text-gray-700 dark:text-zinc-200">
+                                                                    <p className="truncate w-40"><b>{message.sender || "System"}</b>: {message.message}</p>
+                                                                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                                                        {new Date(message.timestamp).toLocaleDateString("en-IN", {
+                                                                            day: '2-digit',
+                                                                            month: 'short',
+                                                                            year: 'numeric',
+                                                                        })}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            {/* Time */}
+                                                            <div className="text-xs text-gray-600 dark:text-gray-200 whitespace-nowrap pl-4">
+                                                                {new Date(message.timestamp).toLocaleTimeString("en-IN", {
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit',
+                                                                    hour12: true,
+                                                                })}
+                                                            </div>
                                                         </div>
+                                                    ))}
 
-                                                        <div className="text-sm text-gray-700 dark:text-zinc-200">
-                                                            <p className="font-semibold">{message.sender || "System"} </p>
-                                                            <p className="text-gray-600 dark:text-zinc-300 max-w-[100px] truncate">
-                                                                {message.message}
-                                                            </p>
+                                                {/* Community Messages */}
+                                                {messageNotifications
+                                                    .filter(msg => msg.notification_type === "community_message")
+                                                    .map((message, index) => (
+                                                        <div
+                                                            key={`community-${index}`}
+                                                            onClick={() => goToCommunityChatPage(message)}
+                                                            className={`px-4 py-5 flex items-start justify-between border-b border-gray-500 dark:border-zinc-500 cursor-pointer hover:bg-white hover:dark:bg-zinc-700 ${!message.is_read ? 'bg-green-200 dark:bg-green-900' : ''
+                                                                }`}
+                                                        >
+                                                            {/* Left side */}
+                                                            <div className="flex items-start space-x-3">
+                                                                <span className="status animate-bounce bg-yellow-500 mt-4 flex-shrink-0 h-2 w-2 rounded-full"></span>
+                                                                <div className="h-10 w-10 overflow-hidden flex-shrink-0 rounded">
+                                                                    <img
+                                                                        src={message.image_url || defaultUserImage}
+                                                                        alt="Community logo"
+                                                                        className="h-full w-full object-cover"
+                                                                    />
+                                                                </div>
+                                                                <div className="text-sm text-gray-700 dark:text-zinc-200">
+                                                                    <p className="truncate w-40"><b>{message.community_name}</b> Community </p>
+                                                                    <p className="text-xs text-gray-500 dark:text-zinc-300 truncate w-40">
+                                                                        <b>{message.sender}</b>: {message.message}
+                                                                    </p>
+                                                                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                                                        {new Date(message.timestamp).toLocaleDateString("en-IN", {
+                                                                            day: '2-digit',
+                                                                            month: 'short',
+                                                                            year: 'numeric',
+                                                                        })}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            {/* Time */}
+                                                            <div className="text-xs text-gray-600 dark:text-gray-200 whitespace-nowrap pl-4">
+                                                                {new Date(message.timestamp).toLocaleTimeString("en-IN", {
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit',
+                                                                    hour12: true,
+                                                                })}
+                                                            </div>
                                                         </div>
-                                                    </div>
-
-                                                    {/* Right side: Time */}
-                                                    <div className="text-xs text-gray-600 dark:text-gray-200 whitespace-nowrap pl-4">
-                                                        {new Date(message.timestamp).toLocaleString("en-IN", {
-                                                            day: '2-digit',
-                                                            month: 'short',
-                                                            year: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit',
-                                                            hour12: true,
-                                                        })}
-                                                    </div>
-                                                </div>
-
-                                            ))
+                                                    ))}
+                                            </>
                                         )}
                                     </>
 

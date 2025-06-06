@@ -6,6 +6,7 @@ from notifications.models import Notification
 from notifications.serializers import NotificationSerializer,GetPrivateMessageSerializer
 from channels.layers import get_channel_layer 
 from asgiref.sync import async_to_sync 
+from django.db.models import Q
 
 ############################ Notification View for connection set up ################################
 #========================== get connection accepted notifications =================================#
@@ -41,10 +42,24 @@ class PrivateMessageNotificationView(APIView):
     def get(self,request):
         user = request.user 
         private_msgs = Notification.objects.filter(
-            recipient=user,
-            notification_type = "private_message"
+           Q( recipient=user) & (Q(notification_type="private_message") | Q(notification_type="community_message"))
         ).order_by('-created_at')
 
         serializer = GetPrivateMessageSerializer(private_msgs,many=True)
 
         return Response(serializer.data)
+    
+
+############################ Mark notifications as read ##############################
+
+class MarkNotificationAsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            notification = Notification.objects.get(id=pk, recipient=request.user)
+            notification.is_read = True
+            notification.save()
+            return Response({"success": True, "message": "Marked as read."}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({"success": False, "message": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)

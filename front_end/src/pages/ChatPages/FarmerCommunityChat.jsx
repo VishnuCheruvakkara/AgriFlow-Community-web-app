@@ -435,13 +435,14 @@ const FarmerCommunityChat = () => {
                     </React.Fragment>
                   );
                 })}
-              </ul>
+                </ul>
+                
               {/*  System Message */}
-              <div className="flex justify-center my-4">
+              {/* <div className="flex justify-center my-4">
                 <div className="bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-100 text-xs px-3 py-1 rounded-full">
                   James joined the group
                 </div>
-              </div>
+              </div> */}
 
               {/* Typing Indicator */}
               {typingUser && typingUser.userId !== userId && (

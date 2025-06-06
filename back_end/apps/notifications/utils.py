@@ -13,19 +13,20 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
         recipient=recipient,
         sender=sender,
         notification_type=type,
+        community = community,
         defaults={
             'message':message,
-            'community' :community,
             'image_url' : image_url,
+           
         }
     )
 
     # If it already exists, just update the content and timestamp
     if not created:
         notification.message = message
-        notification.community = community
         notification.image_url = image_url
         notification.created_at = now()  # Manually update created_at
+        notification.is_read = False
         notification.save()
 
     # Send the real-time notification
@@ -36,12 +37,15 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
             "type": "send_notification",
             "data": {
                 "id": notification.id,
-                "type": type,
+                "notification_type": type,
                 "message": message,
                 "sender": sender.username if sender else None,
                 "sender_id": sender.id,
+                "community_id": community.id if community else None,
+                "community_name":community.name if community else None,
                 "timestamp": str(notification.created_at),
-                "image_url": image_url
+                "image_url": image_url,
+                "is_read": False
             }
         }
     )
