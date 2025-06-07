@@ -33,6 +33,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser
 from django.core.exceptions import ValidationError
+from apps.notifications.utils import create_and_send_notification
 
 ############### get the Usermodel ##################
 
@@ -60,12 +61,14 @@ class ShowUsersWhileCreateCommunity(APIView):
         if community_id:
             community = Community.objects.filter(id=community_id).first()
             if community:
+                # Get IDs of users who have any kind of membership in the community
+                all_member_ids = community.memberships.values_list('user__id', flat=True)
                 # Get the list of users who have the 'cancelled' status
-                cancelled_users = community.memberships.filter(
+                cancelled_member_ids = community.memberships.filter(
                     status='cancelled').values_list('user__id', flat=True)
 
                 # Include only the users who have the 'cancelled' status (exclude all other users)
-                users = users.filter(id__in=cancelled_users)
+                users = users.filter(Q(id__in=cancelled_member_ids) | ~Q(id__in=all_member_ids))
 
         if search_query:
             users = users.filter(
@@ -314,7 +317,6 @@ class IncomingMembershipRequestsView(APIView):
 
 # ==================== reject the request =========================#
 
-
 class UpdateMembershipRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -415,22 +417,31 @@ class JoinCommunityView(APIView):
                 joined_at=joined_time
             )
 
-        #  Always create notification
-        try:
-            notification = Notification.objects.create(
-                recipient=user,
-                sender=None,
-                community=community,
-                notification_type="community_request",
-                message=(
-                    f"You have {'requested to join' if status_choice == 'requested' else 'joined'} "
-                    f"the community '{community.name}'."
-                )
-            )
+        # Notify the community admin
+        admin_user = community.created_by
 
-        except Exception as e:
-            print(" Error creating notification:", str(e))
+        # Determine the type and message
+        if status_choice == "approved":
+            notification_type = "community_joined"
+            message = f"{user.username} has joined your community '{community.name}'."
+        else:
+            notification_type = "community_join_request_received"
+            message = f"{user.username} has requested to join your private community '{community.name}'."
 
+        # Generate secure image URL from Cloudinary if available
+        image_url = generate_secure_image_url(user.profile_picture) if user.profile_picture else None
+        
+        # Create and send notification
+        create_and_send_notification(
+            recipient=admin_user,
+            sender=user,
+            type=notification_type,
+            message=message,
+            community=community,
+            image_url=image_url
+        )
+
+     
         serializer = CommunityMembershipRequestSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK if existing_membership else status.HTTP_201_CREATED)
 

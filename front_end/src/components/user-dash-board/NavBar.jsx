@@ -375,11 +375,14 @@ function NavBar() {
                                                                 linkPath = "/user-dash-board/connection-management/pending-requests";
                                                             } else if (notif.notification_type === "connection_accepted") {
                                                                 linkPath = `/user-dash-board/user-profile-view/${notif.sender_id}`;
-                                                            }
+                                                            } else if (notif.notification_type === "community_join_request_received") {
+                                                                linkPath = "/user-dash-board/farmer-community/pending-request";
+                                                            } 
+
                                                             return (
                                                                 <div
                                                                     key={`notif-${index}`}
-                                                                    className={`px-4 py-3 flex items-start justify-between border-b border-zinc-500 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
+                                                                    className={`px-4 py-3 flex items-start justify-between border-b  border-zinc-500 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
                                                                         }`}
                                                                 >
                                                                     <div className="flex items-start space-x-3">
@@ -388,13 +391,17 @@ function NavBar() {
                                                                             <img
                                                                                 src={notif.image_url || defaultUserImage}
                                                                                 alt="Sender profile"
-                                                                                className="h-full w-full object-cover "
+                                                                                className="h-full w-full object-cover"
                                                                             />
                                                                         </Link>
                                                                         <div className="text-sm text-gray-700 dark:text-white">
-                                                                            <p className="bg-white p-2 border-l-2 border-green-500 dark:bg-gray-900 text-xs break-words w-full max-w-[195px]">
+                                                                            <p
+                                                                                className={` p-2 border-l-2 border-green-500 bg-white dark:bg-gray-900 text-xs break-words w-full max-w-[195px] ${notif.is_read ? "bg-zinc-100 dark:bg-zinc-900" : ""
+                                                                                    }`}
+                                                                            >
                                                                                 {notif.message || "(Click to see details)"}
                                                                             </p>
+
                                                                             <p className="text-xs text-gray-600 dark:text-white mt-1">
                                                                                 {new Date(notif.timestamp).toLocaleDateString("en-IN", {
                                                                                     day: "2-digit",

@@ -6,8 +6,11 @@ from community.models import Community
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
         #for community notifications
+        ("community_join_request_received","Community Join Request Received"),
+        ("community_joined","Community Joined"),
+
+        #old
         ("community_invite", "Community Invite"),
-        ("community_request", "Community Request"),
         ("community_update", "Community Update"),
         ("message", "Message"),
         ("alert", "Alert"),
@@ -26,7 +29,7 @@ class Notification(models.Model):
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
     sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="sent_notifications")
     community = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True,related_name="notifications")
-    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default="custom")
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default="custom")
     message = models.TextField(null=True,blank=True)
     is_read = models.BooleanField(default=False)
     image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional file
