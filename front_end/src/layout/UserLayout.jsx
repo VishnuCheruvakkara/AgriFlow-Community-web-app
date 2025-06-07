@@ -14,6 +14,7 @@ import { persistor } from '../redux/Store';
 import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 import { loginSuccess } from "../redux/slices/AuthSlice";
 import { addMessageNotification } from "../redux/slices/messageNotificationSlice";
+import { addGeneralNotification } from "../redux/slices/GeneralNotificationSlice";
 // import useWebSocketNotification from "../websocket-center/useWebSocketNotification";
 
 const UserLayout = () => {
@@ -25,7 +26,7 @@ const UserLayout = () => {
     const dispatch = useDispatch();
     const socketRef = useRef(null);
 
-    console.log("userId::",userId)
+    console.log("userId::", userId)
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -63,8 +64,13 @@ const UserLayout = () => {
         socketRef.current.onmessage = (event) => {
             const data = JSON.parse(event.data)
             console.log("Notification received:", data);
-
-            dispatch(addMessageNotification(data.data));
+            
+            // Decide which slice to dispatch to
+            if (["community_message", "private_message"].includes(data.data.notification_type)) {
+                dispatch(addMessageNotification(data.data));
+            }else {
+                dispatch(addGeneralNotification(data.data));
+            }
         }
 
         socketRef.current.onclose = (event) => {

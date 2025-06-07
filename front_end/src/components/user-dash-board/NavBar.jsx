@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { FaBell, FaEnvelope, FaSearch } from 'react-icons/fa';
 import { IoMdLogOut } from "react-icons/io";
 // for lgout section 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
@@ -23,11 +23,12 @@ import { AiOutlineClose } from 'react-icons/ai';
 import NoSearchFound from '../../assets/images/no_messages_1.png'
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { addMessageNotification } from '../../redux/slices/messageNotificationSlice';
+import { addGeneralNotification } from '../../redux/slices/GeneralNotificationSlice';
 
 function NavBar() {
     //Get notification from redux 
-    const messageNotifications = useSelector((state) => state.messageNotification.notifications)
-
+    const messageNotifications = useSelector((state) => state.messageNotification.notifications);
+    const generalNotifications = useSelector((state) => state.generalNotification.notifications);
 
     //side bar set up for notification and messages 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -94,9 +95,12 @@ function NavBar() {
 
     console.log("RAW NOTIFICATIONS", messageNotifications);
 
-    //Get messages form db for private messages 
+    //Get messages form db for private messages
+    useEffect(() => {
+        getPrivateMessagesFromDb();
+    }, []);
+
     const getPrivateMessagesFromDb = async () => {
-        openSidebar('message');
         try {
             const response = await AuthenticatedAxiosInstance.get('/notifications/get-private_messages/');
             const data = response.data
@@ -109,12 +113,31 @@ function NavBar() {
         }
     }
 
+    // Get general notifications from DB
+    useEffect(() => {
+        getGeneralNotificationsFromDb();
+    }, []);
+
+    const getGeneralNotificationsFromDb = async () => {
+        try {
+            const response = await AuthenticatedAxiosInstance.get('/notifications/get-general_notifications/');
+            const data = response.data;
+            console.log("General notifications fetched:", data);
+            dispatch(addGeneralNotification(data));
+        } catch (error) {
+            console.error("Failed to fetch general notifications:", error);
+        }
+    };
+
+
     const goToChatPage = async (message) => {
         closeSidebar();
+
 
         if (!message.is_read) {
             try {
                 await markNotificationAsRead(message.id);
+                await getPrivateMessagesFromDb();
             } catch (error) {
                 console.error("Error marking as read:", error);
             }
@@ -131,9 +154,11 @@ function NavBar() {
 
     const goToCommunityChatPage = async (message) => {
         closeSidebar();
+
         if (!message.is_read) {
             try {
                 await markNotificationAsRead(message.id);
+                await getPrivateMessagesFromDb();
             } catch (error) {
                 console.error("Error marking as read:", error);
             }
@@ -149,6 +174,12 @@ function NavBar() {
             console.error("Error marking notification as read", error);
         }
     };
+
+    // Count teh unread community and private messages 
+    const totalUnreadCount = messageNotifications.filter(
+        (msg) => !msg.is_read
+    ).length;
+
 
     return (
         <nav className="bg-green-700 text-white fixed top-0 w-full z-30 shadow-md">
@@ -177,8 +208,6 @@ function NavBar() {
                     {/* Navigation Icons */}
                     <div className="flex items-center space-x-4">
 
-
-
                         {AadharVerified ? (
                             <>
                                 {/* Show Other Icons if Profile is Completed */}
@@ -199,7 +228,11 @@ function NavBar() {
                                     </div>
                                 </div>
                                 {/* Message icons part  */}
-                                <div onClick={getPrivateMessagesFromDb} className="relative inline-block tooltip tooltip-bottom" data-tip="Messages">
+                                <div onClick={() => {
+                                    openSidebar('message');
+                                    getPrivateMessagesFromDb();
+                                }}
+                                    className="relative inline-block tooltip tooltip-bottom" data-tip="Messages">
                                     <button
 
                                         className="p-2 rounded-full hover:bg-green-600 transition-colors  ripple-parent ripple-white"
@@ -214,7 +247,7 @@ function NavBar() {
                                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                                             {/*  Static Bubble with Count */}
                                             <span className="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
-                                                5
+                                                {totalUnreadCount || '0'}
                                             </span>
                                         </span>
                                     </div>
@@ -291,7 +324,7 @@ function NavBar() {
                         />
                         {/* Sidebar */}
                         <motion.div
-                            className=" mt-16 rounded-tl-lg fixed top-4 right-0 w-[360px] h-full bg-white dark:bg-zinc-700 shadow-lg"
+                            className=" mt-16 rounded-tl-lg  dark:border-zinc-500 dark:border-l dark:border-t fixed top-4 right-0 w-[360px] h-full bg-white dark:bg-zinc-800 shadow-lg"
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
@@ -309,144 +342,171 @@ function NavBar() {
                                     <AiOutlineClose size={20} />
                                 </button>
                             </div>
+                            {sidebarType === "message" ? (
+                                <div className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 border-b border-t border-zinc-500 dark:text-white text-center text-xs py-1">
+                                    {totalUnreadCount || "0"} Unread messages
+                                </div>
+                            ) : (
+                                <div className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 border-b border-t border-zinc-500 dark:text-white text-center text-xs py-1">
+                                    55
+                                </div>
+                            )}
+
+
 
                             {/* Content */}
                             <div className="  overflow-y-auto max-h-[100vh]">
                                 {sidebarType === "notifications" ? (
                                     <>
-                                        <div className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-500 dark:border-zinc-500">
-                                            <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
-                                            <div
-                                                className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
-                                            >
-                                                <img
-                                                    src={defaultUserImage}
-                                                    alt="User profile"
-                                                    className="h-full w-full object-cover"
-                                                />
+                                        {generalNotifications.length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center h-[70vh] text-center text-zinc-500 dark:text-zinc-400">
+                                                <img src={NoSearchFound} alt="No Notifications" className="w-36 h-36 mb-4 object-contain" />
+                                                <p className="text-md font-medium">No notifications found</p>
                                             </div>
-                                            <span className="text-gray-500 text-sm flex-1 dark:text-zinc-200">
-                                                You have a new update from your crop community!
-                                            </span>
-                                        </div>
-                                        <div className="px-4 py-5 flex item-center space-x-3  bg-gray-100 dark:bg-zinc-900 border-b border-gray-300 dark:border-zinc-500">
-                                            <span className="status animate-bounce bg-green-500  mt-4 flex-shrink-0"></span>
-                                            <div
-                                                className="h-10 w-10 cursor-pointer rounded-full overflow-hidden flex-shrink-0"
-                                            >
-                                                <img
-                                                    src={defaultUserImage}
-                                                    alt="User profile"
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            </div>
-                                            <span className="text-gray-500 text-sm flex-1 dark:text-zinc-200">
-                                                You have a new update from your crop community!
-                                            </span>
-                                        </div>
-
+                                        ) : (
+                                            <>
+                                                <div className="max-h-[70vh] overflow-y-auto scrollbar-hide">
+                                                    {[...generalNotifications]
+                                                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                                                        .map((notif, index) => {
+                                                            let linkPath = "#"; // Default fallback
+                                                            // Set path based on notification type
+                                                            if (notif.notification_type === "connection_request") {
+                                                                linkPath = "/user-dash-board/connection-management/pending-requests";
+                                                            } else if (notif.notification_type === "connection_accepted") {
+                                                                linkPath = `/user-dash-board/user-profile-view/${notif.sender_id}`;
+                                                            }
+                                                            return (
+                                                                <div
+                                                                    key={`notif-${index}`}
+                                                                    className={`px-4 py-3 flex items-start justify-between border-b border-zinc-500 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
+                                                                        }`}
+                                                                >
+                                                                    <div className="flex items-start space-x-3">
+                                                                        <span className="status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full bg-green-500"></span>
+                                                                        <Link to={linkPath} className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ">
+                                                                            <img
+                                                                                src={notif.image_url || defaultUserImage}
+                                                                                alt="Sender profile"
+                                                                                className="h-full w-full object-cover "
+                                                                            />
+                                                                        </Link>
+                                                                        <div className="text-sm text-gray-700 dark:text-white">
+                                                                            <p className="bg-white p-2 border-l-2 border-green-500 dark:bg-gray-900 text-xs break-words w-full max-w-[195px]">
+                                                                                {notif.message || "(Click to see details)"}
+                                                                            </p>
+                                                                            <p className="text-xs text-gray-600 dark:text-white mt-1">
+                                                                                {new Date(notif.timestamp).toLocaleDateString("en-IN", {
+                                                                                    day: "2-digit",
+                                                                                    month: "short",
+                                                                                    year: "numeric",
+                                                                                })}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="flex flex-col items-end text-xs text-zinc-700 dark:text-white whitespace-nowrap">
+                                                                            <span>
+                                                                                {new Date(notif.timestamp).toLocaleTimeString("en-IN", {
+                                                                                    hour: "2-digit",
+                                                                                    minute: "2-digit",
+                                                                                    hour12: true,
+                                                                                })}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
+                                            </>
+                                        )}
 
                                     </>
+
                                 ) : (
                                     <>
                                         {messageNotifications.length === 0 ? (
-                                            <div className="flex flex-col items-center justify-center h-[70vh] text-center text-gray-500 dark:text-zinc-400">
+                                            <div className="flex flex-col items-center justify-center h-[70vh] text-center text-zinc-500-500 dark:text-zinc-400">
                                                 <img src={NoSearchFound} alt="No Notifications" className="w-36 h-36 mb-4 object-contain" />
                                                 <p className="text-md font-medium">No messages found</p>
                                             </div>
                                         ) : (
                                             <>
-                                                {/* Private Messages */}
-                                                {messageNotifications
-                                                    .filter(msg => msg.notification_type === "private_message")
-                                                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                                                    .map((message, index) => (
-                                                        <div
-                                                            key={`private-${index}`}
-                                                            onClick={() => goToChatPage(message)}
-                                                            className={`px-4 py-5 flex items-start justify-between border-b border-gray-500 dark:border-zinc-500 cursor-pointer hover:bg-white hover:dark:bg-zinc-700 ${!message.is_read ? 'bg-green-200 dark:bg-green-900' : ''
-                                                                }`}
-                                                        >
-                                                            {/* Left side */}
-                                                            <div className="flex items-start space-x-3">
-                                                                <span className="status animate-bounce bg-green-500 mt-4 flex-shrink-0 h-2 w-2 rounded-full"></span>
-                                                                <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
-                                                                    <img
-                                                                        src={message.image_url || defaultUserImage}
-                                                                        alt="User profile"
-                                                                        className="h-full w-full object-cover"
-                                                                    />
-                                                                </div>
-                                                                <div className="text-sm text-gray-700 dark:text-zinc-200">
-                                                                    <p className="truncate w-40"><b>{message.sender || "System"}</b>: {message.message || "(Click to see details)"}</p>
-                                                                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                                                                        {new Date(message.timestamp).toLocaleDateString("en-IN", {
-                                                                            day: '2-digit',
-                                                                            month: 'short',
-                                                                            year: 'numeric',
-                                                                        })}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            {/* Time */}
-                                                            <div className="text-xs text-gray-600 dark:text-gray-200 whitespace-nowrap pl-4">
-                                                                {new Date(message.timestamp).toLocaleTimeString("en-IN", {
-                                                                    hour: '2-digit',
-                                                                    minute: '2-digit',
-                                                                    hour12: true,
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                <div className="max-h-[70vh] overflow-y-auto scrollbar-hide">
+                                                    {[...messageNotifications]
+                                                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                                                        .map((message, index) => {
+                                                            const isPrivate = message.notification_type === "private_message";
+                                                            return (
+                                                                <div
+                                                                    key={`message-${index}`}
+                                                                    onClick={() =>
+                                                                        isPrivate ? goToChatPage(message) : goToCommunityChatPage(message)
+                                                                    }
+                                                                    className={`px-4 py-5 flex items-start justify-between border-b border-zinc-500 dark:border-zinc-500 cursor-pointer ${!message.is_read ? "bg-green-200 dark:bg-green-900" : ""
+                                                                        }`}
+                                                                >
+                                                                    <div className="flex items-start space-x-3">
+                                                                        <span
+                                                                            className={`status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full ${isPrivate ? "bg-green-500" : "bg-yellow-500"
+                                                                                }`}
+                                                                        ></span>
+                                                                        <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                                                                            <img
+                                                                                src={message.image_url || defaultUserImage}
+                                                                                alt={isPrivate ? "User profile" : "Community logo"}
+                                                                                className="h-full w-full object-cover"
+                                                                            />
+                                                                        </div>
+                                                                        <div className="text-sm text-gray-700 dark:text-zinc-200">
+                                                                            {isPrivate ? (
+                                                                                //Private message layout
+                                                                                <p className="truncate w-40">
+                                                                                    <b>{message.sender || "System"}</b>: {message.message || "(Click to see details)"}
+                                                                                </p>
+                                                                            ) : (
+                                                                                //Community message layout
+                                                                                <div className="w-40 truncate">
+                                                                                    <p className="font-bold">{message.community_name}</p>
+                                                                                    <p className="text-xs truncate">
+                                                                                        <b>{message.sender || "Unknown"}</b>: {message.message || "(Click to see details)"}
+                                                                                    </p>
+                                                                                </div>
+                                                                            )}
 
-                                                {/* Community Messages */}
-                                                {messageNotifications
-                                                    .filter(msg => msg.notification_type === "community_message")
-                                                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                                                    .map((message, index) => (
-                                                        <div
-                                                            key={`community-${index}`}
-                                                            onClick={() => goToCommunityChatPage(message)}
-                                                            className={`px-4 py-5 flex items-start justify-between border-b border-gray-500 dark:border-zinc-500 cursor-pointer hover:bg-white hover:dark:bg-zinc-700 ${!message.is_read ? 'bg-green-200 dark:bg-green-900' : ''
-                                                                }`}
-                                                        >
-                                                            {/* Left side */}
-                                                            <div className="flex items-start space-x-3">
-                                                                <span className="status animate-bounce bg-yellow-500 mt-4 flex-shrink-0 h-2 w-2 rounded-full"></span>
-                                                                <div className="h-10 w-10 overflow-hidden flex-shrink-0 rounded">
-                                                                    <img
-                                                                        src={message.image_url || defaultUserImage}
-                                                                        alt="Community logo"
-                                                                        className="h-full w-full object-cover"
-                                                                    />
+                                                                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                                                                {new Date(message.timestamp).toLocaleDateString("en-IN", {
+                                                                                    day: "2-digit",
+                                                                                    month: "short",
+                                                                                    year: "numeric",
+                                                                                })}
+                                                                            </p>
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div className="flex flex-col items-end text-xs text-zinc-600 dark:text-zinc-200 whitespace-nowrap pl-4">
+                                                                        <span>
+                                                                            {new Date(message.timestamp).toLocaleTimeString("en-IN", {
+                                                                                hour: "2-digit",
+                                                                                minute: "2-digit",
+                                                                                hour12: true,
+                                                                            })}
+                                                                        </span>
+
+                                                                        {!isPrivate && (
+                                                                            <span className="mt-5 px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 rounded-full text-[10px] font-semibold">
+                                                                                Community
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+
                                                                 </div>
-                                                                <div className="text-sm text-gray-700 dark:text-zinc-200">
-                                                                    <p className="truncate w-40"><b>{message.community_name}</b> Community </p>
-                                                                    <p className="text-xs text-gray-500 dark:text-zinc-300 truncate w-40">
-                                                                        <b>{message.sender}</b>: {message.message || "(Click to see details)"}
-                                                                    </p>
-                                                                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                                                                        {new Date(message.timestamp).toLocaleDateString("en-IN", {
-                                                                            day: '2-digit',
-                                                                            month: 'short',
-                                                                            year: 'numeric',
-                                                                        })}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            {/* Time */}
-                                                            <div className="text-xs text-gray-600 dark:text-gray-200 whitespace-nowrap pl-4">
-                                                                {new Date(message.timestamp).toLocaleTimeString("en-IN", {
-                                                                    hour: '2-digit',
-                                                                    minute: '2-digit',
-                                                                    hour12: true,
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                            );
+                                                        })}
+                                                </div>
                                             </>
                                         )}
                                     </>
+
 
                                 )}
                             </div>

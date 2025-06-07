@@ -12,6 +12,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import get_object_or_404
 from notifications.models import Notification
+from notifications.utils import create_and_send_notification
+from apps.common.cloudinary_utils import generate_secure_image_url
 
 User = get_user_model()
 # Create your views here.
@@ -146,6 +148,16 @@ class SendConnectionRequestView(APIView):
                 status='pending'
             )
             serializer = ConnectionSerializer(connection)
+
+            # Send the real time notification for connection request 
+            create_and_send_notification(
+                recipient = receiver,
+                sender = request.user,
+                type="connection_request",
+                message=f"{request.user.username} sent you a connection request",
+                image_url=generate_secure_image_url(request.user.profile_picture) if request.user.profile_picture else None
+            )
+
             return Response({
                 "message": "Connection request sent.",
                 "connection": serializer.data
@@ -210,14 +222,21 @@ class AcceptConnectionRequestAPIView(APIView):
 
         connection.status = "accepted"
         connection.save()
-        
-        # Set up notification to inform the user that who accpeted the their request connection request
-        Notification.objects.create(
-            recipient=connection.sender,  # person who sent the request
-            sender=connection.receiver,   # person accepting the request
-            notification_type="connection_accepted",
-            message=f"{connection.receiver.username} accepted your connection request."
+
+        image_url = (
+            generate_secure_image_url(connection.receiver.profile_picture)
+            if connection.receiver.profile_picture else None
         )
+        
+        # Set up notification to inform the user that who accpet connection request
+        create_and_send_notification(
+            recipient=connection.sender,  # person who will receive the notification
+            sender=connection.receiver,   # person who accepted the request
+            type="connection_accepted",
+            message=f"{connection.receiver.username} accepted your connection request.",
+            image_url=image_url
+        )
+
         return Response({"detail": "Connection request accepted."}, status=status.HTTP_200_OK)
     
 #======================= reject connection request View ======================#

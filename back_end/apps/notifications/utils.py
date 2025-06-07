@@ -45,7 +45,7 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
                 "community_name":community.name if community else None,
                 "timestamp": str(notification.created_at),
                 "image_url": image_url,
-                "is_read": False
+                "is_read": False,
             }
         }
     )

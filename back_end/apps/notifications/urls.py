@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import ConnectionAcceptedNotificationView,MarkNotificationReadView,PrivateMessageNotificationView,MarkNotificationAsReadView
+from .views import ConnectionAcceptedNotificationView,MarkNotificationReadView,PrivateMessageNotificationView,MarkNotificationAsReadView,GeneralNotificationListView
 
 urlpatterns = [
     ########################## Notification for connections set up ######################
@@ -14,6 +14,9 @@ urlpatterns = [
 
     #====================== mark the notifcation as readed ============================# 
     path('mark-as-read-notifications/<int:pk>/', MarkNotificationAsReadView.as_view(), name='mark_notification_as_read'),
+
+    #======================= get the all notificaiton except the message notificaitons ===================#
+    path('get-general_notifications/', GeneralNotificationListView.as_view(), name='get_general_notifications'),
 
 ]
 

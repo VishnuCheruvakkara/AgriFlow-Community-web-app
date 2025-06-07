@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated 
 from rest_framework import status
 from notifications.models import Notification 
-from notifications.serializers import NotificationSerializer,GetPrivateMessageSerializer
+from notifications.serializers import NotificationSerializer,GetPrivateMessageSerializer,GeneralNotificationSerializer
 from channels.layers import get_channel_layer 
 from asgiref.sync import async_to_sync 
 from django.db.models import Q
@@ -63,3 +63,17 @@ class MarkNotificationAsReadView(APIView):
             return Response({"success": True, "message": "Marked as read."}, status=status.HTTP_200_OK)
         except Notification.DoesNotExist:
             return Response({"success": False, "message": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+###############################  Get all the notifications ##############################
+
+class GeneralNotificationListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        general_notifications = Notification.objects.filter(
+            recipient=user
+        ).exclude(notification_type__in=["private_message", "community_message"])
+        
+        serializer = GeneralNotificationSerializer(general_notifications, many=True)
+        return Response(serializer.data)

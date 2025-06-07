@@ -14,12 +14,13 @@ class Notification(models.Model):
 
         #for connection notifications 
         ("connection_accepted", "Connection Accepted"), 
+        ("connection_request","Connection Request"),
+        
         ("custom", "Custom"),
 
         #for message notification 
         ("private_message","Private Message"),
         ("community_message","Community Message"),
-
     ]
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")

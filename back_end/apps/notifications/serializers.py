@@ -47,3 +47,22 @@ class GetPrivateMessageSerializer(serializers.ModelSerializer):
         if obj.notification_type == "community_message" and obj.community:
             return obj.community.name 
         return None 
+
+#################################  Get all the notifications from the Db #######################
+
+class GeneralNotificationSerializer(serializers.ModelSerializer):
+    sender = serializers.CharField(source='sender.username', read_only=True)
+    sender_id = serializers.IntegerField(source='sender.id', read_only=True)
+    timestamp = serializers.DateTimeField(source='created_at')
+    community_id = serializers.SerializerMethodField()
+    community_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'image_url', 'message', 'sender', 'sender_id', 'timestamp', 'notification_type', 'community_id', 'community_name', 'is_read']
+
+    def get_community_id(self, obj):
+        return obj.community.id if obj.community else None
+
+    def get_community_name(self, obj):
+        return obj.community.name if obj.community else None
