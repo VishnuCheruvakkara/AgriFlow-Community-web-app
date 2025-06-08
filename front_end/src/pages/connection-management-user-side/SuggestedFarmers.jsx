@@ -151,7 +151,7 @@ const SuggestedFarmers = () => {
 
 
 
-            <h2 className="text-lg font-medium text-gray-800 mb-3">Suggested Farmers</h2>
+            <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200">Suggested Farmers</h2>
 
             {/* Search Bar */}
             <div className="relative mb-5">

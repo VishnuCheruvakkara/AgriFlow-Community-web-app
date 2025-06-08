@@ -15,8 +15,12 @@ import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 import { loginSuccess } from "../redux/slices/AuthSlice";
 import { addMessageNotification } from "../redux/slices/messageNotificationSlice";
 import { addGeneralNotification } from "../redux/slices/GeneralNotificationSlice";
-// import useWebSocketNotification from "../websocket-center/useWebSocketNotification";
+//notificaiton sound set up 
+import useSound from 'use-sound'
+import notificationSound from "../sounds/mixkit-software-interface-remove-2576.wav"
 
+import { showRealTimeToast } from "../components/toast-notification/RealTimeNotificationToast";
+    
 const UserLayout = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
@@ -25,6 +29,8 @@ const UserLayout = () => {
     const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
     const socketRef = useRef(null);
+
+    const [playNotification] = useSound(notificationSound)
 
     console.log("userId::", userId)
 
@@ -68,8 +74,12 @@ const UserLayout = () => {
             // Decide which slice to dispatch to
             if (["community_message", "private_message"].includes(data.data.notification_type)) {
                 dispatch(addMessageNotification(data.data));
+                playNotification();
+                showRealTimeToast(`New message Received`);
             }else {
                 dispatch(addGeneralNotification(data.data));
+                playNotification();
+                showRealTimeToast(`New notificaiton Recieved`);
             }
         }
 

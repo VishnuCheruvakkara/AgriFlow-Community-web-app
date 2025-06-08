@@ -126,6 +126,7 @@ function DiscoverCommunities() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
+      <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">Discover Communities</h2>
       <div className="relative mb-8">
         <input
           type="text"

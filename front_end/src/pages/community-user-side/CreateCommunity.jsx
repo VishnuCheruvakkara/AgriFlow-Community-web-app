@@ -23,7 +23,7 @@ function CreateCommunity() {
     //debouncer state setup
     const [tagInput, setTagInput] = useState('');
     const [errors, setErrors] = useState({});
-  
+
     //controll community image with state 
     const [resetImage, setResetImage] = useState(false);
 
@@ -185,7 +185,7 @@ function CreateCommunity() {
 
         } catch (error) {
             console.error("Error submitting community:", error);
-            
+
             showToast(`Something went wrong, ${error?.response?.data?.name[0]}...`, "error");
         } finally {
             dispatch(hideButtonLoader(buttonId))  // Hide loader afeter process
@@ -221,6 +221,8 @@ function CreateCommunity() {
         <>
             {/* Create Community Content (Hidden by default) */}
             <div className="mt-6 ">
+                <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">Create Community</h2>
+
                 <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
                     <div className="flex">
                         <div className="flex-shrink-0">

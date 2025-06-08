@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/AuthSlice'
 // persitor imported from the redux store to purge the data in the local storage
 import { persistor } from '../../redux/Store';
-//
+
 import { showToast } from '../toast-notification/CustomToast';
 import defaultUserImage from '../../assets/images/user-default.png'
 import { FaSignOutAlt, FaCog } from 'react-icons/fa';

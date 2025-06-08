@@ -13,6 +13,8 @@ function CreateEvent() {
   };
   return (
     <div>
+      <h2 className="text-lg font-medium text-gray-800  dark:text-zinc-200 ">Create Event</h2>
+
       {!selectedCommunity ? (
         <SelectCommunityCreateEvent onCommunitySelect={handleCommunitySelect} />
       ) : (
