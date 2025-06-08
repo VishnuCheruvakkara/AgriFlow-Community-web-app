@@ -20,7 +20,7 @@ import useSound from 'use-sound'
 import notificationSound from "../sounds/mixkit-software-interface-remove-2576.wav"
 
 import { showRealTimeToast } from "../components/toast-notification/RealTimeNotificationToast";
-    
+
 const UserLayout = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
@@ -30,7 +30,9 @@ const UserLayout = () => {
     const dispatch = useDispatch();
     const socketRef = useRef(null);
 
-    const [playNotification] = useSound(notificationSound)
+    const [playNotification] = useSound(notificationSound,{
+        volume: 0.4 //40% volume
+    })
 
     console.log("userId::", userId)
 
@@ -70,13 +72,13 @@ const UserLayout = () => {
         socketRef.current.onmessage = (event) => {
             const data = JSON.parse(event.data)
             console.log("Notification received:", data);
-            
+
             // Decide which slice to dispatch to
             if (["community_message", "private_message"].includes(data.data.notification_type)) {
                 dispatch(addMessageNotification(data.data));
                 playNotification();
                 showRealTimeToast(`New message Received`);
-            }else {
+            } else {
                 dispatch(addGeneralNotification(data.data));
                 playNotification();
                 showRealTimeToast(`New notificaiton Recieved`);

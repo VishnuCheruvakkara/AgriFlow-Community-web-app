@@ -8,7 +8,9 @@ import notificationSound from "../../sounds/mixkit-hard-typewriter-click-1119.wa
 const ThemeToggle = () => {
   const [theme, setTheme] = useState('light');
   const [isAnimating, setIsAnimating] = useState(false);
-  const [playNotification] = useSound(notificationSound)
+  const [playNotification] = useSound(notificationSound,{
+    volume:0.5 //50% volume
+  })
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
