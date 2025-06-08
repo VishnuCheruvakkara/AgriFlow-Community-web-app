@@ -309,7 +309,7 @@ const FarmerCommunityChat = () => {
                 )}
               </div>
             </div>
-           
+
           </div>
 
           {/* Messages Area */}
@@ -345,7 +345,7 @@ const FarmerCommunityChat = () => {
               <ul className="text-zinc-900 dark:text-zinc-100 space-y-4">
                 {messages.map((msg, idx) => {
                   const isOwnMessage = msg.user_id === userId;
-                  
+
                   //setup the date stamp
                   const dateObj = new Date(msg.timestamp);
 
@@ -371,47 +371,50 @@ const FarmerCommunityChat = () => {
 
                   return (
                     <React.Fragment key={idx}>
-                      {/*  Date Separator */}
+                      {/* Date Separator */}
                       {showDateBadge && <DateBadge date={msgDateOnly} />}
+
                       <li className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
                         <div className="chat-image avatar">
                           <div className="w-10 rounded-full">
                             <img alt="User avatar" src={msg?.user_image || UserDefaultImage} />
                           </div>
                         </div>
+
                         <div className="chat-header dark:text-zinc-300">
                           {isOwnMessage ? "You" : msg.username}
                         </div>
 
                         <div
-                          className={`p-1 chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%] 
-                            ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white 
-                            ${msg.message && !msg.media_url ? "px-3 py-2" : ""}`}
+                          className={`chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[300px] 
+          ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white 
+          ${msg.message && !msg.media_url ? "px-3 py-2" : "p-1"}`}
                         >
                           {/* Media Block */}
                           {msg.media_url && (
-                            <div className="relative max-w-xs">
-                              {/* DaisyUI spinner */}
+                            <div className="relative max-w-full mb-2 overflow-hidden rounded-lg">
+                              {/* Loading Spinner */}
                               {mediaLoading && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-lg z-10">
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg z-10">
                                   <span className="loading loading-spinner loading-lg text-white"></span>
                                 </div>
                               )}
 
-                              {/* Image or Video */}
-                              {msg.media_url?.match(/\.(jpg|jpeg|png|gif)$/) ? (
+                              {/* Image */}
+                              {msg.media_url?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                                 <img
                                   src={msg.media_url || ChatLoadingSampleImage}
                                   alt="uploaded"
                                   onLoad={handleMediaLoad}
-                                  className={`max-w-xs rounded-lg border object-cover border-gray-300 dark:border-zinc-700 
-                                    ${msg.media_url ? '' : 'aspect-square blur-md object-cover'}`}
+                                  className={`w-full h-auto max-h-[300px] rounded-lg border object-cover border-gray-300 dark:border-zinc-700 
+                  ${msg.media_url ? '' : 'aspect-square blur-md'}`}
                                 />
-                              ) : msg.media_url.match(/\.(mp4|webm)$/) ? (
+                              ) : msg.media_url?.match(/\.(mp4|webm)$/i) ? (
+                                /* Video */
                                 <video
                                   controls
                                   onLoadedData={handleMediaLoad}
-                                  className="max-w-xs rounded-lg border border-gray-300 dark:border-zinc-700"
+                                  className="w-full h-auto max-h-[300px] rounded-lg border border-gray-300 dark:border-zinc-700"
                                 >
                                   <source src={msg.media_url} type="video/mp4" />
                                   Your browser does not support the video tag.
@@ -422,21 +425,28 @@ const FarmerCommunityChat = () => {
 
                           {/* Text Block */}
                           {msg.message && (
-                            <div className={`${msg.media_url ? "px-2 py-1" : ""}`}>
+                            <div className={`${msg.media_url ? "px-2 py-1" : ""} break-words whitespace-pre-wrap w-full overflow-hidden`}>
                               <TwemojiText text={msg.message} />
                             </div>
                           )}
                         </div>
 
-                        <div className="chat-footer opacity-50 mt-1">
+                        <div className="chat-footer opacity-50 mt-1 text-xs">
                           Sent at • {formattedTime || "just now"}
                         </div>
                       </li>
                     </React.Fragment>
                   );
+
+
+
+
+
+
+
                 })}
-                </ul>
-                
+              </ul>
+
               {/*  System Message */}
               {/* <div className="flex justify-center my-4">
                 <div className="bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-100 text-xs px-3 py-1 rounded-full">

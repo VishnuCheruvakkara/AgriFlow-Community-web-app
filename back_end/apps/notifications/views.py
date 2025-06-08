@@ -42,7 +42,7 @@ class PrivateMessageNotificationView(APIView):
     def get(self,request):
         user = request.user 
         private_msgs = Notification.objects.filter(
-           Q( recipient=user) & (Q(notification_type="private_message") | Q(notification_type="community_message"))
+           Q( recipient=user) & Q(is_deleted=False)  & (Q(notification_type="private_message") | Q(notification_type="community_message"))
         ).order_by('-created_at')
 
         serializer = GetPrivateMessageSerializer(private_msgs,many=True)
@@ -72,8 +72,22 @@ class GeneralNotificationListView(APIView):
     def get(self, request):
         user = request.user
         general_notifications = Notification.objects.filter(
-            recipient=user
+            recipient=user,is_deleted=False,
         ).exclude(notification_type__in=["private_message", "community_message"])
         
         serializer = GeneralNotificationSerializer(general_notifications, many=True)
         return Response(serializer.data)
+    
+#########################  Soft delete the notifications ##################################
+
+class SoftDeleteNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            notification = Notification.objects.get(id=pk, recipient=request.user)
+            notification.is_deleted = True
+            notification.save()
+            return Response({"success": True, "message": "Notification soft-deleted."}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({"success": False, "message": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)

@@ -9,6 +9,7 @@ from django.utils import timezone
 # =========== for websocket sset up ==================#
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from apps.notifications.utils import create_and_send_notification
 
 #########################################
 # ================= Get the User model ================#
@@ -91,25 +92,17 @@ class CommunitySerializer(serializers.ModelSerializer):
             )
 
         # Send notifications to all invited members
+        community_logo_url = generate_secure_image_url(community.community_logo)
         for uid in member_ids:
-            Notification.objects.create(
-                recipient_id=uid,
+            recipient = User.objects.get(id=uid)  # if not already prefetched
+            create_and_send_notification(
+                recipient=recipient,
                 sender=user,
-                community=community,
-                notification_type='community_invite',
+                type='community_invite',
                 message=message,
+                community=community,
+                image_url=community_logo_url
             )
-
-        # for uid in member_ids:
-        #     async_to_sync(channel_layer.group_send)(
-        #         f"user_{uid}",  # each user has their own channel group
-        #         {
-        #             "type": "send_notification",
-        #             "message": f"{user.username} invited you to join '{community.name}'",
-        #             "notification_type": "community_invite",
-        #             "community_id": community.id
-        #         }
-        #     )
 
         # Add creator as admin
         CommunityMembership.objects.create(
@@ -241,17 +234,10 @@ class CommunityWithPendingUsersSerializer(serializers.ModelSerializer):
         result = []
         for membership in pending_memberships:
             user = membership.user
-            # Get the invite notification for this user and community
-            notification = Notification.objects.filter(
-                recipient=user,
-                community=obj,
-                notification_type='community_invite'
-            ).order_by('-created_at').first()
-
             result.append({
                 'user_id': user.id,
                 "username": user.username,
-                "invited_at": notification.created_at if notification else None,
+                'invited_at': membership.updated_at if membership.updated_at else None,
                 "profile_picture": generate_secure_image_url(user.profile_picture)
             })
 
@@ -280,7 +266,7 @@ class CommunityMembershipSerializer(serializers.ModelSerializer):
 
 ####################################  part - 4 serializer ###############################################
 
-# ====================== show the request in the group admin ( get the dat ) ==========================#
+# ====================== show the request in the group admin ( get the data ) ==========================#
 
 class RequestedUserSerializer(serializers.ModelSerializer):
     requested_at = serializers.SerializerMethodField()
@@ -293,15 +279,8 @@ class RequestedUserSerializer(serializers.ModelSerializer):
         fields = ['user_id','username', 'requested_at', 'profile_picture']
 
     def get_requested_at(self, obj):
-        # Fetch notification created when user requested to join community
-        notification = Notification.objects.filter(
-            recipient=obj.user,
-            community=obj.community,
-            notification_type="community_request"
-        ).order_by('-created_at').first()
-
-        if notification:
-            return notification.created_at.strftime("%B %d, %Y, %I:%M %p")
+        if obj.status == "requested" and obj.updated_at:
+            return obj.updated_at
         return None
 
     def get_profile_picture(self, obj):

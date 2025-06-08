@@ -8,9 +8,11 @@ class Notification(models.Model):
         #for community notifications
         ("community_join_request_received","Community Join Request Received"),
         ("community_joined","Community Joined"),
+        ("community_request_approved_by_admin","Community Request Approved By Admin"),
+        #Re-usement
+        ("community_invite", "Community Invite"),
 
         #old
-        ("community_invite", "Community Invite"),
         ("community_update", "Community Update"),
         ("message", "Message"),
         ("alert", "Alert"),
@@ -34,6 +36,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional file
     created_at = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('recipient', 'sender', 'community', 'notification_type')

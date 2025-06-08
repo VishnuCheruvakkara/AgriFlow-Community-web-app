@@ -24,9 +24,21 @@ const generalNotificationSlice = createSlice({
 
     clearGeneralNotifications: (state) => {
       state.notifications = [];
+    },
+
+    markAsRead: (state, action) => {
+      const notifId = action.payload;
+      const notif = state.notifications.find(n => n.id === notifId);
+      if (notif) {
+        notif.is_read = true;
+      }
+    },
+    deleteNotificationFromRedux: (state, action) => {
+      const idToDelete = action.payload;
+      state.notifications = state.notifications.filter(n => n.id !== idToDelete);
     }
   }
 });
 
-export const {addGeneralNotification,clearGeneralNotifications} = generalNotificationSlice.actions;
+export const { addGeneralNotification, clearGeneralNotifications, markAsRead,deleteNotificationFromRedux } = generalNotificationSlice.actions;
 export default generalNotificationSlice.reducer;

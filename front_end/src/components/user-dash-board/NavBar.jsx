@@ -22,8 +22,10 @@ import { AiOutlineClose } from 'react-icons/ai';
 
 import NoSearchFound from '../../assets/images/no_messages_1.png'
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
-import { addMessageNotification } from '../../redux/slices/messageNotificationSlice';
-import { addGeneralNotification } from '../../redux/slices/GeneralNotificationSlice';
+import { addMessageNotification, deleteMessageNotification } from '../../redux/slices/messageNotificationSlice';
+import { addGeneralNotification, markAsRead, deleteNotificationFromRedux } from '../../redux/slices/GeneralNotificationSlice';
+import { MdBookmarkAdded } from "react-icons/md";
+import { AiFillDelete } from "react-icons/ai";
 
 function NavBar() {
     //Get notification from redux 
@@ -102,7 +104,7 @@ function NavBar() {
 
     const getPrivateMessagesFromDb = async () => {
         try {
-            const response = await AuthenticatedAxiosInstance.get('/notifications/get-private_messages/');
+            const response = await AuthenticatedAxiosInstance.get('/notifications/get-private-messages/');
             const data = response.data
             console.log("Saved messages :::", data)
             dispatch(addMessageNotification(data));
@@ -120,7 +122,7 @@ function NavBar() {
 
     const getGeneralNotificationsFromDb = async () => {
         try {
-            const response = await AuthenticatedAxiosInstance.get('/notifications/get-general_notifications/');
+            const response = await AuthenticatedAxiosInstance.get('/notifications/get-general-notifications/');
             const data = response.data;
             console.log("General notifications fetched:", data);
             dispatch(addGeneralNotification(data));
@@ -180,6 +182,35 @@ function NavBar() {
         (msg) => !msg.is_read
     ).length;
 
+    // handle mark as read for the general notifcation 
+    const handleMarkAsRead = async (notificationId) => {
+        try {
+            await markNotificationAsRead(notificationId);
+            dispatch(markAsRead(notificationId));  // update redux store locally
+        } catch (error) {
+            console.error("Failed to mark as read:", error);
+        }
+    };
+    //get the count of readed notifications from redux 
+    const unreadCount = useSelector((state) =>
+        state.generalNotification.notifications.filter((notif) => !notif.is_read).length
+    );
+
+    //Soft delete the notifications 
+    const deleteNotificationByType = async (notificationId, type) => {
+        try {
+            await AuthenticatedAxiosInstance.patch(`/notifications/soft-delete-notifications/${notificationId}/`);
+
+            if (type === 'private_message' || type === 'community_message') {
+                dispatch(deleteMessageNotification(notificationId));
+            } else {
+                dispatch(deleteNotificationFromRedux(notificationId));
+            }
+        } catch (error) {
+            console.error("Error deleting notification:", error);
+        }
+    };
+
 
     return (
         <nav className="bg-green-700 text-white fixed top-0 w-full z-30 shadow-md">
@@ -219,10 +250,10 @@ function NavBar() {
                                     <div className="relative inline-block">
                                         {/*  Ping Animation Circle */}
                                         <span className="absolute -top-8 -right-1 flex h-5 w-5">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            {unreadCount > 0 && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>}
                                             {/*  Static Bubble with Count */}
                                             <span className="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
-                                                3
+                                                {unreadCount || '0'}
                                             </span>
                                         </span>
                                     </div>
@@ -244,7 +275,7 @@ function NavBar() {
                                     <div className="relative inline-block">
                                         {/*  Ping Animation Circle */}
                                         <span className="absolute -top-8 -right-1 flex h-5 w-5">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            {totalUnreadCount > 0 && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>}
                                             {/*  Static Bubble with Count */}
                                             <span className="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-white text-xs items-center justify-center z-10">
                                                 {totalUnreadCount || '0'}
@@ -343,12 +374,12 @@ function NavBar() {
                                 </button>
                             </div>
                             {sidebarType === "message" ? (
-                                <div className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 border-b border-t border-zinc-500 dark:text-white text-center text-xs py-1">
+                                <div className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 border-b border-t border-zinc-300 dark:text-white text-center text-xs py-1">
                                     {totalUnreadCount || "0"} Unread messages
                                 </div>
                             ) : (
-                                <div className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 border-b border-t border-zinc-500 dark:text-white text-center text-xs py-1">
-                                    55
+                                <div className="bg-zinc-200 dark:bg-zinc-700 text-zinc-600 border-b border-t border-zinc-300 dark:text-white text-center text-xs py-1">
+                                    {unreadCount || "0"} Unread messages
                                 </div>
                             )}
 
@@ -377,12 +408,18 @@ function NavBar() {
                                                                 linkPath = `/user-dash-board/user-profile-view/${notif.sender_id}`;
                                                             } else if (notif.notification_type === "community_join_request_received") {
                                                                 linkPath = "/user-dash-board/farmer-community/pending-request";
-                                                            } 
+                                                            } else if (notif.notification_type === "community_joined") {
+                                                                linkPath = `/user-dash-board/user-profile-view/${notif.sender_id}`;
+                                                            } else if (notif.notification_type === "community_request_approved_by_admin") {
+                                                                linkPath = `/user-dash-board/farmer-community/my-communities/community-chat/${notif.community_id}`;
+                                                            } else if (notif.notification_type === "community_invite") {
+                                                                linkPath = `/user-dash-board/farmer-community/pending-request`;
+                                                            }
 
                                                             return (
                                                                 <div
                                                                     key={`notif-${index}`}
-                                                                    className={`px-4 py-3 flex items-start justify-between border-b  border-zinc-500 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
+                                                                    className={`px-4 py-3 flex items-start justify-between border-b  border-zinc-300 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
                                                                         }`}
                                                                 >
                                                                     <div className="flex items-start space-x-3">
@@ -395,12 +432,14 @@ function NavBar() {
                                                                             />
                                                                         </Link>
                                                                         <div className="text-sm text-gray-700 dark:text-white">
-                                                                            <p
-                                                                                className={` p-2 border-l-2 border-green-500 bg-white dark:bg-gray-900 text-xs break-words w-full max-w-[195px] ${notif.is_read ? "bg-zinc-100 dark:bg-zinc-900" : ""
+                                                                            <Link
+                                                                                to={linkPath}
+                                                                                className={` block p-2 border-l-2 border-green-500 bg-white dark:bg-gray-900 text-xs break-words w-full max-w-[195px] ${notif.is_read ? "bg-zinc-100 dark:bg-zinc-900" : ""
                                                                                     }`}
+
                                                                             >
                                                                                 {notif.message || "(Click to see details)"}
-                                                                            </p>
+                                                                            </Link>
 
                                                                             <p className="text-xs text-gray-600 dark:text-white mt-1">
                                                                                 {new Date(notif.timestamp).toLocaleDateString("en-IN", {
@@ -410,13 +449,22 @@ function NavBar() {
                                                                                 })}
                                                                             </p>
                                                                         </div>
-                                                                        <div className="flex flex-col items-end text-xs text-zinc-700 dark:text-white whitespace-nowrap">
+                                                                        <div className="flex flex-col items-end text-xs  text-zinc-700 dark:text-white whitespace-nowrap">
                                                                             <span>
                                                                                 {new Date(notif.timestamp).toLocaleTimeString("en-IN", {
                                                                                     hour: "2-digit",
                                                                                     minute: "2-digit",
                                                                                     hour12: true,
                                                                                 })}
+                                                                            </span>
+                                                                            {!notif.is_read &&
+                                                                                <span onClick={() => handleMarkAsRead(notif.id)} className="p-1 mt-2 cursor-pointer border border-gray-500  rounded-full tooltip tooltip-left hover:border-green-500 group" data-tip="Mark as read">
+                                                                                    <MdBookmarkAdded className='text-lg group-hover:text-green-500' />
+                                                                                </span>
+                                                                            }
+
+                                                                            <span onClick={() => deleteNotificationByType(notif.id,notif.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
+                                                                                <AiFillDelete className='text-lg group-hover:text-red-500' />
                                                                             </span>
                                                                         </div>
                                                                     </div>
@@ -430,9 +478,10 @@ function NavBar() {
                                     </>
 
                                 ) : (
+
                                     <>
                                         {messageNotifications.length === 0 ? (
-                                            <div className="flex flex-col items-center justify-center h-[70vh] text-center text-zinc-500-500 dark:text-zinc-400">
+                                            <div className="flex flex-col items-center justify-center h-[70vh] text-center text-zinc-500 dark:text-zinc-400">
                                                 <img src={NoSearchFound} alt="No Notifications" className="w-36 h-36 mb-4 object-contain" />
                                                 <p className="text-md font-medium">No messages found</p>
                                             </div>
@@ -446,10 +495,8 @@ function NavBar() {
                                                             return (
                                                                 <div
                                                                     key={`message-${index}`}
-                                                                    onClick={() =>
-                                                                        isPrivate ? goToChatPage(message) : goToCommunityChatPage(message)
-                                                                    }
-                                                                    className={`px-4 py-5 flex items-start justify-between border-b border-zinc-500 dark:border-zinc-500 cursor-pointer ${!message.is_read ? "bg-green-200 dark:bg-green-900" : ""
+
+                                                                    className={`px-4 py-3 flex items-start justify-between border-b border-zinc-500 dark:border-zinc-500  ${!message.is_read ? "bg-green-200 dark:bg-green-900" : ""
                                                                         }`}
                                                                 >
                                                                     <div className="flex items-start space-x-3">
@@ -457,14 +504,22 @@ function NavBar() {
                                                                             className={`status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full ${isPrivate ? "bg-green-500" : "bg-yellow-500"
                                                                                 }`}
                                                                         ></span>
-                                                                        <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
+                                                                        <div
+                                                                            onClick={() =>
+                                                                                isPrivate ? goToChatPage(message) : goToCommunityChatPage(message)
+                                                                            }
+                                                                            className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 cursor-pointer">
                                                                             <img
                                                                                 src={message.image_url || defaultUserImage}
                                                                                 alt={isPrivate ? "User profile" : "Community logo"}
                                                                                 className="h-full w-full object-cover"
                                                                             />
                                                                         </div>
-                                                                        <div className="text-sm text-gray-700 dark:text-zinc-200">
+                                                                        <div
+                                                                            onClick={() =>
+                                                                                isPrivate ? goToChatPage(message) : goToCommunityChatPage(message)
+                                                                            }
+                                                                            className="text-sm text-gray-700 dark:text-zinc-200 cursor-pointer">
                                                                             {isPrivate ? (
                                                                                 //Private message layout
                                                                                 <p className="truncate w-40">
@@ -480,13 +535,19 @@ function NavBar() {
                                                                                 </div>
                                                                             )}
 
-                                                                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                                                            <p className="text-xs mb-1 text-gray-500 dark:text-zinc-400 mt-1">
                                                                                 {new Date(message.timestamp).toLocaleDateString("en-IN", {
                                                                                     day: "2-digit",
                                                                                     month: "short",
                                                                                     year: "numeric",
                                                                                 })}
                                                                             </p>
+
+                                                                            {!isPrivate && (
+                                                                                <span className="mt-5 px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 rounded-full text-[10px] font-semibold">
+                                                                                    Community
+                                                                                </span>
+                                                                            )}
                                                                         </div>
 
                                                                     </div>
@@ -498,12 +559,11 @@ function NavBar() {
                                                                                 hour12: true,
                                                                             })}
                                                                         </span>
+                                                                        <span onClick={() => deleteNotificationByType(message.id,message.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
+                                                                            <AiFillDelete className='text-lg group-hover:text-red-500' />
+                                                                        </span>
 
-                                                                        {!isPrivate && (
-                                                                            <span className="mt-5 px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 rounded-full text-[10px] font-semibold">
-                                                                                Community
-                                                                            </span>
-                                                                        )}
+
                                                                     </div>
 
                                                                 </div>

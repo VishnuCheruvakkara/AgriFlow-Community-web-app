@@ -23,9 +23,13 @@ const messageNotificationSlice = createSlice({
     },
     clearMessageNotifications: (state) => {
       state.notifications = [];
+    },
+     deleteMessageNotification: (state, action) => {
+      const idToRemove = action.payload;
+      state.notifications = state.notifications.filter(n => n.id !== idToRemove);
     }
   }
 });
 
-export const { addMessageNotification, clearMessageNotifications } = messageNotificationSlice.actions;
+export const { addMessageNotification, clearMessageNotifications,deleteMessageNotification } = messageNotificationSlice.actions;
 export default messageNotificationSlice.reducer;

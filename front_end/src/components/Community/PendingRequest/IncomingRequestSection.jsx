@@ -138,7 +138,10 @@ function IncomingRequestsSection() {
                                                     </div>
                                                     <div>
                                                         <p className="font-medium text-gray-800">{user.username}</p>
-                                                        <p className="text-xs text-gray-500">requested on • {user.requested_at}</p>
+                                                        <p className="text-xs text-gray-500">requested on • {new Date(user.requested_at).toLocaleString('en-IN', {
+                                                                    dateStyle: 'medium',
+                                                                    timeStyle: 'short'
+                                                                })}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2 ">
