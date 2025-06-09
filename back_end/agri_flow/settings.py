@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'notifications',
     'common',
     'connections',
+    'products',
     # Django main page (Home) for initial load (optional).
     'Home',
     #Custom app for handle websoket

@@ -17,6 +17,7 @@ import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import TwemojiText from "../../components/Community/community-message/TwemojiText";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import ChatLoadingSampleImage from "../../assets/images/chat_image_loading_banner.png"
+import { Link } from "react-router-dom";
 
 const FarmerCommunityChat = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -309,6 +310,13 @@ const FarmerCommunityChat = () => {
                 )}
               </div>
             </div>
+
+            <Link 
+              to="/user-dash-board/farmer-community/my-communities"
+              className="border-white hover:border-transparent text-zinc-500  hover:bg-gray-200  rounded-full p-1 transition-colors duration-300 tooltip tooltip-left" data-tip="Go back"
+            >
+              <RxCross2 className='text-2xl' />
+            </Link>
 
           </div>
 

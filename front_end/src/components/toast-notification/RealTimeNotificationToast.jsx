@@ -51,7 +51,7 @@ export const showRealTimeToast = (message, type = 'default') => {
         <div
             className={`
                 ${t.visible ? 'animate-enter' : 'animate-leave'}
-                max-w-md w-full bg-white dark:bg-zinc-800 shadow-lg rounded-lg 
+                max-w-sm w-full bg-white dark:bg-zinc-800 shadow-lg rounded-lg 
                 pointer-events-auto flex ring-1 ring-black ring-opacity-5 
                 border border-zinc-200 dark:border-zinc-700
             `}
@@ -67,14 +67,6 @@ export const showRealTimeToast = (message, type = 'default') => {
                         </p>
                     </div>
                 </div>
-            </div>
-            <div className="flex border-l border-zinc-200 dark:border-zinc-700">
-                <button
-                    onClick={() => toast.dismiss(t.id)}
-                    className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    ×
-                </button>
             </div>
         </div>
     ));
