@@ -1,10 +1,23 @@
 
-#################### model for the product ##################
 from django.db import models
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
+####################### product location #########################
+class ProductLocation(models.Model):
+    place_id = models.CharField(max_length=255, blank=True, null=True)
+    full_location = models.TextField(blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    location_name = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.location_name or 'Unknown Location'}"
+
+#################### model for the product ##################
 class Product(models.Model):
     UNIT_CHOICES = [
         ('kg', 'Kilogram'),
@@ -25,10 +38,12 @@ class Product(models.Model):
     image2 = models.URLField()
     image3 = models.URLField()
 
-    location = models.CharField(max_length=255)
+    location = models.ForeignKey(ProductLocation,on_delete=models.SET_NULL,null=True,related_name="products")
     is_available = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    closing_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']

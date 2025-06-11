@@ -6,6 +6,7 @@ import { PulseLoader } from 'react-spinners';
 import debounce from 'lodash.debounce';
 import { ImCancelCircle } from "react-icons/im";
 import { Link } from 'react-router-dom';
+import SelectCommunityCreateEventShimmer from '../../components/shimmer-ui-component/SelectCommunityCreateEventShimmer';
 
 function MyCommunities() {
     const [communities, setCommunities] = useState([]);
@@ -171,10 +172,7 @@ function MyCommunities() {
                 )}
 
                 {loading && (
-                    <div className="flex flex-col justify-center items-center py-6">
-                        <PulseLoader color="#16a34a" speedMultiplier={1} />
-                        <p className="mt-4 text-sm text-gray-500">Loading Communities, please wait...</p>
-                    </div>
+                    <SelectCommunityCreateEventShimmer/>
                 )}
             </div>
         </div>

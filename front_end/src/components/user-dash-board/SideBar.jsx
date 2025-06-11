@@ -122,7 +122,7 @@ function SideBar() {
 
                     <li>
                         <Link
-                            to="/user-dash-board/products/"
+                            to="/user-dash-board/products/available-products"
                             className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/products')
                                     ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
                                     : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'

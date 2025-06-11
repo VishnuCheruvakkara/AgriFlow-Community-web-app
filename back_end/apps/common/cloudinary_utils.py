@@ -91,3 +91,29 @@ def upload_to_cloudinary(file_obj, folder_name):
     except Exception as e:
         print("Cloudinary upload error:", e)
         return None
+
+
+##########################  Uploadt image and get the secure url ###########################################
+
+import cloudinary.uploader
+
+def upload_image_and_get_url(image_file, folder_name):
+    """
+    Uploads an image to Cloudinary under a private folder, returns the secure URL.
+    """
+    try:
+        result = cloudinary.uploader.upload(
+            image_file,
+            folder=f"private_files/{folder_name}/",
+            resource_type="image",
+            type="authenticated",  # private access
+            transformation=[
+                {"width": 500, "height": 500, "crop": "limit"},
+                {"quality": "auto:good"},
+                {"fetch_format": "auto"}
+            ]
+        )
+        return result.get("secure_url")
+    except Exception as e:
+        print("Cloudinary upload error:", e)
+        return None

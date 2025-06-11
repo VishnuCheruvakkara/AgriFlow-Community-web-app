@@ -496,7 +496,7 @@ function NavBar() {
                                                                 <div
                                                                     key={`message-${index}`}
 
-                                                                    className={`px-4 py-3 flex items-start justify-between border-b border-zinc-500 dark:border-zinc-500  ${!message.is_read ? "bg-green-200 dark:bg-green-900" : ""
+                                                                    className={`px-4 py-3 flex items-start justify-between border-b border-zinc-300 dark:border-zinc-500  ${!message.is_read ? "bg-green-200 dark:bg-green-900" : ""
                                                                         }`}
                                                                 >
                                                                     <div className="flex items-start space-x-3">

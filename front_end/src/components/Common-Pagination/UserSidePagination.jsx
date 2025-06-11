@@ -13,7 +13,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, hasPrev, hasNext })
         Previous
       </button>
 
-      <span className="text-gray-700 font-medium">
+      <span className="text-gray-700 font-medium dark:text-zinc-200">
         Page {currentPage} of {totalPages}
       </span>
 

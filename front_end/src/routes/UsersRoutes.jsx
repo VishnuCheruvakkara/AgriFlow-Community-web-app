@@ -32,7 +32,10 @@ import MyConnections from '../pages/connection-management-user-side/MyConnection
 import BlockedUsers from '../pages/connection-management-user-side/BlockedUsers'
 
 //Product management pages 
-
+import AvailableProducts from '../pages/product-management-pages/AvailableProducts'
+import ProductDeals from '../pages/product-management-pages/ProductDeals'
+import MyProducts from '../pages/product-management-pages/MyProducts'
+import WishList from '../pages/product-management-pages/WishList'
 
 // famre to farmer chat pages 
 import FarmerSingleChat from '../pages/ChatPages/FarmerSingleChat'
@@ -90,10 +93,10 @@ function UsersRoutes() {
 
         {/* Product management layout section  */}
         <Route path="products" element={<ProductManagementLayout />}>
-          {/* <Route path="available-products" element={<AvailableProducts />} />
-          <Route path="create-product" element={<CreateProductForm />} />
+          <Route path="available-products" element={<AvailableProducts />} />
+          <Route path="product-deals" element={<ProductDeals  />} />
           <Route path="my-products" element={<MyProducts />} />
-          <Route path="wishlist" element={<Wishlist />} /> */}
+          <Route path="wishlist" element={<WishList />} />
         </Route>
 
 

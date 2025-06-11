@@ -14,6 +14,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaInfoCircle } from 'react-icons/fa';
 import { showToast } from '../../components/toast-notification/CustomToast';
 
+import CommunityShimmer from '../../components/shimmer-ui-component/CommunityShimmer';
+
 function DiscoverCommunities() {
   const [searchQuery, setSearchQuery] = useState('');
   const [communities, setCommunities] = useState([]);
@@ -24,7 +26,6 @@ function DiscoverCommunities() {
   const [totalPages, setTotalPages] = useState(1);
   //local loading set up join community
   const [joinCommunityLoading, setJoinCommunityLoading] = useState(false);
-
 
   // Modal data setup
   const [selectedCommunity, setSelectedCommunity] = useState(null);
@@ -148,10 +149,7 @@ function DiscoverCommunities() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col justify-center items-center py-6">
-          <PulseLoader color="#16a34a" speedMultiplier={1} />
-          <p className="mt-4 text-sm text-gray-500">Loading Communities, please wait...</p>
-        </div>
+        <CommunityShimmer/>
       ) : communities.length === 0 ? (
         <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700 ">
           <p className="text-lg font-semibold dark:text-zinc-400">No Communities found!</p>
