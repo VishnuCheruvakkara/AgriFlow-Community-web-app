@@ -11,7 +11,7 @@ export const productValidationSchema = Yup.object({
         .min(3, 'Title must be at least 3 characters')
         .max(255, 'Title must not exceed 255 characters')
         .matches(/^[a-zA-Z\s]+$/, 'Title must contain letters and spaces only (no numbers or special characters)'),
-    
+
     description: Yup.string()
         .required('Description is required')
         .min(10, 'Description must be at least 10 characters')

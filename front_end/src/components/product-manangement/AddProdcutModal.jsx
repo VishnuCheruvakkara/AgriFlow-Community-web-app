@@ -77,7 +77,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
     };
 
     const onSubmit = async (values, { setSubmitting, setErrors, resetForm }) => {
-       
+
         const buttonId = "addProduct";
         dispatch(showButtonLoader(buttonId)); //show-loader
 
@@ -94,7 +94,6 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
             formData.append('unit', values.unit);
             formData.append('location', JSON.stringify(values.location));
             formData.append('closingTime', values.closingTime.toISOString());
-            formData.append('is_available', values.is_available);
 
             // Append image files
             if (values.image1) formData.append('image1', values.image1);
@@ -106,6 +105,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            
             console.log('Product created:', response.data);
 
             if (onSave) {
@@ -134,7 +134,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
             <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-90" onClick={onClose} />
 
             {/* Modal content */}
-            <div className="fixed inset-0 flex items-center justify-center p-4">
+            <div className="fixed inset-0 flex items-center justify-center p-4 ">
                 <motion.div
                     onClick={(e) => e.stopPropagation()}
                     initial={{ opacity: 0, scale: 0.85, y: 40 }}
@@ -156,7 +156,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                     </div>
 
                     {/* Form */}
-                    <div className="p-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
+                    <div className="py-6 px-4 max-h-[80vh] overflow-y-auto scrollbar-hide">
                         <Formik
                             initialValues={initialProductValues}
                             validationSchema={productValidationSchema}
@@ -164,7 +164,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                         >
                             {({ isSubmitting, values, errors, touched, setFieldValue, setFieldTouched, setFieldError, submitForm }) => (
                                 <>
-                                    <Form id="add-product-form" className="space-y-6">
+                                    <Form id="add-product-form" className="px-8 space-y-6">
                                         {/* Title */}
                                         <div>
                                             <label className="block text-sm font-medium mb-2 dark:text-white">Product Title</label>
@@ -252,7 +252,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                                                         className={`bg-white dark:bg-zinc-900 dark:text-white w-full px-4 mb-1 py-3 border 
                                                     ${errors.unit && touched.unit ? 'ring-2 ring-red-500 border-none' : ' dark:border-zinc-600 focus:ring-2 focus:ring-green-500'} 
                                                     rounded-lg transition duration-500 ease-out`}
-                                                        >
+                                                    >
                                                         {unitChoices.map((unit) => (
                                                             <option key={unit.value} value={unit.value}>
                                                                 {unit.label}

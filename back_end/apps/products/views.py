@@ -26,7 +26,7 @@ class CreateProductToSell(APIView):
 
             # Create or get ProductLocation
             location, _ = ProductLocation.objects.get_or_create(**location_data)
-
+            print("Early debugger ::",request.data.get('is_available'))
             # Create the product
             product = Product.objects.create(
                 seller=request.user,
@@ -39,10 +39,9 @@ class CreateProductToSell(APIView):
                 image1=image1_url,
                 image2=image2_url,
                 image3=image3_url,
-                is_available=str(request.data.get('is_available', 'true')).lower() == 'true',
                 closing_date=request.data.get('closingTime'),
             )
-
+            print("Debugger ::",product.is_available)
             return Response(ProductSerializer(product).data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
