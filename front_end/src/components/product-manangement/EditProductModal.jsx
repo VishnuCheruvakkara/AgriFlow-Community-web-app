@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux'; // Add this import
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import { AiOutlineClose } from 'react-icons/ai';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -11,23 +11,66 @@ import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosIns
 import UserLocation from '../user-dash-board/UserLocation';
 import DateTimePicker from '../event-management-user-side/DateTimePicker';
 import ImagePreviewBox from './ImagePreviewBox';
+
 import {
-    productValidationSchema,
-    unitChoices,
-    initialProductValues
-} from '../product-manangement/productValidationSchema ';
+    editProductValidationSchema,
+    unitChoices
+} from '../product-manangement/editProductValidationSchema';
 
 //import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader'
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 
-const AddProductModal = ({ isOpen, onClose, onSave }) => {
-    const dispatch = useDispatch(); // Add this line
+const EditProductModal = ({ isOpen, onClose, onSave, product }) => {
+    console.log("product in edit product modal ::: ",product)
+    const dispatch = useDispatch();
     const [imagePreviews, setImagePreviews] = useState({
         image1: '',
         image2: '',
         image3: ''
     });
+
+    // Create initial values from the product data
+    const getInitialValues = () => {
+        if (!product) {
+            return {
+                title: '',
+                description: '',
+                price: '',
+                quantity: '',
+                unit: '',
+                location: null,
+                closingTime: new Date(),
+                image1: null,
+                image2: null,
+                image3: null
+            };
+        }
+
+        return {
+            title: product.title || '',
+            description: product.description || '',
+            price: product.price || '',
+            quantity: product.quantity || '',
+            unit: product.unit || '',
+            location: product.location || null,
+            closingTime: product.closing_date ? new Date(product.closing_date) : new Date(),
+            image1: null, // We'll handle existing images separately
+            image2: null,
+            image3: null
+        };
+    };
+
+    // Set up image previews when product changes
+    useEffect(() => {
+        if (product && isOpen) {
+            setImagePreviews({
+                image1: product.image1 || '',
+                image2: product.image2 || '',
+                image3: product.image3 || ''
+            });
+        }
+    }, [product, isOpen]);
 
     if (!isOpen) return null;
 
@@ -66,24 +109,22 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
             };
             reader.readAsDataURL(file);
         } else {
-            // File was cleared/removed
+            // File was cleared/removed - reset to original image if available
             setFieldValue(imageField, null);
-            setFieldError(imageField, `${imageField.charAt(0).toUpperCase() + imageField.slice(1)} is required`);
+            const originalImage = product && product[imageField];
             setImagePreviews(prev => ({
                 ...prev,
-                [imageField]: ''
+                [imageField]: originalImage || ''
             }));
         }
     };
 
     const onSubmit = async (values, { setSubmitting, setErrors, resetForm }) => {
-
-        const buttonId = "addProduct";
-        dispatch(showButtonLoader(buttonId)); //show-loader
+        const buttonId = "editProduct";
+        dispatch(showButtonLoader(buttonId));
 
         try {
-            // Log form values before preparing FormData
-            console.log('Form Values add products :', values);
+            console.log('Edit Form Values:', values);
 
             // Create FormData for file upload
             const formData = new FormData();
@@ -95,36 +136,35 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
             formData.append('location', JSON.stringify(values.location));
             formData.append('closingTime', values.closingTime.toISOString());
 
-            // Append image files
+            // Only append image files if new ones were selected
             if (values.image1) formData.append('image1', values.image1);
             if (values.image2) formData.append('image2', values.image2);
             if (values.image3) formData.append('image3', values.image3);
 
-            const response = await AuthenticatedAxiosInstance.post('/products/create-product-to-sell/', formData, {
+            // Use PUT or PATCH request for updating
+            const response = await AuthenticatedAxiosInstance.patch(`/products/update-product/${product.id}/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
             
-            console.log('Product created:', response.data);
+            console.log('Product updated:', response.data);
 
             if (onSave) {
                 onSave(response.data);
             }
 
-            resetForm();
-            setImagePreviews({ image1: '', image2: '', image3: '' });
             onClose();
-            showToast("Product added successfully", "success");
+            showToast("Product updated successfully", "success");
         } catch (error) {
-            console.error('Error creating product:', error);
+            console.error('Error updating product:', error);
             if (error.response?.status === 400 && error.response.data) {
                 setErrors(error.response.data);
             }
-            showToast("Error adding product", "error");
+            showToast("Error updating product", "error");
         } finally {
             setSubmitting(false);
-            dispatch(hideButtonLoader(buttonId)); // Hide loader after process
+            dispatch(hideButtonLoader(buttonId));
         }
     };
 
@@ -145,7 +185,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                 >
                     {/* Header */}
                     <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center flex-shrink-0">
-                        <h2 className="text-xl font-bold text-white">Add New Product</h2>
+                        <h2 className="text-xl font-bold text-white">Edit Product</h2>
                         <button
                             onClick={onClose}
                             className="text-white hover:bg-green-600 rounded-full p-1"
@@ -156,15 +196,16 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                     </div>
 
                     <Formik
-                        initialValues={initialProductValues}
-                        validationSchema={productValidationSchema}
+                        initialValues={getInitialValues()}
+                        validationSchema={editProductValidationSchema}
                         onSubmit={onSubmit}
+                        enableReinitialize={true} // Important: This allows form to reinitialize when product changes
                     >
                         {({ isSubmitting, values, errors, touched, setFieldValue, setFieldTouched, setFieldError, submitForm }) => (
                             <>
                                 {/* Form - Scrollable Content */}
                                 <div className="flex-1 overflow-y-auto py-6 px-4 scrollbar-hide">
-                                    <Form id="add-product-form" className="px-8 space-y-6">
+                                    <Form id="edit-product-form" className="px-8 space-y-6">
                                         {/* Title */}
                                         <div>
                                             <label className="block text-sm font-medium mb-2 dark:text-white">Product Title</label>
@@ -281,7 +322,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
 
                                         {/* Product Images */}
                                         <div className="space-y-4">
-                                            <h3 className="text-lg font-medium dark:text-white">Product Images (All Required)</h3>
+                                            <h3 className="text-lg font-medium dark:text-white">Product Images (Upload new images to replace existing ones)</h3>
 
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {/* Image 1 */}
@@ -343,12 +384,12 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                                                 <UserLocation
                                                     formData={values}
                                                     setFormData={(newFormData) => {
-                                                        // Update Formik's values with the location data
                                                         if (newFormData.location) {
                                                             setFieldValue('location', newFormData.location);
                                                             setFieldTouched('location.full_location', true);
                                                         }
                                                     }}
+                                                    defaultQuery={values.location?.full_location}
                                                 />
                                             </motion.div>
                                         </div>
@@ -366,13 +407,13 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                                         Cancel
                                     </button>
                                     <ButtonLoader
-                                        buttonId="addProduct"
+                                        buttonId="editProduct"
                                         type="button"
                                         onClick={submitForm}
                                         className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium flex items-center gap-2"
                                     >
                                         <FaRegCircleCheck />
-                                        Add Product
+                                        Update Product
                                     </ButtonLoader>
                                 </div>
                             </>
@@ -384,4 +425,4 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
     );
 };
 
-export default AddProductModal;
+export default EditProductModal;

@@ -40,6 +40,7 @@ class Product(models.Model):
 
     location = models.ForeignKey(ProductLocation,on_delete=models.SET_NULL,null=True,related_name="products")
     is_available = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

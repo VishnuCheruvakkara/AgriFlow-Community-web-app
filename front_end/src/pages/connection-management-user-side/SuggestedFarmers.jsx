@@ -174,8 +174,6 @@ const SuggestedFarmers = () => {
                 )}
             </div>
 
-
-
             {/* Farmer Cards Grid */}
             {loading ? (
                 < SuggestedFarmersShimmer />

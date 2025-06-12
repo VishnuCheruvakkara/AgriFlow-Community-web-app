@@ -86,6 +86,13 @@ function MyProducts() {
         setSelectedProduct(null)
     }
 
+    const handleProductUpdateFromDetails = (updatedProduct) => {
+        // Optionally update the products list directly
+        setProducts(prevProducts => prevProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+        fetchProducts(search, currentPage);
+    };
+
+
 
     return (
         <div>
@@ -96,6 +103,7 @@ function MyProducts() {
                     product={selectedProduct}
                     onClose={handleCloseProductDetails}
                     onDelete={handleDeleteProduct}
+                    onUpdate={handleProductUpdateFromDetails}
                 />
             ) : (
                 <>
@@ -196,7 +204,7 @@ function MyProducts() {
 
 
                                                 {/* Description */}
-                                                <p className="mt-1 text-gray-700 text-xs line-clamp-3 dark:text-zinc-300">
+                                                <p className="mt-1 text-gray-700 text-xs line-clamp-3 dark:text-zinc-300 truncate w-40">
                                                     {product.description}
                                                 </p>
 
@@ -205,7 +213,7 @@ function MyProducts() {
                                                 {/* Listed Date */}
                                                 <div className="flex items-center mt-2 text-xs text-gray-600 dark:text-zinc-400 font-semibold">
                                                     <FaRegCalendarAlt className="mr-1 text-green-500 dark:text-green-400" />
-                                                    Closing at : <span className="text-red-600"> {new Date(product.closing_date).toLocaleDateString('en-IN', {
+                                                    <span > Closing at : {new Date(product.closing_date).toLocaleDateString('en-IN', {
                                                         day: 'numeric',
                                                         month: 'long',
                                                         year: 'numeric',

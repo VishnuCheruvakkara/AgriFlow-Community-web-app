@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -56,7 +57,7 @@ class GetAllProductsAddedByCurrentUser(APIView):
     def get(self,request):
         current_user=request.user
         search_query=request.query_params.get('search','')
-        products = Product.objects.filter(seller = current_user)
+        products = Product.objects.filter(seller = current_user,is_deleted=False)
 
         if search_query:
             products = products.filter(
@@ -66,3 +67,60 @@ class GetAllProductsAddedByCurrentUser(APIView):
         paginated_products = paginator.paginate_queryset(products,request)
         serializer = ProductSerializer(paginated_products,many = True)
         return paginator.get_paginated_response(serializer.data)
+    
+
+######################## Update teh product by teh user who create the product ####################3
+
+class UpdateProductAPIView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            product = Product.objects.get(pk=pk, seller=request.user)
+
+            # Load and handle location JSON
+            location_data = json.loads(request.data.get('location', '{}'))
+            location, _ = ProductLocation.objects.get_or_create(**location_data)
+
+            # Upload new images if provided
+            image1 = request.FILES.get('image1')
+            image2 = request.FILES.get('image2')
+            image3 = request.FILES.get('image3')
+
+            if image1:
+                product.image1 = upload_image_and_get_url(image1, "products")
+            if image2:
+                product.image2 = upload_image_and_get_url(image2, "products")
+            if image3:
+                product.image3 = upload_image_and_get_url(image3, "products")
+
+            # Update other product fields
+            product.title = request.data.get('title', product.title)
+            product.description = request.data.get('description', product.description)
+            product.price = request.data.get('price', product.price)
+            product.quantity = request.data.get('quantity', product.quantity)
+            product.unit = request.data.get('unit', product.unit)
+            product.closing_date = request.data.get('closingTime', product.closing_date)
+            product.location = location
+
+            product.save()
+            return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
+
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found or unauthorized'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            print("Error updating product:", e)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+################################ Soft Delete prodcut view ###############################
+
+class SoftDeleteProductView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self,request,pk):
+        product = get_object_or_404(Product,pk=pk,seller=request.user)
+        product.is_deleted=True 
+        product.save()
+        return Response({'message':'Product soft deleted successfylly!'},status=status.HTTP_200_OK)
