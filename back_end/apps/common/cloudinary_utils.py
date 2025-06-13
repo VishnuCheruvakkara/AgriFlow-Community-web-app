@@ -27,6 +27,7 @@ def upload_image_to_cloudinary(image_file, folder_name):
         print("Cloudinary upload error:", e)
         return None
 
+########################### from public_id generate the secure URL  ############################
 
 def generate_secure_image_url(public_id, expires_in=3600):
     """

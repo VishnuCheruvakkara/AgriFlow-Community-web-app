@@ -124,3 +124,24 @@ class SoftDeleteProductView(APIView):
         product.is_deleted=True 
         product.save()
         return Response({'message':'Product soft deleted successfylly!'},status=status.HTTP_200_OK)
+
+############################## Get all the available products ############################################# 
+
+class GetAllAvailableProducts(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        search_query = request.query_params.get('search', '')
+        products = Product.objects.filter(is_available=True, is_deleted=False).exclude(seller=request.user)
+
+        if search_query:
+            products = products.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(location__location_name__icontains=search_query)
+            )
+
+        paginator = CustomProductPagination()
+        paginated_products = paginator.paginate_queryset(products, request)
+        serializer = ProductSerializer(paginated_products, many=True)
+        return paginator.get_paginated_response(serializer.data)

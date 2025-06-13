@@ -17,7 +17,6 @@ from django.shortcuts import get_object_or_404
 
 ##############  Get community in the event creation section (only get the community where user is admin ) #################
 
-
 class GetCommunityForCreateEvent(APIView):
     permission_classes = [IsAuthenticated]
 

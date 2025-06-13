@@ -285,7 +285,7 @@ JAZZMIN_SETTINGS = {
 }
 
 
-#################### goole authentication setup  ####################
+#################### google authentication setup  ####################
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Google OAuth backend

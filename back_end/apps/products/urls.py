@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView
+from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts
 urlpatterns = [
     ###################### Create product to sell ##########################
     path("create-product-to-sell/",CreateProductToSell.as_view(),name="create-product-to-sell"),
@@ -11,6 +11,10 @@ urlpatterns = [
     path('update-product/<int:pk>/', UpdateProductAPIView.as_view(), name='update-product'),
   
     ######################  Soft delete teh prodcuts ###########################
-    path('soft-delete/<int:pk>/',SoftDeleteProductView.as_view(),name="soft-delete-prodcut")
+    path('soft-delete/<int:pk>/',SoftDeleteProductView.as_view(),name="soft-delete-prodcut"),
+
+    ##################### Get all the availabel products ##############################
+    path('get-all-available-products/', GetAllAvailableProducts.as_view(), name='available-products'),
+
 ]
 

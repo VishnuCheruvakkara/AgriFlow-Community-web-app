@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
     FaMapMarkerAlt, FaCalendarAlt, FaInfoCircle, FaRegEdit,
-    FaEye, FaChevronLeft, FaChevronRight
+    FaEye, FaChevronLeft, FaChevronRight,FaUser
 } from "react-icons/fa";
 import { BsClock, BsCurrencyDollar } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
@@ -17,15 +17,22 @@ import ProductImageGallery from "./ProductImageGallery";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import EditProductModal from "./EditProductModal"; // Import the EditProductModal
 import { FaExclamationTriangle } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import MapModal from "../MapLocation/MapModal";
+import { GrMapLocation } from "react-icons/gr";
 
 const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
+
+    const [showMapModal, setShowMapModal] = useState();
     const [localProduct, setLocalProduct] = useState({});
     const [imageIndex, setImageIndex] = useState(0);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
+    const userId = useSelector((state) => state.user.user?.id)
 
     useEffect(() => {
         setLocalProduct(product);
     }, [product]);
+    console.log("Local product is :::::", localProduct)
 
     const images = [localProduct.image1, localProduct.image2, localProduct.image3].filter(Boolean);
 
@@ -103,15 +110,31 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                     </div>
 
                     {/* Edit Button - Now functional */}
-                    <button
-                        onClick={handleEditClick}
-                        className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
-                    >
-                        <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
-                            <FaRegEdit className="text-green-500" />
-                        </div>
-                        <span className="text-sm pr-10 pl-4">Edit Product</span>
-                    </button>
+
+                    {localProduct?.seller === userId &&
+                        <button
+                            onClick={handleEditClick}
+                            className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
+                        >
+                            <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
+                                <FaRegEdit className="text-green-500" />
+                            </div>
+                            <span className="text-sm pr-10 pl-4">Edit Product</span>
+                        </button>
+                    }
+
+                    {localProduct?.seller !== userId &&
+                        <button
+                           
+                            className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
+                        >
+                            <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
+                                <FaRegEdit className="text-green-500" />
+                            </div>
+                            <span className="text-sm pr-10 pl-4">Contact Farmer</span>
+                        </button>
+                    }
+                    
 
                     <div className="flex gap-2 mt-3">
                         <p className="text-sm px-2 py-1 rounded-full border bg-green-200 border-green-400 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-100">
@@ -141,6 +164,56 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                     </div>
                 </div>
 
+                
+                {/* Seller Details - Only show if current user is not the seller */}
+                {localProduct?.seller?.id !== userId && (
+                    <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
+                        <div className="flex items-start">
+                            <FaUser className="mt-1 mr-3 text-green-600" />
+                            <div className="flex-1">
+                                <h3 className="text-sm font-medium mb-3">Seller Details</h3>
+                                
+                                {/* Seller Profile Picture */}
+                                <div className="flex items-center mb-3">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-400 mr-3">
+                                        <img 
+                                            src={localProduct?.seller?.profile_picture || DefaultUserImage }
+                                            alt="Seller Profile"
+                                            className="w-full h-full object-cover"
+                                          
+                                        />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-green-700 dark:text-green-400">
+                                            {localProduct?.seller?.username}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Contact Information */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center text-sm">
+                                        <FaEnvelope className="mr-2 text-green-600" />
+                                        <span className="text-gray-600 dark:text-gray-400">Email:</span>
+                                        <span className="ml-2 text-blue-600 dark:text-blue-400">
+                                            {localProduct?.seller?.email}
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="flex items-center text-sm">
+                                        <FaPhone className="mr-2 text-green-600" />
+                                        <span className="text-gray-600 dark:text-gray-400">Phone:</span>
+                                        <span className="ml-2 text-blue-600 dark:text-blue-400">
+                                            {localProduct?.seller?.phone_number}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
                 {/* Details */}
                 <div className="flex flex-col">
                     <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
@@ -168,18 +241,34 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                         <div className="flex items-start"><FaMapMarkerAlt className="mt-1 mr-3" /><div>
                             <h3 className="text-sm font-medium">Location Details</h3>
                             <p>{localProduct?.location?.full_location}</p>
-                        </div></div>
+                        </div>
+                           
+                        </div>
+                         <div className="py-4 pl-7">
+                                <button
+                                    onClick={() => setShowMapModal(true)}
+                                    className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 dark:shadow-zinc-800"
+                                >
+                                    <div className="bg-white rounded-full p-2">
+                                        <GrMapLocation className="text-green-500 text-lg" />
+                                    </div>
+                                    <span className="text-sm pr-10 pl-4">View Location on Map</span>
+                                </button>
+                            </div>
+
                     </div>
                 </div>
 
                 {/* Delete Button - Now functional */}
-                <button
-                    onClick={handleDeleteClick}
-                    className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900 transition-colors duration-200"
-                >
-                    <RiDeleteBin5Fill className="text-red-600 dark:text-red-400 text-xl" />
-                    <span className="text-red-600 dark:text-red-400 font-bold">Delete Product</span>
-                </button>
+                {localProduct?.seller === userId &&
+                    <button
+                        onClick={handleDeleteClick}
+                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900 transition-colors duration-200"
+                    >
+                        <RiDeleteBin5Fill className="text-red-600 dark:text-red-400 text-xl" />
+                        <span className="text-red-600 dark:text-red-400 font-bold">Delete Product</span>
+                    </button>
+                }
             </div>
 
             {/* Edit Product Modal */}
@@ -189,6 +278,16 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                 onSave={handleProductUpdate}
                 product={localProduct}
             />
+            {/* show the location modal  */}
+            <AnimatePresence>
+                {showMapModal && (
+                    <MapModal
+                        lat={localProduct?.location?.latitude}
+                        lng={localProduct?.location?.longitude}
+                        onClose={() => setShowMapModal(false)}
+                    />
+                )}
+            </AnimatePresence>
         </>
     );
 };
