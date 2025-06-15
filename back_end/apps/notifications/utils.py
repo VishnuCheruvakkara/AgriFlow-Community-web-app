@@ -7,17 +7,18 @@ from django.utils.timezone import now
 # Common function for handle the real-time private messages  and save that to the db table  #########################3
 
 
-def create_and_send_notification(recipient, sender, type, message=None, community=None, image_url=None):
+def create_and_send_notification(recipient, sender, type, message=None, community=None, image_url=None, product=None):
     # Save notification data into the table
-    notification,created = Notification.objects.get_or_create(
+    notification, created = Notification.objects.get_or_create(
         recipient=recipient,
         sender=sender,
         notification_type=type,
-        community = community,
+        community=community,
         defaults={
-            'message':message,
-            'image_url' : image_url,
-           
+            'message': message,
+            'image_url': image_url,
+            'product': product,
+
         }
     )
 
@@ -27,6 +28,9 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
         notification.image_url = image_url
         notification.created_at = now()  # Manually update created_at
         notification.is_read = False
+        notification.is_deleted = False
+        if product:
+            notification.product = product
         notification.save()
 
     # Send the real-time notification
@@ -42,10 +46,13 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
                 "sender": sender.username if sender else None,
                 "sender_id": sender.id,
                 "community_id": community.id if community else None,
-                "community_name":community.name if community else None,
+                "community_name": community.name if community else None,
                 "timestamp": str(notification.created_at),
                 "image_url": image_url,
                 "is_read": False,
+                "product_id": product.id if product else None,
+                "product_name": product.title if product else None,
+                "product_image": product.image1 if product else None
             }
         }
     )

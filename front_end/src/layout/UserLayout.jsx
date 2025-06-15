@@ -74,7 +74,7 @@ const UserLayout = () => {
             console.log("Notification received:", data);
 
             // Decide which slice to dispatch to
-            if (["community_message", "private_message"].includes(data.data.notification_type)) {
+            if (["community_message", "private_message","product_message"].includes(data.data.notification_type)) {
                 dispatch(addMessageNotification(data.data));
                 playNotification();
                 showRealTimeToast(`New message Received`);

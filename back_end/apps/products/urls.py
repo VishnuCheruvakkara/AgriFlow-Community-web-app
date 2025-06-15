@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts
+from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView
 urlpatterns = [
     ###################### Create product to sell ##########################
     path("create-product-to-sell/",CreateProductToSell.as_view(),name="create-product-to-sell"),
@@ -15,6 +15,9 @@ urlpatterns = [
 
     ##################### Get all the availabel products ##############################
     path('get-all-available-products/', GetAllAvailableProducts.as_view(), name='available-products'),
+
+    ##################### Get all product messages based on user and product data ##################3
+    path('get-product-deal-messages/', ProductDealMessageListView.as_view(), name='get-product-deal-messages'),
 
 ]
 

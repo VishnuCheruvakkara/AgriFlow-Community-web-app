@@ -21,14 +21,31 @@ import { useSelector } from "react-redux";
 import MapModal from "../MapLocation/MapModal";
 import { GrMapLocation } from "react-icons/gr";
 import DefaultUserImage from "../../assets/images/user-default.png"
+import { GrContact } from "react-icons/gr";
+import { useNavigate, useNavigation } from "react-router-dom";
 
-const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
-
+const AvailableProductDetails = ({ product, onClose, onDelete, onUpdate }) => {
+    const navigate = useNavigate()
     const [showMapModal, setShowMapModal] = useState();
     const [localProduct, setLocalProduct] = useState({});
     const [imageIndex, setImageIndex] = useState(0);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
     const userId = useSelector((state) => state.user.user?.id)
+
+    const NavigateToChat = () => {
+
+        const seller = localProduct?.seller;
+        navigate('/user-dash-board/products/farmer-product-chat/', {
+            state: {
+                receiverId: seller?.id,
+                username: seller?.username,
+                profilePicture: seller?.profile_picture,
+                productId: localProduct?.id,
+                productName:localProduct?.title,
+                productImage:localProduct?.image1,
+
+            }
+        })
+    }
 
     useEffect(() => {
         setLocalProduct(product);
@@ -46,48 +63,6 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
         });
     };
 
-    // Handle opening edit modal
-    const handleEditClick = () => {
-        setIsEditModalOpen(true);
-    };
-
-    // Handle closing edit modal
-    const handleEditModalClose = () => {
-        setIsEditModalOpen(false);
-    };
-
-    // Handle product update
-    const handleProductUpdate = (updatedProduct) => {
-        setLocalProduct(updatedProduct);
-        // Call parent component's update handler if provided
-        if (onUpdate) {
-            onUpdate(updatedProduct);
-        }
-    };
-
-    // Handle delete with confirmation
-    const handleDeleteClick = async () => {
-        const result = await showConfirmationAlert({
-            title: "Delete Product",
-            text: "Are you sure you want to delete this product? This action cannot be undone.",
-            confirmButtonText: "Delete",
-            cancelButtonText: "Cancel"
-        });
-
-        if (result) {
-            try {
-                await AuthenticatedAxiosInstance.patch(`/products/soft-delete/${localProduct.id}/`);
-                showToast("Product deleted successfully", "success");
-                if (onDelete) {
-                    onDelete(localProduct.id);
-                }
-                onClose(); // Close the details page after deletion
-            } catch (error) {
-                console.error("Error deleting product:", error);
-                showToast("Error deleting product", "error");
-            }
-        }
-    };
 
 
     return (
@@ -110,21 +85,15 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                         <h3 className="text-md font-semibold text-green-700 dark:text-green-400">Product "{localProduct.title}"</h3>
                     </div>
 
-                    {/* Edit Button - Now functional */}
-
-
                     <button
-                        onClick={handleEditClick}
-                        className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
+                        onClick={NavigateToChat}
+                        className=" bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
                     >
                         <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
-                            <FaRegEdit className="text-green-500" />
+                            < GrContact className="text-green-500" />
                         </div>
-                        <span className="text-sm pr-10 pl-4">Edit Product</span>
+                        <span className="text-sm pr-10 pl-4">Contact Farmer</span>
                     </button>
-
-
-
 
 
                     <div className="flex gap-2 mt-3">
@@ -157,6 +126,52 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
 
 
 
+                {/* Seller Details - Only show if current user is not the seller */}
+
+                <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
+                    <div className="flex items-start">
+                        <FaUser className="mt-1 mr-3 text-green-600" />
+                        <div className="flex-1">
+                            <h3 className="text-sm font-medium mb-3">Seller Details</h3>
+
+                            {/* Seller Profile Picture */}
+                            <div className="flex items-center mb-3">
+                                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-400 mr-3">
+                                    <img
+                                        src={localProduct?.seller?.profile_picture || DefaultUserImage}
+                                        alt="Seller Profile"
+                                        className="w-full h-full object-cover"
+
+                                    />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-green-700 dark:text-green-400">
+                                        {localProduct?.seller?.username}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Contact Information */}
+                            <div className="space-y-2">
+                                <div className="flex items-center text-sm">
+                                    <FaEnvelope className="mr-2 text-green-600" />
+                                    <span className="text-gray-600 dark:text-gray-400">Email:</span>
+                                    <span className="ml-2 text-green-600 dark:text-green-400">
+                                        {localProduct?.seller?.email}
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center text-sm">
+                                    <FaPhone className="mr-2 text-green-600" />
+                                    <span className="text-gray-600 dark:text-gray-400">Phone:</span>
+                                    <span className="ml-2 text-green-600 dark:text-green-400">
+                                        {localProduct?.seller?.phone_number}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Details */}
                 <div className="flex flex-col">
@@ -203,25 +218,10 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                     </div>
                 </div>
 
-                {/* Delete Button - Now functional */}
-
-                <button
-                    onClick={handleDeleteClick}
-                    className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900 transition-colors duration-200"
-                >
-                    <RiDeleteBin5Fill className="text-red-600 dark:text-red-400 text-xl" />
-                    <span className="text-red-600 dark:text-red-400 font-bold">Delete Product</span>
-                </button>
-
             </div>
 
-            {/* Edit Product Modal */}
-            <EditProductModal
-                isOpen={isEditModalOpen}
-                onClose={handleEditModalClose}
-                onSave={handleProductUpdate}
-                product={localProduct}
-            />
+
+
             {/* show the location modal  */}
             <AnimatePresence>
                 {showMapModal && (
@@ -236,4 +236,4 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
     );
 };
 
-export default ProductDetailsPage;
+export default AvailableProductDetails;

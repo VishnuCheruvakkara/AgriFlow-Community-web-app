@@ -2,6 +2,7 @@
 from django.db import models
 from users.models import CustomUser
 from community.models import Community
+from products.models import Product
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
@@ -26,6 +27,8 @@ class Notification(models.Model):
         #for message notification 
         ("private_message","Private Message"),
         ("community_message","Community Message"),
+        ("product_message","Product Message"),
+
     ]
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
@@ -37,6 +40,7 @@ class Notification(models.Model):
     image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional file
     created_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
 
     class Meta:
         unique_together = ('recipient', 'sender', 'community', 'notification_type')

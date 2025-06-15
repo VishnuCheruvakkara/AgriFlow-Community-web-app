@@ -67,3 +67,18 @@ class Wishlist(models.Model):
     def __str__(self):
         status = "Active" if self.is_active else "Removed"
         return f"{self.user.username} → {self.product.title} ({status})"
+
+######################  Save the product messages ###############################
+
+class ProductChatMessage(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_messages_sent')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_messages_received')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='chat_messages')
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"From {self.sender} to {self.receiver} about {self.product}"

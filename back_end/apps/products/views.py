@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 import json
-from products.models import Product,ProductLocation
-from .serializers import ProductSerializer
+from products.models import Product,ProductLocation,ProductChatMessage
+from .serializers import ProductSerializer,ProductChatMessageSerializer
 from apps.common.cloudinary_utils import upload_image_and_get_url
 from rest_framework.permissions import IsAuthenticated 
 from django.db.models import Q 
@@ -145,3 +145,29 @@ class GetAllAvailableProducts(APIView):
         paginated_products = paginator.paginate_queryset(products, request)
         serializer = ProductSerializer(paginated_products, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+##########################  Get saved product messages by seller and buyyer ############################
+
+class ProductDealMessageListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        product_id = request.query_params.get("product_id")
+        receiver_id = request.query_params.get("receiver_id")
+
+        if not product_id or not receiver_id:
+            return Response({"error": "product_id and receiver_id are required."}, status=400)
+
+        messages = ProductChatMessage.objects.filter(
+            product__id=product_id,
+        ).filter(
+            sender=request.user, receiver_id=receiver_id
+        ) | ProductChatMessage.objects.filter(
+            product__id=product_id,
+        ).filter(
+            sender_id=receiver_id, receiver=request.user
+        )
+
+        messages = messages.order_by("timestamp")
+        serializer = ProductChatMessageSerializer(messages, many=True)
+        return Response(serializer.data)

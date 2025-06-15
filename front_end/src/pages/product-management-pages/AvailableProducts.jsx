@@ -8,7 +8,7 @@ import debounce from 'lodash/debounce';
 import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import ProductsNotFound from '../../assets/images/no-product-found.png';
 import EventPageShimmer from '../../components/shimmer-ui-component/EventPageShimmer';
-import ProductDetailsPage from '../../components/product-manangement/ProductDetailsPage';
+import AvailableProductDeatails from "../../components/product-manangement/AvailableProductDeatails"
 
 function AvailableProducts() {
   const [loading, setLoading] = useState(false);
@@ -65,7 +65,7 @@ function AvailableProducts() {
     <div>
       {/* When a product is selected, show only the details page */}
       {selectedProduct ? (
-        <ProductDetailsPage
+        <AvailableProductDeatails
           product={selectedProduct}
           onClose={handleCloseProductDetails}
         />

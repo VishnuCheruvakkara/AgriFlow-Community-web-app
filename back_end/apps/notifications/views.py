@@ -42,7 +42,7 @@ class PrivateMessageNotificationView(APIView):
     def get(self,request):
         user = request.user 
         private_msgs = Notification.objects.filter(
-           Q( recipient=user) & Q(is_deleted=False)  & (Q(notification_type="private_message") | Q(notification_type="community_message"))
+           Q( recipient=user) & Q(is_deleted=False)  & (Q(notification_type="private_message") | Q(notification_type="community_message") | Q(notification_type="product_message"))
         ).order_by('-created_at')
 
         serializer = GetPrivateMessageSerializer(private_msgs,many=True)
@@ -73,7 +73,7 @@ class GeneralNotificationListView(APIView):
         user = request.user
         general_notifications = Notification.objects.filter(
             recipient=user,is_deleted=False,
-        ).exclude(notification_type__in=["private_message", "community_message"])
+        ).exclude(notification_type__in=["private_message", "community_message","product_message"])
         
         serializer = GeneralNotificationSerializer(general_notifications, many=True)
         return Response(serializer.data)

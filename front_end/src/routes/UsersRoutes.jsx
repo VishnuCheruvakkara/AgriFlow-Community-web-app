@@ -40,6 +40,9 @@ import WishList from '../pages/product-management-pages/WishList'
 // famre to farmer chat pages 
 import FarmerSingleChat from '../pages/ChatPages/FarmerSingleChat'
 
+//farmer product dealing chat 
+import FarmerProductChat from '../pages/ChatPages/FarmerProductChat'
+
 // Importing PageNotFound component for 404
 import PageNotFound from '../components/StatusPages/PageNotFound';
 
@@ -97,6 +100,7 @@ function UsersRoutes() {
           <Route path="product-deals" element={<ProductDeals  />} />
           <Route path="my-products" element={<MyProducts />} />
           <Route path="wishlist" element={<WishList />} />
+          <Route path="farmer-product-chat" element={< FarmerProductChat/>} />
         </Route>
 
 

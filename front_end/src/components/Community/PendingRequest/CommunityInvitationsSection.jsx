@@ -138,10 +138,6 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                                             timeStyle: 'short'
                                                         })}
                                                     </span>
-                                                
-
-
-
                                             </div>
                                         </div>
                                     </div>

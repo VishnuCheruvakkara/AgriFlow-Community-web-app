@@ -109,7 +109,6 @@ function NavBar() {
             console.log("Saved messages :::", data)
             dispatch(addMessageNotification(data));
 
-
         } catch (error) {
             console.error("Failed to fetch private messages:", error);
         }
@@ -168,6 +167,36 @@ function NavBar() {
         navigate(`/user-dash-board/farmer-community/my-communities/community-chat/${message.community_id}`);
     }
 
+    //go to prodcut chat page from message side bar notification
+    const goToProductChatPage = async (message) => {
+        closeSidebar();
+
+        if (!message.is_read) {
+            try {
+                await markNotificationAsRead(message.id);
+                // await getPrivateMessagesFromDb();
+            } catch (error) {
+                console.error("Error marking as read:", error);
+            }
+        }
+
+        navigate("/user-dash-board/products/farmer-product-chat/", {
+            state: {
+                receiverId: message?.sender_id,
+                username: message?.sender,
+                profilePicture: message?.image_url,
+                productId: message?.product_id,
+                productName: message?.product_name,
+                productImage: message?.product_image,
+
+                receiverId: message?.sender_id, // send the displayed user id to the next page 
+                username: message.sender || "Unknown",
+                profile_picture: message.image_url,
+            }
+        })
+    };
+
+
     // set the notifcation as read when user click over the message 
     const markNotificationAsRead = async (notificationId) => {
         try {
@@ -201,7 +230,7 @@ function NavBar() {
         try {
             await AuthenticatedAxiosInstance.patch(`/notifications/soft-delete-notifications/${notificationId}/`);
 
-            if (type === 'private_message' || type === 'community_message') {
+            if (type === 'private_message' || type === 'community_message' || type === 'product_message') {
                 dispatch(deleteMessageNotification(notificationId));
             } else {
                 dispatch(deleteNotificationFromRedux(notificationId));
@@ -210,6 +239,8 @@ function NavBar() {
             console.error("Error deleting notification:", error);
         }
     };
+
+
 
 
     return (
@@ -463,7 +494,7 @@ function NavBar() {
                                                                                 </span>
                                                                             }
 
-                                                                            <span onClick={() => deleteNotificationByType(notif.id,notif.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
+                                                                            <span onClick={() => deleteNotificationByType(notif.id, notif.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
                                                                                 <AiFillDelete className='text-lg group-hover:text-red-500' />
                                                                             </span>
                                                                         </div>
@@ -492,6 +523,9 @@ function NavBar() {
                                                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                                                         .map((message, index) => {
                                                             const isPrivate = message.notification_type === "private_message";
+                                                            const isCommunity = message.notification_type === "community_message";
+                                                            const isProduct = message.notification_type === "product_message";
+
                                                             return (
                                                                 <div
                                                                     key={`message-${index}`}
@@ -501,12 +535,16 @@ function NavBar() {
                                                                 >
                                                                     <div className="flex items-start space-x-3">
                                                                         <span
-                                                                            className={`status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full ${isPrivate ? "bg-green-500" : "bg-yellow-500"
+                                                                            className={`status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full ${isPrivate ? "bg-green-500" : isProduct ? "bg-red-500" : "bg-yellow-500"
                                                                                 }`}
                                                                         ></span>
                                                                         <div
                                                                             onClick={() =>
-                                                                                isPrivate ? goToChatPage(message) : goToCommunityChatPage(message)
+                                                                                isPrivate
+                                                                                    ? goToChatPage(message)
+                                                                                    : isProduct
+                                                                                        ? goToProductChatPage(message)
+                                                                                        : goToCommunityChatPage(message)
                                                                             }
                                                                             className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 cursor-pointer">
                                                                             <img
@@ -515,18 +553,32 @@ function NavBar() {
                                                                                 className="h-full w-full object-cover"
                                                                             />
                                                                         </div>
+
                                                                         <div
                                                                             onClick={() =>
-                                                                                isPrivate ? goToChatPage(message) : goToCommunityChatPage(message)
+                                                                                isPrivate
+                                                                                    ? goToChatPage(message)
+                                                                                    : isProduct
+                                                                                        ? goToProductChatPage(message)
+                                                                                        : goToCommunityChatPage(message)
                                                                             }
-                                                                            className="text-sm text-gray-700 dark:text-zinc-200 cursor-pointer">
+                                                                            className="text-sm text-gray-700 dark:text-zinc-200 cursor-pointer"
+                                                                        >
                                                                             {isPrivate ? (
-                                                                                //Private message layout
+                                                                                // Private message layout
                                                                                 <p className="truncate w-40">
                                                                                     <b>{message.sender || "System"}</b>: {message.message || "(Click to see details)"}
                                                                                 </p>
+                                                                            ) : isProduct ? (
+                                                                                // Product message layout
+                                                                                <div className="w-40 truncate">
+                                                                                    <p className="font-bold">{message.product_name || "Product Deal"}</p>
+                                                                                    <p className="text-xs truncate">
+                                                                                        <b>{message.sender || "Seller"}</b>: {message.message || "(Click to see details)"}
+                                                                                    </p>
+                                                                                </div>
                                                                             ) : (
-                                                                                //Community message layout
+                                                                                // Community message layout
                                                                                 <div className="w-40 truncate">
                                                                                     <p className="font-bold">{message.community_name}</p>
                                                                                     <p className="text-xs truncate">
@@ -543,12 +595,19 @@ function NavBar() {
                                                                                 })}
                                                                             </p>
 
-                                                                            {!isPrivate && (
+                                                                            {/* Badge based on type */}
+                                                                            {isProduct ? (
+                                                                                <span className="mt-5 px-2 py-0.5 bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-100 rounded-full text-[10px] font-semibold">
+                                                                                    Product Deal
+                                                                                </span>
+                                                                            ) : !isPrivate ? (
                                                                                 <span className="mt-5 px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 rounded-full text-[10px] font-semibold">
                                                                                     Community
                                                                                 </span>
-                                                                            )}
+                                                                            ) : null}
                                                                         </div>
+
+
 
                                                                     </div>
                                                                     <div className="flex flex-col items-end text-xs text-zinc-600 dark:text-zinc-200 whitespace-nowrap pl-4">
@@ -559,7 +618,7 @@ function NavBar() {
                                                                                 hour12: true,
                                                                             })}
                                                                         </span>
-                                                                        <span onClick={() => deleteNotificationByType(message.id,message.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
+                                                                        <span onClick={() => deleteNotificationByType(message.id, message.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
                                                                             <AiFillDelete className='text-lg group-hover:text-red-500' />
                                                                         </span>
 
