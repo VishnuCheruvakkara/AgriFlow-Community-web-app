@@ -39,7 +39,12 @@ function FarmerProductChat() {
         productImage,
     } = location.state || {};
 
-    console.log("receiverId 09090:::", productImage)
+    console.log("receiverId 09090:::", receiverId,
+        username,
+        profilePicture,
+        productId,
+        productName,
+        productImage,)
 
     const minId = Math.min(userId, receiverId);
     const maxId = Math.max(userId, receiverId);

@@ -33,10 +33,13 @@ class GetPrivateMessageSerializer(serializers.ModelSerializer):
     timestamp = serializers.DateTimeField(source = 'created_at')
     community_id = serializers.SerializerMethodField()
     community_name = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
+    product_name = serializers.SerializerMethodField()
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Notification
-        fields = ['id','image_url','message','sender','sender_id','timestamp','notification_type','community_id','community_name','is_read']
+        fields = ['id','image_url','message','sender','sender_id','timestamp','notification_type','community_id','community_name','is_read','product_id', 'product_name', 'product_image']
 
     def get_community_id(self,obj):
         if obj.notification_type == "community_message" and obj.community:
@@ -47,6 +50,21 @@ class GetPrivateMessageSerializer(serializers.ModelSerializer):
         if obj.notification_type == "community_message" and obj.community:
             return obj.community.name 
         return None 
+
+    def get_product_id(self, obj):
+        if obj.notification_type == "product_message" and obj.product:
+            return obj.product.id
+        return None
+
+    def get_product_name(self, obj):
+        if obj.notification_type == "product_message" and obj.product:
+            return obj.product.title
+        return None
+
+    def get_product_image(self, obj):
+        if obj.notification_type == "product_message" and obj.product:
+            return obj.product.image1
+        return None
 
 #################################  Get all the notifications from the Db #######################
 
