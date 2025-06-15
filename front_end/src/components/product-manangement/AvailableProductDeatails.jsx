@@ -19,7 +19,6 @@ import EditProductModal from "./EditProductModal"; // Import the EditProductModa
 import { FaExclamationTriangle } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import MapModal from "../MapLocation/MapModal";
-import { GrMapLocation } from "react-icons/gr";
 import DefaultUserImage from "../../assets/images/user-default.png"
 import { GrContact } from "react-icons/gr";
 import { useNavigate, useNavigation } from "react-router-dom";

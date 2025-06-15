@@ -179,6 +179,9 @@ function FarmerProductChat() {
         return () => textarea.removeEventListener('input', resize);
     }, []);
 
+    const handleOpenProductDetails = (productId) => {
+        navigate(`/user-dash-board/products/product-details-page/${productId}`)
+    }
 
     return (
         <div className="flex mt-4 flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
@@ -200,7 +203,7 @@ function FarmerProductChat() {
 
                 </div>
 
-                <button className="border-white hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300">
+                <button onClick={() => navigate(-1)} className="border-white hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -243,7 +246,7 @@ function FarmerProductChat() {
                             <img
                                 src={productImage || DefaultProductImage}
                                 alt="Product"
-                                className="w-12 h-12 rounded-md object-cover border border-gray-300"
+                                className="w-12 h-12 rounded-md object-cover border border-gray-300 shadow-lg"
                             />
                             <div className="text-sm text-gray-800 dark:text-gray-200">
                                 <p className="font-semibold">{productName || "Product Name"}</p>
@@ -251,7 +254,7 @@ function FarmerProductChat() {
                             </div>
                         </div>
                         <button
-
+                            onClick={() => handleOpenProductDetails(productId)}
                             className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600  transition-colors duration-200 shadow-lg shadow-gray-300 dark:shadow-zinc-900"
                         >
                             <div className="bg-white dark:bg-white rounded-full p-2">

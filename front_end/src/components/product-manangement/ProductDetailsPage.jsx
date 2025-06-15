@@ -21,8 +21,19 @@ import { useSelector } from "react-redux";
 import MapModal from "../MapLocation/MapModal";
 import { GrMapLocation } from "react-icons/gr";
 import DefaultUserImage from "../../assets/images/user-default.png"
+import { useParams, useNavigate } from "react-router-dom";
+import { GrContact } from "react-icons/gr";
+import ProductDetailsShimmer from "../shimmer-ui-component/ProductDetailsShimmer";
 
-const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
+
+const ProductDetailsPage = () => {
+
+    const [loading, setLoading] = useState(true);
+
+    const navigate = useNavigate();
+    //get product Id from the previous page 
+    const { productId } = useParams();
+    console.log("PRoduct9898 id is :::: ,", productId)
 
     const [showMapModal, setShowMapModal] = useState();
     const [localProduct, setLocalProduct] = useState({});
@@ -31,8 +42,21 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
     const userId = useSelector((state) => state.user.user?.id)
 
     useEffect(() => {
-        setLocalProduct(product);
-    }, [product]);
+        const fetchProductDetails = async () => {
+            try {
+                setLoading(true);
+                const response = await AuthenticatedAxiosInstance.get(`/products/get-single-product-details/${productId}/`);
+                setLocalProduct(response.data);
+            } catch (error) {
+                console.error("Failed to fetch product details:", error);
+                showToast("Error loading product details", "error");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProductDetails();
+    }, [productId]);
+
     console.log("Local product is :::::", localProduct)
 
     const images = [localProduct.image1, localProduct.image2, localProduct.image3].filter(Boolean);
@@ -56,14 +80,7 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
         setIsEditModalOpen(false);
     };
 
-    // Handle product update
-    const handleProductUpdate = (updatedProduct) => {
-        setLocalProduct(updatedProduct);
-        // Call parent component's update handler if provided
-        if (onUpdate) {
-            onUpdate(updatedProduct);
-        }
-    };
+
 
     // Handle delete with confirmation
     const handleDeleteClick = async () => {
@@ -78,10 +95,8 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
             try {
                 await AuthenticatedAxiosInstance.patch(`/products/soft-delete/${localProduct.id}/`);
                 showToast("Product deleted successfully", "success");
-                if (onDelete) {
-                    onDelete(localProduct.id);
-                }
-                onClose(); // Close the details page after deletion
+                navigate("/user-dash-board/products/my-products");
+
             } catch (error) {
                 console.error("Error deleting product:", error);
                 showToast("Error deleting product", "error");
@@ -90,13 +105,41 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
     };
 
 
+    // Handle product update
+    const handleProductUpdate = (updatedProduct) => {
+        setLocalProduct(updatedProduct);
+
+    };
+
+    const NavigateToChat = () => {
+
+        const seller = localProduct?.seller;
+        navigate('/user-dash-board/products/farmer-product-chat/', {
+            state: {
+                receiverId: seller?.id,
+                username: seller?.username,
+                profilePicture: seller?.profile_picture,
+                productId: localProduct?.id,
+                productName: localProduct?.title,
+                productImage: localProduct?.image1,
+
+            }
+        })
+    }
+
+    // show the shimmer while loading the page 
+    if (loading) {
+        return <ProductDetailsShimmer />;
+    }
+
+
     return (
         <>
             <div className="flex flex-col w-full rounded-md bg-gray-100 shadow-lg overflow-y-auto no-scrollbar dark:bg-zinc-950 dark:text-zinc-200">
                 {/* Header */}
                 <div className="text-white bg-gradient-to-r from-green-700 to-green-400 px-4 py-4 flex justify-between items-center dark:from-green-800 dark:to-green-600">
                     <h2 className="text-xl font-semibold text-white">Product Details</h2>
-                    <button onClick={onClose} className="border-white hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300 dark:hover:bg-green-800">
+                    <button onClick={() => navigate(-1)} className="border-white hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300 dark:hover:bg-green-800">
                         <RxCross2 className='text-2xl' />
                     </button>
                 </div>
@@ -112,18 +155,29 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
 
                     {/* Edit Button - Now functional */}
 
+                    {userId === localProduct?.seller?.id &&
+                        <button
+                            onClick={handleEditClick}
+                            className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
+                        >
+                            <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
+                                <FaRegEdit className="text-green-500" />
+                            </div>
+                            <span className="text-sm pr-10 pl-4">Edit Product</span>
+                        </button>
+                    }
 
-                    <button
-                        onClick={handleEditClick}
-                        className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
-                    >
-                        <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
-                            <FaRegEdit className="text-green-500" />
-                        </div>
-                        <span className="text-sm pr-10 pl-4">Edit Product</span>
-                    </button>
-
-
+                    {userId !== localProduct?.seller?.id &&
+                        <button
+                            onClick={NavigateToChat}
+                            className=" bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
+                        >
+                            <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
+                                < GrContact className="text-green-500" />
+                            </div>
+                            <span className="text-sm pr-10 pl-4">Contact Farmer</span>
+                        </button>
+                    }
 
 
 
@@ -148,11 +202,6 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                         <span>{localProduct.quantity} {localProduct.unit}</span>
                     </div>
 
-                    <div className="flex text-sm border border-green-400 bg-green-200 px-2 py-3 rounded-sm dark:bg-green-900 dark:border-green-700 dark:text-green-100">
-                        <span className="w-48 font-medium flex items-center gap-4"><FaMapLocationDot />Location</span>
-                        <span className="mr-5">:</span>
-                        <span className="break-words">{localProduct?.location?.full_location}</span>
-                    </div>
                 </div>
 
 
@@ -204,14 +253,15 @@ const ProductDetailsPage = ({ product, onClose, onDelete, onUpdate }) => {
                 </div>
 
                 {/* Delete Button - Now functional */}
-
-                <button
-                    onClick={handleDeleteClick}
-                    className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900 transition-colors duration-200"
-                >
-                    <RiDeleteBin5Fill className="text-red-600 dark:text-red-400 text-xl" />
-                    <span className="text-red-600 dark:text-red-400 font-bold">Delete Product</span>
-                </button>
+                {userId === localProduct?.seller?.id &&
+                    <button
+                        onClick={handleDeleteClick}
+                        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900 transition-colors duration-200"
+                    >
+                        <RiDeleteBin5Fill className="text-red-600 dark:text-red-400 text-xl" />
+                        <span className="text-red-600 dark:text-red-400 font-bold">Delete Product</span>
+                    </button>
+                }
 
             </div>
 

@@ -171,3 +171,14 @@ class ProductDealMessageListView(APIView):
         messages = messages.order_by("timestamp")
         serializer = ProductChatMessageSerializer(messages, many=True)
         return Response(serializer.data)
+    
+################################## Get the selected product details  ########################3
+
+class GetSingleProductDetailsView(APIView):
+    def get(self, request, product_id):
+        try:
+            product = Product.objects.select_related('location', 'seller').get(id=product_id, is_deleted=False)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Product.DoesNotExist:
+            return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)

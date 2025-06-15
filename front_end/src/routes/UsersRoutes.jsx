@@ -36,6 +36,8 @@ import AvailableProducts from '../pages/product-management-pages/AvailableProduc
 import ProductDeals from '../pages/product-management-pages/ProductDeals'
 import MyProducts from '../pages/product-management-pages/MyProducts'
 import WishList from '../pages/product-management-pages/WishList'
+import AvailableProductDetails from '../components/product-manangement/AvailableProductDeatails'
+import ProductDetailsPage from '../components/product-manangement/ProductDetailsPage'
 
 // famre to farmer chat pages 
 import FarmerSingleChat from '../pages/ChatPages/FarmerSingleChat'
@@ -101,6 +103,7 @@ function UsersRoutes() {
           <Route path="my-products" element={<MyProducts />} />
           <Route path="wishlist" element={<WishList />} />
           <Route path="farmer-product-chat" element={< FarmerProductChat/>} />
+          <Route path="product-details-page/:productId" element={<ProductDetailsPage/>} />
         </Route>
 
 
