@@ -59,3 +59,37 @@ class ProductChatMessageSerializer(serializers.ModelSerializer):
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
 
+########################  Serializer for get the product selling by the user ########################33
+
+class BuyerMessageSerializer(serializers.ModelSerializer):
+    sender = SellerSerializer(read_only=True)  # Reusing your existing one
+    message = serializers.CharField()
+    timestamp = serializers.DateTimeField()
+
+    class Meta:
+        model = ProductChatMessage
+        fields = ['id', 'sender', 'message', 'timestamp']
+
+
+class ProductWithBuyersSerializer(serializers.ModelSerializer):
+    location = ProductLocationSerializer()
+    seller = SellerSerializer()
+    buyers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'image1', 'location', 'seller', 'buyers']
+
+    def get_buyers(self, obj):
+        request_user = self.context['request'].user
+
+        # All messages except from seller (only buyers)
+        messages = ProductChatMessage.objects.filter(product=obj).exclude(sender=request_user).order_by('sender', '-timestamp')
+
+        # Keep latest message from each buyer
+        latest_messages = {}
+        for msg in messages:
+            if msg.sender_id not in latest_messages:
+                latest_messages[msg.sender_id] = msg
+
+        return BuyerMessageSerializer(latest_messages.values(), many=True).data

@@ -5,7 +5,7 @@ from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 import json
 from products.models import Product,ProductLocation,ProductChatMessage
-from .serializers import ProductSerializer,ProductChatMessageSerializer
+from .serializers import ProductSerializer,ProductChatMessageSerializer,ProductWithBuyersSerializer
 from apps.common.cloudinary_utils import upload_image_and_get_url
 from rest_framework.permissions import IsAuthenticated 
 from django.db.models import Q 
@@ -182,3 +182,15 @@ class GetSingleProductDetailsView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Product.DoesNotExist:
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+#################################### Get the Selling product deals view by the current user ########################
+
+class SellingProductDealsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_products = Product.objects.filter(seller=user, is_deleted=False)
+        serializer = ProductWithBuyersSerializer(user_products, many=True, context={'request': request})
+        return Response(serializer.data)
