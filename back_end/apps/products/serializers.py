@@ -93,3 +93,32 @@ class ProductWithBuyersSerializer(serializers.ModelSerializer):
                 latest_messages[msg.sender_id] = msg
 
         return BuyerMessageSerializer(latest_messages.values(), many=True).data
+
+
+############################## Get the product deals where the current user is the buyer  ######################
+
+class BuyingDealSerializer(serializers.ModelSerializer):
+    product_title = serializers.CharField(source='product.title', read_only=True)
+    product_image = serializers.SerializerMethodField()
+    other_user = serializers.CharField(source='receiver.username', read_only=True)
+    other_user_image = serializers.SerializerMethodField()  
+    
+    class Meta:
+        model = ProductChatMessage
+        fields = [
+            'id',
+            'product_title',
+            'product_image',
+            'other_user',
+            'other_user_image',
+            'message',
+            'timestamp'
+        ]
+
+    def get_product_image(self, obj):
+        return obj.product.image1 if obj.product and obj.product.image1 else None
+
+    def get_other_user_image(self, obj):
+        if obj.receiver and obj.receiver.profile_picture:
+            return generate_secure_image_url(obj.receiver.profile_picture)
+        return None

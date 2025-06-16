@@ -75,8 +75,6 @@ function SellingProductDeals() {
                 <p className="text-md font-semibold">You haven’t added any products yet.</p>
                 <p className="text-xs text-gray-500 dark:text-zinc-400">Start selling by adding your first product. Once buyers message you, their interactions will appear here!</p>
               </div>
-
-
             ) : (
               deals.map((product) => (
                 <div key={product.id} className="bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg">
@@ -139,7 +137,7 @@ function SellingProductDeals() {
                       </div>
                     ))}
                     {product.buyers.length === 0 && (
-                      <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md dark:bg-zinc-800 dark:text-zinc-300 my-4 mx-4">
+                      <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-300 m-2">
                         <p className="text-sm font-semibold">No buyer messages yet.</p>
                         <p className="text-xs text-gray-500 dark:text-zinc-400">Buyers who message about this product will appear here.</p>
                       </div>

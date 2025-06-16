@@ -5,7 +5,7 @@ from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 import json
 from products.models import Product,ProductLocation,ProductChatMessage
-from .serializers import ProductSerializer,ProductChatMessageSerializer,ProductWithBuyersSerializer
+from .serializers import ProductSerializer,ProductChatMessageSerializer,ProductWithBuyersSerializer,BuyingDealSerializer
 from apps.common.cloudinary_utils import upload_image_and_get_url
 from rest_framework.permissions import IsAuthenticated 
 from django.db.models import Q 
@@ -193,4 +193,25 @@ class SellingProductDealsAPIView(APIView):
         user = request.user
         user_products = Product.objects.filter(seller=user, is_deleted=False)
         serializer = ProductWithBuyersSerializer(user_products, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+################################  Get the Buying product deals view by the current/logged in user #######################
+
+class BuyingDealsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Get last message per product the user has sent messages for
+        latest_messages = (
+            ProductChatMessage.objects
+            .filter(sender=user)
+            .exclude(product__seller=user)
+            .order_by('product_id', '-timestamp')
+            .distinct('product_id')
+        )
+
+        serializer = BuyingDealSerializer(latest_messages, many=True, context={'request': request})
         return Response(serializer.data)
