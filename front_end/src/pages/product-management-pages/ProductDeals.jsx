@@ -5,7 +5,7 @@ import BuyingProductDeals from '../../components/product-manangement/BuyingProdu
 function ProductDeals() {
   return (
     <div className="mx-auto">
-      <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200">Pending Connections</h2>
+      <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200">Product Deals</h2>
 
       {/* Selling products deals */}
       <SellingProductDeals />

@@ -3,10 +3,13 @@ import { FaChevronDown, FaHandHoldingUsd } from 'react-icons/fa';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 import DefaultUserImage from '../../assets/images/user-default.png';
 import DefaultProductImage from "../../assets/images/banner_default_user_profile.png"
+import { useNavigate } from 'react-router-dom';
 
 function BuyingProductDeals() {
   const [isOpen, setIsOpen] = useState(false);
   const [deals, setDeals] = useState([]);
+  const navigate = useNavigate();
+
 
   const fetchBuyingDeals = async () => {
     try {
@@ -22,21 +25,18 @@ function BuyingProductDeals() {
     fetchBuyingDeals();
   }, []);
 
-  const NavigateToChat = () => {
-
-    const seller = localProduct?.seller;
+  const NavigateToChat = (deal) => {
     navigate('/user-dash-board/products/farmer-product-chat/', {
       state: {
-        receiverId: seller?.id,
-        username: seller?.username,
-        profilePicture: seller?.profile_picture,
-        productId: localProduct?.id,
-        productName: localProduct?.title,
-        productImage: localProduct?.image1,
-
+        receiverId: deal.receiver_id,
+        username: deal.other_user,
+        profilePicture: deal.other_user_image,
+        productId: deal.product_id,
+        productName: deal.product_title,
+        productImage: deal.product_image,
       }
-    })
-  }
+    });
+  };
 
   return (
     <div className="mb-6 rounded-lg shadow-lg">
@@ -75,52 +75,82 @@ function BuyingProductDeals() {
                   </p>
                 </div>
               ) : (
-                deals.map((deal) => (
-                  <div
-                    key={deal.id}
-                    className="flex items-start justify-between border border-gray-300 dark:border-zinc-700 p-4 bg-white dark:bg-zinc-800 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition"
-                  >
-                    {/* Left Section: Product + Seller Info */}
-                    <div className="flex items-start">
-                      <div className="h-14 w-14 rounded-md overflow-hidden mr-4 border border-gray-300 dark:border-zinc-600">
-                        <img
-                          src={deal.product_image || DefaultProductImage}
-                          alt="Product"
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="font-semibold text-gray-800 dark:text-zinc-100">{deal.product_title}</h3>
+                deals.map((deal) => {
+                  const isDeleted = deal.product_is_deleted;
 
-                        {/* Seller Info */}
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs text-gray-600 dark:text-zinc-400">Seller:</span>
-                          <div className="h-5 w-5 rounded-full overflow-hidden border border-gray-400">
-                            <img
-                              src={deal.other_user_image || DefaultUserImage}
-                              alt={deal.other_user}
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                          <span className="text-xs text-gray-700 dark:text-zinc-300">{deal.other_user}</span>
+                  return (
+                    <div
+                      key={deal.id}
+                      className={`flex items-start justify-between border border-gray-300 dark:border-zinc-700 p-4 rounded-lg transition ${isDeleted ? 'bg-gray-100 dark:bg-zinc-800 opacity-60 cursor-default' : 'bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer'
+                        }`}
+                      onClick={() => {
+                        if (!isDeleted) {
+                          NavigateToChat(deal);
+                        }
+                      }}
+                    >
+                      {/* Left Section: Product + Seller Info */}
+                      <div className="flex items-start">
+                        <div className="h-14 w-14 rounded-md overflow-hidden mr-4 border border-gray-300 dark:border-zinc-600">
+                          <img
+                            src={deal.product_image || DefaultProductImage}
+                            alt="Product"
+                            className="h-full w-full object-cover"
+                          />
                         </div>
+                        <div className="space-y-1">
+                          <h3 className="font-semibold text-gray-800 dark:text-zinc-100">
+                            {deal.product_title}
+                          </h3>
 
-                        <p className="text-xs text-gray-500 dark:text-zinc-500">
-                          Last message • {new Date(deal.timestamp).toLocaleString()}
-                        </p>
+                          {/* Show tag if deleted */}
+                          {isDeleted && (
+                            <span className="text-xs italic text-red-600 dark:text-red-400 ">
+                              Product removed by seller
+                            </span>
+                          )}
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-gray-600 dark:text-zinc-400">Seller:</span>
+                            <div className="h-5 w-5 rounded-full overflow-hidden border border-gray-400">
+                              <img
+                                src={deal.other_user_image || DefaultUserImage}
+                                alt={deal.other_user}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <span className="text-xs text-gray-700 dark:text-zinc-300">{deal.other_user}</span>
+                          </div>
+
+                          <p className="text-xs text-gray-500 dark:text-zinc-500">
+                            Last message • {new Date(deal.timestamp).toLocaleString('en-IN', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                              })}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right Section: Last Message */}
+                      <div className="chat chat-end">
+                        <div className={`chat-bubble ${isDeleted ? 'bg-gray-400' : 'bg-green-600'} text-xs text-white dark:text-zinc-300`}>
+                          <span
+                            className="block max-w-[200px] truncate overflow-hidden whitespace-nowrap"
+                            title={deal.message}
+                          >
+                            {deal.message}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  );
+                })
+              )}
 
-                    {/* Right Section: Last Message */}
-                    <div className="chat chat-end">
-                      <div className="chat-bubble bg-green-600 text-xs text-white dark:text-zinc-300">
-                        <span className="block max-w-[200px] truncate overflow-hidden whitespace-nowrap" title={deal.message}>
-                          {deal.message}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )))}
             </div>
 
           </div>

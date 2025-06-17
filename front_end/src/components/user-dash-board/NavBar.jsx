@@ -529,9 +529,8 @@ function NavBar() {
                                                             return (
                                                                 <div
                                                                     key={`message-${index}`}
-
                                                                     className={`px-4 py-3 flex items-start justify-between border-b border-zinc-300 dark:border-zinc-500  ${!message.is_read ? "bg-green-200 dark:bg-green-900" : ""
-                                                                        }`}
+                                                                        } ${message.product_is_deleted ? "opacity-60 cursor-not-allowed pointer-events-none" : ""} `}
                                                                 >
                                                                     <div className="flex items-start space-x-3">
                                                                         <span
@@ -573,9 +572,16 @@ function NavBar() {
                                                                                 // Product message layout
                                                                                 <div className="w-40 truncate">
                                                                                     <p className="font-bold">{message.product_name || "Product Deal"}</p>
-                                                                                    <p className="text-xs truncate">
-                                                                                        <b>{message.sender || "Seller"}</b>: {message.message || "(Click to see details)"}
-                                                                                    </p>
+
+                                                                                    {message.product_is_deleted ? (
+                                                                                        <p className="text-xs italic text-red-600 dark:text-red-400">Product removed by seller</p>
+                                                                                    ) : (
+                                                                                        <p className="text-xs truncate">
+                                                                                            <b>{message.sender || "Seller"}</b>: {message.message || "(Click to see details)"}
+                                                                                        </p>
+                                                                                    )}
+
+
                                                                                 </div>
                                                                             ) : (
                                                                                 // Community message layout

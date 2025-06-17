@@ -36,10 +36,11 @@ class GetPrivateMessageSerializer(serializers.ModelSerializer):
     product_id = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
     product_image = serializers.SerializerMethodField()
+    product_is_deleted = serializers.SerializerMethodField() 
 
     class Meta:
         model = Notification
-        fields = ['id','image_url','message','sender','sender_id','timestamp','notification_type','community_id','community_name','is_read','product_id', 'product_name', 'product_image']
+        fields = ['id','image_url','message','sender','sender_id','timestamp','notification_type','community_id','community_name','is_read','product_id', 'product_name', 'product_image','product_is_deleted' ]
 
     def get_community_id(self,obj):
         if obj.notification_type == "community_message" and obj.community:
@@ -64,6 +65,11 @@ class GetPrivateMessageSerializer(serializers.ModelSerializer):
     def get_product_image(self, obj):
         if obj.notification_type == "product_message" and obj.product:
             return obj.product.image1
+        return None
+
+    def get_product_is_deleted(self, obj):
+        if obj.notification_type == "product_message" and obj.product:
+            return obj.product.is_deleted
         return None
 
 #################################  Get all the notifications from the Db #######################

@@ -102,17 +102,23 @@ class BuyingDealSerializer(serializers.ModelSerializer):
     product_image = serializers.SerializerMethodField()
     other_user = serializers.CharField(source='receiver.username', read_only=True)
     other_user_image = serializers.SerializerMethodField()  
-    
+    product_id = serializers.IntegerField(source='product.id', read_only=True)
+    receiver_id = serializers.IntegerField(source='receiver.id', read_only=True)
+    product_is_deleted = serializers.BooleanField(source='product.is_deleted', read_only=True)
+
     class Meta:
         model = ProductChatMessage
         fields = [
             'id',
+            'product_id',  
             'product_title',
             'product_image',
+            'receiver_id',
             'other_user',
             'other_user_image',
             'message',
-            'timestamp'
+            'timestamp',
+            'product_is_deleted',
         ]
 
     def get_product_image(self, obj):
