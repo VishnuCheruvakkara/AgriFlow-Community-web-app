@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView
+from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView
 urlpatterns = [
     ###################### Create product to sell ##########################
     path("create-product-to-sell/",CreateProductToSell.as_view(),name="create-product-to-sell"),
@@ -28,6 +28,15 @@ urlpatterns = [
     ################# Get Buying product deals by the current user #####################
     path('buying-product-deals/', BuyingDealsView.as_view(), name='buying-deals'), 
 
+    ################# Wish list ########################
 
+    #===========================  Toggle wishlist (Add or remove product fromt eh wish list ) ==================================#
+    path('wishlist/toggle-status/', ToggleWishlistAPIView.as_view(), name='toggle-wishlist'),
+
+    #========================== Get the products from wish list =============================#
+    path('wishlist/my-products/', WishlistListAPIView.as_view(), name='wishlist-products'),
+
+    #======================= Get the products that added in the wishlist by the current/logged in user =======================# 
+    path('wishlist/my-wish-list-items/', GetMyWishlistProductsAPIView.as_view(), name='my-wishlist-products'),
 ]
 

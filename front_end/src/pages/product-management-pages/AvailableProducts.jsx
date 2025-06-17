@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FaMapMarkerAlt, FaRegCalendarAlt, FaEye } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback  } from 'react';
+import { FaMapMarkerAlt, FaRegCalendarAlt, FaEye, FaRegHeart, FaHeart, FaSpinner } from 'react-icons/fa';
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from "react-icons/im";
 import DefaultProductImage from '../../assets/images/banner_default_user_profile.png';
@@ -9,6 +9,7 @@ import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import ProductsNotFound from '../../assets/images/no-product-found.png';
 import EventPageShimmer from '../../components/shimmer-ui-component/EventPageShimmer';
 import { useNavigate } from 'react-router-dom';
+import { showToast } from '../../components/toast-notification/CustomToast';
 
 function AvailableProducts() {
   const navigate = useNavigate();
@@ -17,6 +18,61 @@ function AvailableProducts() {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // wish list functionality
+  const [wishlist, setWishlist] = useState([]);
+  // wish list toggling loader 
+  const [wishlistLoadingId, setWishlistLoadingId] = useState(null);
+
+  // Add or remove product from the wishlist
+  const toggleWishlist = async (productId) => {
+    const isInWishlist = wishlist.includes(productId);  // check current state
+    setWishlistLoadingId(productId);
+
+    try {
+      const response = await AuthenticatedAxiosInstance.post('/products/wishlist/toggle-status/', {
+        product_id: productId
+      });
+
+      // Update local state first
+      setWishlist((prev) =>
+        isInWishlist
+          ? prev.filter((id) => id !== productId)
+          : [...prev, productId]
+      );
+
+      // Show appropriate toast message
+      if (isInWishlist) {
+        showToast("Product removed from wishlist", "info");
+      } else {
+        showToast("Product added to wishlist", "success");
+      }
+
+      console.log(response.data.message);
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      showToast("Error toggling wishlist ", "error");
+    } finally {
+      setWishlistLoadingId(null); // End loading
+    }
+
+  };
+
+  //Get the prodcuts from wishlist 
+  const fetchWishlist = async () => {
+    try {
+      const response = await AuthenticatedAxiosInstance.get('/products/wishlist/my-products/');
+      const wishlistProductIds = response.data.map(item => item.product_id);
+      setWishlist(wishlistProductIds);
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
+
 
 
   const fetchProducts = async (query = '', page = 1) => {
@@ -151,14 +207,36 @@ function AvailableProducts() {
                     <span>{product.location?.location_name}, {product.location?.country}</span>
                   </div>
                 </div>
-                <div className="mt-4">
+                <div className="mt-4 flex items-center justify-between">
                   <button
-                    onClick={()=>handleOpenProductDetails(product?.id)}
-                    className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700"
+                    onClick={() => handleOpenProductDetails(product?.id)}
+                    className="flex-1 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700"
                   >
                     <FaEye size={16} /> View Product
                   </button>
+
+                  <button
+                    onClick={() => toggleWishlist(product.id)}
+                    disabled={wishlistLoadingId === product.id}
+                    className={`ml-3 w-10 h-10 flex items-center justify-center rounded-md border-2 transition duration-300
+    ${wishlist.includes(product.id)
+                        ? 'border-green-500 text-green-500'
+                        : 'border-gray-400 text-gray-400 hover:border-green-500 hover:text-green-500'}
+    ${wishlistLoadingId === product.id && 'opacity-50 cursor-not-allowed'}
+  `}
+                  >
+                    {wishlistLoadingId === product.id ? (
+                      <FaSpinner className="animate-spin" />
+                    ) : wishlist.includes(product.id) ? (
+                      <FaHeart />
+                    ) : (
+                      <FaRegHeart />
+                    )}
+                  </button>
+
                 </div>
+
+
               </div>
             ))
           )}
