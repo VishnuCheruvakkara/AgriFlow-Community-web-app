@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Camera } from 'lucide-react';
+//theme changin sound set up 
+import useSound from 'use-sound'
+import notificationSound from "../../sounds/mixkit-hard-typewriter-click-1119.wav"
+
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useState('light');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [playNotification] = useSound(notificationSound,{
+    volume:0.5 //50% volume
+  })
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -18,6 +25,7 @@ const ThemeToggle = () => {
   }, []);
 
   const toggleTheme = () => {
+    playNotification();
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 1000);
     

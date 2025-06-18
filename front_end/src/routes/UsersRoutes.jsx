@@ -10,6 +10,7 @@ import UserLayout from '../layout/UserLayout';
 import CommunityLayout from '../layout/UserCommunityLayout';
 import EventLayout from '../layout/CommunityEventLayout';
 import UserConnectionLayout from '../layout/UserConnectionLayout'
+import ProductManagementLayout from '../layout/ProductManagementLayout'
 
 // Community pages
 import DiscoverCommunities from '../pages/community-user-side/DiscoverCommunities';
@@ -30,8 +31,18 @@ import PendingRequests from '../pages/connection-management-user-side/PendingReq
 import MyConnections from '../pages/connection-management-user-side/MyConnections'
 import BlockedUsers from '../pages/connection-management-user-side/BlockedUsers'
 
+//Product management pages 
+import AvailableProducts from '../pages/product-management-pages/AvailableProducts'
+import ProductDeals from '../pages/product-management-pages/ProductDeals'
+import MyProducts from '../pages/product-management-pages/MyProducts'
+import WishList from '../pages/product-management-pages/WishList'
+import ProductDetailsPage from '../components/product-manangement/ProductDetailsPage'
+
 // famre to farmer chat pages 
 import FarmerSingleChat from '../pages/ChatPages/FarmerSingleChat'
+
+//farmer product dealing chat 
+import FarmerProductChat from '../pages/ChatPages/FarmerProductChat'
 
 // Importing PageNotFound component for 404
 import PageNotFound from '../components/StatusPages/PageNotFound';
@@ -51,7 +62,7 @@ function UsersRoutes() {
 
         {/* Single to Single Chat Page set up */}
         <Route path="/farmer-single-chat/" element={<FarmerSingleChat />} />
-        
+
         {/* Comunity set up */}
         <Route path="farmer-community" element={<CommunityLayout />}>
           <Route index element={<Navigate to="discover-communities" replace />} />
@@ -83,6 +94,17 @@ function UsersRoutes() {
           <Route path="my-connections" element={<MyConnections />} />
           <Route path="blocked-users" element={<BlockedUsers />} />
         </Route>
+
+        {/* Product management layout section  */}
+        <Route path="products" element={<ProductManagementLayout />}>
+          <Route path="available-products" element={<AvailableProducts />} />
+          <Route path="product-deals" element={<ProductDeals  />} />
+          <Route path="my-products" element={<MyProducts />} />
+          <Route path="wishlist" element={<WishList />} />
+          <Route path="farmer-product-chat" element={< FarmerProductChat/>} />
+          <Route path="product-details-page/:productId" element={<ProductDetailsPage/>} />
+        </Route>
+
 
       </Route>
       {/* Catch-all route for 404 Page */}

@@ -96,7 +96,7 @@ function MyConnections() {
 
     return (
         <div className="mt-4">
-            <h2 className="text-lg font-medium text-gray-800 mb-3">My Connections</h2>
+            <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">My Connections</h2>
 
             {/* Search Bar */}
             <div className="relative mb-6">

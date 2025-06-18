@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { Outlet, useNavigate } from "react-router-dom";
 import NavBar from "../components/user-dash-board/NavBar";
 import MobileNavBar from "../components/user-dash-board/MobileNavBar";
@@ -13,50 +13,28 @@ import { showToast } from "../components/toast-notification/CustomToast";
 import { persistor } from '../redux/Store';
 import PublicAxiosInstance from '../axios-center/PublicAxiosInstance'
 import { loginSuccess } from "../redux/slices/AuthSlice";
-// import useWebSocketNotification from "../websocket-center/useWebSocketNotification";
+import { addMessageNotification } from "../redux/slices/messageNotificationSlice";
+import { addGeneralNotification } from "../redux/slices/GeneralNotificationSlice";
+//notificaiton sound set up 
+import useSound from 'use-sound'
+import notificationSound from "../sounds/mixkit-software-interface-remove-2576.wav"
+
+import { showRealTimeToast } from "../components/toast-notification/RealTimeNotificationToast";
 
 const UserLayout = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
+    const userId = useSelector((state) => state.user?.user?.id)
     const token = useSelector((state) => state.auth.token);
     const AadharVerified = user?.aadhar_verification;
     const dispatch = useDispatch();
+    const socketRef = useRef(null);
 
-    // // websocket set-up under progress
-    // useEffect(() => {
-    //     if (!token) {
-    //         console.warn("No token found, skipping WebSocket connection.");
-    //         return;
-    //     }
+    const [playNotification] = useSound(notificationSound,{
+        volume: 0.4 //40% volume
+    })
 
-    //     const socket = new WebSocket(
-    //         `ws://localhost:8000/ws/notification/user/?token=${token}`
-    //     );
-
-    //     socket.onopen = () => {
-    //         console.log("WebSocket connected");
-    //     };
-
-    //     socket.onmessage = (event) => {
-    //         const data = JSON.parse(event.data);
-    //         console.log("Notification received:", data);
-    //     };
-
-    //     socket.onerror = (error) => {
-    //         console.error("WebSocket error:", error);
-    //     };
-
-    //     socket.onclose = (event) => {
-    //         console.log("WebSocket closed:", event.code, event.reason);
-    //     };
-
-    //     return () => {
-    //         socket.close();
-    //     };
-    // }, [token]);
-    
-
-
+    console.log("userId::", userId)
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -79,6 +57,51 @@ const UserLayout = () => {
         fetchUserData();
 
     }, []);
+
+
+    // websocket set-up under progress
+    useEffect(() => {
+        if (!userId || !token) return;
+
+        socketRef.current = new WebSocket(`ws://localhost:8000/ws/notification/${userId}/?token=${token}`);
+
+        socketRef.current.onopen = () => {
+            console.log("WebSocket notification connection established");
+        };
+
+        socketRef.current.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            console.log("Notification received:", data);
+
+            // Decide which slice to dispatch to
+            if (["community_message", "private_message","product_message"].includes(data.data.notification_type)) {
+                dispatch(addMessageNotification(data.data));
+                playNotification();
+                showRealTimeToast(`New message Received`);
+            } else {
+                dispatch(addGeneralNotification(data.data));
+                playNotification();
+                showRealTimeToast(`New notificaiton Recieved`);
+            }
+        }
+
+        socketRef.current.onclose = (event) => {
+            console.log("Websocket closed:", event.code, event.reason);
+        }
+
+        socketRef.current.onerror = (error) => {
+            console.log("Websocket error:", error);
+        }
+
+        //Clean up set up or unmount or userId/tocken change 
+        return () => {
+            socketRef.current?.close();
+        };
+
+    }, [userId, token]);
+
+
+
 
     return (
         <div className="bg-gray-100 min-h-screen dark:bg-zinc-950">

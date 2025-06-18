@@ -415,6 +415,7 @@ button:focus {
   }
 }
 
+
 /* Main shimmer class */
 .shimmer {
   position: relative;
@@ -454,6 +455,16 @@ button:focus {
   --shimmer-base: #3f3f46;
   --shimmer-highlight: rgba(255, 255, 255, 0.1);
 }
+
+
+
+
+
+
+
+
+
+
 
 
 /* chat buble baground customization  */

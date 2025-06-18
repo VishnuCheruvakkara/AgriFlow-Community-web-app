@@ -132,16 +132,12 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
                                                         <img src={invite?.invited_by?.profile_picture || DefaultUserIcon} alt="Admin" className="h-full w-full object-cover" />
                                                     </div>
                                                 </Link>
-                                                    <span>
-                                                        {invite.invited_by?.name} • {new Date(invite.invited_on).toLocaleString('en-US', {
-                                                            dateStyle: 'medium',
-                                                            timeStyle: 'short'
-                                                        })}
-                                                    </span>
-                                                
-
-
-
+                                                <span>
+                                                    {invite.invited_by?.name} • {new Date(invite.invited_on).toLocaleString('en-US', {
+                                                        dateStyle: 'medium',
+                                                        timeStyle: 'short'
+                                                    })}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

@@ -87,7 +87,9 @@ function AllEvents() {
   };
 
   return (
-    <div className="space-y-6">
+    <div >
+      <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">All Events</h2>
+
       {/* Search Bar */}
       <div className="relative mb-6">
         <input

@@ -51,7 +51,7 @@ function SideBar() {
                 {/* User profile section */}
                 <div onClick={handleViewProfile} className="flex items-center p-4 border-b ripple-parent ripple-green ">
                     {/* Profile Image Container */}
-                    <div  className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
+                    <div className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
                         <img
                             src={user?.profile_picture || defaultUserImage}
                             alt="User profile"
@@ -60,7 +60,7 @@ function SideBar() {
                     </div>
 
                     {/* User Information */}
-                    <div  className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
+                    <div className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
                         <h3 className="font-semibold text-green-500 text-ellipsis overflow-hidden whitespace-nowrap">{user?.username || "Farmer"}</h3>
                         <p className="text-sm text-gray-400 truncate text-ellipsis overflow-hidden whitespace-nowrap">{user?.farming_type || "Rice Cultivator"}</p>
                     </div>
@@ -111,8 +111,8 @@ function SideBar() {
                         <Link
                             to="/user-dash-board/connection-management"
                             className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/connection-management')
-                                    ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                                ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
                                 }`}
                         >
                             <FaUser className="text-xl" />
@@ -120,12 +120,19 @@ function SideBar() {
                         </Link>
                     </li>
 
-                    <li className="">
-                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
+                    <li>
+                        <Link
+                            to="/user-dash-board/products/available-products"
+                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/products')
+                                    ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
+                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                                }`}
+                        >
                             <FaStore className="text-xl" />
                             <span>Products</span>
-                        </a>
+                        </Link>
                     </li>
+
 
 
 
@@ -135,7 +142,7 @@ function SideBar() {
                             <span>Activity</span>
                         </a>
                     </li>
-                    
+
                     <li className="">
                         <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
                             <FaScroll className="text-xl" />

@@ -6,6 +6,7 @@ import LoaderSpinner from "./components/LoaderSpinner/LoaderSpinner";
 import NoInternetPage from "./components/StatusPages/NoInternetPage";
 import useStatusHandler from "./components/StatusPages/useStatusHandler";
 import useGlobalRipple from "./components/CustomRipple/useGlobalRipple";
+import RealTimeNotificationToast from "./components/toast-notification/RealTimeNotificationToast";
 
 function App() {
   useGlobalRipple();
@@ -19,6 +20,7 @@ function App() {
     <div>
       <BrowserRouter>
         <ToastNotifications />
+        <RealTimeNotificationToast/>
         <LoaderSpinner />
 
         {/* JUST this — let RoutesConfig handle all routing */}

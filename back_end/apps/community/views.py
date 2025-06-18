@@ -33,6 +33,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser
 from django.core.exceptions import ValidationError
+from apps.notifications.utils import create_and_send_notification
 
 ############### get the Usermodel ##################
 
@@ -60,12 +61,14 @@ class ShowUsersWhileCreateCommunity(APIView):
         if community_id:
             community = Community.objects.filter(id=community_id).first()
             if community:
+                # Get IDs of users who have any kind of membership in the community
+                all_member_ids = community.memberships.values_list('user__id', flat=True)
                 # Get the list of users who have the 'cancelled' status
-                cancelled_users = community.memberships.filter(
+                cancelled_member_ids = community.memberships.filter(
                     status='cancelled').values_list('user__id', flat=True)
 
                 # Include only the users who have the 'cancelled' status (exclude all other users)
-                users = users.filter(id__in=cancelled_users)
+                users = users.filter(Q(id__in=cancelled_member_ids) | ~Q(id__in=all_member_ids))
 
         if search_query:
             users = users.filter(
@@ -152,12 +155,29 @@ class CommunityInvitationResponseView(APIView):
         if serializer.is_valid():
             membership = serializer.validated_data['membership']
             action = serializer.validated_data['action']
+            community = membership.community
+            user = request.user
 
             if action == 'accept':
                 membership.status = 'approved'
                 membership.joined_at = timezone.now()
                 membership.approved_by = request.user  # Optional: usually the inviter
                 membership.save()
+
+                # Notify community creator
+                creator = community.created_by
+                message = f"{user.username} accepted your invitation and joined the community '{community.name}'."
+                image_url = generate_secure_image_url(user.profile_picture) if user.profile_picture else None
+
+                create_and_send_notification(
+                    recipient=creator,
+                    sender=user,
+                    type="community_joined",
+                    message=message,
+                    community=community,
+                    image_url=image_url
+                )
+
                 return Response({'detail': 'Invitation accepted.'}, status=status.HTTP_200_OK)
 
             elif action == 'ignore':
@@ -304,6 +324,7 @@ class IncomingMembershipRequestsView(APIView):
         communities = Community.objects.filter(
             memberships__user=request.user,
             memberships__is_admin=True,
+
             memberships__community__memberships__status='requested',
             is_deleted = False,
         ).distinct()
@@ -312,8 +333,7 @@ class IncomingMembershipRequestsView(APIView):
         serializer = CommunityWithRequestsSerializer(communities, many=True)
         return Response(serializer.data)
 
-# ==================== reject the request =========================#
-
+# ==================== accept or reject the request  | requested by the user to admin =========================#
 
 class UpdateMembershipRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -342,7 +362,23 @@ class UpdateMembershipRequestView(APIView):
             target_membership, data=request.data, partial=True)
 
         if serializer.is_valid():
+            status_value = serializer.validated_data.get("status")
+            # Save status and set approved_by
             serializer.save(approved_by=request.user)
+            # Send notification only if approved
+            if status_value == 'approved':
+                recipient = target_membership.user
+                sender = request.user
+                community_logo_url = generate_secure_image_url(community.community_logo)
+
+                create_and_send_notification(
+                    recipient=recipient,
+                    sender=sender,
+                    type='community_request_approved_by_admin',  # Use a specific type
+                    message=f"Your request to join '{community.name}' was approved!",
+                    community=community,
+                    image_url=community_logo_url
+                )
             return Response({'detail': f'Membership {serializer.data["status"]} successfully.'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -415,22 +451,31 @@ class JoinCommunityView(APIView):
                 joined_at=joined_time
             )
 
-        #  Always create notification
-        try:
-            notification = Notification.objects.create(
-                recipient=user,
-                sender=None,
-                community=community,
-                notification_type="community_request",
-                message=(
-                    f"You have {'requested to join' if status_choice == 'requested' else 'joined'} "
-                    f"the community '{community.name}'."
-                )
-            )
+        # Notify the community admin
+        admin_user = community.created_by
 
-        except Exception as e:
-            print(" Error creating notification:", str(e))
+        # Determine the type and message
+        if status_choice == "approved":
+            notification_type = "community_joined"
+            message = f"{user.username} has joined your community '{community.name}'."
+        else:
+            notification_type = "community_join_request_received"
+            message = f"{user.username} has requested to join your private community '{community.name}'."
 
+        # Generate secure image URL from Cloudinary if available
+        image_url = generate_secure_image_url(user.profile_picture) if user.profile_picture else None
+        
+        # Create and send notification
+        create_and_send_notification(
+            recipient=admin_user,
+            sender=user,
+            type=notification_type,
+            message=message,
+            community=community,
+            image_url=image_url
+        )
+
+     
         serializer = CommunityMembershipRequestSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK if existing_membership else status.HTTP_201_CREATED)
 
@@ -492,6 +537,20 @@ class AddMembersToCommunity(APIView):
                 'status': membership.status,
                 'is_admin': membership.is_admin,
             })
+            
+            # fetch the image and message 
+            image_url = generate_secure_image_url(community.community_logo)
+            message = f"{request.user.username} invited you to join the community '{community.name}'."
+
+            # Send notification using your real-time method
+            create_and_send_notification(
+                recipient=member,
+                sender=request.user,
+                type="community_invite",
+                message=message,
+                community=community,
+                image_url=image_url
+            )
 
         return Response(
             {"message": "Members added successfully.", "members": memberships},
@@ -708,21 +767,25 @@ class SoftDeleteCommunityAPIView(APIView):
         community.is_deleted = True
         community.save()
 
+        # Generate community image URL securely
+        image_url = None
+        if community.community_logo:
+            image_url = generate_secure_image_url(community.community_logo)
+
         # Notify all members except the admin
         members = CommunityMembership.objects.filter(
             community=community, status='approved').exclude(user=user)
 
-        notifications = [
-            Notification(
+        for member in members:
+            message = f'The community "{community.name}" has been deleted by Community Admin.'
+            create_and_send_notification(
                 recipient=member.user,
                 sender=user,
+                type='alert',
+                message=message,
                 community=community,
-                notification_type='alert',
-                message=f'The community "{community.name}" has been deleted by {user.username}.'
+                image_url=image_url
             )
-            for member in members
-        ]
-        Notification.objects.bulk_create(notifications)
 
         return Response({'detail': 'Community soft-deleted and members notified.'}, status=status.HTTP_200_OK)
 

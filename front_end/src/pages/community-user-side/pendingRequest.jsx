@@ -23,7 +23,7 @@ function CommunityRequests() {
 
     return (
         <div className="mx-auto">
-            <h2 className="text-lg font-medium text-gray-800 mb-3">Pending Requests</h2>
+            <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200">Pending Requests</h2>
 
             <OutgoingRequestsSection 
                 expanded={expandedSections.outgoingRequests} 

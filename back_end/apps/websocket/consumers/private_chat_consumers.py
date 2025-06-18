@@ -2,10 +2,14 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from django.dispatch import receiver
 from users.models import PrivateMessage  # Model for save the messages 
 from apps.common.cloudinary_utils import generate_secure_image_url
 from redis.asyncio import Redis
 from django.conf import settings
+# Handle notification 
+from apps.notifications.utils import create_and_send_notification
+from asgiref.sync import sync_to_async
 
 class PrivateChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -28,8 +32,7 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
-        # Broadcast updated online status to group
-        await self.send_online_status()
+       
 
     async def disconnect(self, close_code):
         # Remove user from Redis set
@@ -49,6 +52,8 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
         receiver_id = data.get("receiver_id")
 
         saved_message = await self.save_private_message(self.user.id, receiver_id, message)
+        # Fetch the full message with related fields inside sync context
+        full_message = await self.get_message_with_related(saved_message.id)
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -61,6 +66,16 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
                 "timestamp": saved_message.timestamp.isoformat(),
             }
         )
+
+       # Call sync function for notification with proper model instances
+        await sync_to_async(create_and_send_notification)(
+            recipient=full_message.receiver,
+            sender=full_message.sender,
+            type="private_message",
+            message=full_message.message,
+            image_url= generate_secure_image_url(self.user.profile_picture),
+        )
+       
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))
@@ -93,3 +108,8 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
             receiver_id=receiver_id,
             message=message
         )
+
+    @database_sync_to_async
+    def get_message_with_related(self, message_id):
+        # Fetch message with related sender and receiver to avoid lazy-loading errors
+        return PrivateMessage.objects.select_related("sender", "receiver").get(id=message_id)

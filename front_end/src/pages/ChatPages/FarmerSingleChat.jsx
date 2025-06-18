@@ -277,10 +277,6 @@ const FarmerSingleChat = () => {
                     })}
 
                     <div ref={messagesEndRef} />
-
-
-
-
                 </div>
             </div>
 

@@ -8,6 +8,7 @@ import tomatoImage from '../../assets/images/tomato-1.jpg'
 import defaultGroupImage from '../../assets/images/user-group-default.png'
 import { useSelector } from 'react-redux';
 import CustomScrollToTop from '../../components/CustomScrollBottomToTop/CustomScrollToTop';
+import { MdPostAdd } from "react-icons/md";
 
 function Home() {
 
@@ -18,25 +19,36 @@ function Home() {
       {/* for scroll set up  */}
       <CustomScrollToTop />
 
-      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 ">
+      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 " >
         {/* Welcome bar with ThemeToggle */}
-        <div className="animate-gradient bg-white rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%]">
-          <div className="flex justify-between items-center">
+
+        <div
+          className=" h-32 rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%] relative overflow-hidden"
+          style={{
+            backgroundImage: "url('/images/farmer_land_doodle.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <div className="relative z-10 flex justify-between items-center text-white ">
+            
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl text-zinc-800/80 font-bold">
                 Welcome back, {user?.username || "Farmer"}!
               </h1>
-              <p className="text-gray-100">
-                Stay informed with the latest news and trends in agriculture this season.
-              </p>
+
             </div>
-            
           </div>
         </div>
 
+
         {/* Create post card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex space-x-3">
+
+        <div className="flex items-center justify-between bg-green-500 p-2
+           rounded-full">
+
+            {/* User Image */}
             <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-600 overflow-hidden flex-shrink-0">
               <img
                 src={user?.profile_picture || defaultUserImage}
@@ -45,31 +57,19 @@ function Home() {
               />
             </div>
 
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Share something with the community..."
-                className="bg-white dark:bg-zinc-800 text-black dark:text-white w-full p-2 border dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500"
-              />
-              <div className="flex justify-between mt-3">
-                <div className="flex space-x-2">
-                  <button className="flex items-center text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 text-sm">
-                    <FaPlus className="mr-1" /> Photo
-                  </button>
-                  <button className="flex items-center text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 text-sm">
-                    <FaPlus className="mr-1" /> Video
-                  </button>
-                  <button className="flex items-center text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 text-sm">
-                    <FaPlus className="mr-1" /> Event
-                  </button>
-                </div>
-                <button className="bg-green-600 text-white px-4 py-1 rounded-md hover:bg-green-700 transition-colors">
-                  Post
-                </button>
-              </div>
+            {/* Center Text */}
+            <div className="text-white text-sm sm:text-base font-medium">
+              Create New Post
             </div>
+
+            {/* Post Icon Button */}
+            <button className="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition-colors">
+              <MdPostAdd className="text-2xl" />
+            </button>
+
           </div>
-        </div>
+ 
+
 
         {/* Posts */}
         <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
@@ -282,7 +282,7 @@ function Home() {
           </ul>
         </div>
       </div>
-      
+
     </>
   )
 }

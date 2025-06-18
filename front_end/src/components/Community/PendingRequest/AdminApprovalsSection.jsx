@@ -115,7 +115,7 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                                                         <div>
                                                             <p className="font-medium text-gray-800">{user.username}</p>
                                                             <p className="text-xs text-gray-500">
-                                                                send on • {new Date(user.invited_at).toLocaleString('en-US', {
+                                                                send on • {new Date(user.invited_at).toLocaleString('en-IN', {
                                                                     dateStyle: 'medium',
                                                                     timeStyle: 'short'
                                                                 })}

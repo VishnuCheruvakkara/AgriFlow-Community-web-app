@@ -28,7 +28,7 @@ function MapModal({ lat, lng, onClose }) {
                 >
                     {/* Header */}
                     <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-white">Event Location</h2>
+                        <h2 className="text-xl font-bold text-white">Location Details</h2>
                         <button
                             onClick={onClose}
                             className="text-white hover:bg-green-600 rounded-full p-1"
