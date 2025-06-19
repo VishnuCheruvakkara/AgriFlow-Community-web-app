@@ -9,6 +9,7 @@ import defaultGroupImage from '../../assets/images/user-group-default.png'
 import { useSelector } from 'react-redux';
 import CustomScrollToTop from '../../components/CustomScrollBottomToTop/CustomScrollToTop';
 import { MdPostAdd } from "react-icons/md";
+import PostCreationModalButton from '../../components/post-creation/PostCreationModalButton';
 
 function Home() {
 
@@ -32,7 +33,7 @@ function Home() {
           }}
         >
           <div className="relative z-10 flex justify-between items-center text-white ">
-            
+
             <div>
               <h1 className="text-2xl text-zinc-800/80 font-bold">
                 Welcome back, {user?.username || "Farmer"}!
@@ -45,29 +46,7 @@ function Home() {
 
         {/* Create post card */}
 
-        <div className="flex items-center justify-between bg-green-500 p-2
-           rounded-full">
-
-            {/* User Image */}
-            <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-600 overflow-hidden flex-shrink-0">
-              <img
-                src={user?.profile_picture || defaultUserImage}
-                alt="User profile"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            {/* Center Text */}
-            <div className="text-white text-sm sm:text-base font-medium">
-              Create New Post
-            </div>
-
-            {/* Post Icon Button */}
-            <button className="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition-colors">
-              <MdPostAdd className="text-2xl" />
-            </button>
-
-          </div>
+        <PostCreationModalButton user={user} />
  
 
 

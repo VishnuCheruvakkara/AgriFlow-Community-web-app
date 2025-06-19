@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreatNewPostAPIView 
+from posts.views import CreatNewPostAPIView 
 
 urlpatterns = [
     ############################ Create new post url #########################
