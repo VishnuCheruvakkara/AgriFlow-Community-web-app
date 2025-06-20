@@ -26,8 +26,7 @@ function Home() {
   const observer = useRef();
 
   const lastPostRef = (node) => {
-    if (loading) return;
-
+    if (loading || !hasMore) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
@@ -50,12 +49,16 @@ function Home() {
       }
     } catch (err) {
       console.error('Error fetching posts:', err);
+      if (err.response?.status === 404) {
+        setHasMore(false);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log("Fetching page:", page);
     fetchPosts();
   }, [page]);
 
@@ -195,12 +198,18 @@ function Home() {
         })}
 
         {/* Show shimmer loader while loading */}
-        {loading &&  (
+        {loading && hasMore && (
           <>
             <PostShimmer />
             <PostShimmer />
             <PostShimmer />
           </>
+        )}
+
+        {!hasMore && (
+          <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+            🎉 You've reached the end of the posts.
+          </p>
         )}
 
 
