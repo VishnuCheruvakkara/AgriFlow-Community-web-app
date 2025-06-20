@@ -62,7 +62,7 @@ function SideBar() {
                     {/* User Information */}
                     <div className="ml-4 truncate max-w-[250px] cursor-pointer"> {/* Increased max-width for larger name space */}
                         <h3 className="font-semibold text-green-500 text-ellipsis overflow-hidden whitespace-nowrap">{user?.username || "Farmer"}</h3>
-                        <p className="text-sm text-gray-400 truncate text-ellipsis overflow-hidden whitespace-nowrap">{user?.farming_type || "Rice Cultivator"}</p>
+                        <p className="text-sm text-gray-400 truncate text-ellipsis overflow-hidden whitespace-nowrap">{user?.farming_type || "No data"} farmer</p>
                     </div>
                 </div>
 

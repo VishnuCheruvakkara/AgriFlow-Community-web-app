@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 // Importing necessary icons from react-icons
-import { FaCloudSun, FaPlus, FaEllipsisH } from 'react-icons/fa';
+import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 import defaultFarmerImage from '../../assets/images/farmer-wheat-icons.png'
 import defaultUserImage from '../../assets/images/user-default.png'
@@ -10,10 +10,54 @@ import { useSelector } from 'react-redux';
 import CustomScrollToTop from '../../components/CustomScrollBottomToTop/CustomScrollToTop';
 import { MdPostAdd } from "react-icons/md";
 import PostCreationModalButton from '../../components/post-creation/PostCreationModalButton';
+import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
+import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
 
 function Home() {
 
   const user = useSelector((state) => state.user.user)
+  //state for store the post from backend
+  const [posts, setPosts] = useState([]);
+  //inifine scroll set up 
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const observer = useRef();
+
+  const lastPostRef = (node) => {
+    if (loading) return;
+
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prev => prev + 1);
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  };
+
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-posts/?page=${page}`);
+      if (res.data.results.length === 0) {
+        setHasMore(false);
+      } else {
+        setPosts(prev => [...prev, ...res.data.results]);
+      }
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [page]);
 
   return (
     <>
@@ -47,100 +91,119 @@ function Home() {
         {/* Create post card */}
 
         <PostCreationModalButton user={user} />
- 
+
 
 
         {/* Posts */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                <img src={defaultUserImage} alt="User profile" className="h-full w-full object-cover" />
+        {/* Posts */}
+        {posts.map((post, index) => {
+          const isLastPost = index === posts.length - 1;
+          return (
+            <div
+              key={post.id}
+              ref={isLastPost ? lastPostRef : null}
+              className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4"
+            >
+              {/* Author Info */}
+              <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
+                <div className="flex items-center space-x-4">
+                  <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
+                    <img
+                      src={post.author?.profile_picture || defaultUserImage}
+                      onError={(e) => { e.target.src = defaultUserImage }}
+                      alt="User profile"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-green-700 dark:text-green-400">
+                      {post.author?.username || "Unknown"}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(post.created_at).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })} at {new Date(post.created_at).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                  <FaEllipsisH />
+                </button>
               </div>
-              <div>
-                <p className="font-semibold text-green-700 dark:text-green-400">Sarah Williams</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Posted 2 hours ago</p>
-              </div>
-            </div>
-            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-              <FaEllipsisH />
-            </button>
-          </div>
-          <div className="mb-4">
-            <p className="text-gray-800 dark:text-gray-200">Just harvested my first batch of organic tomatoes! The new irrigation system has really improved the yield this season. 🍅</p>
-          </div>
-          <div className="mb-4 bg-gray-200 dark:bg-zinc-700 rounded-lg overflow-hidden">
-            <img src={tomatoImage} alt="Post image" className="w-full object-cover" />
-          </div>
-          <div className="flex justify-between text-gray-600 dark:text-gray-400 pb-3 border-b dark:border-gray-700">
-            <span>42 likes</span>
-            <span>12 comments</span>
-          </div>
-          <div className="flex justify-around pt-3">
-            <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
-              </svg>
-              Like
-            </button>
-            <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-              </svg>
-              Comment
-            </button>
-            <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-              </svg>
-              Share
-            </button>
-          </div>
-        </div>
 
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                <img src={defaultUserImage} alt="User profile" className="h-full w-full object-cover" />
+              {/* Post Text Content */}
+              <div className="mb-4">
+                <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
               </div>
-              <div>
-                <p className="font-semibold text-green-700 dark:text-green-400">Mike Johnson</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Posted yesterday</p>
+
+              {/* Post Image or Video */}
+              {post.image_url && (
+                <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                  <div
+                    className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
+                    style={{ backgroundImage: `url(${post.image_url})` }}
+                  ></div>
+                  <div className="relative z-10 flex justify-center items-center">
+                    <img
+                      src={post.image_url}
+                      alt="Post media"
+                      className="max-w-full h-auto object-contain"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {post.video_url && (
+                <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                  <div
+                    className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
+                    style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}
+                  ></div>
+                  <div className="relative z-10 flex justify-center items-center">
+                    <video
+                      controls
+                      className="w-full h-auto max-h-[500px]"
+                      poster={post.image_url}
+                    >
+                      <source src={post.video_url} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                </div>
+              )}
+
+              {/* Interaction Buttons */}
+              <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
+                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                  <FaHeart className="mr-2" /> Like
+                </button>
+                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+                  <FaRegComment className="mr-2" /> Comment
+                </button>
+                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+                  <FaShare className="mr-2" /> Share
+                </button>
               </div>
             </div>
-            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-              <FaEllipsisH />
-            </button>
-          </div>
-          <div className="mb-4">
-            <p className="text-gray-800 dark:text-gray-200">Anyone dealing with the wheat rust this season? I've been trying a new fungicide that seems to be working well. Happy to share details if anyone is interested!</p>
-          </div>
-          <div className="flex justify-between text-gray-600 dark:text-gray-400 pb-3 border-b dark:border-gray-700">
-            <span>18 likes</span>
-            <span>23 comments</span>
-          </div>
-          <div className="flex justify-around pt-3">
-            <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
-              </svg>
-              Like
-            </button>
-            <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-              </svg>
-              Comment
-            </button>
-            <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-              </svg>
-              Share
-            </button>
-          </div>
-        </div>
+          );
+        })}
+
+        {/* Show shimmer loader while loading */}
+        {loading &&  (
+          <>
+            <PostShimmer />
+            <PostShimmer />
+            <PostShimmer />
+          </>
+        )}
+
+
       </div>
 
       {/* Right sidebar - Weather, Suggestions, Events, Schemes */}

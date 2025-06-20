@@ -58,7 +58,7 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
                                             : "bg-green-600 hover:bg-green-700 text-white"
                                         }`}
                                 >
-                                    Confirm
+                                    Create
                                 </ButtonLoader>
                             </div>
                         </motion.div>
