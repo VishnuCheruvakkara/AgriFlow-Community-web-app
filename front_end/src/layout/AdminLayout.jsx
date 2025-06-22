@@ -11,11 +11,11 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-base-200 bg-slate-100">
+    <div className="flex min-h-screen bg-base-200 bg-slate-100 dark:bg-zinc-950">
       {/* Main content - always starts at left edge when sidebar is closed */}
-      <div className="flex-1 flex flex-col ml-20">
+      <div className="flex-1 flex flex-col ">
         <Navbar />
-        <div className="p-6">
+        <div className="px-4 pt-[80px] ml-20">
           <Outlet /> {/* Page Content */}
         </div>
       </div>

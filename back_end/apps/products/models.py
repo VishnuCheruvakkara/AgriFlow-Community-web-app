@@ -83,3 +83,4 @@ class ProductChatMessage(models.Model):
 
     def __str__(self):
         return f"From {self.sender} to {self.receiver} about {self.product}"
+

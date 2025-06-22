@@ -15,18 +15,13 @@ function SignUpLeftSideSection() {
                 {/* Content inside */}
                 <div className="relative z-10 text-center">
                     <Link to='/'>
-                        <img src={AgriFlowWhiteLogo} alt="AgriFlow logo" className="w-24 h-24 mx-auto mb-8" />
+                        <img src={AgriFlowWhiteLogo} alt="AgriFlow logo" className="w-24 h-24 mx-auto mb-4" />
                     </Link>
                     <h1 className="text-4xl font-bold text-white mb-4">AgriFlow</h1>
                     <p className="text-xl text-white opacity-90">
                         Modernizing agriculture through smart technology
                     </p>
-                    <div className="mt-12 bg-white/20 backdrop-blur-sm p-6 rounded-lg">
-                        <p className="text-white text-lg italic">
-                            "AgriFlow transformed our farm management. Productivity increased by 35% in just one growing season."
-                        </p>
-                        <p className="text-white mt-4 font-semibold">- James Miller, Sunset Valley Farms</p>
-                    </div>
+                  
                 </div>
             </div>
         </div>

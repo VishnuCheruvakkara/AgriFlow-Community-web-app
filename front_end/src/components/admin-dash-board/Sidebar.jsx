@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
   FaUsers,
@@ -11,19 +11,24 @@ import {
   FaSignOutAlt,
   FaChartLine,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaRegArrowAltCircleRight,
 } from "react-icons/fa";
+import { IoArrowForwardCircle } from "react-icons/io5";
 import { persistor } from '../../redux/Store';
 import AgriFlowWhiteLogo from '../../assets/images/agriflowwhite.png';
 import { useDispatch } from "react-redux";
 import { showToast } from "../toast-notification/CustomToast";
 import PublicAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance'
 import { adminLogout } from "../../redux/slices/AdminAuthSlice";
+import ThemeToggle from "../ThemeController/ThemeToggle";
+
+
 
 const Sidebar = ({ onToggle }) => {
   const [isOpen, setIsOpen] = useState(true);
   const sidebarRef = useRef(null);
-
+  const location = useLocation();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -79,24 +84,23 @@ const Sidebar = ({ onToggle }) => {
       className={`${isOpen ? 'w-64' : 'w-20'} h-screen bg-green-700 text-white transition-all duration-300 ease-in-out fixed left-0 top-0 shadow-lg z-40`}
     >
       {/* Logo Header - Centered */}
-      <div className="flex items-center justify-center p-3 border-b border-green-600 relative">
-        {isOpen && (
-          <h2 className="text-xl font-bold text-white opacity-100 transition-opacity duration-300 text-center">AgriFlow</h2>
-        )}
+      <div className="flex items-center justify-center   relative">
+
+
         <button
           onClick={toggleSidebar}
-          className="p-2 bg-green-600 rounded-full hover:bg-green-800 transition-colors duration-300 absolute -right-3 top-5 shadow-md z-10 flex items-center justify-center w-6 h-6"
+          className=" bg-green-600 rounded-full hover:bg-green-800 transition-colors duration-300 absolute -right-3 top-[52px] shadow-md z-10 flex items-center justify-center w-6 h-6"
           aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
         >
           {isOpen ? (
             <FaTimes className="text-white text-sm" />
           ) : (
-            <FaBars className="text-white text-sm" />
+            <FaRegArrowAltCircleRight className="text-white text-lg" />
           )}
         </button>
       </div>
 
-      <div className="px-2 py-4 border-b border-green-600">
+      <div className="px-2 py-3 border-b border-green-600">
         <div
           className={`flex items-center ${isOpen ? 'px-3' : 'justify-center'} cursor-pointer`}
           onClick={toggleSidebar}
@@ -104,13 +108,13 @@ const Sidebar = ({ onToggle }) => {
           <img
             src={AgriFlowWhiteLogo}
             alt="Profile"
-            className={`${isOpen ? 'h-16' : 'h-10 w-10'} rounded-full object-cover`}
+            className={`${isOpen ? 'h-10' : 'h-10 w-10'} rounded-full object-cover`}
           />
 
           {isOpen && (
             <div className="ml-3 transition-opacity duration-300">
               <p className="font-medium">Admin Portal</p>
-              <p className="text-xs text-green-200">Manage your agriculture platform</p>
+
             </div>
           )}
         </div>
@@ -119,7 +123,15 @@ const Sidebar = ({ onToggle }) => {
       {/* Navigation with overflow scrolling and hidden scrollbar */}
       <div className="mt-2 overflow-y-auto max-h-[calc(100vh-200px)] hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         <div className="pb-20"> {/* Extra padding at bottom to ensure last items are visible */}
-          <Link to="/admin/" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+
+          <Link
+            to="/admin/"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} 
+              px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+              ${location.pathname === '/admin/'
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'}
+            `}>
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaHome />
             </div>
@@ -131,7 +143,13 @@ const Sidebar = ({ onToggle }) => {
             )}
           </Link>
 
-          <Link to="/admin/users-management" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+          <Link to="/admin/users-management"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} 
+              px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+              ${location.pathname.startsWith('/admin/users-management')
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'}
+            `}>
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaUsers />
             </div>
@@ -143,7 +161,13 @@ const Sidebar = ({ onToggle }) => {
             )}
           </Link>
 
-          <Link to="/admin/products-management" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+          <Link to="/admin/products-management"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} 
+              px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+              ${location.pathname === '/admin/products-management'
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'}
+            `}>
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaShoppingBag />
             </div>
@@ -214,6 +238,31 @@ const Sidebar = ({ onToggle }) => {
               </div>
             )}
           </Link>
+
+          <div
+            onClick={() => {
+              const themeBtn = document.querySelector(
+                '[aria-label="Switch to dark mode"], [aria-label="Switch to light mode"]'
+              );
+              if (themeBtn) themeBtn.click();
+            }}
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 cursor-pointer group`}
+          >
+            <div className="flex items-center justify-center w-6 h-6 text-lg transition-transform group-hover:scale-110">
+              <ThemeToggle />
+            </div>
+
+            {isOpen && (
+              <div className="transition-opacity duration-300">
+                <div className="font-medium group-hover:text-white">Theme</div>
+                <div className="text-xs text-green-200 group-hover:text-white">Switch between modes</div>
+              </div>
+            )}
+          </div>
+
+
+
+
         </div>
       </div>
 
@@ -237,15 +286,7 @@ const Sidebar = ({ onToggle }) => {
 
 
       {/* Add global styles to hide scrollbar */}
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+
     </div>
   );
 };

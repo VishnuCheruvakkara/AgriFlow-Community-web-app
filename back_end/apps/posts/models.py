@@ -1,13 +1,18 @@
 from django.db import models
-from users.models import CustomUser 
+from users.models import CustomUser
 
 #################### Post saving mode ####################
+
+
 class Post(models.Model):
-    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='posts')
-    title = models.CharField(max_length=255, blank=True)
+    author = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField(blank=True)
-    image_url = models.URLField(max_length=500, blank=True, null=True, help_text="Cloudinary image URL")
-    video_url = models.URLField(max_length=500, blank=True, null=True, help_text="Cloudinary video URL")
+    media = models.FileField(upload_to='temp_uploads/', null=True, blank=True)  # Temporary file
+    image_url = models.URLField(
+        max_length=500, blank=True, null=True, help_text="Cloudinary image URL")
+    video_url = models.URLField(
+        max_length=500, blank=True, null=True, help_text="Cloudinary video URL")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -15,13 +20,16 @@ class Post(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.author} - {self.title or 'Untitled'}"
-    
+        return f"{self.author} - {self.content or 'Untitled'}"
+
 ################### Comment model ########################
 
+
 class Comment(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='comments')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -32,8 +40,10 @@ class Comment(models.Model):
 ################## Like tracking model ######################
 
 class Like(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='likes')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name='likes')
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

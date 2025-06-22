@@ -10,6 +10,7 @@ import AgriFlowLogoPng from '../../assets/images/agriflowwhite.png'
 import CustomScrollToTop from '../../components/CustomScrollBottomToTop/CustomScrollToTop';
 import HeroCarousel from '../../components/landing-page/HeroCarousal';
 import ThemeToggle from '../../components/ThemeController/ThemeToggle';
+import { FaUserCircle } from "react-icons/fa";
 
 // Animation variants
 const fadeInUp = {
@@ -98,7 +99,7 @@ function LandingPage() {
                                 className="flex items-center space-x-2"
                                 whileHover={{ scale: 1.02 }}
                                 transition={{ duration: 0.2 }}
-                            >
+                            >   <Link to="/">
                                 <motion.img
                                     src={AgriFlowLogoPng}
                                     alt="AgriFlow Logo"
@@ -106,6 +107,7 @@ function LandingPage() {
                                     whileHover={{ rotate: 5 }}
                                     transition={{ duration: 0.3 }}
                                 />
+                                </Link>
                                 <motion.span
                                     className="text-lime-700 text-2xl font-bold"
                                     initial={{ opacity: 0, x: -20 }}
@@ -116,13 +118,35 @@ function LandingPage() {
                                 </motion.span>
                             </motion.div>
 
-                            {/* Right side - Theme toggle */}
-                            <div className="ml-auto">
+                            {/* Right side - Icons (Message + Theme Toggle) */}
+                            <div className="flex items-center space-x-4 ml-auto gap-4">
+                                {/* Message icons part */}
+                                <div className="relative " >
+
+                                    {/* Message badge outside of ripple-parent */}
+                                    <div className="relative inline-block " >
+                                        {/* Ping Animation Circle */}
+                                        <Link to="/login">
+                                        <span className="absolute  -top-[24px] -left-8 flex h-8 w-8 tooltip tooltip-bottom" data-tip="Sign in">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            {/* Static Bubble with Count */}
+                                            <span className="status shadow-none relative inline-flex rounded-full h-8 w-8 bg-green-500 text-white text-xs items-center justify-center z-10">
+                                                {/* You can put a number like 1, 2, 3, etc. */}<FaUserCircle className="text-2xl" />
+                                            </span>
+                                        </span>
+                                        </Link>
+                                    </div>
+                                </div>
+
+                               
+
+                                {/* Theme Toggle */}
                                 <ThemeToggle />
                             </div>
                         </div>
                     </div>
                 </motion.nav>
+
 
                 {/* Hero Section */}
                 <motion.div

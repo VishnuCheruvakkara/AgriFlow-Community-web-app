@@ -33,13 +33,15 @@ const Navbar = () => {
 
 
   return (
-    <div className="navbar bg-white border-b">
+    <div className="navbar fixed top-0 z-40  bg-white border-b  dark:border-green-500 w-full px-4 justify-between dark:bg-zinc-800">
       <div className="flex-1">
-        <h1 className="text-lg font-bold text-green-600 ml-4">Welcome, Admin!</h1>
+        <h1 className="text-lg font-bold text-green-600 ml-[91px]">Welcome, Admin!</h1>
       </div>
 
       <div className="flex-none">
         <div className="flex items-center gap-4">
+
+       
           {/* Messages Button with Tooltip */}
           <div className="tooltip tooltip-bottom " data-tip="Messages">
             <button className="btn btn-ghost btn-circle hover:bg-gray-200">

@@ -94,7 +94,7 @@ def upload_to_cloudinary(file_obj, folder_name):
         return None
 
 
-##########################  Uploadt image and get the secure url ###########################################
+##########################  Upload the image and get the secure url ###########################################
 
 import cloudinary.uploader
 
