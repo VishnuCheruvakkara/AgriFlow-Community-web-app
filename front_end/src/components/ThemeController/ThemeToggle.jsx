@@ -45,19 +45,19 @@ const ThemeToggle = () => {
     <div className="relative inline-block group tooltip tooltip-bottom" data-tip="Theme">
       <button 
         onClick={toggleTheme}
-        className="text-2xl p-1 rounded-full  hover:bg-green-600 transition-colors relative overflow-hidden focus:outline-none " 
+        className="text-2xl p-2 rounded-full  hover:bg-green-600 transition-colors relative overflow-hidden focus:outline-none " 
         aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       >
         {/* Ripple animation */}
         {isAnimating && (
           <span className="absolute inset-0 pointer-events-none">
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 bg-white rounded-full opacity-70 animate-ping" />
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 bg-white rounded-full opacity-50 animate-pulse" />
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full opacity-70 animate-ping" />
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 rounded-full opacity-50 animate-pulse" />
           </span>
         )}
         
         {/* Sun/Moon Icon with animation */}
-        <div className="relative z-10 flex items-center justify-center h-6 w-6 text-white">
+        <div className="relative z-10 flex items-center justify-center h-5 w-5 text-white">
           {theme === 'light' ? (
             <div className={`transform transition-transform duration-500 ${isAnimating ? 'rotate-180' : ''}`}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">

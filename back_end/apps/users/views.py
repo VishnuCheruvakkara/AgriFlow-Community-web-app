@@ -145,7 +145,7 @@ class RegisterView(APIView):
                     )
 
                 else:
-                    # Generate OTP and send email (Controlled in utils.py)
+                    # Generate OTP and send email with celery task delay (Controlled in utils.py)
                     send_otp_email_task.delay(
                         email, email_type="registration")
                     return Response(
@@ -164,7 +164,7 @@ class RegisterView(APIView):
                 )
 
             # Generate OTP and send email (Controlled in utils.py)
-            send_otp_email_task.delay(email)
+            send_otp_email_task.delay(email,email_type="registration")
 
             return Response(
                 {"message": "OTP sent successfully to your email."},
@@ -456,8 +456,9 @@ class ForgotPasswordView(APIView):
         serializer = ForgotPasswordSerialzier(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
-            # Generate OTP and send email (Controlled in utils.py)
-            generate_otp_and_send_email(email, email_type="forgot_password")
+           
+            # Generate OTP and send email with celery task delay(Controlled in utils.py)
+            send_otp_email_task.delay(email, email_type="forgot_password")
 
             return Response({"message": "OTP sent to you email"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

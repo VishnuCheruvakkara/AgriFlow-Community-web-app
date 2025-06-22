@@ -13,6 +13,22 @@ h3,h2,label{
   @apply text-black;
 } */
 
+
+
+/* Hide scrollbar but allow scroll */
+html, body {
+  overflow-y: scroll; /* Enables scrolling */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE & Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}
+
+
+
 * {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
@@ -255,7 +271,9 @@ body.swal2-shown {
 
 /* customized daisy UI tool tip, below.... */
 /* Tooltip Box */
+
 .tooltip::before {
+ 
   background-color: #16a34a !important;  /* Tailwind's green-600 */
   color: #ffffff !important;             /* White text */
   font-weight: bold !important;          /* Bold text */

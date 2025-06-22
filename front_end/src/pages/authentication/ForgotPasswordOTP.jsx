@@ -7,6 +7,7 @@ import agriFlowLogo from '../../assets/images/agriflowlogo.png'
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
+import ThemeToggle from '../../components/ThemeController/ThemeToggle';
 
 const ForgotPasswordOTP = () => {
     const [otpError, setOtpError] = useState(false);
@@ -173,7 +174,7 @@ const ForgotPasswordOTP = () => {
                 email: email,  // Replace with the actual email from state/context
                 email_type: "forgot_password",  // Pass email_type explicitly
             });
-            setOtpError(false); 
+            setOtpError(false);
             // Show success message
             console.log(response.data.message);
 
@@ -203,7 +204,7 @@ const ForgotPasswordOTP = () => {
         const otpValue = otp.join('');
         if (otpValue.length !== 6) {
             showToast("Please enter a complete 6-digit OTP", "warn");
-            dispatch(hideButtonLoader(buttonId)); 
+            dispatch(hideButtonLoader(buttonId));
             return;
         }
 
@@ -224,7 +225,7 @@ const ForgotPasswordOTP = () => {
         } catch (error) {
             console.error("OTP verification failed:", error.response?.data || error.message);
             showToast(error.response?.data?.otp[0] || "OTP expired or invalid. Request a new one.", "error");
-            setOtpError(true); 
+            setOtpError(true);
         }
         finally {
             dispatch(hideButtonLoader(buttonId)); //Hide loader after process
@@ -232,18 +233,24 @@ const ForgotPasswordOTP = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+        <div className="min-h-screen flex flex-col md:flex-row bg-gray-50 dark:bg-zinc-950">
+
+            {/* Common theme toggler   */}
+            <div className="bg-green-500 absolute top-8 right-11 rounded-lg p-[1px]">
+                <ThemeToggle />
+            </div>
+
             {/* OTP verification panel */}
-            <div className="bg-white w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
+            <div className="bg-white dark:bg-zinc-950 w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
                 <div className="flex justify-center items-center p-6 h-screen">
-                    <div className="sm:bg-white p-8 rounded-xl sm:shadow-2xl px-4 sm:px-8 w-full max-w-md">
+                    <div className="sm:bg-white dark:sm:bg-zinc-800 p-8 rounded-xl sm:shadow-2xl px-4 sm:px-8 w-full max-w-md">
                         {/*  Mobile logo (visible only on small screens) */}
                         <div className="lg:hidden flex justify-center mb-2">
                             <img src={agriFlowLogo} alt="AgriFlow logo" className="w-20 " />
                         </div>
 
-                        <h2 className="text-2xl font-bold text-center text-green-700 mb-2">Verify Your Email</h2>
-                        <p className="text-gray-600 text-center mb-8">
+                        <h2 className="text-2xl font-bold text-center text-green-700 dark:text-green-500 mb-2">Verify Your Email</h2>
+                        <p className="text-gray-600 dark:text-zinc-400 text-center mb-8">
                             We've sent a verification code to <br />{formatEmail(email)}
                         </p>
                         <form onSubmit={handleVerifyOTP} className="space-y-6">
@@ -258,19 +265,19 @@ const ForgotPasswordOTP = () => {
                                             value={digit}
                                             onChange={(e) => handleChange(index, e)}
                                             onKeyDown={(e) => handleKeyDown(index, e)}
-                                            onPaste={index === 0 ? handlePaste : null} // Only attach paste handler to first input
-                                            className={`bg-white text-black w-12 h-14 text-center text-xl font-semibold border rounded-lg focus:outline-none transition duration-500 ease-in-out ${otpError ? "focus:ring-2 focus:ring-red-500" : "border-gray-300 focus:ring-2 focus:ring-green-500"
+                                            onPaste={index === 0 ? handlePaste : null}
+                                            className={`bg-white dark:border-zinc-700 dark:bg-zinc-900 text-black dark:text-white w-12 h-14 text-center text-xl font-semibold border rounded-lg focus:outline-none transition duration-500 ease-in-out ${otpError ? "focus:ring-2 focus:ring-red-500" : "border-gray-300 dark:border-zinc-700 focus:ring-2 focus:ring-green-500"
                                                 }`}
                                         />
                                     ))}
                                 </div>
-                                <p className="text-sm text-gray-500 mt-4">
+                                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-4">
                                     Didn't receive the code?
                                     <button
                                         type="button"
                                         onClick={handleResendOTP}
                                         disabled={isResendDisabled}
-                                        className={`ml-1 font-medium ${isResendDisabled ? 'text-gray-400' : 'text-green-600 hover:underline'}`}
+                                        className={`ml-1 font-medium ${isResendDisabled ? 'text-gray-400 dark:text-zinc-600' : 'text-green-600 dark:text-green-500 hover:underline'}`}
                                     >
                                         {isResendDisabled ? `Resend in ${formatTime(timer)}` : 'Resend OTP'}
                                     </button>
@@ -282,23 +289,22 @@ const ForgotPasswordOTP = () => {
                                 type="submit"
                                 className="w-3/4 mx-auto block bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-medium text-lg"
                             >
-
                                 Verify & Continue
                             </ButtonLoader>
 
                             <div className="text-center">
-                                <p className="text-gray-600">
-                                    <Link to="/forgot-password" className="text-green-600 font-medium hover:underline">
+                                <p className="text-gray-600 dark:text-zinc-400">
+                                    <Link to="/forgot-password" className="text-green-600 dark:text-green-500 font-medium hover:underline">
                                         Change email address
                                     </Link>
                                 </p>
                             </div>
-
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
     );
 };
 

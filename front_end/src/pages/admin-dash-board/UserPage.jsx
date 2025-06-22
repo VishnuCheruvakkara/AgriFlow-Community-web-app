@@ -8,6 +8,7 @@ import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmat
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { Link } from "react-router-dom";
 import { PulseLoader } from 'react-spinners';
+import Pagination from "../../components/Common-Pagination/UserSidePagination";
 
 
 const UsersPage = () => {
@@ -66,9 +67,9 @@ const UsersPage = () => {
       text: "This action will update the user's status. Please confirm to proceed.",
       confirmButtonText: "Yes, change status",
     });
-    
 
-    if (result.isConfirmed) {
+
+    if (result) {
       try {
         const response = await AdminAuthenticatedAxiosInstance.patch(`/users/change-status/${userId}/`, {
           is_active: newStatus,
@@ -96,41 +97,41 @@ const UsersPage = () => {
   return (
     <>
 
-      <div className="max-w-full  bg-white shadow-xl rounded-lg overflow-hidden">
+      <div className="max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
         <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
           <h1 className="text-2xl font-bold">Farmers Management</h1>
         </div>
 
         {/* filter option  */}
-        <div className="mt-4 px-4"> {/* Added px-4 for spacing on the sides */}
-          <div className="flex bg-green-100 rounded-lg overflow-hidden shadow-md">
+        <div className="my-4 mx-2 px-2"> {/* Added px-4 for spacing on the sides */}
+          <div className="flex bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400"}
-      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400 "}
+      text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("")}>
               All
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400"}
-      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400 "}
+      text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("profile_not_updated")}>
               Profile Not Updated
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400"}
-      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400 "}
+      text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("aadhaar_not_verified")}>
               Aadhaar Not Verified
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400"}
-      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400 "}
+      text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("active")}>
               Active
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400"}
-      text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400 "}
+      text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("blocked")}>
               Blocked
             </button>
@@ -139,19 +140,19 @@ const UsersPage = () => {
         {/* Filters */}
 
 
-        <div className="mt-8 grid grid-cols-1  gap-6">
-          <div className="bg-white p-6 rounded-lg border border-gray-100  shadow-lg">
-            <h3 className="font-bold text-gray-700 mb-4">Available Farmers</h3>
+        <div className="grid grid-cols-1  gap-6">
+          <div className="bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300  dark:border-zinc-600 shadow-lg">
+            <h3 className="font-bold text-gray-700 dark:text-zinc-200 my-4">Available Farmers</h3>
 
             {/* Search Bar */}
-            <div className="flex border-2 my-4 focus-within:border-green-500 items-center w-full bg-white rounded-lg shadow-sm p-3 transition duration-300 ease-in-out">
-              <RiSearchLine className="text-gray-500 text-xl" />
+            <div className="flex border border-zinc-300 my-4 focus-within:border-green-500 dark:focus-within:border-green-500 dark:border-zinc-700 first-letter:items-center w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-3 transition duration-300 ease-in-out">
+              <RiSearchLine className="text-gray-500 dark:text-zinc-300 text-xl" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearch}
-                className="w-full outline-none px-2 text-gray-700"
+                className="w-full outline-none px-2 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
               />
             </div>
 
@@ -166,35 +167,37 @@ const UsersPage = () => {
 
 
                 {/* User Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+                <div className="overflow-x-auto border border-gray-300 dark:border-zinc-600 rounded-lg">
+                  <table className="w-full bg-white dark:bg-zinc-800 shadow-md">
+
                     {/* Table Header */}
-                    <thead className="bg-gray-100 border-b">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">#</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Image</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Location</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Aadhar</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">View</th>
+                    <thead className="bg-gray-100 border-b dark:bg-zinc-900  dark:border-zinc-600">
+                      <tr className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition dark:bg-zinc-900 border-gray-300 dark:border-zinc-600">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">#</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Image</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Name</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Location</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Aadhar</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">View</th>
                       </tr>
                     </thead>
 
                     {/* Table Body (Conditional Rendering) */}
-                    <tbody className="divide-y divide-gray-200">
+                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-600">
+
                       {users.map((user, index) => (
                         <tr
                           key={user.id}
-                          className={`hover:bg-gray-50 transition ${index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                          className={`hover:bg-gray-50 dark:hover:bg-zinc-900 transition dark:bg-zinc-900" 
                             }`}
                         >
                           {/* Numbering */}
-                          <td className="px-4 py-4 text-sm text-gray-500">{index + 1 + (currentPage - 1) * pageSize}</td>
+                          <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">{index + 1 + (currentPage - 1) * pageSize}</td>
 
                           {/* User Image */}
                           <td className="px-4 py-4">
-                            <div className="h-10 w-10 border rounded-full bg-gray-200 overflow-hidden">
+                            <div className="h-10 w-10 border dark:border-zinc-500 rounded-full bg-gray-200 dark:bg-zinc-600 overflow-hidden">
                               <img
                                 src={user.profile_picture || defaultUserImage}
                                 alt="User"
@@ -205,30 +208,30 @@ const UsersPage = () => {
 
                           {/* User Name */}
                           <td className="px-4 py-4">
-                            <div className="text-sm font-medium text-gray-900">{user.username}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-zinc-100">{user.username}</div>
+                            <div className="text-sm text-gray-500 dark:text-zinc-400">{user.email}</div>
                           </td>
 
                           {/* Location */}
-                          <td className="px-4 py-4 text-sm text-gray-900">
+                          <td className="px-4 py-4 text-sm text-gray-900 dark:text-zinc-100">
                             {user.address_details?.location_name || "N/A"}
-                            <div className="text-sm text-gray-500">{user.address_details?.country || "Unknown"}</div>
+                            <div className="text-sm text-gray-500 dark:text-zinc-400">{user.address_details?.country || "Unknown"}</div>
                           </td>
 
                           {/*Active or Inactive status handling */}
                           <td className="px-4 py-4">
                             <span data-tip="Click here to change Status!"
                               className={`tooltip tooltip-top inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap cursor-pointer 
-                              ${user.is_active ? "bg-green-100 text-green-800 px-2 py-2" : "bg-red-100 text-red-800 px-2 py-2"}`}
+                              ${user.is_active ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-2" : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-2"}`}
                               onClick={() => handleStatusToggle(user.id, user.is_active)}
                             >
                               {user.is_active ? (
                                 <>
-                                  <FaCheckCircle className="text-green-600 w-4 h-3" />Active
+                                  <FaCheckCircle className="text-green-600 dark:text-green-400 w-4 h-3" />Active
                                 </>
                               ) : (
                                 <>
-                                  <FaTimesCircle className="text-red-600 w-4 h-3" /> Blocked
+                                  <FaTimesCircle className="text-red-600 dark:text-red-400 w-4 h-3" /> Blocked
                                 </>
                               )}
                             </span>
@@ -239,15 +242,15 @@ const UsersPage = () => {
                           <td className="px-4 py-4">
                             <span
                               className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap 
-                              ${user.is_aadhar_verified ? "bg-green-100 text-green-800 px-2 py-2" : "bg-red-100 text-red-800 px-2 py-2"}`}
+                              ${user.is_aadhar_verified ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-2" : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-2"}`}
                             >
                               {user.is_aadhar_verified ? (
                                 <>
-                                  <FaCheckCircle className="text-green-600 w-4 h-3" /> Verified
+                                  <FaCheckCircle className="text-green-600 dark:text-green-400 w-4 h-3" /> Verified
                                 </>
                               ) : (
                                 <>
-                                  <FaTimesCircle className="text-red-600 w-4 h-3" /> Not Verified
+                                  <FaTimesCircle className="text-red-600 dark:text-red-400 w-4 h-3" /> Not Verified
                                 </>
                               )}
                             </span>
@@ -256,7 +259,7 @@ const UsersPage = () => {
 
                           {/* View Button */}
                           <td className="px-4 py-4 text-center">
-                            <Link to={`/admin/users-management/user-details/${user.id}`} className="text-blue-600 hover:text-blue-800 transition">
+                            <Link to={`/admin/users-management/user-details/${user.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition">
                               <button>
                                 <FaEye size={22} />
                               </button>
@@ -269,35 +272,23 @@ const UsersPage = () => {
                 </div>
 
                 {/* Pagination Controls */}
-                <div className="flex justify-between items-center mt-4">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50 disabled:bg-gray-300 disabled:text-gray-900 transition-colors duration-300"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-gray-700">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50 disabled:bg-gray-300 disabled:text-gray-900 transition-colors duration-300"
-                  >
-                    Next
-                  </button>
-                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  hasPrev={currentPage > 1}
+                  hasNext={currentPage < totalPages}
+                />
               </>
             ) : (
               <div class="flex justify-center  w-full">
-                <div class="bg-red-100 text-red-700 p-6 rounded-lg shadow-md text-center max-w-md border border-red-200 transform transition-all duration-300 ">
-                  <svg class="w-12 h-12 mx-auto text-red-500 mb-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div class="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-6 rounded-lg shadow-md text-center max-w-md border border-red-200 dark:border-red-700 transform transition-all duration-300 ">
+                  <svg class="w-12 h-12 mx-auto text-red-500 dark:text-red-400 mb-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                   <p class="text-xl font-bold mb-2">No Users Found</p>
-                  <p class="text-sm text-red-600">Try adjusting your search or filter criteria.</p>
-                  <button onClick={() => setSearchQuery("")} class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 text-sm font-medium">
+                  <p class="text-sm text-red-600 dark:text-red-300">Try adjusting your search or filter criteria.</p>
+                  <button onClick={() => setSearchQuery("")} class="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200 text-sm font-medium">
                     Clear Filters
                   </button>
                 </div>
