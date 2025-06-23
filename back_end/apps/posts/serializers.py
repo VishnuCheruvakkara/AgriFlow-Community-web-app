@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Post,Like
+from .models import Post,Like,Comment
 from common.cloudinary_utils import upload_to_cloudinary
 import mimetypes
 from posts.tasks import upload_post_media_task
@@ -93,3 +93,40 @@ class LikedPostStatusSerializer(serializers.Serializer):
     post_id = serializers.IntegerField()
     liked_by_user = serializers.BooleanField()
     total_likes = serializers.IntegerField()
+
+
+########################## Handle the comments ####################
+
+#====================== posts/add new comment for a perticular post ========================# 
+
+class CommentCreateSerializer(serializers.Serializer):
+    post = serializers.IntegerField()
+    content = serializers.CharField(max_length=1000)
+
+    def validate_post(self, value):
+        from .models import Post
+        if not Post.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Post does not exist.")
+        return value
+
+#======================  get all the comments ================================# 
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'profile_picture']
+
+    def get_profile_picture(self, obj):
+        return generate_secure_image_url(obj.profile_picture)
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(read_only=True)  # Include user info
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'post', 'content', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']
+
+        

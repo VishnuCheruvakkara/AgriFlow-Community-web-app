@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 // Importing necessary icons from react-icons
-import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare, FaRegHeart, } from 'react-icons/fa';
+import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare, FaRegHeart, FaPaperPlane } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 import defaultFarmerImage from '../../assets/images/farmer-wheat-icons.png'
 import defaultUserImage from '../../assets/images/user-default.png'
@@ -13,6 +13,8 @@ import PostCreationModalButton from '../../components/post-creation/PostCreation
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
 import { FiShare2 } from "react-icons/fi";
+import { motion, AnimatePresence } from 'framer-motion';
+import ShareButton from '../../components/post-creation/ShareButton';
 
 function Home() {
 
@@ -26,7 +28,14 @@ function Home() {
 
   // for post like tracking and animation 
   const [likedPosts, setLikedPosts] = useState({});
+  const [likeCounts, setLikeCounts] = useState({});
   const [heartAnimations, setHeartAnimations] = useState({});
+
+  // comment handling state 
+  const [commentInputs, setCommentInputs] = useState({});
+  const [commentSectionsVisible, setCommentSectionsVisible] = useState({});
+  const [commentsByPost, setCommentsByPost] = useState({});
+
 
   //for infinite scroll
   const observer = useRef();
@@ -94,11 +103,28 @@ function Home() {
       [postId]: !prev[postId],
     }));
 
+    setLikeCounts(prev => ({
+      ...prev,
+      [postId]: (prev[postId] || 0) + (isCurrentlyLiked ? -1 : 1),
+    }));
+
     //Backend call for toogle the like
+    // Backend call
     try {
-      const response = await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId })
+      await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
     } catch (error) {
       console.error("Error toggling like:", error);
+
+      // Revert UI if API fails
+      setLikedPosts(prev => ({
+        ...prev,
+        [postId]: isCurrentlyLiked,
+      }));
+
+      setLikeCounts(prev => ({
+        ...prev,
+        [postId]: (prev[postId] || 0) + (isCurrentlyLiked ? 1 : -1),
+      }));
     }
   };
 
@@ -107,11 +133,18 @@ function Home() {
     const fetchLikeStatus = async () => {
       try {
         const res = await AuthenticatedAxiosInstance.get("/posts/like-status/");
+        console.log("Liked data ::::", res.data)
         const likeStatus = {};
+        const likeCounts = {};
+
         res.data.forEach(item => {
           likeStatus[item.post_id] = item.liked_by_user;
+          likeCounts[item.post_id] = item.total_likes;
         });
+
         setLikedPosts(likeStatus);
+        setLikeCounts(likeCounts);
+
       } catch (error) {
         console.error("Failed to fetch like status", error);
       }
@@ -120,6 +153,57 @@ function Home() {
     fetchLikeStatus();
   }, []);
 
+  // Handle comments 
+  const toggleComments = async (postId) => {
+    setCommentSectionsVisible(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+
+    if (!commentsByPost[postId]) {
+      try {
+        const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
+        console.log("Arrived comments ::", res.data)
+        setCommentsByPost(prev => ({
+          ...prev,
+          [postId]: res.data
+        }));
+      } catch (err) {
+        console.error("Failed to fetch comments:", err);
+      }
+    }
+  };
+
+  const handleCommentInputChange = (postId, value) => {
+    setCommentInputs(prev => ({
+      ...prev,
+      [postId]: value
+    }));
+  };
+
+  const handleCommentSubmit = async (postId) => {
+    const content = commentInputs[postId];
+    if (!content || content.trim() === "") return;
+
+    try {
+      const res = await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
+        post: postId,
+        content
+      });
+
+      setCommentsByPost(prev => ({
+        ...prev,
+        [postId]: [res.data, ...(prev[postId] || [])]
+      }));
+
+      setCommentInputs(prev => ({
+        ...prev,
+        [postId]: ""
+      }));
+    } catch (err) {
+      console.error("Failed to post comment:", err);
+    }
+  };
 
 
 
@@ -164,12 +248,7 @@ function Home() {
         {/* Posts */}
         {posts.map((post, index) => {
           const isLastPost = index === posts.length - 1;
-
-
-
           const isLiked = likedPosts[post.id] || false;
-
-
 
           return (
             <div
@@ -254,6 +333,7 @@ function Home() {
               {/* Interaction Buttons */}
               <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
 
+
                 {/* Like button  */}
                 <div className="relative">
                   <button
@@ -263,9 +343,11 @@ function Home() {
                       : "text-gray-600 dark:text-gray-400 hover:text-green-500"
                       }`}
                   >
-                    {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
+                    <span className="mr-2">{likeCounts[post.id] || 0}</span> {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
                     {isLiked ? "Liked" : "Like"}
                   </button>
+
+
 
                   {/* Flying Heart inside like button wrapper */}
                   {heartAnimations[post.id] && (
@@ -277,13 +359,90 @@ function Home() {
                   )}
                 </div>
 
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
-                  <FaRegComment className="mr-2" /> Comment
+                <button
+                  onClick={() => toggleComments(post.id)}
+                  className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+                >
+                  <FaRegComment className="mr-2" /> {commentSectionsVisible[post.id] ? "Hide" : "Comment"}
                 </button>
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                  <FiShare2 className="mr-2 text-lg" /> Share
-                </button>
+                {/* share button  */}
+                <ShareButton postId={post.id} />
               </div>
+
+              {/* show the comment box and input comment field  */}
+              <AnimatePresence initial={false}>
+                {commentSectionsVisible[post.id] && (
+                  <motion.div
+                    key="commentBox"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden border-t pt-3 dark:border-zinc-600 mt-4"
+                  >
+                    <div className=" flex items-center space-x-2 mb-3">
+                      <input
+                        type="text"
+                        value={commentInputs[post.id] || ""}
+                        onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
+                        placeholder="Write a comment..."
+                        className="w-full p-2 border bg-gray-50 focus:border-green-500 dark:focus:border-green-400 rounded dark:bg-zinc-700 dark:text-white dark:border-zinc-500 transition duration-300 ease-in-out"
+                      />
+
+                      <button
+                        onClick={() => handleCommentSubmit(post.id)}
+                        className="p-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-200 flex items-center justify-center"
+                        title="Submit Comment"
+                      >
+                        <FaPaperPlane />
+                      </button>
+                    </div>
+
+                    {/* Scrollable Comment Section */}
+                    <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
+                      {(commentsByPost[post.id] || []).map((comment) => (
+                        <div
+                          key={comment.id}
+                          className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
+                        >
+                          {/* Profile image */}
+                          <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
+                            <img
+                              src={comment.user?.profile_picture || defaultUserImage}
+                              alt="User profile"
+                              className="h-full w-full object-cover"
+                              onError={(e) => { e.target.src = defaultUserImage }}
+                            />
+                          </div>
+
+                          {/* Comment content */}
+                          <div className="flex flex-col">
+                            <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                              {comment.user?.username}
+                            </p>
+                            <p className="text-sm text-gray-700 dark:text-gray-200">
+                              {comment.content}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {new Date(comment.created_at).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true,
+                              })}
+                            </p>
+
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
@@ -404,25 +563,10 @@ function Home() {
           </ul>
         </div>
 
-        {/* Govt Schemes card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Govt Schemes</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">View All</span>
-          </div>
-          <ul className="space-y-3">
-            <li className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-600">
-              <p className="font-semibold text-gray-800 dark:text-gray-200">Crop Insurance Scheme</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Applications open until Mar 31</p>
-              <button className="mt-2 text-sm text-green-600 dark:text-green-400 font-medium hover:text-green-700 dark:hover:text-green-300">Apply Now</button>
-            </li>
-            <li className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-600">
-              <p className="font-semibold text-gray-800 dark:text-gray-200">Solar Pump Subsidy</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">50% subsidy on installation</p>
-              <button className="mt-2 text-sm text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300">Check Eligibility</button>
-            </li>
-          </ul>
-        </div>
+
+
+
+
       </div>
 
     </>

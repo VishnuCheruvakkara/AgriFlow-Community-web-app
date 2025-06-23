@@ -2,11 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from posts.serializers import PostCreateSerializer,PostSerializer,ToggleLikeSerializer,LikedPostStatusSerializer
-from posts.models import Post,Like
+from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer
+from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination
 from django.db import models
-
 
 
 ########################## Create New post View  #######################
@@ -15,7 +14,8 @@ class CreatNewPostAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = PostCreateSerializer(data=request.data, context={'request': request})
+        serializer = PostCreateSerializer(
+            data=request.data, context={'request': request})
         if serializer.is_valid():
             post = serializer.save()
             return Response({
@@ -24,34 +24,39 @@ class CreatNewPostAPIView(APIView):
                 "created_at": post.created_at,
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 ######################### Get all the post in the front-end #######################
 
-class GetAllThePosts(APIView):
-    permission_classes = [ IsAuthenticated ]
 
-    def get(self,request):
+class GetAllThePosts(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
         posts = Post.objects.select_related('author').all()
         paginator = CustomPostPagination()
-        paginated_posts = paginator.paginate_queryset(posts,request)
-        serializer = PostSerializer(paginated_posts,many=True,context={'request':request})
+        paginated_posts = paginator.paginate_queryset(posts, request)
+        serializer = PostSerializer(
+            paginated_posts, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
-    
+
 ############################## Hanle Like View ##################################
 
-#================================= Toggle Likes ==============================#
+# ================================= Toggle Likes ==============================#
+
 
 class ToggleLikeAPIView(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    def post(self,request):
-        serializer = ToggleLikeSerializer(data=request.data,context={'request':request})
+    def post(self, request):
+        serializer = ToggleLikeSerializer(
+            data=request.data, context={'request': request})
         if serializer.is_valid():
             result = serializer.save()
-            return Response(result,status=status.HTTP_200_OK)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    
-#============================  Get all the liked post datas View ==============================#
+            return Response(result, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# ============================  Get all the liked post datas View ==============================#
+
 
 class LikedPostStatusView(APIView):
     permission_classes = [IsAuthenticated]
@@ -60,7 +65,8 @@ class LikedPostStatusView(APIView):
         user = request.user
 
         # Get all post IDs liked by current user
-        liked_post_ids = set(Like.objects.filter(user=user).values_list('post_id', flat=True))
+        liked_post_ids = set(Like.objects.filter(
+            user=user).values_list('post_id', flat=True))
 
         # Get all posts that have at least one like
         posts_with_likes = Post.objects.annotate(
@@ -78,5 +84,48 @@ class LikedPostStatusView(APIView):
         serializer = LikedPostStatusSerializer(data=data, many=True)
         serializer.is_valid()  # No need to raise_exception
         return Response(serializer.data)
-    
 
+########################## Handle the comments ####################
+
+# ====================== posts/add new comment for a perticular post ========================#
+
+class AddCommentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CommentCreateSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            post_id = serializer.validated_data['post']
+            content = serializer.validated_data['content']
+            post = Post.objects.get(id=post_id)
+
+            comment = Comment.objects.create(
+                user=request.user,
+                post=post,
+                content=content
+            )
+
+            return Response({
+                "id": comment.id,
+                "user": comment.user.username,
+                "content": comment.content,
+                "created_at": comment.created_at,
+                "post": comment.post.id
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#==========================
+
+class CommentListAPIView(APIView):
+    permission_classes = [IsAuthenticated]  
+
+    def get(self, request, *args, **kwargs):
+        post_id = request.query_params.get('post')
+        if not post_id:
+            return Response({"detail": "Post ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        comments = Comment.objects.filter(post_id=post_id).select_related('user').order_by('-created_at')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

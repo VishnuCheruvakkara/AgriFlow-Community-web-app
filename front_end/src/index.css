@@ -500,7 +500,7 @@ button:focus {
 /* css flying heart when like a post  */
 .flying-heart {
   position: absolute;
-  left: 8%;
+  left: 28%;
   top: -30px;
   transform: translateX(-50%);
   width: 20px;
@@ -513,25 +513,25 @@ button:focus {
 
 .flying-heart::before {
   content: '💚';
-  font-size: 20px;
+  font-size: 25px;
   display: block;
   animation: popHeart 1s ease-out forwards;
   
 }
 
 .heart1 {
-  left: 8%;
-  top: -30px;
+  left: 28%;
+  top: -38px;
   animation-delay: 0s;
 }
 .heart2 {
-  left: 5%;
-  top:-30px;
+  left: 28%;
+  top:-38px;
   animation-delay: 0.2s;
 }
 .heart3 {
-  left: 10%;
-  top:-30px;
+  left: 28%;
+  top:-38px;
   animation-delay: 0.4s;
 }
 
