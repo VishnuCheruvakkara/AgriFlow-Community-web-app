@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 // Importing necessary icons from react-icons
-import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare } from 'react-icons/fa';
+import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare, FaRegHeart, } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 import defaultFarmerImage from '../../assets/images/farmer-wheat-icons.png'
 import defaultUserImage from '../../assets/images/user-default.png'
@@ -12,6 +12,7 @@ import { MdPostAdd } from "react-icons/md";
 import PostCreationModalButton from '../../components/post-creation/PostCreationModalButton';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
+import { FiShare2 } from "react-icons/fi";
 
 function Home() {
 
@@ -23,6 +24,11 @@ function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  // for post like tracking and animation 
+  const [likedPosts, setLikedPosts] = useState({});
+  const [heartAnimations, setHeartAnimations] = useState({});
+
+  //for infinite scroll
   const observer = useRef();
 
   const lastPostRef = (node) => {
@@ -62,10 +68,67 @@ function Home() {
     fetchPosts();
   }, [page]);
 
+  // liked post 
+  const handleLikeClick = async (postId) => {
+    // Only trigger animation when liking (not unliking)
+    const isCurrentlyLiked = likedPosts[postId] || false;
+
+    if (!isCurrentlyLiked) {
+      // Trigger animation only when liking
+      setHeartAnimations(prev => ({
+        ...prev,
+        [postId]: true,
+      }));
+
+      setTimeout(() => {
+        setHeartAnimations(prev => ({
+          ...prev,
+          [postId]: false,
+        }));
+      }, 1000);
+    }
+
+    // Toggle like state (whether like or unlike)
+    setLikedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+
+    //Backend call for toogle the like
+    try {
+      const response = await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId })
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
+
+  // Get all the liked post status and the count 
+  useEffect(() => {
+    const fetchLikeStatus = async () => {
+      try {
+        const res = await AuthenticatedAxiosInstance.get("/posts/like-status/");
+        const likeStatus = {};
+        res.data.forEach(item => {
+          likeStatus[item.post_id] = item.liked_by_user;
+        });
+        setLikedPosts(likeStatus);
+      } catch (error) {
+        console.error("Failed to fetch like status", error);
+      }
+    };
+
+    fetchLikeStatus();
+  }, []);
+
+
+
+
+
   return (
     <>
       {/* for scroll set up  */}
       <CustomScrollToTop />
+
 
       <div className="lg:w-10/12 space-y-4 mt-4 mb-11 " >
         {/* Welcome bar with ThemeToggle */}
@@ -101,6 +164,13 @@ function Home() {
         {/* Posts */}
         {posts.map((post, index) => {
           const isLastPost = index === posts.length - 1;
+
+
+
+          const isLiked = likedPosts[post.id] || false;
+
+
+
           return (
             <div
               key={post.id}
@@ -183,14 +253,35 @@ function Home() {
 
               {/* Interaction Buttons */}
               <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
-                  <FaHeart className="mr-2" /> Like
-                </button>
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+
+                {/* Like button  */}
+                <div className="relative">
+                  <button
+                    onClick={() => handleLikeClick(post.id)} // Attach to post.id
+                    className={`flex dark:hover:text-green-400  items-center w-20 transition-colors duration-300 ${isLiked
+                      ? "text-green-500 hover:text-green-700"
+                      : "text-gray-600 dark:text-gray-400 hover:text-green-500"
+                      }`}
+                  >
+                    {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
+                    {isLiked ? "Liked" : "Like"}
+                  </button>
+
+                  {/* Flying Heart inside like button wrapper */}
+                  {heartAnimations[post.id] && (
+                    <div className="flying-heart-wrapper">
+                      <div className="flying-heart heart1">💚</div>
+                      <div className="flying-heart heart2">💚</div>
+                      <div className="flying-heart heart3">💚</div>
+                    </div>
+                  )}
+                </div>
+
+                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
                   <FaRegComment className="mr-2" /> Comment
                 </button>
                 <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                  <FaShare className="mr-2" /> Share
+                  <FiShare2 className="mr-2 text-lg" /> Share
                 </button>
               </div>
             </div>

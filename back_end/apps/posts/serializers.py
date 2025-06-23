@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Post
+from .models import Post,Like
 from common.cloudinary_utils import upload_to_cloudinary
 import mimetypes
 from posts.tasks import upload_post_media_task
@@ -58,3 +58,38 @@ class PostSerializer(serializers.ModelSerializer):
             'image_url', 'video_url',
             'created_at', 'updated_at'
         ]
+
+##########################  Hale likes ###################################
+
+#================ Like toggling serialzier ================================# 
+
+class ToggleLikeSerializer(serializers.Serializer):
+    post_id = serializers.IntegerField()
+
+    def validate_post_id(self, value):
+        if not Post.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Post does not exist.")
+        return value
+
+    def save(self, **kwargs):
+        request = self.context['request']
+        post_id = self.validated_data['post_id']
+        post = Post.objects.get(id=post_id)
+        user = request.user
+
+        like_instance = Like.objects.filter(user=user, post=post).first()
+
+        if like_instance:
+            like_instance.delete()
+            return {"liked": False, "message": "Post unliked."}
+        else:
+            Like.objects.create(user=user, post=post)
+            return {"liked": True, "message": "Post liked."}
+        
+
+#========================== Get liked post datas =============================# 
+
+class LikedPostStatusSerializer(serializers.Serializer):
+    post_id = serializers.IntegerField()
+    liked_by_user = serializers.BooleanField()
+    total_likes = serializers.IntegerField()

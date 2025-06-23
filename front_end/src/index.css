@@ -495,3 +495,68 @@ button:focus {
 .gradient-bubble-gray::before {
   background:#4b5563 ;
 }
+
+
+/* css flying heart when like a post  */
+.flying-heart {
+  position: absolute;
+  left: 8%;
+  top: -30px;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background: none;
+  animation: flyHeart 1s ease-out forwards;
+  pointer-events: none;
+  z-index:999;
+}
+
+.flying-heart::before {
+  content: '💚';
+  font-size: 20px;
+  display: block;
+  animation: popHeart 1s ease-out forwards;
+  
+}
+
+.heart1 {
+  left: 8%;
+  top: -30px;
+  animation-delay: 0s;
+}
+.heart2 {
+  left: 5%;
+  top:-30px;
+  animation-delay: 0.2s;
+}
+.heart3 {
+  left: 10%;
+  top:-30px;
+  animation-delay: 0.4s;
+}
+
+
+/* Flying Up + Fading */
+@keyframes flyHeart {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -100px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Optional pop effect */
+@keyframes popHeart {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
