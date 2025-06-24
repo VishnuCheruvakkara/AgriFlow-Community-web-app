@@ -254,7 +254,7 @@ function NavBar() {
                     </div>
 
                     {/* Search Bar */}
-                    {AadharVerified &&
+                    {/* {AadharVerified &&
                         <div className="hidden md:block flex-1 max-w-xl mx-6">
                             <div className="relative">
                                 <input
@@ -265,7 +265,7 @@ function NavBar() {
                                 <FaSearch className="absolute left-3 top-3 text-green-200 " />
                             </div>
                         </div>
-                    }
+                    } */}
 
                     {/* Navigation Icons */}
                     <div className="flex items-center space-x-4">

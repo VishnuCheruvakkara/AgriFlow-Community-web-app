@@ -41,9 +41,10 @@ function Home() {
   const [commentSectionsVisible, setCommentSectionsVisible] = useState({});
   const [commentsByPost, setCommentsByPost] = useState({});
 
-  //Weather tracking cark 
+  //Weather tracking card
   const [weather, setWeather] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
+  const [hasTriedFetchingWeather, setHasTriedFetchingWeather] = useState(false);
 
   //for infinite scroll
   const observer = useRef();
@@ -226,7 +227,8 @@ function Home() {
       } catch (err) {
         console.error("Failed to fetch weather", err);
       } finally {
-        setLoading(false);
+        setWeatherLoading(false);
+        setHasTriedFetchingWeather(true); 
       }
     };
 
@@ -267,9 +269,9 @@ function Home() {
             {/* Underline both headings */}
             <div className="flex justify-between border-b border-gray-300 dark:border-zinc-600 " />
             {/* Weather Info Section */}
-            {loading || !weather ? (
+            {weatherLoading ? (
               <WeatherCardShimmer />
-            ) : (
+            ) : weather ?(
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
 
                 {/* Left: Temperature & Location */}
@@ -327,7 +329,12 @@ function Home() {
 
                 </div>
               </div>
-            )}
+            ) : hasTriedFetchingWeather ? (
+            <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-300 rounded-md">
+              <p className="text-md font-semibold">Weather data not available</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Please try again later or check your connection.</p>
+            </div>
+            ):null}
 
 
 
@@ -382,9 +389,7 @@ function Home() {
                     </p>
                   </div>
                 </div>
-                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                  <FaEllipsisH />
-                </button>
+
               </div>
 
               {/* Post Text Content */}
