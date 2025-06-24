@@ -38,6 +38,9 @@ import MyProducts from '../pages/product-management-pages/MyProducts'
 import WishList from '../pages/product-management-pages/WishList'
 import ProductDetailsPage from '../components/product-manangement/ProductDetailsPage'
 
+//Weather pages
+import WeatherPage from '../pages/weather-page/WeatherPage'
+
 // famre to farmer chat pages 
 import FarmerSingleChat from '../pages/ChatPages/FarmerSingleChat'
 
@@ -98,12 +101,15 @@ function UsersRoutes() {
         {/* Product management layout section  */}
         <Route path="products" element={<ProductManagementLayout />}>
           <Route path="available-products" element={<AvailableProducts />} />
-          <Route path="product-deals" element={<ProductDeals  />} />
+          <Route path="product-deals" element={<ProductDeals />} />
           <Route path="my-products" element={<MyProducts />} />
           <Route path="wishlist" element={<WishList />} />
-          <Route path="farmer-product-chat" element={< FarmerProductChat/>} />
-          <Route path="product-details-page/:productId" element={<ProductDetailsPage/>} />
+          <Route path="farmer-product-chat" element={< FarmerProductChat />} />
+          <Route path="product-details-page/:productId" element={<ProductDetailsPage />} />
         </Route>
+
+        {/* Weather pa ge */}
+        <Route path="weather-page" element={<WeatherPage/>} />
 
 
       </Route>

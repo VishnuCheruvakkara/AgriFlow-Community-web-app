@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, FaCalendarAlt,FaCloudSun } from 'react-icons/fa';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
@@ -124,12 +124,25 @@ function SideBar() {
                         <Link
                             to="/user-dash-board/products/available-products"
                             className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/products')
-                                    ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                                ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
                                 }`}
                         >
                             <FaStore className="text-xl" />
                             <span>Products</span>
+                        </Link>
+                    </li>
+
+                    <li>
+                        <Link
+                            to="/user-dash-board/weather-page"
+                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/weather')
+                                    ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
+                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                                }`}
+                        >
+                            <FaCloudSun className="text-xl" />
+                            <span>Weather</span>
                         </Link>
                     </li>
 
@@ -143,12 +156,7 @@ function SideBar() {
                         </a>
                     </li>
 
-                    <li className="">
-                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
-                            <FaScroll className="text-xl" />
-                            <span>Schemes</span>
-                        </a>
-                    </li>
+
                 </ul>
 
                 {/* Logout Button */}

@@ -15,9 +15,13 @@ import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
 import { FiShare2 } from "react-icons/fi";
 import { motion, AnimatePresence } from 'framer-motion';
 import ShareButton from '../../components/post-creation/ShareButton';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import WeatherCardShimmer from '../../components/shimmer-ui-component/WeatherCardShimmer';
 
 function Home() {
 
+  const navigate = useNavigate()
   const user = useSelector((state) => state.user.user)
   //state for store the post from backend
   const [posts, setPosts] = useState([]);
@@ -36,6 +40,9 @@ function Home() {
   const [commentSectionsVisible, setCommentSectionsVisible] = useState({});
   const [commentsByPost, setCommentsByPost] = useState({});
 
+  //Weather tracking cark 
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
 
   //for infinite scroll
   const observer = useRef();
@@ -204,6 +211,27 @@ function Home() {
       console.error("Failed to post comment:", err);
     }
   };
+
+  //get the weather data for card 
+  useEffect(() => {
+    const fetchWeather = async () => {
+      if (!user?.address?.latitude || !user?.address?.longitude) return;
+
+      try {
+        const res = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${user.address.latitude}&lon=${user.address.longitude}&units=metric&appid=${import.meta.env.VITE_WEATHER_API_KEY}`
+        );
+        setWeather(res.data);
+      } catch (err) {
+        console.error("Failed to fetch weather", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+  }, [user]);
+
 
 
 
@@ -471,27 +499,45 @@ function Home() {
         <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4 mt-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Weather</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">View Forecast</span>
+            <span
+              className="text-green-500 dark:text-blue -400 text-sm cursor-pointer"
+              onClick={() => navigate("/user-dash-board/weather-page")}
+            >
+              View Forecast
+            </span>
           </div>
-          <div className="flex items-center justify-center flex-col">
-            <FaCloudSun className="text-5xl text-yellow-500 mb-2" />
-            <span className="text-3xl font-bold text-black dark:text-white">28°C</span>
-            <p className="text-gray-600 dark:text-gray-300">Partly Cloudy</p>
-            <div className="flex justify-between w-full mt-4 text-sm text-gray-600 dark:text-gray-300">
-              <div className="text-center">
-                <p>Humidity</p>
-                <p className="font-semibold">65%</p>
-              </div>
-              <div className="text-center">
-                <p>Wind</p>
-                <p className="font-semibold">12 km/h</p>
-              </div>
-              <div className="text-center">
-                <p>Rainfall</p>
-                <p className="font-semibold">30%</p>
+
+          {loading || !weather ? (
+            <WeatherCardShimmer />
+          ) : (
+            <div className="flex items-center justify-center flex-col">
+              <FaCloudSun className="text-5xl text-yellow-500 mb-2" />
+              <span className="text-3xl font-bold text-black dark:text-white">
+                {Math.round(weather.main.temp)}°C
+              </span>
+              <p className="text-gray-600 dark:text-gray-300 capitalize">
+                {weather.weather[0].description}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 capitalize text-sm">
+                {weather.name}
+              </p>
+
+              <div className="flex justify-between w-full mt-4 text-sm text-gray-600 dark:text-gray-300">
+                <div className="text-center w-1/3">
+                  <p>Humidity</p>
+                  <p className="font-semibold">{weather.main.humidity}%</p>
+                </div>
+                <div className="text-center w-1/3">
+                  <p>Wind</p>
+                  <p className="font-semibold">{weather.wind.speed} km/h</p>
+                </div>
+                <div className="text-center w-1/3">
+                  <p>Clouds</p>
+                  <p className="font-semibold">{weather.clouds.all}%</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Suggestions card */}
