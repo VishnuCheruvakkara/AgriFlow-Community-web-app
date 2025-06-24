@@ -7,7 +7,7 @@ function CommunityLayout() {
     return (
         <div className="container mx-auto py-4 max-w-full">
             <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
-                <h1 className="text-2xl font-bold dark:text-zinc-100">Communities</h1>
+                <h1 className="text-2xl font-bold ">Communities</h1>
             </div>
 
             <div className="bg-white rounded-b-lg shadow-sm p-6 mb-8 dark:bg-zinc-800">

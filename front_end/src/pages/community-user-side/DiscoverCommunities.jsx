@@ -15,6 +15,7 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { showToast } from '../../components/toast-notification/CustomToast';
 
 import CommunityShimmer from '../../components/shimmer-ui-component/CommunityShimmer';
+import CommunityDataNotFoundImage from "../../assets/images/no-community-imagef-found.png"
 
 function DiscoverCommunities() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,9 +150,14 @@ function DiscoverCommunities() {
       </div>
 
       {loading ? (
-        <CommunityShimmer/>
+        <CommunityShimmer />
       ) : communities.length === 0 ? (
         <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700 ">
+          <img
+            src={CommunityDataNotFoundImage}
+            alt="No Events"
+            className="mx-auto w-64 object-contain"
+          />
           <p className="text-lg font-semibold dark:text-zinc-400">No Communities found!</p>
           <p className="text-xs text-gray-500 dark:text-zinc-400">Try using a different search keyword.</p>
         </div>

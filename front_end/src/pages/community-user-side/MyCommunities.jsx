@@ -7,6 +7,7 @@ import debounce from 'lodash.debounce';
 import { ImCancelCircle } from "react-icons/im";
 import { Link } from 'react-router-dom';
 import SelectCommunityCreateEventShimmer from '../../components/shimmer-ui-component/SelectCommunityCreateEventShimmer';
+import CommunityDataNotFoundImage from "../../assets/images/no-community-imagef-found.png"
 
 function MyCommunities() {
     const [communities, setCommunities] = useState([]);
@@ -122,6 +123,11 @@ function MyCommunities() {
             <div className="overflow-hidden  rounded-lg ">
                 {!loading && communities.length === 0 ? (
                     <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
+                        <img
+                            src={CommunityDataNotFoundImage}
+                            alt="No Events"
+                            className="mx-auto w-64 object-contain"
+                        />
                         <p className="text-lg font-semibold ">No Communities found!</p>
                         <p className="text-xs text-gray-500">Try using a different search keyword.</p>
                     </div>
@@ -132,7 +138,7 @@ function MyCommunities() {
                         const isLast = index === communities.length - 1;
 
                         return (
-                            <Link 
+                            <Link
                                 to={`community-chat/${community.id}`}
                                 key={community.id}
                                 ref={isLast ? lastCommunityRef : null}
@@ -172,7 +178,7 @@ function MyCommunities() {
                 )}
 
                 {loading && (
-                    <SelectCommunityCreateEventShimmer/>
+                    <SelectCommunityCreateEventShimmer />
                 )}
             </div>
         </div>

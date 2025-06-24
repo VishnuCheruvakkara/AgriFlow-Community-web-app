@@ -20,6 +20,7 @@ import ThemeToggle from '../ThemeController/ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AiOutlineClose } from 'react-icons/ai';
 
+
 import NoSearchFound from '../../assets/images/no_messages_1.png'
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { addMessageNotification, deleteMessageNotification } from '../../redux/slices/messageNotificationSlice';
@@ -44,7 +45,8 @@ function NavBar() {
     const dispatch = useDispatch();
 
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const dropdownRef = useRef(null);
+    const dropdownRef = useRef(null); // For the dropdown
+    const profileContainerRef = useRef(null); // For the profile image + dropdown wrapper
 
     const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
 
@@ -59,19 +61,27 @@ function NavBar() {
     const closeSidebar = () => {
         setIsSidebarOpen(false);
     };
-
-    // Close the dropdown if clicked outside
+    // close drop down out side click 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                profileContainerRef.current &&
+                !profileContainerRef.current.contains(event.target)
+            ) {
                 setIsDropdownVisible(false);
             }
         };
 
-        document.addEventListener("click", handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
 
-        return () => document.removeEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, []);
+
+
 
     const handleLogout = async () => {
         try {
@@ -315,52 +325,64 @@ function NavBar() {
                                     </div>
                                 </div>
 
-                                <div className="relative">
+                                <div ref={profileContainerRef} className="relative">
                                     <div
                                         className="h-8 w-8 cursor-pointer rounded-full overflow-hidden lg:hidden ripple-parent ripple-white"
-                                        onClick={toggleDropdown} // Toggle on click
+                                        onClick={toggleDropdown}
                                     >
                                         <img
                                             src={userData?.profile_picture || defaultUserImage}
                                             alt="User profile"
-                                            className="h-full w-full object-cover "
+                                            className="h-full w-full object-cover"
                                         />
                                     </div>
-                                    {isDropdownVisible && (
-                                        <div className="absolute -right-16 mt-5 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10 lg:hidden">
-                                            <ul className="py-2">
-                                                <Link
-                                                    to={`/user-dash-board/user-profile-view/${userData?.id}`}
-                                                    onClick={() => setIsDropdownVisible(false)}
-                                                    className="px-4 py-2 text-gray-700 flex items-center space-x-2 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    <FaRegUserCircle className="text-lg" />
-                                                    <span>Profile</span>
-                                                </Link>
 
-                                                <Link
-                                                    to="/user-dash-board/weather-page"
-                                                    onClick={() => setIsDropdownVisible(false)}
-                                                    className="px-4 py-2 text-gray-700 flex items-center space-x-2 hover:bg-gray-100 cursor-pointer"
-                                                >
-                                                    <FaCloudSun className="text-lg" />
-                                                    <span>Weather</span>
-                                                </Link>
+                                    <AnimatePresence>
+                                        {isDropdownVisible && (
+                                            <motion.div
+                                                ref={dropdownRef}
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="absolute -right-16 mt-5 w-36 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg z-10 lg:hidden"
+                                            >
+                                                <ul className="py-2">
+                                                    <Link
+                                                        to={`/user-dash-board/user-profile-view/${userData?.id}`}
+                                                        onClick={() => setIsDropdownVisible(false)}
+                                                        className="px-4 py-2 text-gray-700 dark:text-gray-200 flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
+                                                    >
+                                                        <FaRegUserCircle className="text-lg" />
+                                                        <span>Profile</span>
+                                                    </Link>
 
-                                                <button
-                                                    onClick={() => {
-                                                        setIsDropdownVisible(false);
-                                                        handleLogout();
-                                                    }}
-                                                    className="px-4 py-2 text-red-500 flex items-center space-x-2 hover:bg-red-50 cursor-pointer w-full text-left"
-                                                >
-                                                    <FaSignOutAlt className="text-lg" />
-                                                    <span>Logout</span>
-                                                </button>
-                                            </ul>
-                                        </div>
-                                    )}
+                                                    <Link
+                                                        to="/user-dash-board/weather-page"
+                                                        onClick={() => setIsDropdownVisible(false)}
+                                                        className="px-4 py-2 text-gray-700 dark:text-gray-200 flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
+                                                    >
+                                                        <FaCloudSun className="text-lg" />
+                                                        <span>Weather</span>
+                                                    </Link>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsDropdownVisible(false);
+                                                            handleLogout();
+                                                        }}
+                                                        className="px-4 py-2 text-red-500 flex items-center space-x-2 hover:bg-red-50 dark:hover:bg-zinc-800 cursor-pointer w-full text-left"
+                                                    >
+                                                        <FaSignOutAlt className="text-lg" />
+                                                        <span>Logout</span>
+                                                    </button>
+                                                </ul>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
                                 </div>
+
 
 
                                 {/* Theme toggle button here */}
