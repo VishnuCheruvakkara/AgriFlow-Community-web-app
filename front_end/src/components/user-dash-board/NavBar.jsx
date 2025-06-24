@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { FaBell, FaEnvelope, FaSearch } from 'react-icons/fa';
+import { FaBell, FaEnvelope, FaSearch, FaCloudSun, FaRegUserCircle } from 'react-icons/fa';
 import { IoMdLogOut } from "react-icons/io";
 // for lgout section 
 import { useNavigate, Link } from 'react-router-dom';
@@ -326,23 +326,37 @@ function NavBar() {
                                             className="h-full w-full object-cover "
                                         />
                                     </div>
-
-                                    {/* Dropdown */}
                                     {isDropdownVisible && (
-                                        <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                        <div className="absolute -right-16 mt-5 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10 lg:hidden">
                                             <ul className="py-2">
-                                                <li className="px-4 py-2 text-gray-700 flex items-center space-x-2 hover:bg-gray-100 cursor-pointer">
-                                                    <FaCog className="text-lg" />
-                                                    <span>Settings</span>
-                                                </li>
+                                                <Link
+                                                    to={`/user-dash-board/user-profile-view/${userData?.id}`}
+                                                    onClick={() => setIsDropdownVisible(false)}
+                                                    className="px-4 py-2 text-gray-700 flex items-center space-x-2 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    <FaRegUserCircle className="text-lg" />
+                                                    <span>Profile</span>
+                                                </Link>
+
+                                                <Link
+                                                    to="/user-dash-board/weather-page"
+                                                    onClick={() => setIsDropdownVisible(false)}
+                                                    className="px-4 py-2 text-gray-700 flex items-center space-x-2 hover:bg-gray-100 cursor-pointer"
+                                                >
+                                                    <FaCloudSun className="text-lg" />
+                                                    <span>Weather</span>
+                                                </Link>
+
                                                 <button
-                                                    onClick={handleLogout}
+                                                    onClick={() => {
+                                                        setIsDropdownVisible(false);
+                                                        handleLogout();
+                                                    }}
                                                     className="px-4 py-2 text-red-500 flex items-center space-x-2 hover:bg-red-50 cursor-pointer w-full text-left"
                                                 >
                                                     <FaSignOutAlt className="text-lg" />
                                                     <span>Logout</span>
                                                 </button>
-
                                             </ul>
                                         </div>
                                     )}
