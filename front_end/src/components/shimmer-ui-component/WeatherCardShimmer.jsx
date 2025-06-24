@@ -2,36 +2,54 @@ import React from 'react';
 
 const WeatherCardShimmer = () => {
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm  animate-pulse">
-     
-     
-      {/* Weather Icon */}
-      <div className="flex items-center justify-center flex-col">
-        <div className="h-16 w-16 shimmer shimmer-light shimmer-dark rounded-full mb-2"></div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 animate-pulse">
 
-        {/* Temperature */}
-        <div className="h-6 w-20 shimmer shimmer-light shimmer-dark rounded mb-1"></div>
+      {/* Left: Temperature & Location */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 shimmer shimmer-light shimmer-dark rounded-full"></div>
+          <div className="h-6 w-24 shimmer shimmer-light shimmer-dark rounded"></div>
+        </div>
+        <div className="h-4 w-32 shimmer shimmer-light shimmer-dark rounded"></div>
+        <div className="h-4 w-28 shimmer shimmer-light shimmer-dark rounded"></div>
+      </div>
 
-        {/* Description & Location */}
-        <div className="h-4 w-32 shimmer shimmer-light shimmer-dark rounded mb-1"></div>
-        <div className="h-3 w-24 shimmer shimmer-light shimmer-dark rounded mb-4"></div>
-
-        {/* Bottom Stats */}
-        <div className="flex justify-between w-full text-sm space-x-2">
-          <div className="flex-1 text-center">
-            <div className="h-3 w-16 shimmer shimmer-light shimmer-dark rounded mx-auto mb-1"></div>
-            <div className="h-4 w-12 shimmer shimmer-light shimmer-dark rounded mx-auto"></div>
+      {/* Right: Blur Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Card 1 */}
+        <div className="p-4 backdrop-blur-md bg-white/60 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="h-6 w-6 shimmer shimmer-light shimmer-dark rounded-full"></div>
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="h-3 w-24 shimmer shimmer-light shimmer-dark rounded"></div>
+              <div className="h-4 w-16 shimmer shimmer-light shimmer-dark rounded"></div>
+            </div>
           </div>
-          <div className="flex-1 text-center">
-            <div className="h-3 w-16 shimmer shimmer-light shimmer-dark rounded mx-auto mb-1"></div>
-            <div className="h-4 w-12 shimmer shimmer-light shimmer-dark rounded mx-auto"></div>
+        </div>
+
+        {/* Card 2 */}
+        <div className="p-4 backdrop-blur-md bg-white/60 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="h-6 w-6 shimmer shimmer-light shimmer-dark rounded-full"></div>
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="h-3 w-24 shimmer shimmer-light shimmer-dark rounded"></div>
+              <div className="h-4 w-16 shimmer shimmer-light shimmer-dark rounded"></div>
+            </div>
           </div>
-          <div className="flex-1 text-center">
-            <div className="h-3 w-16 shimmer shimmer-light shimmer-dark rounded mx-auto mb-1"></div>
-            <div className="h-4 w-12 shimmer shimmer-light shimmer-dark rounded mx-auto"></div>
+        </div>
+
+        {/* Card 3 */}
+        <div className="p-4 backdrop-blur-md bg-white/60 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="h-6 w-6 shimmer shimmer-light shimmer-dark rounded-full"></div>
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="h-3 w-24 shimmer shimmer-light shimmer-dark rounded"></div>
+              <div className="h-4 w-16 shimmer shimmer-light shimmer-dark rounded"></div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 };

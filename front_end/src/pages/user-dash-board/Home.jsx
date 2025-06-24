@@ -18,6 +18,7 @@ import ShareButton from '../../components/post-creation/ShareButton';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import WeatherCardShimmer from '../../components/shimmer-ui-component/WeatherCardShimmer';
+import { FaWind, FaWater, FaCloud, FaMapMarkerAlt } from "react-icons/fa";
 
 function Home() {
 
@@ -242,28 +243,97 @@ function Home() {
       <CustomScrollToTop />
 
 
-      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 " >
-        {/* Welcome bar with ThemeToggle */}
+      <div className="w-[100%] space-y-4 mt-4 mb-11 " >
 
-        <div
-          className=" h-32 rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%] relative overflow-hidden"
-          style={{
-            backgroundImage: "url('/images/farmer_land_doodle.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div className="relative z-10 flex justify-between items-center text-white ">
 
-            <div>
-              <h1 className="text-2xl text-zinc-800/80 font-bold">
+
+        {/* Welcome bar with Weather & Forecast Link */}
+        <div className="h-auto rounded-lg shadow-lg p-4 mb-4 bg-white dark:bg-zinc-800 relative overflow-hidden">
+          <div className="relative z-10 text-zinc-800 dark:text-white space-y-4">
+
+            {/* Top Row: Welcome + Forecast Link */}
+            <div className="flex justify-between items-center">
+              <h1 className="text-md font-bold">
                 Welcome back, {user?.username || "Farmer"}!
               </h1>
-
+              <button
+                onClick={() => navigate("/user-dash-board/weather-page")}
+                className="text-sm text-green-600 dark:text-green-300 font-medium hover:underline"
+              >
+                View Weather Forecast
+              </button>
             </div>
+
+            {/* Underline both headings */}
+            <div className="flex justify-between border-b border-gray-300 dark:border-zinc-600 " />
+            {/* Weather Info Section */}
+            {loading || !weather ? (
+              <WeatherCardShimmer />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+                {/* Left: Temperature & Location */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <FaCloudSun className="text-3xl text-yellow-400 shrink-0" />
+                    <span className="text-2xl font-bold text-zinc-800 dark:text-white">
+                      {Math.round(weather.main.temp)}°C
+                    </span>
+                  </div>
+                  <p className="capitalize text-sm text-zinc-700 dark:text-zinc-300">
+                    {weather.weather[0].description}
+                  </p>
+                  <p className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <FaMapMarkerAlt className="text-green-500" />
+                    {weather.name}
+                  </p>
+                </div>
+
+                {/* Right: Weather Stats in Blur Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                  {/* Air Moisture */}
+                  <div className="flex items-center gap-3 p-3 backdrop-blur-md bg-white/60 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md min-w-0 overflow-hidden">
+                    <FaWater className="text-blue-500 text-xl shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-300 truncate">Air Moisture</span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                        {weather.main.humidity}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Wind */}
+                  <div className="flex items-center gap-3 p-3 backdrop-blur-md bg-white/60 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md min-w-0 overflow-hidden">
+                    <FaWind className="text-cyan-500 text-xl shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-300 truncate">Wind</span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                        {weather.wind.speed} km/h
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cloud Cover */}
+                  <div className="flex items-center gap-3 p-3 backdrop-blur-md bg-white/60 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md min-w-0 overflow-hidden">
+                    <FaCloud className="text-gray-400 text-xl shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-300 truncate">Cloud Cover</span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                        {weather.clouds.all}%
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
+
+
           </div>
         </div>
+
 
 
         {/* Create post card */}
@@ -493,127 +563,7 @@ function Home() {
 
       </div>
 
-      {/* Right sidebar - Weather, Suggestions, Events, Schemes */}
-      <div className="lg:w-1/3 space-y-4 hidden lg:block">
-        {/* Weather card - Moved from left to right */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4 mt-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Weather</h2>
-            <span
-              className="text-green-500 dark:text-blue -400 text-sm cursor-pointer"
-              onClick={() => navigate("/user-dash-board/weather-page")}
-            >
-              View Forecast
-            </span>
-          </div>
 
-          {loading || !weather ? (
-            <WeatherCardShimmer />
-          ) : (
-            <div className="flex items-center justify-center flex-col">
-              <FaCloudSun className="text-5xl text-yellow-500 mb-2" />
-              <span className="text-3xl font-bold text-black dark:text-white">
-                {Math.round(weather.main.temp)}°C
-              </span>
-              <p className="text-gray-600 dark:text-gray-300 capitalize">
-                {weather.weather[0].description}
-              </p>
-              <p className="text-gray-600 dark:text-gray-300 capitalize text-sm">
-                {weather.name}
-              </p>
-
-              <div className="flex justify-between w-full mt-4 text-sm text-gray-600 dark:text-gray-300">
-                <div className="text-center w-1/3">
-                  <p>Humidity</p>
-                  <p className="font-semibold">{weather.main.humidity}%</p>
-                </div>
-                <div className="text-center w-1/3">
-                  <p>Wind</p>
-                  <p className="font-semibold">{weather.wind.speed} km/h</p>
-                </div>
-                <div className="text-center w-1/3">
-                  <p>Clouds</p>
-                  <p className="font-semibold">{weather.clouds.all}%</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Suggestions card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Suggestions</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">See All</span>
-          </div>
-          <ul className="space-y-3">
-            <li className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                  <img src={defaultGroupImage} alt="User profile" className="h-full w-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-medium text-green-700 dark:text-green-400">Organic Farmers Group</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">324 members</p>
-                </div>
-              </div>
-              <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                <FaPlus />
-              </button>
-            </li>
-            <li className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                  <img src={defaultGroupImage} alt="User profile" className="h-full w-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-medium text-green-700 dark:text-green-400">Sustainable Farming</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">512 members</p>
-                </div>
-              </div>
-              <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                <FaPlus />
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        {/* Events card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Upcoming Events</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">See All</span>
-          </div>
-          <ul className="space-y-3">
-            <li className="border-l-4 border-green-500 pl-3 py-1">
-              <p className="font-semibold text-gray-600 dark:text-gray-300">Seed Distribution</p>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <BsCalendarEvent className="mr-1" />
-                <span>Tomorrow, 10:00 AM</span>
-              </div>
-            </li>
-            <li className="border-l-4 border-blue-500 pl-3 py-1">
-              <p className="font-semibold text-gray-600 dark:text-gray-300">Irrigation Workshop</p>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <BsCalendarEvent className="mr-1" />
-                <span>Mar 15, 2:00 PM</span>
-              </div>
-            </li>
-            <li className="border-l-4 border-yellow-500 pl-3 py-1">
-              <p className="font-semibold text-gray-600 dark:text-gray-300">Community Meeting</p>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <BsCalendarEvent className="mr-1" />
-                <span>Mar 20, 4:30 PM</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-
-
-
-
-      </div>
 
     </>
   )

@@ -303,42 +303,8 @@ function UserProfileViewPage() {
                             </div>
                         </div>
 
-                        {/* Communities Section */}
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="font-bold text-lg text-gray-800 dark:text-zinc-200">Communities</h2>
-                                <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">See All</span>
-                            </div>
-                            <ul className="space-y-3">
-                                <li className="flex items-center space-x-3">
-                                    <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                                        <img src={defaultGroupImage} alt="Community" className="h-full w-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-800 dark:text-zinc-200">Organic Farmers Group</p>
-                                        <p className="text-xs text-gray-500 dark:text-zinc-400">324 members</p>
-                                    </div>
-                                </li>
-                                <li className="flex items-center space-x-3">
-                                    <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                                        <img src={defaultGroupImage} alt="Community" className="h-full w-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-800 dark:text-zinc-200">Maharashtra Farmers Alliance</p>
-                                        <p className="text-xs text-gray-500 dark:text-zinc-400">1,245 members</p>
-                                    </div>
-                                </li>
-                                <li className="flex items-center space-x-3">
-                                    <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                                        <img src={defaultGroupImage} alt="Community" className="h-full w-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-800 dark:text-zinc-200">Sustainable Agriculture</p>
-                                        <p className="text-xs text-gray-500 dark:text-zinc-400">512 members</p>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
+                      
+
                     </div>
 
                     {/* Center content - Posts and Activities */}
@@ -406,104 +372,6 @@ function UserProfileViewPage() {
                             </div>
                         </div>
 
-                        {/* Post 2 - Product Listing */}
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-4">
-                            <div className="flex justify-between mb-4">
-                                <div className="flex items-center space-x-3">
-                                    <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                                        <img src={defaultUserImage} alt="User profile" className="h-full w-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold text-green-700 dark:text-green-400">Rajesh Kumar</p>
-                                        <p className="text-xs text-gray-500 dark:text-zinc-400">Posted 1 week ago</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Product Card */}
-                            <div className="border border-gray-200 dark:border-zinc-700 rounded-lg overflow-hidden mb-4">
-                                <div className="bg-green-50 dark:bg-green-900 p-2 text-green-700 dark:text-green-300 font-medium flex items-center">
-                                    <FaStore className="mr-2" /> Product for Sale
-                                </div>
-                                <div className="p-4">
-                                    <h3 className="font-bold text-lg text-gray-800 dark:text-zinc-200">Organic Tomatoes - Fresh Harvest</h3>
-                                    <p className="text-green-700 dark:text-green-400 font-bold mt-1">₹60/kg</p>
-                                    <p className="text-gray-600 dark:text-zinc-400 mt-2">Freshly harvested organic tomatoes. No pesticides used. Perfect for salads and cooking. Available for local pickup or delivery within 10km.</p>
-
-                                    <div className="mt-4 flex justify-between">
-                                        <button className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors">
-                                            Contact Seller
-                                        </button>
-                                        <button className="border border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 px-4 py-2 rounded-md hover:bg-green-50 dark:hover:bg-green-900 transition-colors">
-                                            View Details
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between text-gray-600 dark:text-zinc-400 pb-3 border-b dark:border-zinc-700">
-                                <span>15 likes</span>
-                                <span>3 comments</span>
-                            </div>
-                            <div className="flex justify-around pt-3">
-                                <button className="flex items-center text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                                    <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
-                                    </svg>
-                                    Like
-                                </button>
-                                <button className="flex items-center text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                                    <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                                    </svg>
-                                    Comment
-                                </button>
-                                <button className="flex items-center text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                                    <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                                    </svg>
-                                    Share
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Upcoming Events */}
-                        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="font-bold text-lg text-gray-800 dark:text-zinc-200">Upcoming Events</h2>
-                                <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 flex items-center">
-                                    <FaEdit className="mr-1" /> Add Event
-                                </button>
-                            </div>
-                            <ul className="space-y-3">
-                                <li className="border-l-4 border-green-500 dark:border-green-400 pl-3 py-2 flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold text-gray-700 dark:text-zinc-300">Organic Farming Workshop</p>
-                                        <div className="flex items-center text-sm text-gray-600 dark:text-zinc-400">
-                                            <BsCalendarEvent className="mr-1" />
-                                            <span>May 15, 2025, 10:00 AM</span>
-                                        </div>
-                                        <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">Hosting a workshop on organic pest control methods</p>
-                                    </div>
-                                    <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-sm font-medium">
-                                        Details
-                                    </button>
-                                </li>
-                                <li className="border-l-4 border-blue-500 dark:border-blue-400 pl-3 py-2 flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold text-gray-700 dark:text-zinc-300">Nashik Farmers Market</p>
-                                        <div className="flex items-center text-sm text-gray-600 dark:text-zinc-400">
-                                            <BsCalendarEvent className="mr-1" />
-                                            <span>May 22, 2025, 8:00 AM</span>
-                                        </div>
-                                        <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">Participating in the weekly farmers market</p>
-                                    </div>
-                                    <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-sm font-medium">
-                                        Details
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div >

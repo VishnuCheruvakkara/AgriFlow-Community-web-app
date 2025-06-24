@@ -145,18 +145,6 @@ function SideBar() {
                             <span>Weather</span>
                         </Link>
                     </li>
-
-
-
-
-                    <li className="">
-                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors ">
-                            <FaChartLine className="text-xl" />
-                            <span>Activity</span>
-                        </a>
-                    </li>
-
-
                 </ul>
 
                 {/* Logout Button */}
