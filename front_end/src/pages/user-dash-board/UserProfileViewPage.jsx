@@ -25,6 +25,9 @@ import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
 import ShareButton from '../../components/post-creation/ShareButton';
 import { AnimatePresence, motion } from 'framer-motion';
 import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
+import { Search } from 'lucide-react';
+import { ImCancelCircle } from 'react-icons/im';
+
 
 function UserProfileViewPage() {
     //useNavigate set up 
@@ -52,6 +55,9 @@ function UserProfileViewPage() {
     const [infiniteScrollLoading, setInfiniteScrollLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    //search a post 
+    const [searchQuery, setSearchQuery] = useState("");
+
 
     // for post like tracking and animation 
     const [likedPosts, setLikedPosts] = useState({});
@@ -117,7 +123,11 @@ function UserProfileViewPage() {
             let url = `/posts/user-posts/?page=${page}`;
 
             if (!isOwnProfile) {
-                url += `&user_id=${userId}`;  // Send only if viewing someone else’s profile
+                url += `&user_id=${userId}`;
+            }
+
+            if (searchQuery.trim() !== "") {
+                url += `&search=${encodeURIComponent(searchQuery.trim())}`;
             }
 
             const res = await AuthenticatedAxiosInstance.get(url);
@@ -125,7 +135,8 @@ function UserProfileViewPage() {
             if (res.data.results.length === 0) {
                 setHasMore(false);
             } else {
-                setPosts(prev => [...prev, ...res.data.results]);
+                // If page is 1 (new search), replace posts; otherwise append
+                setPosts(prev => page === 1 ? res.data.results : [...prev, ...res.data.results]);
             }
         } catch (err) {
             console.error('Error fetching posts:', err);
@@ -136,6 +147,18 @@ function UserProfileViewPage() {
             setInfiniteScrollLoading(false);
         }
     };
+
+    // trigger fetch post when page changes 
+    useEffect(() => {
+        // Reset state when profile changes
+        setPosts([]);
+        setPage(1);
+        setHasMore(true);
+
+        // Fetch new posts
+        fetchPosts();
+    }, [userId, isOwnProfile, searchQuery]);
+
 
 
     // liked post 
@@ -495,26 +518,52 @@ function UserProfileViewPage() {
 
                             {/* Center content - Posts and Activities */}
                             <div className="lg:w-2/3 space-y-4">
+                                {/* search section  */}
+                                <div className="relative  w-full  mx-auto">
+                                    <input
+                                        type="text"
+                                        placeholder="Search posts..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full py-3 pl-12 pr-10 border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out"
+                                    />
+                                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-400 h-5 w-5" />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery("")}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400 transition-colors duration-300"
+                                            aria-label="Clear search"
+                                        >
+                                            <ImCancelCircle size={18} />
+                                        </button>
+                                    )}
+                                </div>
                                 {/* Tab Navigation */}
-                                <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm">
+                                <div className="bg-white dark:bg-zinc-900 rounded-t-lg shadow-sm">
                                     <div className="flex border-b dark:border-zinc-700">
-                                        <button className="flex-1 py-3 px-4 font-medium text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400">
-                                            Posts
+                                        <button className=" ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400">
+                                            Images
                                         </button>
-                                        <button className="flex-1 py-3 px-4 font-medium text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400">
-                                            Products
+                                        <button className="ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400">
+                                            Videos
                                         </button>
-                                        <button className="flex-1 py-3 px-4 font-medium text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400">
-                                            Photos
-                                        </button>
-                                        <button className="flex-1 py-3 px-4 font-medium text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400">
-                                            Events
-                                        </button>
+
                                     </div>
                                 </div>
 
+
+
+
+
+
                                 {/* Posts - Note: This section would need to be completed with the rest of your post rendering logic */}
-                                {posts.length > 0 ? (
+                                {infiniteScrollLoading && hasMore ? (
+                                    <>
+                                        <PostShimmer />
+                                        <PostShimmer />
+                                        <PostShimmer />
+                                    </>
+                                ) : posts.length > 0 ? (
                                     posts.map((post, index) => {
                                         const isLastPost = index === posts.length - 1;
                                         const isLiked = likedPosts[post.id] || false;
@@ -715,7 +764,7 @@ function UserProfileViewPage() {
                                     })) : (
                                     <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-white rounded-md dark:bg-zinc-900 dark:border-zinc-700">
                                         <img
-                                            src={PostNotFoundImage }
+                                            src={PostNotFoundImage}
                                             alt="No Posts"
                                             className="mx-auto w-64 object-contain"
                                         />
@@ -726,14 +775,7 @@ function UserProfileViewPage() {
                                     </div>
                                 )}
 
-                                {/* Show shimmer loader while loading */}
-                                {infiniteScrollLoading && hasMore && (
-                                    <>
-                                        <PostShimmer />
-                                        <PostShimmer />
-                                        <PostShimmer />
-                                    </>
-                                )}
+                               
 
                                 {!hasMore && (
                                     <p className="text-center text-gray-500 dark:text-gray-400 py-4">

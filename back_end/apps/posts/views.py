@@ -6,6 +6,7 @@ from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSe
 from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination
 from django.db import models
+from django.db.models import Q
 
 
 ########################## Create New post View  #######################
@@ -138,15 +139,24 @@ class UserPostsAPIView(APIView):
 
     def get(self, request):
         user_id = request.query_params.get('user_id')
-        page_size = CustomPostPagination.page_size
+        search_query = request.query_params.get('search', '').strip()
 
+        # Fetch posts for either another user or the logged-in user
         if user_id:
-            queryset = Post.objects.filter(author__id=user_id).order_by('-created_at')
+            queryset = Post.objects.filter(author__id=user_id)
         else:
-            queryset = Post.objects.filter(author=request.user).order_by('-created_at')
+            queryset = Post.objects.filter(author=request.user)
 
+        # Apply content-only search filter
+        if search_query:
+            queryset = queryset.filter(content__icontains=search_query)
+
+        queryset = queryset.order_by('-created_at')
+
+        # Paginate
         paginator = CustomPostPagination()
         paginated_posts = paginator.paginate_queryset(queryset, request)
         serializer = PostSerializer(paginated_posts, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
