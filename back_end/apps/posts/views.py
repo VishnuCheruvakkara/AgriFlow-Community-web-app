@@ -116,7 +116,7 @@ class AddCommentAPIView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-#==========================
+#========================== Get all teh comment for each posts ==================================#
 
 class CommentListAPIView(APIView):
     permission_classes = [IsAuthenticated]  
@@ -129,3 +129,24 @@ class CommentListAPIView(APIView):
         comments = Comment.objects.filter(post_id=post_id).select_related('user').order_by('-created_at')
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+########################## Get post conditionally based on user id in the profile section ##############################
+
+class UserPostsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_id = request.query_params.get('user_id')
+        page_size = CustomPostPagination.page_size
+
+        if user_id:
+            queryset = Post.objects.filter(author__id=user_id).order_by('-created_at')
+        else:
+            queryset = Post.objects.filter(author=request.user).order_by('-created_at')
+
+        paginator = CustomPostPagination()
+        paginated_posts = paginator.paginate_queryset(queryset, request)
+        serializer = PostSerializer(paginated_posts, many=True)
+
+        return paginator.get_paginated_response(serializer.data)

@@ -7,6 +7,7 @@ import { WiHumidity } from 'react-icons/wi';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import WeatherPageShimmer from '../../components/shimmer-ui-component/WeatherPageShimmer';
+import WeatherDataNotFoundImage from "../../assets/images/no-weather-data-found.png"
 
 const WeatherPage = () => {
     const [weatherData, setWeatherData] = useState(null);
@@ -23,8 +24,7 @@ const WeatherPage = () => {
         if (!user?.address?.latitude || !user?.address?.longitude) return;
 
         const fetchWeather = async () => {
-            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`;
-            console.log("Requesting:", url);
+
             try {
 
 
@@ -92,7 +92,7 @@ const WeatherPage = () => {
 
                                 {/* Temperature Box */}
                                 <div className="border rounded-lg p-4 shadow-md dark:bg-zinc-900 dark:border-zinc-600 ">
-                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300">Temperature</h4>
+                                    <h4 className="font-semibold mb-4  text-green-600 dark:text-green-300 border-b pb-2 dark:border-zinc-600">Temperature</h4>
                                     <div className="space-y-4 text-sm">
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center space-x-2">
@@ -123,7 +123,7 @@ const WeatherPage = () => {
 
                                 {/* Atmospheric Conditions */}
                                 <div className="border rounded-lg p-4 shadow-md dark:bg-zinc-900 dark:border-zinc-600">
-                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300">Atmosphere</h4>
+                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300 border-b pb-2 dark:border-zinc-600">Atmosphere</h4>
                                     <div className="space-y-4 text-sm">
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center space-x-2">
@@ -158,7 +158,7 @@ const WeatherPage = () => {
 
                                 {/* Wind Data */}
                                 <div className="border rounded-lg p-4 shadow-md dark:bg-zinc-900 dark:border-zinc-600">
-                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300">Wind</h4>
+                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300 border-b pb-2 dark:border-zinc-600">Wind</h4>
                                     <div className="space-y-4 text-sm">
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center space-x-2">
@@ -179,7 +179,7 @@ const WeatherPage = () => {
 
                                 {/* Sunlight */}
                                 <div className="border rounded-lg p-4 shadow-md dark:bg-zinc-900 dark:border-zinc-600">
-                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300">Sunlight</h4>
+                                    <h4 className="font-semibold mb-4 text-green-600 dark:text-green-300 border-b pb-2 dark:border-zinc-600">Sunlight</h4>
                                     <div className="space-y-4 text-sm">
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center space-x-2">
@@ -201,7 +201,15 @@ const WeatherPage = () => {
                             </div>
                         </div>
                     ) : (
-                        <p className="text-red-500">Failed to load weather data.</p>
+                        <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700 ">
+                            <img
+                                src={WeatherDataNotFoundImage}
+                                alt="No Events"
+                                className="mx-auto w-64 object-contain"
+                            />
+                            <p className="text-lg font-semibold dark:text-zinc-400">No Weather data found!</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400">Try to refresh the page.</p>
+                        </div>
                     )}
                 </div>
             </div>
@@ -210,3 +218,4 @@ const WeatherPage = () => {
 };
 
 export default WeatherPage;
+

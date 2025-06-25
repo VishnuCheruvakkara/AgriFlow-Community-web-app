@@ -59,7 +59,7 @@ class PostSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
 
-##########################  Hale likes ###################################
+##########################  Handle likes ###################################
 
 #================ Like toggling serialzier ================================# 
 

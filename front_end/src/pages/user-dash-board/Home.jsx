@@ -19,6 +19,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import WeatherCardShimmer from '../../components/shimmer-ui-component/WeatherCardShimmer';
 import { FaWind, FaWater, FaCloud, FaMapMarkerAlt } from "react-icons/fa";
+import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
 
 function Home() {
 
@@ -214,6 +215,8 @@ function Home() {
     }
   };
 
+
+
   //get the weather data for card 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -228,7 +231,7 @@ function Home() {
         console.error("Failed to fetch weather", err);
       } finally {
         setWeatherLoading(false);
-        setHasTriedFetchingWeather(true); 
+        setHasTriedFetchingWeather(true);
       }
     };
 
@@ -271,7 +274,7 @@ function Home() {
             {/* Weather Info Section */}
             {weatherLoading ? (
               <WeatherCardShimmer />
-            ) : weather ?(
+            ) : weather ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
 
                 {/* Left: Temperature & Location */}
@@ -330,11 +333,11 @@ function Home() {
                 </div>
               </div>
             ) : hasTriedFetchingWeather ? (
-            <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-300 rounded-md">
-              <p className="text-md font-semibold">Weather data not available</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Please try again later or check your connection.</p>
-            </div>
-            ):null}
+              <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-300 rounded-md">
+                <p className="text-md font-semibold">Weather data not available</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Please try again later or check your connection.</p>
+              </div>
+            ) : null}
 
 
 
@@ -348,218 +351,229 @@ function Home() {
         <PostCreationModalButton user={user} />
 
 
-
         {/* Posts */}
-        {/* Posts */}
-        {posts.map((post, index) => {
-          const isLastPost = index === posts.length - 1;
-          const isLiked = likedPosts[post.id] || false;
-
-          return (
-            <div
-              key={post.id}
-              ref={isLastPost ? lastPostRef : null}
-              className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4"
-            >
-              {/* Author Info */}
-              <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
-                <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                    <img
-                      src={post.author?.profile_picture || defaultUserImage}
-                      onError={(e) => { e.target.src = defaultUserImage }}
-                      alt="User profile"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-green-700 dark:text-green-400">
-                      {post.author?.username || "Unknown"}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(post.created_at).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })} at {new Date(post.created_at).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Post Text Content */}
-              <div className="mb-4">
-                <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
-              </div>
-
-              {/* Post Image or Video */}
-              {post.image_url && (
-                <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
-                  <div
-                    className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
-                    style={{ backgroundImage: `url(${post.image_url})` }}
-                  ></div>
-                  <div className="relative z-10 flex justify-center items-center">
-                    <img
-                      src={post.image_url}
-                      alt="Post media"
-                      className="max-w-full h-auto object-contain"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {post.video_url && (
-                <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
-                  <div
-                    className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
-                    style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}
-                  ></div>
-                  <div className="relative z-10 flex justify-center items-center">
-                    <video
-                      controls
-                      className="w-full h-auto max-h-[500px]"
-                      poster={post.image_url}
-                    >
-                      <source src={post.video_url} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                </div>
-              )}
-
-              {/* Interaction Buttons */}
-              <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
-
-
-                {/* Like button  */}
-                <div className="relative">
-                  <button
-                    onClick={() => handleLikeClick(post.id)} // Attach to post.id
-                    className={`flex dark:hover:text-green-400  items-center w-20 transition-colors duration-300 ${isLiked
-                      ? "text-green-500 hover:text-green-700"
-                      : "text-gray-600 dark:text-gray-400 hover:text-green-500"
-                      }`}
-                  >
-                    <span className="mr-2">{likeCounts[post.id] || 0}</span> {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
-                    {isLiked ? "Liked" : "Like"}
-                  </button>
-
-
-
-                  {/* Flying Heart inside like button wrapper */}
-                  {heartAnimations[post.id] && (
-                    <div className="flying-heart-wrapper">
-                      <div className="flying-heart heart1">💚</div>
-                      <div className="flying-heart heart2">💚</div>
-                      <div className="flying-heart heart3">💚</div>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => toggleComments(post.id)}
-                  className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
-                >
-                  <FaRegComment className="mr-2" /> {commentSectionsVisible[post.id] ? "Hide" : "Comment"}
-                </button>
-                {/* share button  */}
-                <ShareButton postId={post.id} />
-              </div>
-
-              {/* show the comment box and input comment field  */}
-              <AnimatePresence initial={false}>
-                {commentSectionsVisible[post.id] && (
-                  <motion.div
-                    key="commentBox"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden border-t pt-3 dark:border-zinc-600 mt-4"
-                  >
-                    <div className=" flex items-center space-x-2 mb-3">
-                      <input
-                        type="text"
-                        value={commentInputs[post.id] || ""}
-                        onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
-                        placeholder="Write a comment..."
-                        className="w-full p-2 border bg-gray-50 focus:border-green-500 dark:focus:border-green-400 rounded dark:bg-zinc-700 dark:text-white dark:border-zinc-500 transition duration-300 ease-in-out"
-                      />
-
-                      <button
-                        onClick={() => handleCommentSubmit(post.id)}
-                        className="p-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-200 flex items-center justify-center"
-                        title="Submit Comment"
-                      >
-                        <FaPaperPlane />
-                      </button>
-                    </div>
-
-                    {/* Scrollable Comment Section */}
-                    <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
-                      {(commentsByPost[post.id] || []).map((comment) => (
-                        <div
-                          key={comment.id}
-                          className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
-                        >
-                          {/* Profile image */}
-                          <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
-                            <img
-                              src={comment.user?.profile_picture || defaultUserImage}
-                              alt="User profile"
-                              className="h-full w-full object-cover"
-                              onError={(e) => { e.target.src = defaultUserImage }}
-                            />
-                          </div>
-
-                          {/* Comment content */}
-                          <div className="flex flex-col">
-                            <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-                              {comment.user?.username}
-                            </p>
-                            <p className="text-sm text-gray-700 dark:text-gray-200">
-                              {comment.content}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(comment.created_at).toLocaleDateString('en-IN', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true,
-                              })}
-                            </p>
-
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
-
-        {/* Show shimmer loader while loading */}
-        {loading && hasMore && (
+        {loading && hasMore ? (
+          //  Show shimmer loader while loading
           <>
             <PostShimmer />
             <PostShimmer />
             <PostShimmer />
           </>
+        ) : posts.length > 0 ? (
+          posts.map((post, index) => {
+            const isLastPost = index === posts.length - 1;
+            const isLiked = likedPosts[post.id] || false;
+
+            return (
+              <div
+                key={post.id}
+                ref={isLastPost ? lastPostRef : null}
+                className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4"
+              >
+                {/* Author Info */}
+                <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
+                      <img
+                        src={post.author?.profile_picture || defaultUserImage}
+                        onError={(e) => { e.target.src = defaultUserImage }}
+                        alt="User profile"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-green-700 dark:text-green-400">
+                        {post.author?.username || "Unknown"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(post.created_at).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })} at {new Date(post.created_at).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Post Text Content */}
+                <div className="mb-4">
+                  <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
+                </div>
+
+                {/* Post Image or Video */}
+                {post.image_url && (
+                  <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                    <div
+                      className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
+                      style={{ backgroundImage: `url(${post.image_url})` }}
+                    ></div>
+                    <div className="relative z-10 flex justify-center items-center">
+                      <img
+                        src={post.image_url}
+                        alt="Post media"
+                        className="max-w-full h-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {post.video_url && (
+                  <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                    <div
+                      className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
+                      style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}
+                    ></div>
+                    <div className="relative z-10 flex justify-center items-center">
+                      <video
+                        controls
+                        className="w-full h-auto max-h-[500px]"
+                        poster={post.image_url}
+                      >
+                        <source src={post.video_url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  </div>
+                )}
+
+                {/* Interaction Buttons */}
+                <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
+
+
+                  {/* Like button  */}
+                  <div className="relative">
+                    <button
+                      onClick={() => handleLikeClick(post.id)} // Attach to post.id
+                      className={`flex dark:hover:text-green-400  items-center w-20 transition-colors duration-300 ${isLiked
+                        ? "text-green-500 hover:text-green-700"
+                        : "text-gray-600 dark:text-gray-400 hover:text-green-500"
+                        }`}
+                    >
+                      <span className="mr-2">{likeCounts[post.id] || 0}</span> {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
+                      {isLiked ? "Liked" : "Like"}
+                    </button>
+
+
+
+                    {/* Flying Heart inside like button wrapper */}
+                    {heartAnimations[post.id] && (
+                      <div className="flying-heart-wrapper">
+                        <div className="flying-heart heart1">💚</div>
+                        <div className="flying-heart heart2">💚</div>
+                        <div className="flying-heart heart3">💚</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => toggleComments(post.id)}
+                    className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+                  >
+                    <FaRegComment className="mr-2" /> {commentSectionsVisible[post.id] ? "Hide" : "Comment"}
+                  </button>
+                  {/* share button  */}
+                  <ShareButton postId={post.id} />
+                </div>
+
+                {/* show the comment box and input comment field  */}
+                <AnimatePresence initial={false}>
+                  {commentSectionsVisible[post.id] && (
+                    <motion.div
+                      key="commentBox"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden border-t pt-3 dark:border-zinc-600 mt-4"
+                    >
+                      <div className=" flex items-center space-x-2 mb-3">
+                        <input
+                          type="text"
+                          value={commentInputs[post.id] || ""}
+                          onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
+                          placeholder="Write a comment..."
+                          className="w-full p-2 border bg-gray-50 focus:border-green-500 dark:focus:border-green-400 rounded dark:bg-zinc-700 dark:text-white dark:border-zinc-500 transition duration-300 ease-in-out"
+                        />
+
+                        <button
+                          onClick={() => handleCommentSubmit(post.id)}
+                          className="p-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-200 flex items-center justify-center"
+                          title="Submit Comment"
+                        >
+                          <FaPaperPlane />
+                        </button>
+                      </div>
+
+                      {/* Scrollable Comment Section */}
+                      <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
+                        {(commentsByPost[post.id] || []).map((comment) => (
+                          <div
+                            key={comment.id}
+                            className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
+                          >
+                            {/* Profile image */}
+                            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
+                              <img
+                                src={comment.user?.profile_picture || defaultUserImage}
+                                alt="User profile"
+                                className="h-full w-full object-cover"
+                                onError={(e) => { e.target.src = defaultUserImage }}
+                              />
+                            </div>
+
+                            {/* Comment content */}
+                            <div className="flex flex-col">
+                              <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                                {comment.user?.username}
+                              </p>
+                              <p className="text-sm text-gray-700 dark:text-gray-200">
+                                {comment.content}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(comment.created_at).toLocaleDateString('en-IN', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true,
+                                })}
+                              </p>
+
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })) : (
+          <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-white rounded-md dark:bg-zinc-900 dark:border-zinc-700">
+            <img
+              src={PostNotFoundImage}
+              alt="No Posts"
+              className="mx-auto w-64 object-contain"
+            />
+            <p className="text-lg font-semibold dark:text-zinc-400">No Posts found!</p>
+            <p className="text-xs text-gray-500 dark:text-zinc-400">
+              Try creating a new post or check again later.
+            </p>
+          </div>
         )}
 
-        {!hasMore && (
+    
+
+        {!hasMore && !hasMore && (
           <p className="text-center text-gray-500 dark:text-gray-400 py-4">
             🎉 You've reached the end of the posts.
           </p>
