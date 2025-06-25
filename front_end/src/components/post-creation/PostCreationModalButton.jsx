@@ -77,6 +77,9 @@ function PostCreationModalButton({ user }) {
                 title="Create Post"
                 onSubmit={handleAddPost}
                 isSubmitDisabled={!postText.trim() && !mediaFile}
+                submitButtonText="Create Post"
+                submitButtonId="postConfirmationButton"
+
             >
                 <PostCreationModalContent
                     postText={postText}

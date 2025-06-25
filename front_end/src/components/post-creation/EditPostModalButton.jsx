@@ -74,6 +74,9 @@ const EditPostModalButton = ({ post, onSuccess }) => {
                 title="Edit Post"
                 onSubmit={handleUpdatePost}
                 isSubmitDisabled={!postText.trim() && !mediaFile && !previewURL}
+                submitButtonText="Update" 
+                submitButtonId="postUpdateButton"
+
             >
                 <PostCreationModalContent
                     postText={postText}

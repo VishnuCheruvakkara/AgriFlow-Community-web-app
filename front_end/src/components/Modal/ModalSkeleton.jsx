@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import ButtonLoader from "../LoaderSpinner/ButtonLoader";
 
-const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubmitDisabled = false, }) => {
+const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubmitDisabled = false,submitButtonText = "Create",submitButtonId = "postConfirmationButton"}) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -49,7 +49,7 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
                                     Cancel
                                 </button>
                                 <ButtonLoader 
-                                    buttonId = "postConfirmationButton"
+                                    buttonId={submitButtonId} 
                                     type="button"
                                     onClick={onSubmit}
                                     disabled={isSubmitDisabled}
@@ -58,7 +58,7 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
                                             : "bg-green-600 hover:bg-green-700 text-white"
                                         }`}
                                 >
-                                    Create
+                                    {submitButtonText} 
                                 </ButtonLoader>
                             </div>
                         </motion.div>
