@@ -140,6 +140,7 @@ class UserPostsAPIView(APIView):
     def get(self, request):
         user_id = request.query_params.get('user_id')
         search_query = request.query_params.get('search', '').strip()
+        filter_type = request.query_params.get('filter', '').strip().lower()
 
         # Fetch posts for either another user or the logged-in user
         if user_id:
@@ -150,6 +151,12 @@ class UserPostsAPIView(APIView):
         # Apply content-only search filter
         if search_query:
             queryset = queryset.filter(content__icontains=search_query)
+
+        # Apply filter
+        if filter_type == 'image':
+            queryset = queryset.filter(image_url__isnull=False).exclude(image_url='')
+        elif filter_type == 'video':
+            queryset = queryset.filter(video_url__isnull=False).exclude(video_url='')
 
         queryset = queryset.order_by('-created_at')
 

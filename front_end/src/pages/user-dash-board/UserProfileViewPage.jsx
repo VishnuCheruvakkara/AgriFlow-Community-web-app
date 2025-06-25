@@ -72,6 +72,9 @@ function UserProfileViewPage() {
     //for infinite scroll
     const observer = useRef();
 
+    //filter option for the image and videos 
+    const [filterType, setFilterType] = useState('all');
+
     const lastPostRef = (node) => {
         if (infiniteScrollLoading || !hasMore) return;
         if (observer.current) observer.current.disconnect();
@@ -130,12 +133,17 @@ function UserProfileViewPage() {
                 url += `&search=${encodeURIComponent(searchQuery.trim())}`;
             }
 
+            if (filterType === 'image') {
+                url += `&filter=image`;
+            } else if (filterType === 'video') {
+                url += `&filter=video`;
+            }
+
             const res = await AuthenticatedAxiosInstance.get(url);
 
             if (res.data.results.length === 0) {
                 setHasMore(false);
             } else {
-                // If page is 1 (new search), replace posts; otherwise append
                 setPosts(prev => page === 1 ? res.data.results : [...prev, ...res.data.results]);
             }
         } catch (err) {
@@ -148,6 +156,7 @@ function UserProfileViewPage() {
         }
     };
 
+
     // trigger fetch post when page changes 
     useEffect(() => {
         // Reset state when profile changes
@@ -157,7 +166,7 @@ function UserProfileViewPage() {
 
         // Fetch new posts
         fetchPosts();
-    }, [userId, isOwnProfile, searchQuery]);
+    }, [userId, isOwnProfile, searchQuery, filterType]);
 
 
 
@@ -539,15 +548,20 @@ function UserProfileViewPage() {
                                     )}
                                 </div>
                                 {/* Tab Navigation */}
-                                <div className="bg-white dark:bg-zinc-900 rounded-t-lg shadow-sm">
+                                <div className="bg-white dark:bg-zinc-900 rounded-t-lg shadow-sm mb-4">
                                     <div className="flex border-b dark:border-zinc-700">
-                                        <button className=" ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400">
-                                            Images
-                                        </button>
-                                        <button className="ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400">
-                                            Videos
-                                        </button>
-
+                                        {['all', 'image', 'video'].map((type) => (
+                                            <button
+                                                key={type}
+                                                onClick={() => setFilterType(type)}
+                                                className={`ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-center transition-all ${filterType === type
+                                                        ? 'text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400'
+                                                        : 'text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400'
+                                                    }`}
+                                            >
+                                                {type === 'all' ? 'All' : type === 'image' ? 'Images' : 'Videos'}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
@@ -775,7 +789,7 @@ function UserProfileViewPage() {
                                     </div>
                                 )}
 
-                               
+
 
                                 {!hasMore && (
                                     <p className="text-center text-gray-500 dark:text-gray-400 py-4">
