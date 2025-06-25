@@ -29,6 +29,8 @@ import { Search } from 'lucide-react';
 import { ImCancelCircle } from 'react-icons/im';
 import { AiFillDelete } from "react-icons/ai";
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
+import EditPostModalButton from '../../components/post-creation/EditPostModalButton';
+
 
 function UserProfileViewPage() {
     //useNavigate set up 
@@ -366,12 +368,12 @@ function UserProfileViewPage() {
             try {
                 const res = await AuthenticatedAxiosInstance.delete(`/posts/delete-post/${postId}/`);
                 console.log("Post deleted:", res.data);
-                showToast("Post deleted successfully.","success")
+                showToast("Post deleted successfully.", "success")
                 // Optionally remove the deleted post from the list
                 setPosts(prev => prev.filter(post => post.id !== postId));
             } catch (err) {
                 console.error("Error deleting post:", err);
-                showToast("Error happen while deleting the post.","error");
+                showToast("Error happen while deleting the post.", "error");
             }
         }
     };
@@ -647,22 +649,22 @@ function UserProfileViewPage() {
                                                     {/* Right: Edit & Delete Icons */}
                                                     <div className="flex items-start space-x-3">
                                                         {/* Edit Icon */}
-                                                        <button
-                                                            className="p-2 rounded-full border border-green-500 hover:bg-green-100 dark:hover:bg-green-900 transition tooltip tooltip-top" data-tip="Edit"
-                                                            onClick={() => handleEdit(post.id)}
-                                                            title="Edit Post"
-                                                        >
-                                                            <FaEdit className="text-green-600 dark:text-green-400" size={18} />
-                                                        </button>
+                                                        {userId == loggedInUserId &&
+                                                            
+                                                            <EditPostModalButton post={post} onSuccess={fetchPosts} />
+
+                                                        }
 
                                                         {/* Delete Icon */}
-                                                        <button
-                                                            className="p-2 rounded-full border border-red-500 hover:bg-red-100 dark:hover:bg-red-900 transition tooltip tooltip-top" data-tip="Delete"
-                                                            onClick={() => handleDelete(post.id)}
-                                                            title="Delete Post"
-                                                        >
-                                                            <AiFillDelete className="text-red-600 dark:text-red-400" size={18} />
-                                                        </button>
+                                                        {userId == loggedInUserId &&
+                                                            <button
+                                                                className="p-2 rounded-full border border-red-500 hover:bg-red-100 dark:hover:bg-red-900 transition tooltip tooltip-top" data-tip="Delete"
+                                                                onClick={() => handleDelete(post.id)}
+                                                                title="Delete Post"
+                                                            >
+                                                                <AiFillDelete className="text-red-600 dark:text-red-400" size={18} />
+                                                            </button>
+                                                        }
                                                     </div>
                                                 </div>
 

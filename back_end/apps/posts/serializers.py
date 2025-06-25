@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Post,Like,Comment
+from .models import Post, Like, Comment
 from common.cloudinary_utils import upload_to_cloudinary
 import mimetypes
 from posts.tasks import upload_post_media_task
@@ -32,8 +32,54 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
         return post
 
+# ============================ Edit/Update post serializer ===========================#
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    media = serializers.FileField(write_only=True, required=False)
+
+    class Meta:
+        model = Post
+        fields = ['content', 'media']
+
+    def update(self, instance, validated_data):
+        request = self.context['request']
+        remove_media = request.data.get('remove_media', '').lower() == 'true'
+
+        # ========== 1. If user wants to remove media ==========
+        if remove_media:
+            instance.media = None
+            instance.image_url = None
+            instance.video_url = None
+
+        # ========== 2. If user uploads new media ==========
+        new_media = validated_data.get('media', None)
+        if new_media:
+            content_type = new_media.content_type
+
+            if content_type.startswith("image/"):
+                if instance.video_url:
+                    raise serializers.ValidationError("Can't switch media type. Delete the post and create a new one.")
+                instance.image_url = None  # Optional: clear old image
+                instance.media = new_media
+                upload_post_media_task.delay(instance.id)
+
+            elif content_type.startswith("video/"):
+                if instance.image_url:
+                    raise serializers.ValidationError("Can't switch media type. Delete the post and create a new one.")
+                instance.video_url = None  # Optional: clear old video
+                instance.media = new_media
+                upload_post_media_task.delay(instance.id)
+
+            else:
+                raise serializers.ValidationError("Unsupported media type.")
+
+        # ========== 3. Update content ==========
+        instance.content = validated_data.get('content', instance.content)
+        instance.save()
+        return instance
 
 #################### Get all posts #############################
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
@@ -48,6 +94,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.profile_picture)
 
+
 class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
 
@@ -61,7 +108,8 @@ class PostSerializer(serializers.ModelSerializer):
 
 ##########################  Handle likes ###################################
 
-#================ Like toggling serialzier ================================# 
+# ================ Like toggling serialzier ================================#
+
 
 class ToggleLikeSerializer(serializers.Serializer):
     post_id = serializers.IntegerField()
@@ -85,9 +133,9 @@ class ToggleLikeSerializer(serializers.Serializer):
         else:
             Like.objects.create(user=user, post=post)
             return {"liked": True, "message": "Post liked."}
-        
 
-#========================== Get liked post datas =============================# 
+
+# ========================== Get liked post datas =============================#
 
 class LikedPostStatusSerializer(serializers.Serializer):
     post_id = serializers.IntegerField()
@@ -97,7 +145,7 @@ class LikedPostStatusSerializer(serializers.Serializer):
 
 ########################## Handle the comments ####################
 
-#====================== posts/add new comment for a perticular post ========================# 
+# ====================== posts/add new comment for a perticular post ========================#
 
 class CommentCreateSerializer(serializers.Serializer):
     post = serializers.IntegerField()
@@ -109,7 +157,8 @@ class CommentCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("Post does not exist.")
         return value
 
-#======================  get all the comments ================================# 
+# ======================  get all the comments ================================#
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
@@ -121,6 +170,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.profile_picture)
 
+
 class CommentSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)  # Include user info
 
@@ -128,5 +178,3 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'user', 'post', 'content', 'created_at']
         read_only_fields = ['id', 'user', 'created_at']
-
-        

@@ -14,6 +14,7 @@ function PostCreationModalButton({ user }) {
 
     const [postText, setPostText] = useState("");
     const [mediaFile, setMediaFile] = useState(null);
+    const [previewURL, setPreviewURL] = useState(null); 
 
     const dispatch = useDispatch();
 
@@ -41,6 +42,7 @@ function PostCreationModalButton({ user }) {
             // Reset form after successfull creation 
             setPostText("");
             setMediaFile(null);
+            setPreviewURL(null); 
             closeModal();
         } catch (error) {
             console.error(error);
@@ -81,6 +83,8 @@ function PostCreationModalButton({ user }) {
                     setPostText={setPostText}
                     mediaFile={mediaFile}
                     setMediaFile={setMediaFile}
+                    previewURL={previewURL}
+                    setPreviewURL={setPreviewURL}
                 />
             </ModalSkeleton>
         </>

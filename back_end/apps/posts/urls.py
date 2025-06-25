@@ -1,5 +1,5 @@
 from django.urls import path
-from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView
+from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView,EditPostAPIView
 
 urlpatterns = [
     ############################ Create new post url #########################
@@ -20,6 +20,9 @@ urlpatterns = [
 
     #===================== Delete teh post based on the id ====================================#
     path('delete-post/<int:post_id>/', DeletePostAPIView.as_view(), name='delete-post'),
+
+    #==================== Update or edit post ======================# 
+    path('edit-post/<int:pk>/', EditPostAPIView.as_view(), name='edit-post'),
 
     ########################## Handle the comments ####################
     # ====================== posts/add new comment for a perticular post ========================#

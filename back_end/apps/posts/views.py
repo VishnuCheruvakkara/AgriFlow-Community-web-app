@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer
+from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer
 from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination
 from django.db import models
@@ -25,10 +25,30 @@ class CreatNewPostAPIView(APIView):
                 "created_at": post.created_at,
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#########################  Update or edit post view ########################
+
+class EditPostAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            post = Post.objects.get(id=pk, author=request.user, is_deleted=False)
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PostUpdateSerializer(post, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            updated_post = serializer.save()
+            return Response({
+                "message": "Post updated successfully",
+                "post_id": updated_post.id,
+                "updated_at": updated_post.updated_at
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ######################### Get all the post in the front-end #######################
-
-
 
 
 class GetAllThePosts(APIView):

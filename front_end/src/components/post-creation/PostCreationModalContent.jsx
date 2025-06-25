@@ -1,4 +1,4 @@
-import React, { useRef, useState,useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { FaPhotoVideo } from 'react-icons/fa';
 import { BsEmojiSmile } from 'react-icons/bs';
 import { AiOutlineClose } from 'react-icons/ai';
@@ -10,12 +10,23 @@ const PostCreationModalContent = ({
   setPostText,
   mediaFile,
   setMediaFile,
+  existingMediaUrl,
+  previewURL,
+  setPreviewURL,
 }) => {
-  const [previewURL, setPreviewURL] = useState(null);
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef();
   const textareaRef = useRef();
   const [emojiTheme, setEmojiTheme] = useState("light");
+
+  useEffect(() => {
+    if (!mediaFile && existingMediaUrl && !previewURL) {
+      setPreviewURL(existingMediaUrl);
+    }
+  }, [mediaFile, existingMediaUrl, previewURL]);
+
+
 
   //handle imoji theme dark or white 
   useEffect(() => {
@@ -75,12 +86,17 @@ const PostCreationModalContent = ({
       textarea.setSelectionRange(start + emoji.length, start + emoji.length);
     }, 0);
 
-   
+
   };
 
 
-  const isImage = mediaFile && mediaFile.type.startsWith("image/");
-  const isVideo = mediaFile && mediaFile.type.startsWith("video/");
+  const isImage =
+    (mediaFile && mediaFile.type.startsWith("image/")) ||
+    (!mediaFile && previewURL && /\.(jpeg|jpg|png|gif|webp)$/i.test(previewURL));
+
+  const isVideo =
+    (mediaFile && mediaFile.type.startsWith("video/")) ||
+    (!mediaFile && previewURL && /\.(mp4|webm|ogg)$/i.test(previewURL));
 
 
   return (
@@ -127,7 +143,7 @@ const PostCreationModalContent = ({
             emojiStyle={EmojiStyle.NATIVE} // or use TWITTER / APPLE if desired
             onEmojiClick={handleEmojiClick}
             height={350}
-            theme={emojiTheme} 
+            theme={emojiTheme}
           />
         </div>
       )}
