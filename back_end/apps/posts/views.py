@@ -39,7 +39,7 @@ class GetAllThePosts(APIView):
         filter_type = request.query_params.get('filter', '').lower()
 
         # Start with all posts
-        posts = Post.objects.select_related('author').all()
+        posts = Post.objects.select_related('author').filter(is_deleted=False)
 
         #  Apply search filter (by post content or author username)
         if search_query:
@@ -155,8 +155,9 @@ class CommentListAPIView(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+########################### Hanle posts  in profile section page #################################
 
-########################## Get post conditionally based on user id in the profile section ##############################
+#========================== Get post conditionally based on user id in the profile section ==============================#
 
 class UserPostsAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -168,9 +169,9 @@ class UserPostsAPIView(APIView):
 
         # Fetch posts for either another user or the logged-in user
         if user_id:
-            queryset = Post.objects.filter(author__id=user_id)
+            queryset = Post.objects.filter(author__id=user_id).filter(is_deleted=False)
         else:
-            queryset = Post.objects.filter(author=request.user)
+            queryset = Post.objects.filter(author=request.user).filter(is_deleted=False)
 
         # Apply content-only search filter
         if search_query:
@@ -190,4 +191,26 @@ class UserPostsAPIView(APIView):
         serializer = PostSerializer(paginated_posts, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+    
+#============================== Delete post view by the creator user =============================# 
+
+class DeletePostAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, post_id):
+        try:
+            post = Post.objects.get(id=post_id)
+
+            # Ensure only the author can delete
+            if post.author != request.user:
+                return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+            post.is_deleted = True  # Soft delete
+            post.save()
+
+            return Response({"message": "Post deleted successfully."}, status=status.HTTP_200_OK)
+
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
 

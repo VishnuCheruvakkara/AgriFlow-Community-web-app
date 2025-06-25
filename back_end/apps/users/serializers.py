@@ -582,6 +582,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     connection_count = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
     connection_status = serializers.SerializerMethodField()
+    post_count = serializers.SerializerMethodField()
+    product_count = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = [
@@ -589,8 +591,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'is_verified', 'farming_type', 'experience', 'bio', 'aadhar_card',
             'is_aadhar_verified', 'aadhar_resubmission_message', 'date_of_birth',
             'profile_completed', 'created_at', 'updated_at',
-            'address', 'community_count', 'connection_count', 'connection_status'
+            'address', 'community_count', 'connection_count', 'connection_status','post_count', 'product_count'
         ]
+    
+    def get_post_count(self, obj):
+        return obj.posts.filter(is_deleted=False).count()
+
+
+    def get_product_count(self, obj):
+        return obj.products.filter(is_deleted=False, is_available=True).count()
 
     def get_community_count(self, obj):
         return CommunityMembership.objects.filter(user=obj, status='approved').count()

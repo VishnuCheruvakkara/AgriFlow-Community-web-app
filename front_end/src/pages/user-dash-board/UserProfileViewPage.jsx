@@ -27,7 +27,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from 'react-icons/im';
-
+import { AiFillDelete } from "react-icons/ai";
+import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 
 function UserProfileViewPage() {
     //useNavigate set up 
@@ -74,7 +75,7 @@ function UserProfileViewPage() {
     //for infinite scroll
     const observer = useRef();
 
-    
+
 
     const lastPostRef = (node) => {
         if (infiniteScrollLoading || !hasMore) return;
@@ -351,6 +352,30 @@ function UserProfileViewPage() {
         fetchLikeStatus();
     }, []);
 
+    // delete the post 
+    const handleDelete = async (postId) => {
+
+        const result = await showConfirmationAlert({
+            title: 'Delete Post?',
+            text: 'Are you sure you want to delete this post? This action cannot be undone.',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result) {
+            try {
+                const res = await AuthenticatedAxiosInstance.delete(`/posts/delete-post/${postId}/`);
+                console.log("Post deleted:", res.data);
+                showToast("Post deleted successfully.","success")
+                // Optionally remove the deleted post from the list
+                setPosts(prev => prev.filter(post => post.id !== postId));
+            } catch (err) {
+                console.error("Error deleting post:", err);
+                showToast("Error happen while deleting the post.","error");
+            }
+        }
+    };
+
 
     return (
         <>
@@ -479,7 +504,7 @@ function UserProfileViewPage() {
                                                     <GoFileMedia className="text-green-600 dark:text-green-400 text-xl" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-gray-900 dark:text-green-400 font-bold">27</p>
+                                                    <p className="text-gray-900 dark:text-green-400 font-bold">{user?.post_count || "0"}</p>
                                                     <p className="text-xs text-gray-600 dark:text-zinc-400">Posts</p>
                                                 </div>
                                             </div>
@@ -489,7 +514,7 @@ function UserProfileViewPage() {
                                                 <FaStore className="text-green-600 dark:text-green-400 text-xl" />
                                             </div>
                                             <div>
-                                                <p className="text-gray-900 dark:text-green-400 font-bold">8</p>
+                                                <p className="text-gray-900 dark:text-green-400 font-bold">{user?.product_count || "0"}</p>
                                                 <p className="text-xs text-gray-600 dark:text-zinc-400">Products</p>
                                             </div>
                                         </div>
@@ -556,8 +581,8 @@ function UserProfileViewPage() {
                                                 key={type}
                                                 onClick={() => setFilterType(type)}
                                                 className={`ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-center transition-all ${filterType === type
-                                                        ? 'text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400'
-                                                        : 'text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400'
+                                                    ? 'text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400'
+                                                    : 'text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400'
                                                     }`}
                                             >
                                                 {type === 'all' ? 'All' : type === 'image' ? 'Images' : 'Videos'}
@@ -591,6 +616,7 @@ function UserProfileViewPage() {
                                             >
                                                 {/* Author Info */}
                                                 <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
+                                                    {/* Left: Author Info */}
                                                     <div className="flex items-center space-x-4">
                                                         <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
                                                             <img
@@ -618,7 +644,28 @@ function UserProfileViewPage() {
                                                         </div>
                                                     </div>
 
+                                                    {/* Right: Edit & Delete Icons */}
+                                                    <div className="flex items-start space-x-3">
+                                                        {/* Edit Icon */}
+                                                        <button
+                                                            className="p-2 rounded-full border border-green-500 hover:bg-green-100 dark:hover:bg-green-900 transition tooltip tooltip-top" data-tip="Edit"
+                                                            onClick={() => handleEdit(post.id)}
+                                                            title="Edit Post"
+                                                        >
+                                                            <FaEdit className="text-green-600 dark:text-green-400" size={18} />
+                                                        </button>
+
+                                                        {/* Delete Icon */}
+                                                        <button
+                                                            className="p-2 rounded-full border border-red-500 hover:bg-red-100 dark:hover:bg-red-900 transition tooltip tooltip-top" data-tip="Delete"
+                                                            onClick={() => handleDelete(post.id)}
+                                                            title="Delete Post"
+                                                        >
+                                                            <AiFillDelete className="text-red-600 dark:text-red-400" size={18} />
+                                                        </button>
+                                                    </div>
                                                 </div>
+
 
                                                 {/* Post Text Content */}
                                                 <div className="mb-4">

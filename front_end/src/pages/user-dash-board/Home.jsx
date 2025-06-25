@@ -23,6 +23,7 @@ import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from 'react-icons/im';
 
+import { Link } from 'react-router-dom';
 
 function Home() {
 
@@ -86,7 +87,7 @@ function Home() {
       }
 
       const res = await AuthenticatedAxiosInstance.get(url);
-
+      console.log("Post data in Home :::",res.data.results)
       if (res.data.results.length === 0) {
         setHasMore(false);
       } else {
@@ -387,7 +388,7 @@ function Home() {
             placeholder="Search posts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-full py-3 pl-12 pr-10 border border-gray-300 dark:border-zinc-600  bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out"
+            className="w-full rounded-lg py-3 pl-12 pr-10 border border-gray-300 dark:border-zinc-600  bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out"
           />
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-400 h-5 w-5" />
           {searchQuery && (
@@ -440,7 +441,7 @@ function Home() {
               >
                 {/* Author Info */}
                 <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
-                  <div className="flex items-center space-x-4">
+                  <Link  to={`/user-dash-board/user-profile-view/${post.author?.id}`} className="flex items-center space-x-4">
                     <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
                       <img
                         src={post.author?.profile_picture || defaultUserImage}
@@ -465,7 +466,7 @@ function Home() {
                         })}
                       </p>
                     </div>
-                  </div>
+                  </Link>
 
                 </div>
 
