@@ -29,15 +29,39 @@ class CreatNewPostAPIView(APIView):
 ######################### Get all the post in the front-end #######################
 
 
+
+
 class GetAllThePosts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        search_query = request.query_params.get('search', '').strip()
+        filter_type = request.query_params.get('filter', '').lower()
+
+        # Start with all posts
         posts = Post.objects.select_related('author').all()
+
+        #  Apply search filter (by post content or author username)
+        if search_query:
+            posts = posts.filter(
+                Q(content__icontains=search_query) |
+                Q(author__username__icontains=search_query)
+            )
+
+        #  Apply media-type filter
+        if filter_type == 'image':
+            posts = posts.filter(image_url__isnull=False).exclude(image_url='')
+        elif filter_type == 'video':
+            posts = posts.filter(video_url__isnull=False).exclude(video_url='')
+
+        #  Order by newest first
+        posts = posts.order_by('-created_at')
+
+        #  Paginate and serialize
         paginator = CustomPostPagination()
         paginated_posts = paginator.paginate_queryset(posts, request)
-        serializer = PostSerializer(
-            paginated_posts, many=True, context={'request': request})
+        serializer = PostSerializer(paginated_posts, many=True, context={'request': request})
+
         return paginator.get_paginated_response(serializer.data)
 
 ############################## Hanle Like View ##################################

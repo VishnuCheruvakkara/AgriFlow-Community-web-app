@@ -57,6 +57,8 @@ function UserProfileViewPage() {
     const [hasMore, setHasMore] = useState(true);
     //search a post 
     const [searchQuery, setSearchQuery] = useState("");
+    //filter option for the image and videos 
+    const [filterType, setFilterType] = useState('all');
 
 
     // for post like tracking and animation 
@@ -72,8 +74,7 @@ function UserProfileViewPage() {
     //for infinite scroll
     const observer = useRef();
 
-    //filter option for the image and videos 
-    const [filterType, setFilterType] = useState('all');
+    
 
     const lastPostRef = (node) => {
         if (infiniteScrollLoading || !hasMore) return;

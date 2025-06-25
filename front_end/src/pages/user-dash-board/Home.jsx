@@ -20,6 +20,9 @@ import { useNavigate } from 'react-router-dom';
 import WeatherCardShimmer from '../../components/shimmer-ui-component/WeatherCardShimmer';
 import { FaWind, FaWater, FaCloud, FaMapMarkerAlt } from "react-icons/fa";
 import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
+import { Search } from 'lucide-react';
+import { ImCancelCircle } from 'react-icons/im';
+
 
 function Home() {
 
@@ -31,6 +34,10 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  //search a post 
+  const [searchQuery, setSearchQuery] = useState("");
+  //filter option for the image and videos 
+  const [filterType, setFilterType] = useState('all');
 
   // for post like tracking and animation 
   const [likedPosts, setLikedPosts] = useState({});
@@ -62,15 +69,30 @@ function Home() {
     if (node) observer.current.observe(node);
   };
 
-
-  const fetchPosts = async () => {
+  //fetch posts
+  const fetchPosts = async (customPage = page) => {
     setLoading(true);
     try {
-      const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-posts/?page=${page}`);
+      let url = `/posts/get-all-posts/?page=${customPage}`;
+
+      if (searchQuery.trim() !== '') {
+        url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+      }
+
+      if (filterType === 'image') {
+        url += `&filter=image`;
+      } else if (filterType === 'video') {
+        url += `&filter=video`;
+      }
+
+      const res = await AuthenticatedAxiosInstance.get(url);
+
       if (res.data.results.length === 0) {
         setHasMore(false);
       } else {
-        setPosts(prev => [...prev, ...res.data.results]);
+        setPosts(prev =>
+          customPage === 1 ? res.data.results : [...prev, ...res.data.results]
+        );
       }
     } catch (err) {
       console.error('Error fetching posts:', err);
@@ -81,6 +103,14 @@ function Home() {
       setLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+    fetchPosts(1);
+  }, [searchQuery, filterType]);
 
   useEffect(() => {
     console.log("Fetching page:", page);
@@ -350,6 +380,44 @@ function Home() {
 
         <PostCreationModalButton user={user} />
 
+        {/* search section  */}
+        <div className="relative  w-full  mx-auto">
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-full py-3 pl-12 pr-10 border border-gray-300 dark:border-zinc-600  bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out"
+          />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-400 h-5 w-5" />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400 transition-colors duration-300"
+              aria-label="Clear search"
+            >
+              <ImCancelCircle size={18} />
+            </button>
+          )}
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white dark:bg-zinc-900 rounded-t-lg shadow-sm mb-4">
+          <div className="flex border-b dark:border-zinc-700">
+            {['all', 'image', 'video'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setFilterType(type)}
+                className={`ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-center transition-all ${filterType === type
+                  ? 'text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400'
+                  : 'text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400'
+                  }`}
+              >
+                {type === 'all' ? 'All' : type === 'image' ? 'Images' : 'Videos'}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Posts */}
         {loading && hasMore ? (
@@ -571,7 +639,7 @@ function Home() {
           </div>
         )}
 
-    
+
 
         {!hasMore && !hasMore && (
           <p className="text-center text-gray-500 dark:text-gray-400 py-4">
