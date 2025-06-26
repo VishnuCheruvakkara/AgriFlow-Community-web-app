@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import ButtonLoader from "../LoaderSpinner/ButtonLoader";
 
-const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubmitDisabled = false,submitButtonText = "Create",submitButtonId = "postConfirmationButton"}) => {
+const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubmitDisabled = false, submitButtonText = "Create", submitButtonId = "postConfirmationButton", width = "", height = "" }) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -22,7 +22,7 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ duration: 0.25, ease: "easeOut" }}
-                            className="bg-white dark:bg-zinc-800 w-[1000px] max-w-4xl  h-[670px] rounded-lg shadow-xl overflow-hidden flex flex-col "
+                            className={`bg-white dark:bg-zinc-800 ${width} ${height} rounded-lg shadow-xl overflow-hidden flex flex-col`}
                         >
                             {/* Header */}
                             <div className="bg-gradient-to-r from-green-700 to-green-500 px-6 py-4 flex justify-between items-center flex-shrink-0">
@@ -48,17 +48,17 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
                                 >
                                     Cancel
                                 </button>
-                                <ButtonLoader 
-                                    buttonId={submitButtonId} 
+                                <ButtonLoader
+                                    buttonId={submitButtonId}
                                     type="button"
                                     onClick={onSubmit}
                                     disabled={isSubmitDisabled}
                                     className={`px-4 py-2 rounded-md font-medium transition-colors ${isSubmitDisabled
-                                            ? "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-zinc-600 dark:text-zinc-400"
-                                            : "bg-green-600 hover:bg-green-700 text-white"
+                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-zinc-600 dark:text-zinc-400"
+                                        : "bg-green-600 hover:bg-green-700 text-white"
                                         }`}
                                 >
-                                    {submitButtonText} 
+                                    {submitButtonText}
                                 </ButtonLoader>
                             </div>
                         </motion.div>

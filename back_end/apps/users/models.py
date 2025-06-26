@@ -33,6 +33,12 @@ class CustomUser(AbstractUser):
         null=True, 
         help_text="Stores the secure Cloudinary URL for the user's profile picture."
     )
+    banner_image = models.CharField(
+            max_length=255,
+            blank=True,
+            null=True,
+            help_text="Stores the secure Cloudinary URL for the user's banner image."
+        )
 
     is_verified = models.BooleanField(default=False)  # OTP verification status
 

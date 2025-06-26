@@ -1,4 +1,5 @@
 
+from apps.common.cloudinary_utils import upload_image_and_get_url, upload_image_to_cloudinary
 from .serializers import AadharResubmissionMessageSerializer
 from users.serializers import UserStatusSerializer
 from rest_framework import generics, filters
@@ -863,3 +864,46 @@ class PrivateChatMessagesView(APIView):
 
         serializers = PrivateMessageSerializer(messages,many=True) 
         return Response(serializers.data,status=status.HTTP_200_OK)
+    
+###############################  User Profile Edit section ##############################
+
+#====================== user side profile picture edit view =====================================# 
+
+class UpdateUserProfilePictureView(APIView):
+    permission_classes = [IsAuthenticated] 
+
+    def patch(self,request):
+
+        image_file=request.FILES.get("profile_picture")
+        if not image_file:
+            return Response({"error":"Only image is allowed"},status=status.HTTP_400_BAD_REQUEST)
+        
+        public_id=upload_image_to_cloudinary(image_file,folder_name="user_profile_pictures")
+        if not public_id:
+            return Response({"error":"Image upload failed."},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        request.user.profile_picture = public_id
+        request.user.save()
+
+        return Response({"message":"Prfoile picture updated successfully."},status=status.HTTP_200_OK)
+    
+#=============================== user side edit banner image ==============================# 
+
+class UpdateUserBannerImageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        image_file = request.FILES.get("banner_image")
+        if not image_file:
+            return Response({"error": "Only image is allowed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Upload to Cloudinary
+        public_id = upload_image_to_cloudinary(image_file, folder_name="user_banner_images")
+        if not public_id:
+            return Response({"error": "Image upload failed."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Save to user model
+        request.user.banner_image = public_id
+        request.user.save()
+
+        return Response({"message": "Banner image updated successfully."}, status=status.HTTP_200_OK)

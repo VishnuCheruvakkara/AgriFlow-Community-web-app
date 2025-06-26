@@ -3,7 +3,7 @@ from .views import RegisterView, VerifyOTPView, LogoutView, LoginView, AdminLogi
 from .views import GoogleAuthCallbackView, RefreshTokenView, ResendOTPView
 from .views import ForgotPasswordView, ForgotPasswordOTPVerifyView, ForgotPasswordSetNewView
 from .views import LocationAutocompleteView, ProfileUpdateView
-from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView, UserProfileView, PrivateChatMessagesView
+from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView, UserProfileView, PrivateChatMessagesView,UpdateUserProfilePictureView,UpdateUserBannerImageView
 
 
 urlpatterns = [
@@ -59,11 +59,19 @@ urlpatterns = [
     path('aadhaar-resubmission/', AadhaarResubmissionUpdateView.as_view(),
          name='aadhaar-resubmission'),
 
-    # get the users details in the profile page for each user ##################33
+    ###################### get the users details in the profile page for each user in users dasboard ##################33
     path('get-user-profile-data/<int:user_id>/',
          UserProfileView.as_view(), name='get_user_profile_data'),
 
     ##################  Get all the saved messages from the table of private chat message ##########
     path('get-private-chat-messages/<int:receiver_id>/', PrivateChatMessagesView.as_view(), name='get-private-messages'),
+
+    ################## Profile Edit urls ##########################
+
+    #==================== Profile picture edit urls ========================# 
+    path('update-profile-picture/',UpdateUserProfilePictureView.as_view(),name="update-profile-picture"),
+
+    #====================== Edit banner imag ein the suer profile ========================#
+    path("update-banner-image/", UpdateUserBannerImageView.as_view(), name="update-banner-image"),
     
 ]

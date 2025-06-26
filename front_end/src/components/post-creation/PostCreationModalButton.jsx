@@ -79,6 +79,8 @@ function PostCreationModalButton({ user }) {
                 isSubmitDisabled={!postText.trim() && !mediaFile}
                 submitButtonText="Create Post"
                 submitButtonId="postConfirmationButton"
+                width="w-[1000px]"
+                height="h-[670px]"
 
             >
                 <PostCreationModalContent

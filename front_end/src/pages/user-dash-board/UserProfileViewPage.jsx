@@ -30,7 +30,9 @@ import { ImCancelCircle } from 'react-icons/im';
 import { AiFillDelete } from "react-icons/ai";
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 import EditPostModalButton from '../../components/post-creation/EditPostModalButton';
-
+import EditProfilePictureModal from '../../components/user-dash-board/EditProfilePictureModal';
+import ShowEventBannerModal from '../../components/event-management-user-side/ShowEventBannerModal';
+import EditBannerImageModal from '../../components/user-dash-board/EditBannerImageModal';
 
 function UserProfileViewPage() {
     //useNavigate set up 
@@ -76,6 +78,18 @@ function UserProfileViewPage() {
 
     //for infinite scroll
     const observer = useRef();
+
+
+    // state fpr show image in zoom mode 
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [selectedImageUrl, setSelectedImageUrl] = useState("");
+
+    //open modal when click on image 
+    const handleProfileImageClick = (imageUrl) => {
+        setSelectedImageUrl(imageUrl);
+        setIsImageModalOpen(true);
+    };
+
 
 
 
@@ -392,16 +406,17 @@ function UserProfileViewPage() {
                         {/* Cover Photo and Profile Summary */}
                         <div className="relative bg-white dark:bg-zinc-900 rounded-lg shadow-sm overflow-hidden">
                             {/* Cover Photo */}
-                            <div className="h-36 bg-green-100 dark:bg-green-900 overflow-hidden relative">
+                            <div className=" bg-white dark:bg-zinc-900 overflow-hidden relative p-2 rounded-t-lg">
                                 <img
-                                    src={BannerImage}
+                                    src={user?.banner_image || BannerImage}
                                     alt="Farm cover"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-[180px] object-cover rounded-t-md"
                                 />
                                 {userId == loggedInUserId &&
-                                    <button className="absolute  bottom-4 right-4 bg-white dark:bg-zinc-800 text-green-700 dark:text-green-400 p-2 rounded-full shadow-md hover:bg-green-50 dark:hover:bg-zinc-700 ">
-                                        <FaEdit className="text-xl" />
-                                    </button>
+                                    <EditBannerImageModal
+                                        currentBanner={user?.banner_image} 
+                                        onSuccess={() => fetchUserData()} // Refresh after update
+                                    />
                                 }
                             </div>
 
@@ -409,18 +424,28 @@ function UserProfileViewPage() {
                             <div className="flex flex-col md:flex-row px-4 py-4 relative">
                                 {/* Profile Picture */}
                                 <div className="relative">
-                                    <div className="absolute -top-16 left-4 md:left-8 h-32 w-32 rounded-full border-4 border-white dark:border-zinc-900  bg-white dark:bg-zinc-900 overflow-hidden">
+                                    <div className=" cursor-pointer absolute -top-16 left-4 md:left-8 h-32 w-32 rounded-full border-4 border-white dark:border-zinc-900  bg-white dark:bg-zinc-900 overflow-hidden">
                                         <img
+                                            onClick={() => handleProfileImageClick(user?.profile_picture || defaultUserImage)}
                                             src={user?.profile_picture || defaultUserImage}
                                             alt="Profile"
                                             className="h-full w-full object-cover"
                                         />
                                     </div>
+                                    {/* show the image zoomed modal for each users */}
+                                    {isImageModalOpen && (
+                                        <ShowEventBannerModal
+                                            imageUrl={selectedImageUrl}
+                                            onClose={() => setIsImageModalOpen(false)}
+                                        />
+                                    )}
 
                                     {userId == loggedInUserId &&
-                                        <div className="absolute dark:hover:bg-zinc-700 cursor-pointer top-[15px] md:left-[135px] left-[120px]  p-2 bg-white dark:bg-zinc-800 rounded-full shadow-md ">
-                                            <FaEdit className="text-green-700 dark:text-green-400" />
-                                        </div>
+                                        <EditProfilePictureModal
+                                            currentImage={user?.profile_picture}
+                                            userId={loggedInUserId}
+                                            onSuccess={fetchUserData}
+                                        />
                                     }
                                 </div>
 
@@ -650,7 +675,7 @@ function UserProfileViewPage() {
                                                     <div className="flex items-start space-x-3">
                                                         {/* Edit Icon */}
                                                         {userId == loggedInUserId &&
-                                                            
+
                                                             <EditPostModalButton post={post} onSuccess={fetchPosts} />
 
                                                         }

@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import ModalSkeleton from "../Modal/ModalSkeleton";
 import PostCreationModalContent from "./PostCreationModalContent";
 import { FaEdit } from "react-icons/fa";
@@ -50,7 +50,7 @@ const EditPostModalButton = ({ post, onSuccess }) => {
             onSuccess?.(); // Refresh post list
         } catch (error) {
             console.error(error);
-            showToast( error?.response?.data?.[0] || "Something went wrong","error");
+            showToast(error?.response?.data?.[0] || "Something went wrong", "error");
 
         } finally {
             dispatch(hideButtonLoader(buttonId));
@@ -74,8 +74,10 @@ const EditPostModalButton = ({ post, onSuccess }) => {
                 title="Edit Post"
                 onSubmit={handleUpdatePost}
                 isSubmitDisabled={!postText.trim() && !mediaFile && !previewURL}
-                submitButtonText="Update" 
+                submitButtonText="Update"
                 submitButtonId="postUpdateButton"
+                width="w-[1000px]"
+                height="h-[670px]"
 
             >
                 <PostCreationModalContent
