@@ -684,5 +684,4 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "farming_type",
             "experience",
             "bio",
-            "date_of_birth",
         ]

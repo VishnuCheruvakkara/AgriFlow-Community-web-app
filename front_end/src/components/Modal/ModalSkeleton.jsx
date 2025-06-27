@@ -37,7 +37,7 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
                             </div>
 
                             {/* Body */}
-                            <div className="px-6 py-4 overflow-y-auto flex-1">{children}</div>
+                            <div className="px-6 py-4 overflow-y-auto scrollbar-hide flex-1">{children}</div>
 
                             {/* Footer */}
                             <div className="bg-gray-100 dark:bg-zinc-700 px-6 py-3 flex justify-end gap-3 border-t border-gray-200 dark:border-zinc-600 flex-shrink-0">
