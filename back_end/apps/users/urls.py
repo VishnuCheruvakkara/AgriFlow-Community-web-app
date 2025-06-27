@@ -3,7 +3,7 @@ from .views import RegisterView, VerifyOTPView, LogoutView, LoginView, AdminLogi
 from .views import GoogleAuthCallbackView, RefreshTokenView, ResendOTPView
 from .views import ForgotPasswordView, ForgotPasswordOTPVerifyView, ForgotPasswordSetNewView
 from .views import LocationAutocompleteView, ProfileUpdateView
-from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView, UserProfileView, PrivateChatMessagesView,UpdateUserProfilePictureView,UpdateUserBannerImageView
+from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView, UserProfileView, PrivateChatMessagesView,UpdateUserProfilePictureView,UpdateUserBannerImageView, UserProfileUpdateView
 
 
 urlpatterns = [
@@ -73,5 +73,8 @@ urlpatterns = [
 
     #====================== Edit banner imag ein the suer profile ========================#
     path("update-banner-image/", UpdateUserBannerImageView.as_view(), name="update-banner-image"),
+
+    #===================== Edit User profile datas partially ===============================# 
+    path("edit-profile-details/", UserProfileUpdateView.as_view(), name="edit-profile"),
     
 ]

@@ -673,3 +673,16 @@ class PrivateMessageSerializer(serializers.ModelSerializer):
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
 
+#################################### User Profile update serializer  ######################################3
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "phone_number",
+            "farming_type",
+            "experience",
+            "bio",
+            "date_of_birth",
+        ]

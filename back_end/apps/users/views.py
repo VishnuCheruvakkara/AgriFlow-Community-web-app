@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer,PrivateMessageSerializer
+from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer,PrivateMessageSerializer,UserProfileUpdateSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -907,3 +907,20 @@ class UpdateUserBannerImageView(APIView):
         request.user.save()
 
         return Response({"message": "Banner image updated successfully."}, status=status.HTTP_200_OK)
+
+#===================================== Update user profile datas ========================================# 
+
+class UserProfileUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserProfileUpdateSerializer(
+            user,
+            data=request.data,
+            partial=True  # Allow partial updates
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

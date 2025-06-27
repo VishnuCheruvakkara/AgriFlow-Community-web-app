@@ -33,6 +33,7 @@ import EditPostModalButton from '../../components/post-creation/EditPostModalBut
 import EditProfilePictureModal from '../../components/user-dash-board/EditProfilePictureModal';
 import ShowEventBannerModal from '../../components/event-management-user-side/ShowEventBannerModal';
 import EditBannerImageModal from '../../components/user-dash-board/EditBannerImageModal';
+import EditProfileModal from '../../components/user-dash-board/EditProfileModal';
 
 function UserProfileViewPage() {
     //useNavigate set up 
@@ -414,7 +415,7 @@ function UserProfileViewPage() {
                                 />
                                 {userId == loggedInUserId &&
                                     <EditBannerImageModal
-                                        currentBanner={user?.banner_image} 
+                                        currentBanner={user?.banner_image}
                                         onSuccess={() => fetchUserData()} // Refresh after update
                                     />
                                 }
@@ -464,9 +465,10 @@ function UserProfileViewPage() {
                                         {/* Action Buttons */}
                                         {userId == loggedInUserId ? (
                                             <div className="mt-4 md:mt-0 flex space-x-3">
-                                                <button className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
+                                                {/* <button className="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-700 dark:hover:bg-green-800 transition-colors flex items-center">
                                                     <FaEdit className="mr-2" /> Edit Profile
-                                                </button>
+                                                </button> */}
+                                                <EditProfileModal user={user} onSuccess={fetchUserData} />
                                             </div>
                                         ) : (
                                             <div className="mt-4 md:mt-0 flex space-x-3">
