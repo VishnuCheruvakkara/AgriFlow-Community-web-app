@@ -455,7 +455,8 @@ function UserProfileViewPage() {
                                     <div className="flex flex-col md:flex-row md:items-center justify-between">
                                         <div>
                                             <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-200">{user?.username || "no data"}</h1>
-                                            <p className="text-green-700 dark:text-green-400 font-medium">{user?.farming_type || "no data"} farmer</p>
+                                            <p className="text-green-700 dark:text-green-400 font-medium text-">{user?.farming_type || "no data"} farmer</p> 
+                                            <p className="text-green-700 dark:text-green-400 font-medium">{user?.experience || "no data"} years of experience</p> 
                                             <div className="flex items-center text-gray-600 dark:text-zinc-400 mt-1">
                                                 <FaMapMarkerAlt className="mr-1" />
                                                 <span>{user?.address?.full_location || "not data "}</span>
