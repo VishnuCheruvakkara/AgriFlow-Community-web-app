@@ -709,7 +709,7 @@ function UserProfileViewPage() {
                                                 {/* Post Image or Video */}
                                                 {post.image_url && (
 
-                                                    <div onClick={() => navigateToProductDetails(post?.id)} className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
+                                                    <div onClick={() => navigateToProductDetails(post?.id)} className="cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
                                                         <div 
                                                             className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
                                                             style={{ backgroundImage: `url(${post.image_url})` }}
@@ -725,7 +725,7 @@ function UserProfileViewPage() {
                                                 )}
 
                                                 {post.video_url && (
-                                                    <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                                                    <div onClick={() => navigateToProductDetails(post?.id)}   className="cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
                                                         <div
                                                             className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
                                                             style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}

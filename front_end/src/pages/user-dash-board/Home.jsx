@@ -87,7 +87,7 @@ function Home() {
       }
 
       const res = await AuthenticatedAxiosInstance.get(url);
-      console.log("Post data in Home :::",res.data.results)
+      console.log("Post data in Home :::", res.data.results)
       if (res.data.results.length === 0) {
         setHasMore(false);
       } else {
@@ -269,6 +269,10 @@ function Home() {
     fetchWeather();
   }, [user]);
 
+  // navigate to the single product details  
+  const navigateToProductDetails = (postId) => {
+    navigate(`/user-dash-board/posts/${postId}`);
+  }
 
 
 
@@ -441,7 +445,7 @@ function Home() {
               >
                 {/* Author Info */}
                 <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
-                  <Link  to={`/user-dash-board/user-profile-view/${post.author?.id}`} className="flex items-center space-x-4">
+                  <Link to={`/user-dash-board/user-profile-view/${post.author?.id}`} className="flex items-center space-x-4">
                     <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
                       <img
                         src={post.author?.profile_picture || defaultUserImage}
@@ -471,13 +475,13 @@ function Home() {
                 </div>
 
                 {/* Post Text Content */}
-                <div className="mb-4">
+                <div className="mb-4 cursor-pointer " onClick={() => navigateToProductDetails(post?.id)}  >
                   <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
                 </div>
 
                 {/* Post Image or Video */}
                 {post.image_url && (
-                  <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                  <div onClick={() => navigateToProductDetails(post?.id)}   className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
                     <div
                       className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
                       style={{ backgroundImage: `url(${post.image_url})` }}
@@ -493,7 +497,7 @@ function Home() {
                 )}
 
                 {post.video_url && (
-                  <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
+                  <div onClick={() => navigateToProductDetails(post?.id)} className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
                     <div
                       className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
                       style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}
