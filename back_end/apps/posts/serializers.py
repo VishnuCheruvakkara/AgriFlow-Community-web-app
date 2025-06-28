@@ -178,3 +178,42 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'user', 'post', 'content', 'created_at']
         read_only_fields = ['id', 'user', 'created_at']
+
+######################## Get single post Serializer (User full for the share section thorough the other platforms ) ###########################
+
+class AuthorSerializer(serializers.ModelSerializer):
+    profile_picture=serializers.SerializerMethodField()
+
+    class Meta:
+        model=CustomUser 
+        fields = ['id','username','profile_picture']
+    
+    def get_profile_picture(self,obj):
+        return generate_secure_image_url(obj.profile_picture)
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    like_count=serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post 
+        fields = [
+            'id',
+            'author',
+            'content',
+            'image_url',
+            'video_url',
+            'created_at',
+            'updated_at',
+            'like_count',
+            'comment_count',
+        ]
+
+    def get_like_count(self,obj):
+        return obj.likes.count()
+    
+    def get_comment_count(self,obj):
+        return obj.comments.count()
+
+

@@ -38,6 +38,10 @@ import MyProducts from '../pages/product-management-pages/MyProducts'
 import WishList from '../pages/product-management-pages/WishList'
 import ProductDetailsPage from '../components/product-manangement/ProductDetailsPage'
 
+// Single post page for share and view
+import SinglePostPage from '../components/post-creation/SinglePostPage'
+
+
 //Weather pages
 import WeatherPage from '../pages/weather-page/WeatherPage'
 
@@ -109,7 +113,10 @@ function UsersRoutes() {
         </Route>
 
         {/* Weather pa ge */}
-        <Route path="weather-page" element={<WeatherPage/>} />
+        <Route path="weather-page" element={<WeatherPage />} />
+        
+        {/* Single post page for share and view  */}
+        <Route path="/posts/:postId" element={<SinglePostPage />} />
 
 
       </Route>

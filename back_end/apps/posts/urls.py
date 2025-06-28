@@ -1,5 +1,5 @@
 from django.urls import path
-from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView,EditPostAPIView
+from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView,EditPostAPIView,GetSinglePostView
 
 urlpatterns = [
     ############################ Create new post url #########################
@@ -23,12 +23,16 @@ urlpatterns = [
 
     #==================== Update or edit post ======================# 
     path('edit-post/<int:pk>/', EditPostAPIView.as_view(), name='edit-post'),
+    #================== Get a single post to show that and enable share option ============================# 
+    path('get-single-post/<int:post_id>/',GetSinglePostView.as_view(),name="get-single-post"),
 
     ########################## Handle the comments ####################
     # ====================== posts/add new comment for a perticular post ========================#
     path('add-comment/', AddCommentAPIView.as_view(), name='add-comment'),
     # ====================== get all the comment ===========================#
     path('get-all-comment/', CommentListAPIView.as_view(), name='comment-list'),
+
+    
 
 
 ]

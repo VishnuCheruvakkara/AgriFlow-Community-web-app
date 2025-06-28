@@ -92,6 +92,10 @@ function UserProfileViewPage() {
     };
 
 
+    // navigate to the single product details  
+    const navigateToProductDetails = (postId) => {
+        navigate(`/user-dash-board/posts/${postId}`);
+    }
 
 
     const lastPostRef = (node) => {
@@ -698,14 +702,15 @@ function UserProfileViewPage() {
 
 
                                                 {/* Post Text Content */}
-                                                <div className="mb-4">
+                                                <div onClick={() => navigateToProductDetails(post?.id)}  className="mb-4 cursor-pointer">
                                                     <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
                                                 </div>
 
                                                 {/* Post Image or Video */}
                                                 {post.image_url && (
-                                                    <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
-                                                        <div
+
+                                                    <div onClick={() => navigateToProductDetails(post?.id)} className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
+                                                        <div 
                                                             className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
                                                             style={{ backgroundImage: `url(${post.image_url})` }}
                                                         ></div>

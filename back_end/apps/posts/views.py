@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer
+from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer,PostDetailSerializer
 from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination
 from django.db import models
@@ -233,4 +233,18 @@ class DeletePostAPIView(APIView):
         except Post.DoesNotExist:
             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
+######################## Get single post view (User full for the share section thorough the other platforms ) ###########################
 
+class GetSinglePostView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request,post_id):
+        try:
+            post=Post.objects.select_related("author").get(id=post_id,is_deleted=False)
+        except Post.DoesNotExist:
+            return Response(
+                {"detail":"Post not found."},
+                status = status.HTTP_404_NOT_FOUND
+            )
+        serializer = PostDetailSerializer(post,context={"request":request})
+        return Response(serializer.data,status=status.HTTP_200_OK)
