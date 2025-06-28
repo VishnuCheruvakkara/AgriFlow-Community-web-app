@@ -13,4 +13,5 @@ urlpatterns = [
     path('notifications/',include('apps.notifications.urls')),
     path('products/',include('apps.products.urls')),
     path('posts/',include('apps.posts.urls')),
+    path('zego/',include('apps.zego_cloud_video_call.urls')),
 ]

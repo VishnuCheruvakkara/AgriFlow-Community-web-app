@@ -330,6 +330,11 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")
 
 
+################## Zego Cloud for video call feature API keys and the Secret keys ##############################################
+
+ZEGO_APP_ID=env('ZEGO_APP_ID')
+ZEGO_SERVER_SECRET=env('ZEGO_SERVER_SECRET')
+
 
 
 
