@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'connections',
     'products',
     'posts',
+    'zego_cloud_video_call',
     # Django main page (Home) for initial load (optional).
     'Home',
     #Custom app for handle websoket
