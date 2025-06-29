@@ -52,8 +52,8 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                 showToast("Enrolled to the event successfully!", "success")
                 navigate('/user-dash-board/event-management/enrolled-events');
             } catch (error) {
-                console.error('Error while enrolling:', error);
-                showToast("Failed to enroll the event, try agian!", "error")
+                console.error('Error while enrolling:', error?.response?.data?.event_id[0]);
+                showToast(error?.response?.data?.event_id[0] || "Failed to enroll the event, try agian!", "error")
             }
         }
     };
