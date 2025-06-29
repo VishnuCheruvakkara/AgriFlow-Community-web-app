@@ -45,6 +45,7 @@ class CommunityEvent(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
 
+
     class Meta:
         ordering = ['-start_datetime']
 
@@ -57,7 +58,7 @@ class EventParticipation(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='event_participations')
     message = models.TextField(blank=True, null=True)  # Optional message from user
     joined_at = models.DateTimeField(auto_now_add=True)
-
+    notification_sent = models.BooleanField(default=False)
     class Meta:
         unique_together = ('event', 'user')  # Prevent multiple RSVPs by the same user
         ordering = ['-joined_at']

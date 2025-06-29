@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 import environ
 from datetime import timedelta
+from celery.schedules import crontab 
 
 env = environ.Env()
 environ.Env.read_env()
@@ -78,7 +79,6 @@ INSTALLED_APPS = [
     'connections',
     'products',
     'posts',
-    'zego_cloud_video_call',
     # Django main page (Home) for initial load (optional).
     'Home',
     #Custom app for handle websoket
@@ -330,13 +330,11 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 # Get the API key from the environment variable
 LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")
 
+#################### Celery Cron job setup ##################################
 
-################## Zego Cloud for video call feature API keys and the Secret keys ##############################################
-
-ZEGO_APP_ID=env('ZEGO_APP_ID')
-ZEGO_SERVER_SECRET=env('ZEGO_SERVER_SECRET')
-
-
-
-
-
+CELERY_BEAT_SCHEDULE = {
+    'scan-and-send-event-notifications-every-minute': {
+        'task': 'events.tasks.scan_and_send_event_notifications',
+        'schedule': crontab(),  # every minute
+    },
+}

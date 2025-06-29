@@ -29,6 +29,10 @@ class Notification(models.Model):
         ("community_message","Community Message"),
         ("product_message","Product Message"),
 
+        #For Events 
+        ("event_start_notification","Event Start Notification"),
+        
+
     ]
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")

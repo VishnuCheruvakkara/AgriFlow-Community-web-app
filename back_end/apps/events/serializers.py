@@ -3,6 +3,9 @@ from rest_framework import serializers
 from events.models import Community, CommunityEvent, EventLocation, EventParticipation
 from apps.common.cloudinary_utils import generate_secure_image_url, upload_image_to_cloudinary
 from django.contrib.auth import get_user_model
+from datetime import timedelta
+from django.utils import timezone
+from events.tasks import send_event_notification
 
 User = get_user_model()
 
@@ -155,6 +158,7 @@ class CommunityEventEditSerializer(serializers.ModelSerializer):
             if public_id:
                 instance.banner = public_id
                 updated = True
+
         # Check if max_participants is being updated
         new_max = validated_data.get('max_participants')
         if new_max is not None:
@@ -163,6 +167,11 @@ class CommunityEventEditSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     'max_participants': f"Cannot set Max Participants to {new_max} as there are already {current_participants} participants."
                 })
+
+            # If user increased max_participants, make is_full False
+            if instance.max_participants != new_max:
+                instance.is_full = False
+                updated = True
 
         # Update other fields if changed
         for field, value in validated_data.items():
@@ -243,13 +252,20 @@ class EventParticipantSerializer(serializers.ModelSerializer):
 
 
 class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
-    community_name = serializers.CharField(source='community.name', read_only=True)
-    community_id = serializers.IntegerField(source='community.id', read_only=True)
-    location_name = serializers.CharField(source='event_location.location_name', read_only=True)
-    full_location = serializers.CharField(source='event_location.full_location', read_only=True)
-    latitude = serializers.FloatField(source='event_location.latitude', read_only=True)
-    longitude = serializers.FloatField(source='event_location.longitude', read_only=True)
-    country = serializers.CharField(source='event_location.country', read_only=True)
+    community_name = serializers.CharField(
+        source='community.name', read_only=True)
+    community_id = serializers.IntegerField(
+        source='community.id', read_only=True)
+    location_name = serializers.CharField(
+        source='event_location.location_name', read_only=True)
+    full_location = serializers.CharField(
+        source='event_location.full_location', read_only=True)
+    latitude = serializers.FloatField(
+        source='event_location.latitude', read_only=True)
+    longitude = serializers.FloatField(
+        source='event_location.longitude', read_only=True)
+    country = serializers.CharField(
+        source='event_location.country', read_only=True)
     banner_url = serializers.SerializerMethodField()
     participants = serializers.SerializerMethodField()
 
