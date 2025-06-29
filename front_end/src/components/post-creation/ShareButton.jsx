@@ -8,10 +8,14 @@ const ShareButton = ({ postId }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
 
-  const postUrl = `${window.location.origin}/user-dash-board/posts/${postId}`;
+  // For Copy Link
+  const staticPostUrl = `${window.location.origin}/user-dash-board/posts/${postId}`;
+
+  // For Dynamic Sharing
+  const currentUrl = window.location.href;
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(postUrl);
+    navigator.clipboard.writeText(staticPostUrl);
     showToast("Link copied to clipboard!", "success");
     setShowMenu(false);
   };
@@ -47,6 +51,7 @@ const ShareButton = ({ postId }) => {
       {showMenu && (
         <div className="absolute z-50 right-0 bottom-full mb-2 w-48 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-600 rounded-lg shadow-md p-2 space-y-2">
 
+          {/* Copy Link uses static URL */}
           <button
             onClick={handleCopyLink}
             className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-700 text-sm"
@@ -54,8 +59,9 @@ const ShareButton = ({ postId }) => {
             <FiCopy className="mr-2" /> Copy Link
           </button>
 
+          {/* Share Links use current URL */}
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(postUrl)}`}
+            href={`https://wa.me/?text=${encodeURIComponent(currentUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-700 text-sm"
@@ -64,7 +70,7 @@ const ShareButton = ({ postId }) => {
           </a>
 
           <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${postUrl}`}
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-700 text-sm"
@@ -73,7 +79,7 @@ const ShareButton = ({ postId }) => {
           </a>
 
           <a
-            href={`https://twitter.com/intent/tweet?url=${postUrl}`}
+            href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-700 text-sm"

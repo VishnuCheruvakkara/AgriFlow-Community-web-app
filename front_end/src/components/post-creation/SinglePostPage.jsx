@@ -8,6 +8,11 @@ import { Link } from "react-router-dom";
 import { RxCross2 } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
 import SinglePostShimmer from "../shimmer-ui-component/SinglePostShimmer";
+import { PulseLoader } from "react-spinners";
+import { FaPaperPlane } from "react-icons/fa";
+import { AnimatePresence, motion } from "framer-motion";
+import CommunityDataNotFoundImage from "../../assets/images/connection_no_search_found.png"
+
 
 const SinglePostPage = () => {
 
@@ -21,13 +26,20 @@ const SinglePostPage = () => {
   const [likeCount, setLikeCount] = useState(0)
   const [heartAnimation, setHeartAnimation] = useState(false);
 
+  //state for handle comment 
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [commentInput, setCommentInput] = useState("");
+  const [showComments, setShowComments] = useState(false);
+
+
   useEffect(() => {
     async function fetchPost() {
       try {
         setLoading(true);
         const res = await AuthenticatedAxiosInstance.get(`/posts/get-single-post/${postId}/`);
         setPost(res.data);
-        console.log("Liked data :::",res.data)
+        console.log("Liked data :::", res.data)
         setIsLiked(res.data.is_liked);
         setLikeCount(res.data.like_count);
 
@@ -62,11 +74,58 @@ const SinglePostPage = () => {
       setIsLiked(!isLiked);
 
       // Send like/unlike request
-       await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
+      await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
     } catch (error) {
       console.error("Error toggling like:", error);
     }
   };
+
+
+  // handle comment 
+  //fetch comments 
+  const fetchComments = async () => {
+    setLoadingComments(true);
+    try {
+      const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
+      setComments(res.data);
+    } catch (err) {
+      console.error("Failed to fetch comments:", err);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+  //toggle comments 
+  const toggleComments = () => {
+    setShowComments((prev) => {
+      const next = !prev;
+      if (next && comments.length === 0) {
+        fetchComments();
+      }
+      return next;
+    });
+  };
+  //creat and add comment
+  const handleCommentSubmit = async () => {
+    if (!commentInput.trim()) return;
+
+    try {
+      await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
+        post: postId,
+        content: commentInput
+      });
+      setCommentInput("");
+      fetchComments();
+    } catch (err) {
+      console.error("Failed to post comment:", err);
+    }
+  };
+
+  const handleCommentInputChange = (e) => {
+    setCommentInput(e.target.value);
+  };
+
+
+
 
 
   if (loading) {
@@ -80,6 +139,8 @@ const SinglePostPage = () => {
       </div>
     );
   }
+
+
 
   return (
     <div className="w-full    mt-4 mb-14">
@@ -192,13 +253,112 @@ const SinglePostPage = () => {
 
           {/* Comment Button */}
           <button
+            onClick={toggleComments}
             className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
           >
-            <FaRegComment className="mr-2" /> Comment
+            <FaRegComment className="mr-2" />
+            {showComments ? "Hide" : "Comment"}
           </button>
 
           <ShareButton postId={post.id} />
         </div>
+
+        {/* Handle the comment box  */}
+        <AnimatePresence initial={false}>
+          {showComments && (
+            <motion.div
+              key="commentBox"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden border-t pt-4 mt-4 dark:border-zinc-600"
+            >
+              {/* Input */}
+              <div className="flex items-center space-x-2 mb-3">
+                <input
+                  type="text"
+                  value={commentInput}
+                  onChange={handleCommentInputChange}
+                  placeholder="Write a comment..."
+                  className="w-full p-2 border bg-gray-50 focus:border-green-500 dark:focus:border-green-400 rounded dark:bg-zinc-700 dark:text-white dark:border-zinc-500 transition duration-300"
+                />
+                <button
+                  onClick={handleCommentSubmit}
+                  className="p-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-200 flex items-center justify-center"
+                  title="Submit Comment"
+                >
+                  <FaPaperPlane />
+                </button>
+              </div>
+
+              {/* Comments */}
+              {loadingComments ? (
+                <div className="flex justify-center items-center py-10">
+                  <PulseLoader color="#16a34a" speedMultiplier={1} />
+                </div>
+              ) : (
+                <div className="max-h-[300px] overflow-y-auto space-y-2 scrollbar-hide">
+                  {comments.length === 0 ? (
+                    <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700">
+                      <img
+                        src={CommunityDataNotFoundImage}
+                        alt="No Comments"
+                        className="mx-auto w-64 object-contain"
+                      />
+                      <p className="text-lg font-semibold dark:text-zinc-400">
+                        No comments yet!
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">
+                        Be the first to leave a comment.
+                      </p>
+                    </div>
+
+                  ) : (
+                    comments.map((comment) => (
+                      <div
+                        key={comment.id}
+                        className="p-2 bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
+                      >
+                        {/* Profile image */}
+                        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
+                          <img
+                            src={comment.user?.profile_picture || defaultUserImage}
+                            alt="User profile"
+                            className="h-full w-full object-cover"
+                            onError={(e) => { e.target.src = defaultUserImage; }}
+                          />
+                        </div>
+                        {/* Content */}
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                            {comment.user?.username}
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-200">
+                            {comment.content}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(comment.created_at).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric"
+                            })}{" "}
+                            at{" "}
+                            {new Date(comment.created_at).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>

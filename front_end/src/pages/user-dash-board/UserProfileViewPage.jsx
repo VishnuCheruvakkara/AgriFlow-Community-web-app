@@ -34,6 +34,7 @@ import EditProfilePictureModal from '../../components/user-dash-board/EditProfil
 import ShowEventBannerModal from '../../components/event-management-user-side/ShowEventBannerModal';
 import EditBannerImageModal from '../../components/user-dash-board/EditBannerImageModal';
 import EditProfileModal from '../../components/user-dash-board/EditProfileModal';
+import { PulseLoader } from 'react-spinners';
 
 function UserProfileViewPage() {
     //useNavigate set up 
@@ -76,6 +77,7 @@ function UserProfileViewPage() {
     const [commentInputs, setCommentInputs] = useState({});
     const [commentSectionsVisible, setCommentSectionsVisible] = useState({});
     const [commentsByPost, setCommentsByPost] = useState({});
+    const [loadingComments, setLoadingComments] = useState(false);
 
     //for infinite scroll
     const observer = useRef();
@@ -244,23 +246,36 @@ function UserProfileViewPage() {
         }
     };
 
-    // Handle comments 
+    // Toggle visibility
     const toggleComments = async (postId) => {
         setCommentSectionsVisible(prev => ({
             ...prev,
             [postId]: !prev[postId]
         }));
 
+        // Only fetch if not already loaded
         if (!commentsByPost[postId]) {
+            // Mark as loading
+            setLoadingComments(prev => ({
+                ...prev,
+                [postId]: true
+            }));
+
             try {
                 const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
-                console.log("Arrived comments ::", res.data)
+                console.log("Arrived comments ::", res.data);
                 setCommentsByPost(prev => ({
                     ...prev,
                     [postId]: res.data
                 }));
             } catch (err) {
                 console.error("Failed to fetch comments:", err);
+            } finally {
+                // Unset loading no matter what
+                setLoadingComments(prev => ({
+                    ...prev,
+                    [postId]: false
+                }));
             }
         }
     };
@@ -301,7 +316,7 @@ function UserProfileViewPage() {
             console.error("Failed to post comment:", err);
         }
     };
-    
+
     // Send conenction request to the user form thire profile page 
     const handleConnect = async (receiverId, receiverUsername) => {
         try {
@@ -818,46 +833,52 @@ function UserProfileViewPage() {
                                                             </div>
 
                                                             {/* Scrollable Comment Section */}
-                                                            <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
-                                                                {(commentsByPost[post.id] || []).map((comment) => (
-                                                                    <div
-                                                                        key={comment.id}
-                                                                        className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
-                                                                    >
-                                                                        {/* Profile image */}
-                                                                        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
-                                                                            <img
-                                                                                src={comment.user?.profile_picture || defaultUserImage}
-                                                                                alt="User profile"
-                                                                                className="h-full w-full object-cover"
-                                                                                onError={(e) => { e.target.src = defaultUserImage }}
-                                                                            />
-                                                                        </div>
+                                                            {loadingComments[post.id] ? (
+                                                                <div className="flex justify-center items-center py-10">
+                                                                    <PulseLoader color="#16a34a" speedMultiplier={1} />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
+                                                                    {(commentsByPost[post.id] || []).map((comment) => (
+                                                                        <div
+                                                                            key={comment.id}
+                                                                            className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
+                                                                        >
+                                                                            {/* Profile image */}
+                                                                            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
+                                                                                <img
+                                                                                    src={comment.user?.profile_picture || defaultUserImage}
+                                                                                    alt="User profile"
+                                                                                    className="h-full w-full object-cover"
+                                                                                    onError={(e) => { e.target.src = defaultUserImage }}
+                                                                                />
+                                                                            </div>
 
-                                                                        {/* Comment content */}
-                                                                        <div className="flex flex-col">
-                                                                            <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-                                                                                {comment.user?.username}
-                                                                            </p>
-                                                                            <p className="text-sm text-gray-700 dark:text-gray-200">
-                                                                                {comment.content}
-                                                                            </p>
-                                                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                                                {new Date(comment.created_at).toLocaleDateString('en-IN', {
-                                                                                    day: 'numeric',
-                                                                                    month: 'long',
-                                                                                    year: 'numeric',
-                                                                                })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
-                                                                                    hour: '2-digit',
-                                                                                    minute: '2-digit',
-                                                                                    hour12: true,
-                                                                                })}
-                                                                            </p>
+                                                                            {/* Comment content */}
+                                                                            <div className="flex flex-col">
+                                                                                <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                                                                                    {comment.user?.username}
+                                                                                </p>
+                                                                                <p className="text-sm text-gray-700 dark:text-gray-200">
+                                                                                    {comment.content}
+                                                                                </p>
+                                                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                    {new Date(comment.created_at).toLocaleDateString('en-IN', {
+                                                                                        day: 'numeric',
+                                                                                        month: 'long',
+                                                                                        year: 'numeric',
+                                                                                    })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
+                                                                                        hour: '2-digit',
+                                                                                        minute: '2-digit',
+                                                                                        hour12: true,
+                                                                                    })}
+                                                                                </p>
 
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
 
                                                         </motion.div>
                                                     )}
