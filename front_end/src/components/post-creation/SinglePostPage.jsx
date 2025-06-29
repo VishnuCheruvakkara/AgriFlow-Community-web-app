@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FaRegHeart, FaRegComment } from "react-icons/fa";
+import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa";
 import ShareButton from "./ShareButton";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import defaultUserImage from "../../assets/images/user-default.png";
@@ -16,12 +16,21 @@ const SinglePostPage = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // state for the like set up 
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0)
+  const [heartAnimation, setHeartAnimation] = useState(false);
+
   useEffect(() => {
     async function fetchPost() {
       try {
         setLoading(true);
         const res = await AuthenticatedAxiosInstance.get(`/posts/get-single-post/${postId}/`);
         setPost(res.data);
+        console.log("Liked data :::",res.data)
+        setIsLiked(res.data.is_liked);
+        setLikeCount(res.data.like_count);
+
       } catch (error) {
         console.error("Error fetching post:", error);
         setPost(null);
@@ -33,6 +42,33 @@ const SinglePostPage = () => {
     fetchPost();
   }, [postId]);
 
+  //trigger heart animation 
+  const triggerHeartAnimation = () => {
+    setHeartAnimation(true);
+    setTimeout(() => {
+      setHeartAnimation(false);
+    }, 1000); // Duration of the animation
+  };
+  //handle the like button toggle
+  const handleLikeClick = async (postId) => {
+    try {
+      // Optimistic UI update
+      if (isLiked) {
+        setLikeCount(likeCount - 1);
+      } else {
+        setLikeCount(likeCount + 1);
+        triggerHeartAnimation();
+      }
+      setIsLiked(!isLiked);
+
+      // Send like/unlike request
+       await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
+
+
   if (loading) {
     return <SinglePostShimmer />;
   }
@@ -40,7 +76,7 @@ const SinglePostPage = () => {
   if (!post) {
     return (
       <div className="p-4 text-center text-red-600">
-        Post not found.
+        Post not found
       </div>
     );
   }
@@ -130,18 +166,40 @@ const SinglePostPage = () => {
 
         {/* Interaction Buttons */}
         <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
-          <button
-            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
-          >
-            <FaRegHeart className="mr-2" /> Like
-          </button>
+          {/* Like Button */}
+          <div className="relative">
+            <button
+              onClick={() => handleLikeClick(post.id)}
+              className={`flex items-center w-24 transition-colors duration-300 ${isLiked
+                ? "text-green-500 hover:text-green-700"
+                : "text-gray-600 dark:text-gray-400 hover:text-green-500"
+                }`}
+            >
+              <span className="mr-2">{likeCount}</span>
+              {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
+              {isLiked ? "Liked" : "Like"}
+            </button>
+
+            {/* Flying Heart Animation */}
+            {heartAnimation && (
+              <div className="flying-heart-wrapper pointer-events-none">
+                <div className="flying-heart heart1">💚</div>
+                <div className="flying-heart heart2">💚</div>
+                <div className="flying-heart heart3">💚</div>
+              </div>
+            )}
+          </div>
+
+          {/* Comment Button */}
           <button
             className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
           >
             <FaRegComment className="mr-2" /> Comment
           </button>
+
           <ShareButton postId={post.id} />
         </div>
+
       </div>
     </div>
   );

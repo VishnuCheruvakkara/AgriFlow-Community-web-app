@@ -23,6 +23,8 @@ import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from 'react-icons/im';
 
+import { PulseLoader } from 'react-spinners';
+
 import { Link } from 'react-router-dom';
 
 function Home() {
@@ -49,6 +51,8 @@ function Home() {
   const [commentInputs, setCommentInputs] = useState({});
   const [commentSectionsVisible, setCommentSectionsVisible] = useState({});
   const [commentsByPost, setCommentsByPost] = useState({});
+  const [loadingComments, setLoadingComments] = useState({});
+
 
   //Weather tracking card
   const [weather, setWeather] = useState(null);
@@ -194,26 +198,40 @@ function Home() {
     fetchLikeStatus();
   }, []);
 
-  // Handle comments 
+  // Toggle visibility
   const toggleComments = async (postId) => {
     setCommentSectionsVisible(prev => ({
       ...prev,
       [postId]: !prev[postId]
     }));
 
+    // Only fetch if not already loaded
     if (!commentsByPost[postId]) {
+      // Mark as loading
+      setLoadingComments(prev => ({
+        ...prev,
+        [postId]: true
+      }));
+
       try {
         const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
-        console.log("Arrived comments ::", res.data)
+        console.log("Arrived comments ::", res.data);
         setCommentsByPost(prev => ({
           ...prev,
           [postId]: res.data
         }));
       } catch (err) {
         console.error("Failed to fetch comments:", err);
+      } finally {
+        // Unset loading no matter what
+        setLoadingComments(prev => ({
+          ...prev,
+          [postId]: false
+        }));
       }
     }
   };
+
 
   const handleCommentInputChange = (postId, value) => {
     setCommentInputs(prev => ({
@@ -227,16 +245,22 @@ function Home() {
     if (!content || content.trim() === "") return;
 
     try {
-      const res = await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
+      // Post the comment
+      await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
         post: postId,
         content
       });
 
+      // Re-fetch all comments for this post
+      const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
+      console.log("Arrived comments after posting:", res.data);
+
       setCommentsByPost(prev => ({
         ...prev,
-        [postId]: [res.data, ...(prev[postId] || [])]
+        [postId]: res.data
       }));
 
+      // Clear input
       setCommentInputs(prev => ({
         ...prev,
         [postId]: ""
@@ -481,7 +505,7 @@ function Home() {
 
                 {/* Post Image or Video */}
                 {post.image_url && (
-                  <div onClick={() => navigateToProductDetails(post?.id)}   className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
+                  <div onClick={() => navigateToProductDetails(post?.id)} className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
                     <div
                       className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
                       style={{ backgroundImage: `url(${post.image_url})` }}
@@ -584,46 +608,52 @@ function Home() {
                       </div>
 
                       {/* Scrollable Comment Section */}
-                      <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
-                        {(commentsByPost[post.id] || []).map((comment) => (
-                          <div
-                            key={comment.id}
-                            className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
-                          >
-                            {/* Profile image */}
-                            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
-                              <img
-                                src={comment.user?.profile_picture || defaultUserImage}
-                                alt="User profile"
-                                className="h-full w-full object-cover"
-                                onError={(e) => { e.target.src = defaultUserImage }}
-                              />
-                            </div>
+                      {loadingComments[post.id] ? (
+                        <div className="flex justify-center items-center py-10">
+                          <PulseLoader color="#16a34a" speedMultiplier={1} />
+                        </div>
+                      ) : (
+                        <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
+                          {(commentsByPost[post.id] || []).map((comment) => (
+                            <div
+                              key={comment.id}
+                              className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
+                            >
+                              {/* Profile image */}
+                              <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
+                                <img
+                                  src={comment.user?.profile_picture || defaultUserImage}
+                                  alt="User profile"
+                                  className="h-full w-full object-cover"
+                                  onError={(e) => { e.target.src = defaultUserImage }}
+                                />
+                              </div>
 
-                            {/* Comment content */}
-                            <div className="flex flex-col">
-                              <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-                                {comment.user?.username}
-                              </p>
-                              <p className="text-sm text-gray-700 dark:text-gray-200">
-                                {comment.content}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {new Date(comment.created_at).toLocaleDateString('en-IN', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true,
-                                })}
-                              </p>
+                              {/* Comment content */}
+                              <div className="flex flex-col">
+                                <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                                  {comment.user?.username}
+                                </p>
+                                <p className="text-sm text-gray-700 dark:text-gray-200">
+                                  {comment.content}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {new Date(comment.created_at).toLocaleDateString('en-IN', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                  })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                  })}
+                                </p>
 
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
 
                     </motion.div>
                   )}

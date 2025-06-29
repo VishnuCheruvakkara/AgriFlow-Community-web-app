@@ -277,16 +277,22 @@ function UserProfileViewPage() {
         if (!content || content.trim() === "") return;
 
         try {
-            const res = await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
+            // Post the comment
+            await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
                 post: postId,
                 content
             });
 
+            // Re-fetch all comments for this post
+            const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
+            console.log("Arrived comments after posting:", res.data);
+
             setCommentsByPost(prev => ({
                 ...prev,
-                [postId]: [res.data, ...(prev[postId] || [])]
+                [postId]: res.data
             }));
 
+            // Clear input
             setCommentInputs(prev => ({
                 ...prev,
                 [postId]: ""
@@ -295,7 +301,7 @@ function UserProfileViewPage() {
             console.error("Failed to post comment:", err);
         }
     };
-
+    
     // Send conenction request to the user form thire profile page 
     const handleConnect = async (receiverId, receiverUsername) => {
         try {
@@ -459,8 +465,8 @@ function UserProfileViewPage() {
                                     <div className="flex flex-col md:flex-row md:items-center justify-between">
                                         <div>
                                             <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-200">{user?.username || "no data"}</h1>
-                                            <p className="text-green-700 dark:text-green-400 font-medium text-">{user?.farming_type || "no data"} farmer</p> 
-                                            <p className="text-green-700 dark:text-green-400 font-medium">{user?.experience || "no data"} years of experience</p> 
+                                            <p className="text-green-700 dark:text-green-400 font-medium text-">{user?.farming_type || "no data"} farmer</p>
+                                            <p className="text-green-700 dark:text-green-400 font-medium">{user?.experience || "no data"} years of experience</p>
                                             <div className="flex items-center text-gray-600 dark:text-zinc-400 mt-1">
                                                 <FaMapMarkerAlt className="mr-1" />
                                                 <span>{user?.address?.full_location || "not data "}</span>
@@ -702,7 +708,7 @@ function UserProfileViewPage() {
 
 
                                                 {/* Post Text Content */}
-                                                <div onClick={() => navigateToProductDetails(post?.id)}  className="mb-4 cursor-pointer">
+                                                <div onClick={() => navigateToProductDetails(post?.id)} className="mb-4 cursor-pointer">
                                                     <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
                                                 </div>
 
@@ -710,7 +716,7 @@ function UserProfileViewPage() {
                                                 {post.image_url && (
 
                                                     <div onClick={() => navigateToProductDetails(post?.id)} className="cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
-                                                        <div 
+                                                        <div
                                                             className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
                                                             style={{ backgroundImage: `url(${post.image_url})` }}
                                                         ></div>
@@ -725,7 +731,7 @@ function UserProfileViewPage() {
                                                 )}
 
                                                 {post.video_url && (
-                                                    <div onClick={() => navigateToProductDetails(post?.id)}   className="cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
+                                                    <div onClick={() => navigateToProductDetails(post?.id)} className="cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
                                                         <div
                                                             className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
                                                             style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}

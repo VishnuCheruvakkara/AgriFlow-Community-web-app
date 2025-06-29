@@ -236,15 +236,19 @@ class DeletePostAPIView(APIView):
 ######################## Get single post view (User full for the share section thorough the other platforms ) ###########################
 
 class GetSinglePostView(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    def get(self,request,post_id):
+    def get(self, request, post_id):
         try:
-            post=Post.objects.select_related("author").get(id=post_id,is_deleted=False)
+            post = Post.objects.select_related("author").get(
+                id=post_id,
+                is_deleted=False
+            )
         except Post.DoesNotExist:
             return Response(
-                {"detail":"Post not found."},
-                status = status.HTTP_404_NOT_FOUND
+                {"detail": "Post not found."},
+                status=status.HTTP_404_NOT_FOUND
             )
-        serializer = PostDetailSerializer(post,context={"request":request})
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        
+        serializer = PostDetailSerializer(post, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
