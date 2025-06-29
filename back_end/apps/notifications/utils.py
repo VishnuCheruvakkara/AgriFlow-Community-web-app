@@ -57,32 +57,3 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
         }
     )
 
-
-# def create_and_send_private_messages(recipient, sender, type, message=None,community=None,image_url=None):
-#     # Save notification data into the table
-#     notification = Notification.objects.create(
-#         recipient = recipient,
-#         sender = sender,
-#         notification_type = type,
-#         message = message,
-#         community = community,
-#         image_url = image_url,
-#     )
-
-#     #Send the real-time notification
-#     channel_layer = get_channel_layer()
-#     async_to_sync(channel_layer.group_send)(
-#         f"user_{recipient.id}",
-#         {
-#             "type":"send_notification",
-#             "data":{
-#                 "id":notification.id,
-#                 "type":type,
-#                 "message":message,
-#                 "sender":sender.username if sender else None,
-#                 "sender_id":sender.id,
-#                 "timestamp":str(notification.created_at),
-#                 "image_url":image_url
-#             }
-#         }
-#     )

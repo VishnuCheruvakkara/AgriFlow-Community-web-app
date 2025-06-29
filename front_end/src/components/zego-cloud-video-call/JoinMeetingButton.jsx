@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { RiVideoOnAiLine } from "react-icons/ri";
 
-const JoinMeetingButton = ({ roomId, userId, userName }) => {
+const JoinMeetingButton = ({ roomId, userId, userName,startTime }) => {
     const [showCallUI, setShowCallUI] = useState(false);
     const containerRef = useRef(null);
     const zpRef = useRef(null);           // store the zp instance

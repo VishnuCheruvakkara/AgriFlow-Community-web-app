@@ -176,6 +176,7 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                                     roomId={event?.id}
                                     userId={user?.id}
                                     userName={user?.username}
+                                    startTime={event?.start_datetime}
                                 />
 
 
