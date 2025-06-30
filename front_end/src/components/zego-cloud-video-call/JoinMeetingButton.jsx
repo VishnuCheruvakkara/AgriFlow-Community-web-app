@@ -60,11 +60,11 @@ const JoinMeetingButton = ({ roomId, userId, userName,startTime }) => {
             <>
                 <div
                     ref={containerRef}
-                    className="w-screen h-screen fixed inset-0 z-[9999] bg-black"
+                    className="w-screen h-screen fixed inset-0 z-[9999] bg-gray-100"
                 />
                 <button
                     onClick={() => setShowCallUI(false)}
-                    className="fixed top-4 right-4 z-[10000] bg-white text-black px-3 py-1 rounded shadow"
+                    className="fixed top-4 right-4 z-[10000] bg-white text-black px-3 py-1 rounded-xl shadow-xl"
                 >
                     ← Back to Page
                 </button>

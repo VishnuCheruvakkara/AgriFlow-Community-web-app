@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from datetime import timedelta
 from django.utils import timezone
 from events.tasks import send_event_notification
+from apps.notifications.utils import create_and_send_notification
 
 User = get_user_model()
 
@@ -223,6 +224,17 @@ class EventParticipationSerializer(serializers.ModelSerializer):
             if event.participations.count() >= event.max_participants:
                 event.is_full = True
                 event.save()
+
+      
+        # Create a real time notification to the event creator/admin
+        create_and_send_notification(
+            recipient=event.created_by,           
+            sender=user,                          
+            type="event_join",                    
+            message=f"{user.username} has joined your event '{event.title}'.",
+            community=event.community,            
+            image_url=generate_secure_image_url(user.profile_picture)
+        )
 
         return participation
 

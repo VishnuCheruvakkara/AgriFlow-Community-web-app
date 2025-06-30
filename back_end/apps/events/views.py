@@ -6,14 +6,14 @@ from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, 
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
-from apps.common.cloudinary_utils import upload_image_to_cloudinary
+from apps.common.cloudinary_utils import upload_image_to_cloudinary,generate_secure_image_url
 from .serializers import CommunityEventSerializer
 from .models import CommunityEvent, EventLocation,EventParticipation
 import json
 from community.models import Community
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-
+from apps.notifications.utils import create_and_send_notification
 
 ##############  Get community in the event creation section (only get the community where user is admin ) #################
 
@@ -184,6 +184,20 @@ class DeleteCommunityEventView(APIView):
         # Perform soft delete
         event.is_deleted = True
         event.save()
+
+        # Send notifications to all participants
+        participations = EventParticipation.objects.filter(event=event)
+
+        for participation in participations:
+            recipient = participation.user
+            create_and_send_notification(
+                recipient=recipient,
+                sender=request.user,
+                type="event_deleted",
+                message=f"The event '{event.title}' has been cancelled by the organizer.",
+                community=event.community,
+                image_url=generate_secure_image_url(event.banner)
+            )
 
         return Response({'message': 'Event deleted successfully.'}, status=status.HTTP_200_OK)
     
