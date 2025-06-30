@@ -16,10 +16,16 @@ import { showToast } from "../toast-notification/CustomToast";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import DefaultUserImage from "../../assets/images/user-default.png"
 import { Link } from "react-router-dom";
+import JoinMeetingButton from "../zego-cloud-video-call/JoinMeetingButton";
+import { useSelector } from "react-redux";
 
 const EventDetailsPage = ({ event, onClose, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(event);
+
+  // get the user data for the video call meet with zego cloude
+  const user = useSelector((state) => state.user.user)
+
   // Format the date and time in a more readable way
   const formatDateTime = (dateTimeStr) => {
     const date = new Date(dateTimeStr);
@@ -116,6 +122,17 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
           <h3 className="text-md font-semibold text-green-700 dark:text-green-400">Event Name "{currentEvent.title || "Not found"}" </h3>
         </div>
 
+        {/* Edit event  */}
+        <div className="mt-4">
+        <JoinMeetingButton
+          roomId={currentEvent?.id}
+          userId={user?.id}
+          userName={user?.username}
+          startTime={currentEvent?.start_datetime}
+        />
+        </div>
+
+        {/* join to the event  */}
         <button
           onClick={() => setIsEditModalOpen(true)}
           className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 dark:bg-green-600 dark:hover:bg-green-700 dark:shadow-zinc-900"
@@ -125,6 +142,7 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
           </div>
           <span className="text-sm pr-10 pl-4">Edit Event</span>
         </button>
+
 
         <h3 className="text-md mt-3 font-medium text-gray-800 dark:text-zinc-200">Event created for the community "{currentEvent.community_name}"</h3>
         <p className="text-sm text-gray-600 mt-3 border bg-green-200 border-green-400 px-2 py-1 rounded-full dark:bg-green-900 dark:border-green-700 dark:text-green-100">
