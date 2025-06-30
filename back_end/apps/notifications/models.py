@@ -32,6 +32,11 @@ class Notification(models.Model):
         #For Events 
         ("event_start_notification","Event Start Notification"),
         ("event_deleted","Event Deleted"),
+
+        #For products 
+        ("product_deleted","Product Deleted"),
+
+
         
 
     ]
