@@ -128,28 +128,39 @@ const ProductDetailsPage = () => {
 
     // Active and Inactive setup for the product 
     const handleAvailabilityToggle = async (newValue) => {
-        try {
+        const result = await showConfirmationAlert({
+            title: localProduct.is_available ? "Mark as Unavailable" : "Mark as Available",
+            text: localProduct.is_available
+                ? "Are you sure you want to mark this product as unavailable? buyer cannot buy this product."
+                : "Are you sure you want to mark this product as available again? Buyers will be able to see and purchase it.",
+            confirmButtonText: localProduct.is_available ? "Mark Unavailable" : "Mark Available",
+            cancelButtonText: "Cancel"
+        });
 
-            // Update local state optimistically
-            setLocalProduct((prev) => ({
-                ...prev,
-                is_available: newValue,
-            }));
+        if (result) {
+            try {
 
-            // Call your backend
-            await AuthenticatedAxiosInstance.patch(`/products/toggle-product-state/${localProduct.id}/`, {
-                is_available: newValue,
-            });
+                // Update local state optimistically
+                setLocalProduct((prev) => ({
+                    ...prev,
+                    is_available: newValue,
+                }));
 
-            showToast("Product availability updated!", "success");
-        } catch (error) {
-            // Revert local state on error
-            setLocalProduct((prev) => ({
-                ...prev,
-                is_available: !newValue,
-            }));
+                // Call your backend
+                await AuthenticatedAxiosInstance.patch(`/products/toggle-product-state/${localProduct.id}/`, {
+                    is_available: newValue,
+                });
 
-            showToast("Failed to update availability.", "error");
+                showToast("Product availability updated!", "success");
+            } catch (error) {
+                // Revert local state on error
+                setLocalProduct((prev) => ({
+                    ...prev,
+                    is_available: !newValue,
+                }));
+
+                showToast("Failed to update availability.", "error");
+            }
         }
     };
 
