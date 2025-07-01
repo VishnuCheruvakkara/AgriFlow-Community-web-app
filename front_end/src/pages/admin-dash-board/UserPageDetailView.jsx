@@ -188,7 +188,7 @@ function UserPageDetailView() {
 
 
 
-            <div className="max-w-full mx-auto bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
+            <div className="mb-4 max-w-full mx-auto bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
                 {/* Header with background */}
                 <div className="flex items-center justify-between bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-md">
                     <h1 className="text-2xl font-bold">Farmer Details</h1>
