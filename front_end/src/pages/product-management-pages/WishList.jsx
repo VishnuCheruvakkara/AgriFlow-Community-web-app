@@ -143,9 +143,17 @@ function WishList() {
                     alt={product.title}
                     className="w-full h-40 object-cover rounded-md mb-3"
                   />
-                  <div className="absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
-                    Wishlist
+                  <div
+                    className={`
+    absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full
+    ${product.is_available ? 'bg-green-500' : 'bg-red-500'}
+    text-white
+    opacity-100
+  `}
+                  >
+                    {product.is_available ? 'Available' : 'Not Available'}
                   </div>
+
                   <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm font-semibold">
                     ₹{product.price} per {product.unit}
                   </div>

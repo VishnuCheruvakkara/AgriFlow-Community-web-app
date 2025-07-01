@@ -177,8 +177,7 @@ class GetAllAvailableProducts(APIView):
 
     def get(self, request):
         search_query = request.query_params.get('search', '')
-        products = Product.objects.filter(
-            is_available=True, is_deleted=False).exclude(seller=request.user)
+        products = Product.objects.filter(is_deleted=False).exclude(seller=request.user)
 
         if search_query:
             products = products.filter(
@@ -266,6 +265,36 @@ class BuyingDealsView(APIView):
         serializer = BuyingDealSerializer(
             latest_messages, many=True, context={'request': request})
         return Response(serializer.data)
+    
+############################ Toggle the product status view #######################
+
+class ToggleProductAvailabilityView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, seller=request.user)
+
+        is_available = request.data.get("is_available")
+
+        if is_available is None:
+            return Response(
+                {"error": "is_available field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not isinstance(is_available, bool):
+            return Response(
+                {"error": "is_available must be a boolean value."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        product.is_available = is_available
+        product.save()
+
+        return Response(
+            {"message": "Product availability updated successfully.", "is_available": product.is_available},
+            status=status.HTTP_200_OK,
+        )
 
 ############################# Wish list ##################################
 
@@ -310,7 +339,7 @@ class WishlistListAPIView(APIView):
         serializer = WishlistSerializer(wishlist_items, many=True)
         return Response(serializer.data)
     
-#============================== Get the prodcuts from the serialzier ###########################
+#============================== Get the prodcuts from the model ###########################
 
 class GetMyWishlistProductsAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -321,7 +350,7 @@ class GetMyWishlistProductsAPIView(APIView):
         wishlist_qs = Wishlist.objects.filter(
             user=request.user,
             is_active=True,
-            product__is_available=True,
+           
             product__is_deleted=False
         ).select_related('product')
 

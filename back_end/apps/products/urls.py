@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView
+from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView,ToggleProductAvailabilityView
 urlpatterns = [
     ###################### Create product to sell ##########################
     path("create-product-to-sell/",CreateProductToSell.as_view(),name="create-product-to-sell"),
@@ -27,6 +27,9 @@ urlpatterns = [
 
     ################# Get Buying product deals by the current user #####################
     path('buying-product-deals/', BuyingDealsView.as_view(), name='buying-deals'), 
+
+    ################# Toggle the is_available of a product ######################
+    path("toggle-product-state/<int:pk>/",ToggleProductAvailabilityView.as_view(),name="toggle-product-state"),
 
     ################# Wish list ########################
 
