@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView,ToggleProductAvailabilityView
+from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView,ToggleProductAvailabilityView,GetAllProductsAdminSideView
 urlpatterns = [
     ###################### Create product to sell ##########################
     path("create-product-to-sell/",CreateProductToSell.as_view(),name="create-product-to-sell"),
@@ -41,5 +41,10 @@ urlpatterns = [
 
     #======================= Get the products that added in the wishlist by the current/logged in user =======================# 
     path('wishlist/my-wish-list-items/', GetMyWishlistProductsAPIView.as_view(), name='my-wishlist-products'),
+
+    #####################################  Admin side product hanle urls #######################################
+
+    #========================= Get all products in the admin side ============================# 
+    path("admin/get-all-product/", GetAllProductsAdminSideView.as_view(),name="get-all-products-admin-side")
 ]
 

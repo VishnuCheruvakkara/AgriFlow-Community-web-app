@@ -366,4 +366,15 @@ class GetMyWishlistProductsAPIView(APIView):
 
         serializer = WishlistSerializer(paginated_qs, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+########################### Admin side Product handling View ############################# 
 
+#========================= Get all the products in the admin side =============================# 
+
+class GetAllProductsAdminSideView(APIView):
+    permission_classes = [permissions.IsAdminUser] 
+
+    def get(self,request):
+        products = Product.objects.all()
+        serializer=ProductSerializer(products,many=True)
+        return Response(serializer.data)

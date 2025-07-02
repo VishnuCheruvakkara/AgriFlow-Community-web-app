@@ -15,9 +15,11 @@ const AdminLayout = () => {
       {/* Main content - always starts at left edge when sidebar is closed */}
       <div className="flex-1 flex flex-col ">
         <Navbar />
+
         <div className="px-4 pt-[80px] ml-20">
           <Outlet /> {/* Page Content */}
         </div>
+        
       </div>
       
       {/* Sidebar - positioned with fixed, overlaps content when open */}

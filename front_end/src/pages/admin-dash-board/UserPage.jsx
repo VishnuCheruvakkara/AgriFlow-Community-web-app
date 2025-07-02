@@ -117,42 +117,44 @@ const UsersPage = () => {
 
         {/* filter option  */}
         <div className="my-4 mx-2 px-2"> {/* Added px-4 for spacing on the sides */}
-          <div className="flex bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
+          <div className="flex flex-col sm:flex-row bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("")}>
               All
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("profile_not_updated")}>
-              Profile Not Updated
+              <span className="hidden sm:inline">Profile Not Updated</span>
+              <span className="sm:hidden">Profile Not Updated</span>
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("aadhaar_not_verified")}>
-              Aadhaar Not Verified
+              <span className="hidden sm:inline">Aadhaar Not Verified</span>
+              <span className="sm:hidden">Aadhaar Not Verified</span>
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "active" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("active")}>
               Active
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "blocked" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("blocked")}>
               Blocked
             </button>
           </div>
         </div>
+
+
         {/* Filters */}
-
-
         <div className="grid grid-cols-1  gap-6 ">
           <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300  dark:border-zinc-600 shadow-lg">
             <h3 className="font-bold text-gray-700 dark:text-zinc-200 my-4">Available Farmers</h3>
