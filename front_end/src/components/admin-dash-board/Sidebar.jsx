@@ -248,10 +248,6 @@ const Sidebar = ({ onToggle }) => {
               </div>
             )}
           </div>
-
-
-
-
         </div>
       </div>
 
@@ -272,7 +268,6 @@ const Sidebar = ({ onToggle }) => {
           )}
         </div>
       </div>
-
 
       {/* Add global styles to hide scrollbar */}
 

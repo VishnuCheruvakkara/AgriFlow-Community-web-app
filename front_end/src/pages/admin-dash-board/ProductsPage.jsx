@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import NoProductsFound from "../../assets/images/no-product-found.png"
 import { RiSearchLine } from "react-icons/ri";
 import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticatedAxiosInstance";
@@ -7,28 +7,56 @@ import { FaTimesCircle } from "react-icons/fa";
 import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
+import AdminSidePagination from "../../components/Common-Pagination/AdminSidePagination";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const response = await AdminAuthenticatedAxiosInstance.get("/products/admin/get-all-product/");
-        setProducts(response.data);
-        console.log("All products admin side::", response.data)
+  // search set up  
+  const [searchProduct, setSearchProduct] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-      } catch (error) {
-        setError("Failed to load products.")
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+  //filter status 
+  const [filterStatus, setFilterStatus] = useState("");
+
+  const handleFilterChange = (status) => {
+    setCurrentPage(1);
+    setFilterStatus(status);
+  };
+
+  const getProducts = useCallback(async () => {
+    setLoading(true);
+    console.log("Fetching products with:", {
+      page: currentPage,
+      search: searchProduct,
+      status: filterStatus,
+    });
+    try {
+      const response = await AdminAuthenticatedAxiosInstance.get("/products/admin/get-all-product/", {
+        params: {
+          page: currentPage,
+          search: searchProduct.trim() !== "" ? searchProduct : undefined,
+          status: filterStatus || "",
+        },
+      });
+
+      setProducts(response.data.results);
+      setTotalPages(Math.ceil(response.data.count / 5));
+      console.log("Admin products with pagination:", response.data);
+    } catch (error) {
+      setError("Failed to load products.");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage, searchProduct, filterStatus]);
+
+  useEffect(() => {
     getProducts();
-  }, [])
+  }, [getProducts]);
 
 
   return (
@@ -39,23 +67,40 @@ const ProductsPage = () => {
           <h1 className="text-2xl font-bold">Product Management</h1>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="my-4 mx-2 px-2 ">
-          <div className="flex bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
-            <button className="flex-1 py-2 md:py-3 px-1 text-center font-medium text-xs md:text-sm bg-green-600 text-white hover:brightness-110 transition duration-300">
+        {/* Filter Options */}
+        <div className="my-4 mx-2 px-2">
+          <div className="flex flex-col sm:flex-row bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
+            <button
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filterStatus === "" ? "bg-green-600" : "bg-green-400"
+                } text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              onClick={() => handleFilterChange("")}
+            >
               All
             </button>
-            <button className="flex-1 py-2 md:py-3 px-1 text-center font-medium text-xs md:text-sm bg-green-400 text-white hover:bg-green-600 transition duration-300">
+            <button
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filterStatus === "available" ? "bg-green-600" : "bg-green-400"
+                } text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              onClick={() => handleFilterChange("available")}
+            >
               Available
             </button>
-            <button className="flex-1 py-2 md:py-3 px-1 text-center font-medium text-xs md:text-sm bg-green-400 text-white hover:bg-green-600 transition duration-300">
+            <button
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filterStatus === "unavailable" ? "bg-green-600" : "bg-green-400"
+                } text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              onClick={() => handleFilterChange("unavailable")}
+            >
               Unavailable
             </button>
-            <button className="flex-1 py-2 md:py-3 px-1 text-center font-medium text-xs md:text-sm bg-green-400 text-white hover:bg-green-600 transition duration-300">
+            <button
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filterStatus === "deleted" ? "bg-green-600" : "bg-green-400"
+                } text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
+              onClick={() => handleFilterChange("deleted")}
+            >
               Deleted
             </button>
           </div>
         </div>
+
 
 
         <div className="grid grid-cols-1  gap-6 ">
@@ -68,8 +113,14 @@ const ProductsPage = () => {
               <input
                 type="text"
                 placeholder="Search Products..."
+                value={searchProduct}
+                onChange={(e) => {
+                  setCurrentPage(1); // Reset to page 1 when searching
+                  setSearchProduct(e.target.value);
+                }}
                 className="w-full outline-none px-2 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
               />
+
             </div>
 
 
@@ -102,7 +153,7 @@ const ProductsPage = () => {
                         >
                           {/* # */}
                           <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">
-                            {index + 1}
+                            {(currentPage - 1) * 5 + index + 1}
                           </td>
                           {/* Image */}
                           <td className="px-4 py-4">
@@ -185,14 +236,26 @@ const ProductsPage = () => {
                 <p className="text-xs text-gray-500 dark:text-zinc-400">
                   Try adjusting your search or filter criteria.
                 </p>
+
                 <button
+                  onClick={() => setSearchProduct("")}
                   className="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
-                  onClick={() => window.location.reload()}
                 >
-                  Reload
+                  Clear Filters
                 </button>
+
               </div>
             )}
+
+            {/* Pagination  */}
+            <AdminSidePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hasPrev={currentPage > 1}
+              hasNext={currentPage < totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+
 
 
 
