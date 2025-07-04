@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView,ToggleProductAvailabilityView,GetAllProductsAdminSideView
+from .views import CreateProductToSell,GetAllProductsAddedByCurrentUser,UpdateProductAPIView,SoftDeleteProductView,GetAllAvailableProducts,ProductDealMessageListView,GetSingleProductDetailsView,SellingProductDealsAPIView,BuyingDealsView,ToggleWishlistAPIView,WishlistListAPIView,GetMyWishlistProductsAPIView,ToggleProductAvailabilityView,GetAllProductsAdminSideView,GetSingleProductAdminSideView,ToggleProductDeleteStatusView
 urlpatterns = [
     ###################### Create product to sell ##########################
     path("create-product-to-sell/",CreateProductToSell.as_view(),name="create-product-to-sell"),
@@ -45,6 +45,13 @@ urlpatterns = [
     #####################################  Admin side product hanle urls #######################################
 
     #========================= Get all products in the admin side ============================# 
-    path("admin/get-all-product/", GetAllProductsAdminSideView.as_view(),name="get-all-products-admin-side")
+    path("admin/get-all-product/", GetAllProductsAdminSideView.as_view(),name="get-all-products-admin-side"),
+
+    #======================== Get single product details in the admin side =======================#
+    path("admin/get-single-product/<int:product_id>/",GetSingleProductAdminSideView.as_view(),name="get-single-product"),
+
+    #======================= Product Delete status toggling ============================# 
+    path("admin/toggle-delete-status/<int:pk>/",ToggleProductDeleteStatusView.as_view(),name="toggle_product_delete_status",),
+
 ]
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import NoProductsFound from "../../assets/images/no-product-found.png"
 import { RiSearchLine } from "react-icons/ri";
 import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticatedAxiosInstance";
@@ -8,11 +8,14 @@ import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import AdminSidePagination from "../../components/Common-Pagination/AdminSidePagination";
+import { debounce } from "lodash";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [inputValue, setInputValue] = useState("");
+
 
   // search set up  
   const [searchProduct, setSearchProduct] = useState("");
@@ -53,6 +56,14 @@ const ProductsPage = () => {
       setLoading(false);
     }
   }, [currentPage, searchProduct, filterStatus]);
+
+  // Debounce for search 
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setCurrentPage(1);
+      setSearchProduct(value);
+    }, 300),
+    [])
 
   useEffect(() => {
     getProducts();
@@ -113,10 +124,10 @@ const ProductsPage = () => {
               <input
                 type="text"
                 placeholder="Search Products..."
-                value={searchProduct}
+                value={inputValue}
                 onChange={(e) => {
-                  setCurrentPage(1); // Reset to page 1 when searching
-                  setSearchProduct(e.target.value);
+                  setInputValue(e.target.value);
+                  debouncedSearch(e.target.value);
                 }}
                 className="w-full outline-none px-2 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
               />
@@ -140,8 +151,8 @@ const ProductsPage = () => {
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Title</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Seller</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Price</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Availability</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Deleted</th>
                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">View</th>
                       </tr>
                     </thead>
@@ -209,16 +220,21 @@ const ProductsPage = () => {
                             )}
                           </td>
 
-                          {/* Actions */}
+                          {/* View  */}
                           <td className="px-4 py-4 text-center whitespace-nowrap">
                             <div className="flex gap-2 justify-center">
-                              <Link className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition">
+                              <Link
+                                to={`/admin/products-management/product-details/${product.id}`}
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition"
+                              >
                                 <button>
                                   <FaEye size={22} />
                                 </button>
                               </Link>
+
                             </div>
                           </td>
+
                         </tr>
                       ))}
                     </tbody>

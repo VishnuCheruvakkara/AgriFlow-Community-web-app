@@ -6,6 +6,7 @@ import UsersPage from '../pages/admin-dash-board/UserPage'
 import ProductsPage from '../pages/admin-dash-board/ProductsPage'
 import UserPageDetailView from '../pages/admin-dash-board/UserPageDetailView'
 import PageNotFound from '../components/StatusPages/PageNotFound'
+import AdminProductDetailsPage from '../pages/admin-dash-board/AdminProductDetailsPage'
 
 function AdminRoutes() {
     return (
@@ -15,20 +16,20 @@ function AdminRoutes() {
                 {/* Dashboard at /admin/ */}
                 <Route index element={<DashboardPage />} />
 
+                {/* ================= Admin side user mangement Routes ==================== */}
                 {/* Users management at /admin/users-management */}
                 <Route path="users-management" element={<UsersPage />} />
+                {/* Detail view at /admin/users-management/user-details/:userId */}
+                <Route path="users-management/user-details/:userId" element={<UserPageDetailView />} />
 
+                {/* ====================== Admin side product management  ==================== */}
                 {/* Products management at /admin/products-management */}
                 <Route path="products-management" element={<ProductsPage />} />
-
-                {/* Detail view at /admin/users-management/user-details/:userId */}
-                <Route
-                    path="users-management/user-details/:userId"
-                    element={<UserPageDetailView />}
-                />
+                {/* Product Details view in the admin side  */}
+                <Route path="products-management/product-details/:productId" element={< AdminProductDetailsPage/>} />
 
             </Route>
-            {/* ← This will catch any other /admin/... URL */}
+            {/*  This will catch any other /admin/... URL */}
             <Route path="*" element={<PageNotFound />} />
         </Routes>
     )

@@ -237,7 +237,7 @@ const Sidebar = ({ onToggle }) => {
             }}
             className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 cursor-pointer group`}
           >
-            <div className="flex items-center justify-center w-6 h-6 text-lg transition-transform group-hover:scale-110">
+            <div className="flex items-center justify-center w-6 h-6 text-lg transition-transform ">
               <ThemeToggle />
             </div>
 

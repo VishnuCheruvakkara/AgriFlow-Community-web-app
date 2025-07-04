@@ -411,3 +411,35 @@ class GetAllProductsAdminSideView(APIView):
 
         serializer = ProductSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+#======================= Get single product details admin side ========================# 
+
+class GetSingleProductAdminSideView(APIView):
+    permission_classes = [permissions.IsAdminUser] 
+
+    def get(self,request,product_id):
+        product = get_object_or_404(Product,id=product_id)
+        serializer = ProductSerializer(product) 
+        return Response(serializer.data,status = status.HTTP_200_OK)
+
+#========================  Product delete status toggling view ===========================# 
+
+class ToggleProductDeleteStatusView(APIView):
+    """
+    Toggle the is_deleted status of a Product.
+    Only accessible by admin users.
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def patch(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        product.is_deleted = not product.is_deleted
+        product.save()
+
+        return Response(
+            {
+                "message": f"Product marked as {'deleted' if product.is_deleted else 'available'}.",
+                "is_deleted": product.is_deleted,
+            },
+            status=status.HTTP_200_OK,
+        )
