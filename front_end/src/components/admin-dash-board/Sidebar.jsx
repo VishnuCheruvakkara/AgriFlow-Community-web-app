@@ -180,19 +180,41 @@ const Sidebar = ({ onToggle }) => {
             )}
           </Link>
 
-          <Link to="/admin/community" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+          <Link
+            to="/admin/community-management"
+            className={`flex items-center ${isOpen ? "gap-3" : "justify-center"
+              } 
+    px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+    ${location.pathname.startsWith("/admin/community-management")
+                ? "bg-green-500 text-white shadow-md"
+                : "text-white hover:bg-green-500 hover:shadow-md"
+              }`}
+          >
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaPeopleCarry />
             </div>
             {isOpen && (
               <div className="transition-opacity duration-300">
-                <div className="font-medium group-hover:text-white">Community</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Mange Community</div>
+                <div className="font-medium group-hover:text-white">Communities</div>
+                <div className="text-xs text-green-200 group-hover:text-white">
+                  Manage Communities
+                </div>
               </div>
             )}
           </Link>
 
-          <Link to="/admin/events" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+
+          <Link
+            to="/admin/event-management"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'
+              } 
+    px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+    ${location.pathname.startsWith('/admin/event-management')
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'
+              }
+  `}
+          >
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaCalendarAlt />
             </div>
@@ -204,7 +226,16 @@ const Sidebar = ({ onToggle }) => {
             )}
           </Link>
 
-          <Link to="/admin/knowledge" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+          <Link
+            to="/admin/post-management"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'}
+    px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+    ${location.pathname.startsWith('/admin/post-management')
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'
+              }
+  `}
+          >
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <BsPostcardHeartFill />
             </div>
@@ -215,6 +246,7 @@ const Sidebar = ({ onToggle }) => {
               </div>
             )}
           </Link>
+
 
           <Link to="/admin/notifications" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">

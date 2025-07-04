@@ -7,6 +7,10 @@ import ProductsPage from '../pages/admin-dash-board/ProductsPage'
 import UserPageDetailView from '../pages/admin-dash-board/UserPageDetailView'
 import PageNotFound from '../components/StatusPages/PageNotFound'
 import AdminProductDetailsPage from '../pages/admin-dash-board/AdminProductDetailsPage'
+import CommunityPage from '../pages/admin-dash-board/CommunityPage'
+import EventManagementPage from '../pages/admin-dash-board/EventPage'
+import PostPage from '../pages/admin-dash-board/PostPage'
+
 
 function AdminRoutes() {
     return (
@@ -28,6 +32,16 @@ function AdminRoutes() {
                 {/* Product Details view in the admin side  */}
                 <Route path="products-management/product-details/:productId" element={< AdminProductDetailsPage/>} />
 
+                {/*==================  Admin side community management  =========================*/}
+                <Route path="community-management" element={<CommunityPage />} />
+
+                {/*======================== Admin side Event management  ================================*/}
+                <Route path="event-management" element={<EventManagementPage />} />
+
+                {/*======================== Admin side post management =============================*/}\
+                <Route path="post-management" element={ <PostPage/>} />
+                
+                
             </Route>
             {/*  This will catch any other /admin/... URL */}
             <Route path="*" element={<PageNotFound />} />
