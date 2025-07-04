@@ -1,7 +1,7 @@
 
 from os import read
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 from django.contrib.auth import get_user_model
 
 from community.serializers import UserMinimalSerializer
@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer, SimpleCommunityAdminSerializer
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership,CommunityMessage
 # imports from the custom named app
@@ -901,3 +901,17 @@ class CloudinaryUploadView(APIView):
             return Response({'error': str(ve)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': 'Something went wrong during upload.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+  
+#######################  Admin side community management view  ###############################
+
+#====================== Get all communities in the admin side table view =========================# 
+
+class GetAllCommunityAdminSide(APIView):
+    permission_classes=[IsAdminUser]
+
+    def get(self,request):
+        communities = Community.objects.all() 
+        serializer = SimpleCommunityAdminSerializer(communities,many=True)
+        return Response(serializer.data)
+    

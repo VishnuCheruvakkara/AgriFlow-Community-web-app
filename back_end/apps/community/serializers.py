@@ -1,7 +1,7 @@
 from tkinter import Y
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from community.models import Community, CommunityMembership,Tag,CommunityMessage
+from community.models import Community, CommunityMembership, Tag, CommunityMessage
 from apps.common.cloudinary_utils import upload_image_to_cloudinary, generate_secure_image_url
 # import the notificaiton set model from notifications named app
 from notifications.models import Notification
@@ -92,7 +92,8 @@ class CommunitySerializer(serializers.ModelSerializer):
             )
 
         # Send notifications to all invited members
-        community_logo_url = generate_secure_image_url(community.community_logo)
+        community_logo_url = generate_secure_image_url(
+            community.community_logo)
         for uid in member_ids:
             recipient = User.objects.get(id=uid)  # if not already prefetched
             create_and_send_notification(
@@ -276,7 +277,7 @@ class RequestedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CommunityMembership
-        fields = ['user_id','username', 'requested_at', 'profile_picture']
+        fields = ['user_id', 'username', 'requested_at', 'profile_picture']
 
     def get_requested_at(self, obj):
         if obj.status == "requested" and obj.updated_at:
@@ -465,7 +466,7 @@ class CommunityEditSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-############################ Serializer for get the community messages from the table ############################### 
+############################ Serializer for get the community messages from the table ###############################
 
 
 class CommunityMessageSerializer(serializers.ModelSerializer):
@@ -473,13 +474,54 @@ class CommunityMessageSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id')
     username = serializers.CharField(source='user.username')
     user_image = serializers.SerializerMethodField()
-    timestamp = serializers.DateTimeField() 
+    timestamp = serializers.DateTimeField()
     media_url = serializers.URLField()
 
     class Meta:
         model = CommunityMessage
-        fields = ['message', 'user_id', 'user_image', 'username','timestamp','media_url']
+        fields = ['message', 'user_id', 'user_image',
+                  'username', 'timestamp', 'media_url']
 
     def get_user_image(self, obj):
         return generate_secure_image_url(obj.user.profile_picture)
-    
+
+
+#######################  Admin side community management serializer  ###############################
+
+# =================== Get aommunity data in the admin side table serializer =====================#
+
+class SimpleCommunityAdminSerializer(serializers.ModelSerializer):
+    members_count = serializers.SerializerMethodField()
+    created_by_username = serializers.CharField(source="created_by.username")
+    created_by_id = serializers.IntegerField(source="created_by.id")
+    created_by_profile_picture = serializers.SerializerMethodField()
+    community_logo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Community
+        fields = [
+            "id",
+            "name",
+            "description",
+            "is_private",
+            "created_at",
+            "created_by_id",
+            "created_by_username",
+            "created_by_profile_picture",
+            "members_count",
+            "community_logo",
+            "is_deleted",
+        ]
+
+    def get_members_count(self, obj):
+        return obj.memberships.filter(status="approved").count()
+
+    def get_community_logo(self, obj):
+        if obj.community_logo:
+            return generate_secure_image_url(obj.community_logo)
+        return None
+
+    def get_created_by_profile_picture(self, obj):
+        if obj.created_by and obj.created_by.profile_picture:
+            return generate_secure_image_url(obj.created_by.profile_picture)
+        return None

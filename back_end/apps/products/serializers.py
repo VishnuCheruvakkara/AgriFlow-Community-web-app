@@ -64,7 +64,7 @@ class ProductChatMessageSerializer(serializers.ModelSerializer):
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
 
-# Serializer for get the product selling by the user ########################33
+################################ Serializer for get the product selling by the user ########################33
 
 
 class BuyerMessageSerializer(serializers.ModelSerializer):
