@@ -12,6 +12,7 @@ import Pagination from "../../components/Common-Pagination/UserSidePagination";
 //debounce in search 
 import debounce from "lodash/debounce";
 import UsersNotFound from "../../assets/images/connection_no_search_found.png"
+import { ImCancelCircle } from "react-icons/im";
 
 const UsersPage = () => {
 
@@ -160,16 +161,34 @@ const UsersPage = () => {
             <h3 className="font-bold text-gray-700 dark:text-zinc-200 my-4">Available Farmers</h3>
 
             {/* Search Bar */}
-            <div className="flex border border-zinc-300 my-4 focus-within:border-green-500 dark:focus-within:border-green-500 dark:border-zinc-700 first-letter:items-center w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-3 transition duration-300 ease-in-out">
+            <div className="flex items-center border border-zinc-300 my-4 focus-within:border-green-500 dark:focus-within:border-green-500 dark:border-zinc-700 w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm px-3 py-2 transition duration-300 ease-in-out">
+              {/* Search Icon */}
               <RiSearchLine className="text-gray-500 dark:text-zinc-300 text-xl" />
+
+              {/* Input */}
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearch}
-                className="w-full outline-none px-2 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
+                className="flex-1 outline-none px-2 py-1 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
               />
+
+              {/* Cancel Button */}
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    // Clear input and optionally reset results
+                    handleSearch({ target: { value: "" } });
+                  }}
+                  className="text-gray-500 hover:text-red-500 transition-colors duration-300"
+                  aria-label="Clear search"
+                >
+                  <ImCancelCircle size={18} />
+                </button>
+              )}
             </div>
+
 
             {/* Parent Container is Required for Ternary */}
             {loading ? (

@@ -10,6 +10,7 @@ import {
   MdAccessTime,
   MdUpdate
 } from "react-icons/md";
+import { PulseLoader } from 'react-spinners';
 import { ImCheckmark2 } from "react-icons/im";
 import { RiShoppingBag3Fill } from "react-icons/ri";
 import { IoClose } from "react-icons/io5";
@@ -20,14 +21,18 @@ import { FaCheckCircle } from "react-icons/fa";
 import { FaTimesCircle } from "react-icons/fa";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmationAlert";
+import ShowEventBannerModal from "../../components/event-management-user-side/ShowEventBannerModal";
 
 const AdminProductDetailsPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(false);
-  //state for teh map modal 
+  //state for the map modal 
   const [isMapOpen, setIsMapOpen] = useState(false);
+  //handle modal for shwo the image
+  const [selectedImage, setSelectedImage] = useState(null);
+
 
   // Get the single product details based on the product id 
   const getProduct = async () => {
@@ -51,9 +56,12 @@ const AdminProductDetailsPage = () => {
 
   if (loading || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500 dark:text-zinc-400">Loading product details...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen space-y-3">
+        <PulseLoader color="#16a34a" speedMultiplier={1} />
+        <p className="text-sm text-gray-500 dark:text-zinc-400">Loading product details...</p>
       </div>
+
+
     );
   }
 
@@ -99,7 +107,7 @@ const AdminProductDetailsPage = () => {
 
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full mb-4">
       {/* Breadcrumb */}
       <div className="breadcrumbs text-sm">
         <ul>
@@ -140,7 +148,10 @@ const AdminProductDetailsPage = () => {
             <div className="lg:col-span-1">
               <div className="space-y-3">
                 {/* Main Image */}
-                <div className="relative bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-md">
+                <div
+                  className="relative bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-md cursor-pointer"
+                  onClick={() => setSelectedImage(product.image1)}
+                >
                   <img
                     src={product.image1}
                     alt={product.title}
@@ -153,14 +164,20 @@ const AdminProductDetailsPage = () => {
 
                 {/* Thumbnail Images */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                  <div
+                    className="bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-sm cursor-pointer"
+                    onClick={() => setSelectedImage(product.image2)}
+                  >
                     <img
                       src={product.image2}
                       alt="Product Image 2"
                       className="w-full h-24 object-cover"
                     />
                   </div>
-                  <div className="bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                  <div
+                    className="bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-sm cursor-pointer"
+                    onClick={() => setSelectedImage(product.image3)}
+                  >
                     <img
                       src={product.image3}
                       alt="Product Image 3"
@@ -168,6 +185,13 @@ const AdminProductDetailsPage = () => {
                     />
                   </div>
                 </div>
+
+
+
+
+
+
+
               </div>
             </div>
 
@@ -179,7 +203,7 @@ const AdminProductDetailsPage = () => {
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
                     {product.title}
                   </h2>
-                  <p className="text-gray-600 dark:text-zinc-400 mb-3">
+                  <p className="text-gray-600 dark:text-zinc-200 mb-3">
                     {product.description}
                   </p>
 
@@ -188,7 +212,7 @@ const AdminProductDetailsPage = () => {
                       <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                         ₹{product.price}
                       </span>
-                      <span className="text-sm text-gray-500 dark:text-zinc-400">
+                      <span className="text-sm text-gray-500 dark:text-zinc-200">
                         per {product.unit}
                       </span>
                     </div>
@@ -245,13 +269,13 @@ const AdminProductDetailsPage = () => {
                       </h3>
                     </div>
                     <div className="p-3">
-                      <p className="text-gray-600 dark:text-zinc-400 text-lg font-medium">
+                      <p className="text-gray-600 dark:text-zinc-100 text-lg font-medium">
                         {product.quantity} {product.unit}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-zinc-500">
+                      <p className="text-xs text-gray-500 dark:text-zinc-100">
                         Minimum order quantity
                       </p>
-                      <p className="text-xs mt-2 text-gray-500 dark:text-zinc-500">
+                      <p className="text-xs mt-2 text-gray-500 dark:text-zinc-100">
                         <strong>Deal closing date:</strong>{" "}
                         {new Date(product.closing_date).toLocaleString("en-IN", {
                           day: "numeric",
@@ -281,7 +305,7 @@ const AdminProductDetailsPage = () => {
                         <h4 className="font-medium text-gray-800 dark:text-zinc-200 text-sm">
                           {product.location.location_name}
                         </h4>
-                        <p className="text-xs text-gray-600 dark:text-zinc-400">
+                        <p className="text-xs text-gray-600 dark:text-zinc-200">
                           {product.location.full_location}
                         </p>
                       </div>
@@ -297,7 +321,7 @@ const AdminProductDetailsPage = () => {
                       </button>
 
 
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-zinc-500 space-x-4">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-zinc-300 space-x-4">
 
                         <span>
                           <strong>Lat:</strong> {product.location.latitude}
@@ -334,7 +358,7 @@ const AdminProductDetailsPage = () => {
                             <h4 className="text-sm font-semibold text-gray-800 dark:text-zinc-200">
                               {product.seller.username}
                             </h4>
-                            <p className="text-xs text-gray-500 dark:text-zinc-500">
+                            <p className="text-xs text-gray-500 dark:text-zinc-200">
                               Seller ID: #{product.seller.id}
                             </p>
                             <div className="flex items-center mt-1">
@@ -398,7 +422,7 @@ const AdminProductDetailsPage = () => {
 
           {/* Footer Timestamps */}
           <div className="pt-4 border-t border-gray-200 dark:border-zinc-600">
-            <div className="flex flex-col sm:flex-row sm:justify-between text-xs text-gray-500 dark:text-zinc-400">
+            <div className="flex flex-col sm:flex-row sm:justify-between text-xs text-gray-500 dark:text-zinc-100">
               <div className="flex items-center mb-1 sm:mb-0">
                 <MdAccessTime className="w-4 h-4 mr-1" />
                 <span>
@@ -426,6 +450,15 @@ const AdminProductDetailsPage = () => {
           onClose={() => setIsMapOpen(false)}
         />
       )}
+
+      {/* show image in modal  */}
+      {selectedImage && (
+        <ShowEventBannerModal
+          imageUrl={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
+
 
     </div>
   );
