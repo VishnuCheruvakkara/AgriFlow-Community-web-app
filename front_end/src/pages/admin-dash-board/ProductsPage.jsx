@@ -14,7 +14,7 @@ import { ImCancelCircle } from "react-icons/im";
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  
   const [inputValue, setInputValue] = useState("");
 
 
@@ -51,7 +51,6 @@ const ProductsPage = () => {
       setTotalPages(Math.ceil(response.data.count / 5));
       console.log("Admin products with pagination:", response.data);
     } catch (error) {
-      setError("Failed to load products.");
       console.error(error);
     } finally {
       setLoading(false);

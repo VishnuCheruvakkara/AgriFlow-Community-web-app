@@ -15,7 +15,7 @@ from community.serializers import CommunitySerializer, GetMyCommunitySerializer,
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership,CommunityMessage
 # imports from the custom named app
-from apps.common.pagination import CustomCommunityPagination, CustomUserPagination
+from apps.common.pagination import CustomCommunityPagination, CustomUserPagination,CustomAdminCommunityPagination
 from django.utils import timezone
 # import for the admin send request to user section
 from community.serializers import CommunityWithPendingUsersSerializer
@@ -911,7 +911,29 @@ class GetAllCommunityAdminSide(APIView):
     permission_classes=[IsAdminUser]
 
     def get(self,request):
-        communities = Community.objects.all() 
-        serializer = SimpleCommunityAdminSerializer(communities,many=True)
-        return Response(serializer.data)
+        queryset = Community.objects.all()
+
+        #Search set up 
+        search = request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains = search) | 
+                Q(description__icontains = search) 
+            )
+        
+        # Status filter 
+        status = request.query_params.get("status")
+        if status == "public":
+            queryset = queryset.filter(is_private = False)
+        elif status == "private":
+            queryset = queryset.filter(is_private=True)
+        elif status == "deleted":
+            queryset = queryset.filter(is_deleted = True)
+
+        # Pagination 
+        paginator = CustomAdminCommunityPagination()
+        page = paginator.paginate_queryset(queryset,request)
+
+        serializer = SimpleCommunityAdminSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
     
