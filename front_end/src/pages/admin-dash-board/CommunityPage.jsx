@@ -116,8 +116,8 @@ function CommunityPage() {
 
       <div className="grid grid-cols-1 gap-6">
         <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300 dark:border-zinc-600 shadow-lg">
-         
-            <h3 className="font-bold text-gray-700 dark:text-zinc-200 mt-4 ">Community List</h3>
+
+          <h3 className="font-bold text-gray-700 dark:text-zinc-200 mt-4 ">Community List</h3>
 
 
           {/* Search Bar */}
@@ -170,7 +170,9 @@ function CommunityPage() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Members</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Privacy</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Status</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Actions</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">View
+                        
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="text-xs divide-y divide-gray-200 dark:divide-zinc-600 ">
@@ -180,7 +182,7 @@ function CommunityPage() {
                       className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition"
                     >
                       <td className="px-4 py-3 text-sm text-gray-500 dark:text-zinc-300">
-                        {index + 1}
+                        {(currentPage - 1) * 5 + index + 1}
                       </td>
                       <td className="px-4 py-3">
                         <div className="h-12 w-12 border dark:border-zinc-500 rounded-md overflow-hidden bg-gray-200 dark:bg-zinc-600">
@@ -256,12 +258,14 @@ function CommunityPage() {
                       </td>
                       <td className="px-4 py-3 text-center whitespace-nowrap">
                         <div className="flex justify-center gap-2">
-                          <button
+                          <Link
+                            to={`/admin/community-management/community-details/${community.id}`}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition"
-                            title="View Details"
                           >
-                            <FaEye size={22} />
-                          </button>
+                            <button>
+                              <FaEye size={22} />
+                            </button>
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -282,7 +286,9 @@ function CommunityPage() {
               </p>
 
               <button
-                onClick={() => setSearchCommunity("")}
+                    onClick={() => setSearchCommunity("")
+                      
+                }
                 className="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
               >
                 Clear Filters

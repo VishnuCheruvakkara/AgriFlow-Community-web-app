@@ -22,6 +22,7 @@ import { FaTimesCircle } from "react-icons/fa";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmationAlert";
 import ShowEventBannerModal from "../../components/event-management-user-side/ShowEventBannerModal";
+import { Link } from "react-router-dom";
 
 const AdminProductDetailsPage = () => {
   const { productId } = useParams();
@@ -102,12 +103,12 @@ const AdminProductDetailsPage = () => {
       <div className="breadcrumbs text-sm">
         <ul>
           <li>
-            <a
-              href="/admin/products-management"
+            <Link
+              to="/admin/products-management"
               className="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
             >
               Product Management
-            </a>
+            </Link>
           </li>
           <li>
             <span className="text-gray-500 dark:text-zinc-400 cursor-default">
@@ -346,7 +347,7 @@ const AdminProductDetailsPage = () => {
                     <div className="p-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <div className="flex items-center space-x-3 mb-3">
+                          <Link to={`/admin/users-management/user-details/${product.seller.id}`} className="flex items-center space-x-3 mb-3">
                             <img
                               src={product.seller.profile_picture}
                               alt={product.seller.username}
@@ -366,7 +367,7 @@ const AdminProductDetailsPage = () => {
                                 </span>
                               </div>
                             </div>
-                          </div>
+                          </Link>
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center">

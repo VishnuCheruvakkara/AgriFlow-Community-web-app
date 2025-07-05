@@ -10,7 +10,7 @@ import AdminProductDetailsPage from '../pages/admin-dash-board/ProductDetailsPag
 import CommunityPage from '../pages/admin-dash-board/CommunityPage'
 import EventManagementPage from '../pages/admin-dash-board/EventPage'
 import PostPage from '../pages/admin-dash-board/PostPage'
-
+import CommunityDetailsPage from '../pages/admin-dash-board/CommunityDetailsPage'
 
 function AdminRoutes() {
     return (
@@ -34,6 +34,8 @@ function AdminRoutes() {
 
                 {/*==================  Admin side community management  =========================*/}
                 <Route path="community-management" element={<CommunityPage />} />
+                <Route path="community-management/community-details/:communityId" element={<CommunityDetailsPage />} />
+                
 
                 {/*======================== Admin side Event management  ================================*/}
                 <Route path="event-management" element={<EventManagementPage />} />
