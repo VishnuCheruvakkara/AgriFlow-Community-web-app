@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer, SimpleCommunityAdminSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer, SimpleCommunityAdminSerializer,CommunityAdmiSideDetailsSerializer
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership,CommunityMessage
 # imports from the custom named app
@@ -937,3 +937,15 @@ class GetAllCommunityAdminSide(APIView):
         serializer = SimpleCommunityAdminSerializer(page,many=True)
         return paginator.get_paginated_response(serializer.data)
     
+#==========================  Community details admin side ==================================# 
+
+class CommunityDetailsAdminAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, pk):
+        try:
+            community = Community.objects.get(pk=pk)
+            serializer = CommunityAdmiSideDetailsSerializer(community, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Community.DoesNotExist:
+            return Response({"detail": "Community not found"}, status=status.HTTP_404_NOT_FOUND)

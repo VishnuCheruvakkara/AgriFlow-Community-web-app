@@ -525,3 +525,92 @@ class SimpleCommunityAdminSerializer(serializers.ModelSerializer):
         if obj.created_by and obj.created_by.profile_picture:
             return generate_secure_image_url(obj.created_by.profile_picture)
         return None
+
+# ==============================  Get the community details in the admin side serializer ========================================#
+
+
+class CommunityCreatorSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    phone = serializers.CharField(source='phone_number')  # ✅ Corrected field name
+    profile_image = serializers.SerializerMethodField()
+    is_verified = serializers.BooleanField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'phone', 'is_verified', 'profile_image']
+
+    def get_profile_image(self, obj):
+        if obj.profile_picture:
+            return generate_secure_image_url(obj.profile_picture)
+        return None
+
+
+class CommunityAdmiSideDetailsSerializer(serializers.ModelSerializer):
+    members = serializers.SerializerMethodField()
+    community_logo = serializers.SerializerMethodField()
+    creator = serializers.SerializerMethodField()
+    total_members = serializers.SerializerMethodField()
+    total_admins = serializers.SerializerMethodField()
+    message_stats = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Community
+        fields = [
+            'id',
+            'name',
+            'description',
+            'is_private',
+            'type',
+            'is_deleted',
+            'created_at',
+            'updated_at',
+            'creator',
+            'community_logo',
+            'members',          # All members will be here
+            'total_members',
+            'total_admins',
+            'message_stats',
+           
+        ]
+
+  
+    def get_type(self, obj):
+        return "Private" if obj.is_private else "Public"
+
+    def get_members(self, obj):
+        # Get ALL members with approved or pending status
+        all_members = obj.memberships.filter(status__in=['approved']).order_by('-joined_at')
+        return CommunityMemberSerializer(all_members, many=True).data
+
+    def get_community_logo(self, obj):
+        if obj.community_logo:
+            return generate_secure_image_url(obj.community_logo)
+        return None
+
+    def get_creator(self, obj):
+        return CommunityCreatorSerializer(obj.created_by).data
+
+    def get_total_members(self, obj):
+        return obj.memberships.filter(status='approved').count()
+
+    def get_total_admins(self, obj):
+        return obj.memberships.filter(status='approved', is_admin=True).count()
+
+    def get_message_stats(self, obj):
+        from datetime import timedelta
+        from django.utils import timezone
+        now = timezone.now()
+
+        today = obj.messages.filter(timestamp__date=now.date()).count()
+        week = obj.messages.filter(timestamp__gte=now - timedelta(days=7)).count()
+        total = obj.messages.count()
+        last_msg_time = obj.messages.order_by('-timestamp').first().timestamp if obj.messages.exists() else None
+
+        return {
+            "today": today,
+            "week": week,
+            "total": total,
+            "last_message": last_msg_time
+        }

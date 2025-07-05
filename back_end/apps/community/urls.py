@@ -1,5 +1,5 @@
 from django.urls import path
-from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity,RemoveMemberAPIView,MakeAdminAPIView,RevokeAdminAPIView,SoftDeleteCommunityAPIView,UserLeaveCommunityView,EditCommunityDetailsView,CommunityMessageListView,CloudinaryUploadView,GetAllCommunityAdminSide
+from community.views import ShowUsersWhileCreateCommunity,CreateCommunityView,GetMyCommunityView,PendingCommunityInvitesView,CommunityInvitationResponseView,PendingAdminJoinRequestView,CancelAdminJoinRequestView,GetCommunityListAPIView,JoinCommunityView,OutgoingRequestsView,CancelJoinRequestView,IncomingMembershipRequestsView,UpdateMembershipRequestView,GetCommunityDetailsWithUsers,AddMembersToCommunity,RemoveMemberAPIView,MakeAdminAPIView,RevokeAdminAPIView,SoftDeleteCommunityAPIView,UserLeaveCommunityView,EditCommunityDetailsView,CommunityMessageListView,CloudinaryUploadView,GetAllCommunityAdminSide,CommunityDetailsAdminAPIView
 
 urlpatterns = [
     # Authentication urls
@@ -72,4 +72,6 @@ urlpatterns = [
     #======================= get the community data to show in the community table =======================# 
     path("admin/get-all-community/",GetAllCommunityAdminSide.as_view(),name="get-all-community-admin-side"),
 
+    #====================== get single community details in the admin side ===============================# 
+    path("admin/get-community-details/<int:pk>/", CommunityDetailsAdminAPIView.as_view(), name="admin-community-details"),
 ]

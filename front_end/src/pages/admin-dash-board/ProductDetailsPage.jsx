@@ -184,13 +184,6 @@ const AdminProductDetailsPage = () => {
                       />
                     </div>
                   </div>
-
-
-
-
-
-
-
                 </div>
               </div>
 

@@ -17,6 +17,7 @@ class Community(models.Model):
     )
     tags = models.ManyToManyField('Tag', blank=True, related_name='communities')
     is_deleted = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
