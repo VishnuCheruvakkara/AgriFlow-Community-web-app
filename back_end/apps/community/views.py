@@ -949,3 +949,21 @@ class CommunityDetailsAdminAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Community.DoesNotExist:
             return Response({"detail": "Community not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+#============================ Toggle community delete status ===============================# 
+
+class ToggleProductDeleteStatusView(APIView):
+    permission_classes= [IsAuthenticated]
+
+    def patch(self,request,communityId):
+        community = get_object_or_404(Community,id=communityId)
+        community.is_deleted = not community.is_deleted
+        community.save() 
+
+        return Response (  
+            {
+            "message": f"Product marked as {'deleted' if community.is_deleted else 'available'}.",
+            "is_deleted": community.is_deleted,
+            },
+            status= status.HTTP_200_OK
+        )

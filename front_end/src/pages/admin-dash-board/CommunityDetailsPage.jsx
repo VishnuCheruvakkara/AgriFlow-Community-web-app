@@ -21,6 +21,8 @@ import { Link } from 'react-router-dom';
 import DefaultUserImage from "../../assets/images/user-default.png";
 import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticatedAxiosInstance";
 import { PulseLoader } from 'react-spinners';
+import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
+import { showToast } from '../../components/toast-notification/CustomToast';
 
 
 const CommunityDetailsPage = () => {
@@ -44,8 +46,46 @@ const CommunityDetailsPage = () => {
   }, []);
 
 
+  // toggle delete comunity status 
+  const toggleDeleteStatus = async (communityId, currentStatus) => {
+    const newStatus = !currentStatus;
+    const actionText = newStatus ? "mark as deleted" : "mark as active";
 
- 
+    // Show confirmation alert before proceeding
+    const result = await showConfirmationAlert({
+      title: `Confirm Action`,
+      text: `Are you sure you want to ${actionText} this community?\n\n(Current status: ${currentStatus ? "Deleted" : "Available"})`,
+      confirmButtonText: `Yes, ${newStatus ? "Delete" : "Make as Active"}`,
+    });
+    if (result) {
+      try {
+        const response = await AdminAuthenticatedAxiosInstance.patch(
+          `/community/admin/toggle-delete-status/${communityId}/`,
+          { is_deleted: !currentStatus }
+        );
+
+        console.log("Delete Status updated", response.data);
+
+        // Update local state immediately
+        setCommunity((prev) => ({
+          ...prev,
+          is_deleted: !currentStatus,
+        }));
+
+        // Proper message depending on new status
+        const newStatus = !currentStatus;
+        const message = newStatus
+          ? "Community status marked as deleted."
+          : "Community status marked as active.";
+
+        showToast(message, "success");
+      } catch (error) {
+        console.error("Failed to toggle delete status", error);
+        showToast("Failed to update community status.", "error");
+      }
+    }
+  };
+
 
   return (
     <div className="min-h-screen w-full mb-4">
@@ -317,18 +357,33 @@ const CommunityDetailsPage = () => {
             {/* Action Buttons */}
             <div className="mt-6 py-4 border-t border-gray-200 dark:border-zinc-600">
               <div className="flex flex-col sm:flex-row justify-center gap-3">
-                <button className="bg-green-500 hover:bg-green-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md">
-                  <div className="bg-green-100 rounded-full p-2">
-                    <RiMessage3Fill className="text-green-500 text-lg" />
-                  </div>
-                  <span className="text-sm pr-4 pl-2">View Messages</span>
-                </button>
-                <button className="bg-red-500 hover:bg-red-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md">
-                  <div className="bg-red-100 rounded-full p-2">
-                    <MdDelete className="text-red-500 text-lg" />
-                  </div>
-                  <span className="text-sm pr-4 pl-2">Delete Community</span>
-                </button>
+
+                {/* Toggle Delete / Restore */}
+                {community?.is_deleted ? (
+                  <button
+                    onClick={() => toggleDeleteStatus(community.id, community.is_deleted)}
+                    className="bg-green-500 hover:bg-green-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md"
+                  >
+                    <div className="bg-green-100 rounded-full p-2">
+                      <ImCheckmark2 className="text-green-500 text-lg " />
+                    </div>
+                    <span className="text-sm pr-4 pl-2">Mark as Active</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => toggleDeleteStatus(community.id, community.is_deleted)}
+                    className="bg-red-500 hover:bg-red-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md"
+                  >
+                    <div className="bg-red-100 rounded-full p-2">
+                      <MdDelete className="text-red-500 text-lg" />
+                    </div>
+                    <span className="text-sm pr-4 pl-2">Mark as Deleted</span>
+                  </button>
+                )}
+
+
+
+
               </div>
             </div>
 
