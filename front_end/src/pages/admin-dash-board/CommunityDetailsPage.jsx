@@ -23,7 +23,8 @@ import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticat
 import { PulseLoader } from 'react-spinners';
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 import { showToast } from '../../components/toast-notification/CustomToast';
-
+import FormattedDateTime from '../../components/common-date-time/FormattedDateTime';
+import MembersSection from '../../components/admin-dash-board/CommunityMembersSection';
 
 const CommunityDetailsPage = () => {
   const { communityId } = useParams();
@@ -36,6 +37,7 @@ const CommunityDetailsPage = () => {
       try {
         const response = await AdminAuthenticatedAxiosInstance.get(`/community/admin/get-community-details/${communityId}`);
         setCommunity(response.data);
+        console.log("Community data ::", response.data)
       } catch (error) {
         console.error("Error fetching community:", error);
       } finally {
@@ -224,7 +226,7 @@ const CommunityDetailsPage = () => {
                           <span className="text-sm font-bold text-green-600 dark:text-green-400">{community.total_members}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600 dark:text-zinc-300">Admins</span>
+                          <span className="text-xs text-gray-600 dark:text-zinc-300">Community Admins</span>
                           <span className="text-sm font-bold text-green-600 dark:text-green-400">{community.total_admins}</span>
                         </div>
                       </div>
@@ -254,10 +256,8 @@ const CommunityDetailsPage = () => {
                           <span className="text-sm font-bold text-gray-600 dark:text-gray-400">{community.message_stats?.total}</span>
                         </div>
                         <p className="text-xs text-gray-500 dark:text-zinc-400">
-                          <strong>Last message:</strong>{" "}
-                          {community.message_stats?.last_message
-                            ? new Date(community.message_stats.last_message).toLocaleString()
-                            : "N/A"}
+                          <strong>Last message :</strong>{" "}
+                          <FormattedDateTime date={community.message_stats.last_message} />
                         </p>
                       </div>
                     </div>
@@ -300,7 +300,7 @@ const CommunityDetailsPage = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-3  p-3">
                           <div className="flex items-center">
                             <MdEmail className="w-4 h-4 text-gray-400 mr-2" />
                             <span className="text-xs text-gray-700 dark:text-zinc-300">
@@ -319,37 +319,8 @@ const CommunityDetailsPage = () => {
                   </div>
 
                   {/* Members */}
-                  <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg shadow-sm border border-green-400">
-                    <div className="flex items-center p-3 border-b border-green-400">
-                      <div className="bg-green-100 dark:bg-green-900 p-2 rounded-full mr-3">
-                        <MdPeople className="text-green-600 dark:text-green-400 w-4 h-4" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-zinc-200">
-                        Members
-                      </h3>
-                    </div>
-                    <div className="p-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {community.members.map((member) => (
-                        <div
-                          key={member.id}
-                          className="border flex items-center space-x-3 p-4 bg-white dark:bg-zinc-600 rounded-lg"
-                        >
-                          <img
-                            src={member.profile_image || DefaultUserImage}
-                            alt={member.username}
-                            className="w-8 h-8 border rounded-full object-cover"
-                          />
-                          <div className="flex-1">
-                            <h5 className="text-xs font-semibold text-gray-800 dark:text-zinc-200">{member.username}</h5>
-                            <p className="text-xs text-gray-500 dark:text-zinc-400">{member.email}</p>
-                          </div>
-                          <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-full">
-                            {member.is_admin ? "Admin" : "Member"}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <MembersSection members={community.members} />
+
                 </div>
               </div>
             </div>
@@ -380,10 +351,6 @@ const CommunityDetailsPage = () => {
                     <span className="text-sm pr-4 pl-2">Mark as Deleted</span>
                   </button>
                 )}
-
-
-
-
               </div>
             </div>
 
@@ -393,13 +360,13 @@ const CommunityDetailsPage = () => {
                 <div className="flex items-center mb-1 sm:mb-0">
                   <MdAccessTime className="w-4 h-4 mr-1" />
                   <span>
-                    <strong>Created:</strong> {new Date(community.created_at).toLocaleString()}
+                    <strong>Created:</strong> <FormattedDateTime date={community.created_at} />
                   </span>
                 </div>
                 <div className="flex items-center">
                   <MdUpdate className="w-4 h-4 mr-1" />
                   <span>
-                    <strong>Last Updated:</strong> {new Date(community.updated_at).toLocaleString()}
+                    <strong>Last Updated:</strong> <FormattedDateTime date={community.updated_at} />
                   </span>
                 </div>
               </div>

@@ -16,7 +16,9 @@ import { motion, useDragControls } from "framer-motion";
 import { FiAlertCircle, FiSend } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { PulseLoader } from "react-spinners";
-
+import FormattedDateTime from '../../components/common-date-time/FormattedDateTime';
+import { MdUpdate } from 'react-icons/md';
+import { MdAccessTime } from 'react-icons/md';
 
 
 function UserPageDetailView() {
@@ -92,26 +94,7 @@ function UserPageDetailView() {
     // Calculate Age
     const age = user && user.date_of_birth ? calculateAge(user.date_of_birth) : null;
 
-    // Format the updated and created with time 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString); // No need to handle empty string here
-        if (isNaN(date)) {
-            return "Invalid Date"; // Return a fallback message for invalid date
-        }
 
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: true  // To get AM/PM format
-        };
-
-        // Return both date and time in the desired format
-        return date.toLocaleString('en-US', options);
-    };
 
     // Open Aadhar modal
     const openAadharModal = () => {
@@ -272,10 +255,25 @@ function UserPageDetailView() {
                             </div>
                         </div>
 
-                        {/* Timestamps */}
-                        <div className="mt-6 pt-4 font-bold border-t border-gray-200 dark:border-zinc-600 text-sm text-gray-500 dark:text-zinc-400 flex justify-between">
-                            <div>Created : {user && formatDate(user.created_at) || ""}</div>
-                            <div>Last Updated : {user && formatDate(user.updated_at) || ""}</div>
+                    
+                        {/* Footer Timestamps */}
+                        <div className="pt-4 border-t mt-4  border-gray-200 dark:border-zinc-600">
+                            <div className="flex flex-col sm:flex-row sm:justify-between text-xs text-gray-500 dark:text-zinc-100">
+                                <div className="flex items-center mb-1 sm:mb-0">
+                                    <MdAccessTime className="w-4 h-4 mr-1" />
+                                    <span>
+                                        <strong>Created:</strong>{" "}
+                                        < FormattedDateTime date={user.created_at}/>
+                                    </span>
+                                </div>
+                                <div className="flex items-center">
+                                    <MdUpdate className="w-4 h-4 mr-1" />
+                                    <span>
+                                        <strong>Last Updated:</strong>{" "}
+                                        < FormattedDateTime date={user.updated_at} />
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
