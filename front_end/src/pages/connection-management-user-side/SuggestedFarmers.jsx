@@ -10,6 +10,7 @@ import SuggestedFarmersShimmer from '../../components/shimmer-ui-component/Sugge
 import SearchNotFound from "../../assets/images/connection_no_search_found.png"
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { MdOutlineCancel } from "react-icons/md";
+import { Link } from 'react-router-dom';
 
 const SuggestedFarmers = () => {
 
@@ -197,14 +198,14 @@ const SuggestedFarmers = () => {
                     {farmers.map((farmer) => (
                         <div key={farmer.id} className="bg-white dark:bg-zinc-900 rounded-lg shadow-md border dark:border-zinc-700 hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full">
                             {/* Banner Image */}
-                            <div className="h-24 w-full bg-green-100 dark:bg-green-900 relative">
+                            <Link to={`/user-dash-board/user-profile-view/${farmer?.id}`} className="h-24 w-full bg-green-100 dark:bg-green-900 relative">
                                 <img
                                     src={DefaultBannerImage}
                                     alt="Farm banner"
                                     className="w-full h-full object-cover"
                                 />
-                            </div>
-                            <div className="p-5 pt-12 relative flex-1">
+                            </Link>
+                            <Link to={`/user-dash-board/user-profile-view/${farmer?.id}`} className="p-5 pt-12 relative flex-1">
                                 {/* Profile Image - positioned to overlap banner */}
                                 <div className="absolute -top-10 left-5 w-20 h-20 rounded-full overflow-hidden bg-gray-200 border-4 border-white dark:border-zinc-900">
                                     <img
@@ -224,7 +225,7 @@ const SuggestedFarmers = () => {
                                         <span>{farmer.farming_type || "No data found for "} Farmer </span>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                             <div className=" p-4 pt-0">
                                 <button onClick={() => handleConnect(farmer.id, farmer.username)} className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2 transition-colors">
                                     <FaUserPlus />

@@ -80,13 +80,34 @@ class GeneralNotificationSerializer(serializers.ModelSerializer):
     timestamp = serializers.DateTimeField(source='created_at')
     community_id = serializers.SerializerMethodField()
     community_name = serializers.SerializerMethodField()
+    product_id = serializers.SerializerMethodField()
+    post_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Notification
-        fields = ['id', 'image_url', 'message', 'sender', 'sender_id', 'timestamp', 'notification_type', 'community_id', 'community_name', 'is_read']
+        fields = [
+            'id',
+            'image_url',
+            'message',
+            'sender',
+            'sender_id',
+            'timestamp',
+            'notification_type',
+            'community_id',
+            'community_name',
+            'product_id',
+            'post_id',
+            'is_read'
+        ]
 
     def get_community_id(self, obj):
         return obj.community.id if obj.community else None
 
     def get_community_name(self, obj):
         return obj.community.name if obj.community else None
+
+    def get_product_id(self, obj):
+        return obj.product.id if obj.product else None
+
+    def get_post_id(self, obj):
+        return obj.post.id if obj.post else None
