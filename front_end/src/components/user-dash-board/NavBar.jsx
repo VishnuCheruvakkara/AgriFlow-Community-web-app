@@ -481,63 +481,69 @@ function NavBar() {
                                                                 linkPath = `/user-dash-board/farmer-community/my-communities/community-chat/${notif.community_id}`;
                                                             } else if (notif.notification_type === "community_invite") {
                                                                 linkPath = `/user-dash-board/farmer-community/pending-request`;
-                                                            }
-
-                                                            return (
-                                                                <div
-                                                                    key={`notif-${index}`}
-                                                                    className={`px-4 py-3 flex items-start justify-between border-b  border-zinc-300 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
-                                                                        }`}
-                                                                >
-                                                                    <div className="flex items-start space-x-3">
-                                                                        <span className="status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full bg-green-500"></span>
-                                                                        <Link to={linkPath} className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ">
-                                                                            <img
-                                                                                src={notif.image_url || defaultUserImage}
-                                                                                alt="Sender profile"
-                                                                                className="h-full w-full object-cover"
-                                                                            />
-                                                                        </Link>
-                                                                        <div className="text-sm text-gray-700 dark:text-white">
-                                                                            <Link
-                                                                                to={linkPath}
-                                                                                className={` block p-2 border-l-2 border-green-500 bg-white dark:bg-gray-900 text-xs break-words w-full max-w-[195px] ${notif.is_read ? "bg-zinc-100 dark:bg-zinc-900" : ""
-                                                                                    }`}
-
-                                                                            >
-                                                                                {notif.message || "(Click to see details)"}
+                                                            } else if (notif.notification_type === "post_liked") {
+                                                                linkPath = `/user-dash-board/user-profile-view/${notif.sender_id}`;
+                                                            } else if (notif.notification_type === "event_start_notification") {
+                                                                linkPath = `/user-dash-board/event-management/enrolled-events`;
+                                                            } else if (notif.notification_type === "post_commented") {
+                                                                linkPath = `/user-dash-board/posts/${notif.post_id}`;
+                                                                }
+                                                                
+                                                                return (
+                                                                    <div
+                                                                        key={`notif-${index}`}
+                                                                        className={`px-4 py-3 flex items-start justify-between border-b  border-zinc-300 dark:border-zinc-500 ${!notif.is_read ? "bg-green-200 dark:bg-green-900" : ""
+                                                                            }`}
+                                                                    >
+                                                                        <div className="flex items-start space-x-3">
+                                                                            <span className="status animate-bounce mt-4 flex-shrink-0 h-2 w-2 rounded-full bg-green-500"></span>
+                                                                            <Link to={linkPath} className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ">
+                                                                                <img
+                                                                                    src={notif.image_url || defaultUserImage}
+                                                                                    alt="Sender profile"
+                                                                                    className="h-full w-full object-cover"
+                                                                                />
                                                                             </Link>
+                                                                            <div className="text-sm text-gray-700 dark:text-white w-[190px]">
+                                                                                <Link
+                                                                                    to={linkPath}
+                                                                                    className={` block p-2 border-l-2 border-green-500 bg-white dark:bg-gray-900 text-xs break-words w-full max-w-[195px] ${notif.is_read ? "bg-zinc-100 dark:bg-zinc-900" : ""
+                                                                                        }`}
 
-                                                                            <p className="text-xs text-gray-600 dark:text-white mt-1">
-                                                                                {new Date(notif.timestamp).toLocaleDateString("en-IN", {
-                                                                                    day: "2-digit",
-                                                                                    month: "short",
-                                                                                    year: "numeric",
-                                                                                })}
-                                                                            </p>
-                                                                        </div>
-                                                                        <div className="flex flex-col items-end text-xs  text-zinc-700 dark:text-white whitespace-nowrap">
-                                                                            <span>
-                                                                                {new Date(notif.timestamp).toLocaleTimeString("en-IN", {
-                                                                                    hour: "2-digit",
-                                                                                    minute: "2-digit",
-                                                                                    hour12: true,
-                                                                                })}
-                                                                            </span>
-                                                                            {!notif.is_read &&
-                                                                                <span onClick={() => handleMarkAsRead(notif.id)} className="p-1 mt-2 cursor-pointer border border-gray-500  rounded-full tooltip tooltip-left hover:border-green-500 group" data-tip="Mark as read">
-                                                                                    <MdBookmarkAdded className='text-lg group-hover:text-green-500' />
+                                                                                >
+                                                                                    {notif.message || "(Click to see details)"}
+                                                                                </Link>
+
+                                                                                <p className="text-xs text-gray-600 dark:text-white mt-1">
+                                                                                    {new Date(notif.timestamp).toLocaleDateString("en-IN", {
+                                                                                        day: "2-digit",
+                                                                                        month: "short",
+                                                                                        year: "numeric",
+                                                                                    })}
+                                                                                </p>
+                                                                            </div>
+                                                                            <div className="flex flex-col items-end text-xs  text-zinc-700 dark:text-white whitespace-nowrap">
+                                                                                <span>
+                                                                                    {new Date(notif.timestamp).toLocaleTimeString("en-IN", {
+                                                                                        hour: "2-digit",
+                                                                                        minute: "2-digit",
+                                                                                        hour12: true,
+                                                                                    })}
                                                                                 </span>
-                                                                            }
+                                                                                {!notif.is_read &&
+                                                                                    <span onClick={() => handleMarkAsRead(notif.id)} className="p-1 mt-2 cursor-pointer border border-gray-500  rounded-full tooltip tooltip-left hover:border-green-500 group" data-tip="Mark as read">
+                                                                                        <MdBookmarkAdded className='text-lg group-hover:text-green-500' />
+                                                                                    </span>
+                                                                                }
 
-                                                                            <span onClick={() => deleteNotificationByType(notif.id, notif.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
-                                                                                <AiFillDelete className='text-lg group-hover:text-red-500' />
-                                                                            </span>
+                                                                                <span onClick={() => deleteNotificationByType(notif.id, notif.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
+                                                                                    <AiFillDelete className='text-lg group-hover:text-red-500' />
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            );
-                                                        })}
+                                                                );
+                                                            })}
                                                 </div>
                                             </>
                                         )}

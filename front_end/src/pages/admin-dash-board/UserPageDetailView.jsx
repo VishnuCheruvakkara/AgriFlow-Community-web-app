@@ -172,7 +172,7 @@ function UserPageDetailView() {
             <div className="mb-4 max-w-full mx-auto bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-md">
-                    <h1 className="text-2xl font-bold">Farmer Details</h1>
+                    <h1 className="text-xl font-bold">Farmer Details</h1>
                     <button onClick={() => navigate(-1)} className="bg-zinc-700/20 hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300" aria-label="Close">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -194,9 +194,9 @@ function UserPageDetailView() {
                                 {user?.is_aadhar_verified && <div className="absolute bottom-2 right-2 bg-green-500 text-white rounded-full p-1 tooltip tooltip-right" data-tip="Verified"><FaCheckCircle className="text-lg" /></div>}
                             </div>
                             <div className="flex-1 text-center md:text-left">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{user && user.username || "Farmer"}</h2>
-                                <div className="mt-2 space-y-2">
-                                    <div className="flex items-center justify-center md:justify-start text-gray-600 dark:text-zinc-300"><FaEnvelope className="mr-2 text-green-500" /><span>{user && user?.email || "farmer@gmail.com"}</span></div>
+                                <h2 className="text-xl font-bold text-gray-800 dark:text-zinc-100">{user && user.username || "Farmer"}</h2>
+                                <div className="mt-2 space-y-2 text-sm">
+                                    <div className="flex items-center  justify-center md:justify-start text-gray-600 dark:text-zinc-300"><FaEnvelope className="mr-2 text-green-500" /><span>{user && user?.email || "farmer@gmail.com"}</span></div>
                                     <div className="flex items-center justify-center md:justify-start text-gray-600 dark:text-zinc-300"><FaPhone className="mr-2 text-green-500" /><span>{user && user?.phone_number || "Not available"}</span></div>
                                     <div className="flex items-center justify-center md:justify-start text-gray-600 dark:text-zinc-300"><FaCalendarAlt className="mr-2 text-green-500" /><span><span className="text-green-500 font-bold">DOB: </span>{formattedDate || "No data"}{age !== null && <span className="ml-4 text-gray-500 dark:text-zinc-400">({age} years old)</span>}</span></div>
                                 </div>
@@ -204,11 +204,11 @@ function UserPageDetailView() {
                         </div>
 
                         {/* Details section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 text-sm">
                             {/* Address */}
-                            <div className="bg-gray-50 dark:bg-zinc-700 rounded-lg p-4 shadow-md overflow-hidden border border-green-400">
-                                <div className="flex items-center mb-3"><FaMapMarkerAlt className="text-xl text-green-500 mr-2" /><h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-200">Address</h3></div>
-                                <div className="pl-7 break-words">
+                            <div className="bg-gray-50 dark:bg-zinc-700 rounded-lg  shadow-md overflow-hidden border border-green-400">
+                                <div className="flex items-center p-2 border-b border-green-400 "><FaMapMarkerAlt className="text-lg text-green-500 mr-2" /><h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-200">Address</h3></div>
+                                <div className=" break-words p-3">
                                     <p className="text-gray-600 dark:text-zinc-300 mb-1"><span className="text-green-500 font-bold">Home Address :</span><span className="ml-1 break-words">{user?.address?.home_address || "No data found"}</span></p>
                                     <p className="text-gray-600 dark:text-zinc-300 mb-1"><span className="text-green-500 font-bold">Location :</span><span className="ml-1 break-words">{user?.address?.full_location || "No data found"}</span></p>
                                     <div className="mt-2 text-xs text-gray-500 dark:text-zinc-400 font-bold flex flex-col space-y-1">
@@ -219,9 +219,9 @@ function UserPageDetailView() {
                             </div>
 
                             {/* Farming Details */}
-                            <div className="bg-gray-50 dark:bg-zinc-700 rounded-lg p-4 shadow-md border border-green-400">
-                                <div className="flex items-center mb-3"><FaSeedling className="text-xl text-green-500 mr-2" /><h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-200">Farming Details</h3></div>
-                                <div className="pl-7">
+                            <div className="bg-gray-50 dark:bg-zinc-700 rounded-lg  shadow-md border border-green-400">
+                                <div className="flex items-center p-2 border-b border-green-400"><FaSeedling className="text-lg text-green-500 mr-4" /><h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-200">Farming Details</h3></div>
+                                <div className='p-3'>
                                     <div className="flex justify-between mb-1"><span className="text-gray-600 dark:text-zinc-300"><span className="text-green-500 font-bold">Farming Type :</span> {user && user?.farming_type || "No data found"}</span></div>
                                     <div className="flex justify-between mb-1"><span className="text-gray-600 dark:text-zinc-300"><span className="text-green-500 font-bold">Year of Experience :</span> {user && user?.experience || "0"} years</span></div>
                                     <div className="mt-2 pt-2 border-t border-gray-200 dark:border-zinc-600">
@@ -232,8 +232,8 @@ function UserPageDetailView() {
                             </div>
 
                             {/* Verification Status */}
-                            <div className="bg-gray-50 dark:bg-zinc-700 rounded-lg p-4 shadow-md md:col-span-2 border border-green-400">
-                                <div className="flex items-center mb-3"><FaIdCard className="text-xl text-green-500 mr-2" /><h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-200">Verification Status</h3></div>
+                            <div className=" text-xs bg-gray-50 dark:bg-zinc-700 rounded-lg p-4 shadow-md md:col-span-2 border border-green-400">
+                                <div className="flex items-center mb-3"><FaIdCard className="text-lg text-green-500 mr-4" /><h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-200">Verification Status</h3></div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex items-center justify-between p-2 bg-white dark:bg-zinc-800 rounded border border-gray-200 dark:border-zinc-600">
                                         <span className="text-gray-600 dark:text-zinc-300">Profile Completed</span>

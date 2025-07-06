@@ -6,7 +6,7 @@ import mimetypes
 from posts.tasks import upload_post_media_task
 from users.models import CustomUser
 from common.cloudinary_utils import generate_secure_image_url
-
+from notifications.utils import create_and_send_notification
 ##################### post creation serializer ####################
 
 
@@ -132,6 +132,22 @@ class ToggleLikeSerializer(serializers.Serializer):
             return {"liked": False, "message": "Post unliked."}
         else:
             Like.objects.create(user=user, post=post)
+
+            # Secure image URL
+            profile_image_url = None
+            if hasattr(user, "profile_picture") and user.profile_picture:
+                profile_image_url = generate_secure_image_url(user.profile_picture)
+
+            # Send notification to the post owner, if not liking own post
+            if post.author != user:
+                create_and_send_notification(
+                    recipient=post.author,
+                    sender=user,
+                    type="post_liked",
+                    message=f"{user.username} liked your post.",
+                    image_url=profile_image_url,
+                )
+
             return {"liked": True, "message": "Post liked."}
 
 

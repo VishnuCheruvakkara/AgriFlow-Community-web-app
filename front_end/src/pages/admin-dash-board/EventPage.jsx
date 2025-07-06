@@ -18,7 +18,7 @@ function EventManagementPage() {
     <div className="mb-4 max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
-        <h1 className="text-2xl font-bold">Event Management</h1>
+        <h1 className="text-xl font-bold">Event Management</h1>
       </div>
 
       {/* Filter Options */}
@@ -43,9 +43,7 @@ function EventManagementPage() {
         <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300 dark:border-zinc-600 shadow-lg">
           <div className="flex justify-between items-center my-4">
             <h3 className="font-bold text-gray-700 dark:text-zinc-200">Event Management</h3>
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
-              + Add Event
-            </button>
+         
           </div>
 
           {/* Search Bar */}
@@ -115,14 +113,9 @@ function EventManagementPage() {
                   <td className="px-4 py-4 text-center whitespace-nowrap">
                     <div className="flex justify-center gap-2">
                       <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition" title="View Details">
-                        <FaEye size={16} />
+                        <FaEye size={22} />
                       </button>
-                      <button className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition" title="Edit">
-                        <FaEdit size={16} />
-                      </button>
-                      <button className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition" title="Delete">
-                        <FaTrash size={16} />
-                      </button>
+                     
                     </div>
                   </td>
                 </tr>

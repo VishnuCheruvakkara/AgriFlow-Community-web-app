@@ -7,7 +7,7 @@ from django.utils.timezone import now
 # Common function for handle the real-time private messages  and save that to the db table  #########################3
 
 
-def create_and_send_notification(recipient, sender, type, message=None, community=None, image_url=None, product=None):
+def create_and_send_notification(recipient, sender, type, message=None, community=None, image_url=None, product=None,post=None,):
     # Save notification data into the table
     notification, created = Notification.objects.get_or_create(
         recipient=recipient,
@@ -18,7 +18,7 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
             'message': message,
             'image_url': image_url,
             'product': product,
-
+            'post': post,
         }
     )
 
@@ -31,6 +31,8 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
         notification.is_deleted = False
         if product:
             notification.product = product
+        if post:
+            notification.post = post
         notification.save()
 
     # Send the real-time notification
@@ -52,7 +54,8 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
                 "is_read": False,
                 "product_id": product.id if product else None,
                 "product_name": product.title if product else None,
-                "product_image": product.image1 if product else None
+                "product_image": product.image1 if product else None,
+                "post_id": post.id if post else None,
             }
         }
     )

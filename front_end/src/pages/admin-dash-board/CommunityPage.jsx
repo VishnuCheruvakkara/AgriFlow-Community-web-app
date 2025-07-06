@@ -80,7 +80,7 @@ function CommunityPage() {
     <div className="mb-4 max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
-        <h1 className="text-2xl font-bold">Community Management</h1>
+        <h1 className="text-xl font-bold">Community Management</h1>
       </div>
 
       {/* Filter Options */}

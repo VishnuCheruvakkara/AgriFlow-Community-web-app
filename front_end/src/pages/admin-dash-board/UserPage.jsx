@@ -113,7 +113,7 @@ const UsersPage = () => {
 
       <div className=" mb-4  max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
         <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
-          <h1 className="text-2xl font-bold">Farmers Management</h1>
+          <h1 className="text-xl font-bold">Farmers Management</h1>
         </div>
 
         {/* filter option  */}

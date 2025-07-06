@@ -65,3 +65,4 @@ def generate_otp_and_send_email(email, email_type="registration"):
         email_message.send()
     except Exception as e:
         print(f"Email error: {e}")
+

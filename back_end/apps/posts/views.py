@@ -7,6 +7,8 @@ from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination
 from django.db import models
 from django.db.models import Q
+from notifications.utils import create_and_send_notification
+from common.cloudinary_utils import generate_secure_image_url
 
 
 ########################## Create New post View  #######################
@@ -150,6 +152,23 @@ class AddCommentAPIView(APIView):
                 post=post,
                 content=content
             )
+
+            # Generate secure profile image URL
+            profile_image_url = None
+            if hasattr(request.user, "profile_picture") and request.user.profile_picture:
+                profile_image_url = generate_secure_image_url(request.user.profile_picture)
+
+            # Send notification to post owner
+            if post.author != request.user:
+                create_and_send_notification(
+                    recipient=post.author,
+                    sender=request.user,
+                    type="post_commented",
+                    message=f"{request.user.username} commented on your post. See the post here...",
+                    image_url=profile_image_url,
+                    post=post,
+                    
+                )
 
             return Response({
                 "id": comment.id,
