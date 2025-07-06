@@ -276,7 +276,7 @@ const CommunityDetailsPage = () => {
                     <div className="p-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <div className="flex items-center space-x-3  cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-600 rounded-lg p-2 transition-colors ">
+                          <Link to={`/admin/users-management/user-details/${community.creator?.id}`}  className="flex items-center space-x-3  cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-600 rounded-lg p-2 transition-colors ">
                             <img
                               src={community.creator?.profile_image || DefaultUserImage}
                               alt={community.creator?.username}
@@ -298,7 +298,7 @@ const CommunityDetailsPage = () => {
                                 </div>
                               )}
                             </div>
-                          </div>
+                          </Link>
                         </div>
                         <div className="space-y-3  p-3">
                           <div className="flex items-center">

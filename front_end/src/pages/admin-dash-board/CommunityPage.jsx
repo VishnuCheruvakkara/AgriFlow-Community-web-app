@@ -206,7 +206,6 @@ function CommunityPage() {
                         <button
                           className="flex items-center gap-2   px-2 py-1 rounded transition"
                           title="View Creator Profile"
-
                         >
                           <img
                             src={community.created_by_profile_picture || "https://via.placeholder.com/40"}

@@ -114,8 +114,8 @@ const Sidebar = ({ onToggle }) => {
 
           {isOpen && (
             <div className="ml-3 transition-opacity duration-300">
-              <p className="font-medium">Admin Portal</p>
-
+              <p className="font-semibold text-xl">Agri Flow</p>
+             
             </div>
           )}
         </div>
