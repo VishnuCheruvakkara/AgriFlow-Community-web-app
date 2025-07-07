@@ -177,7 +177,7 @@ const SinglePostPage = () => {
           </div>
           <Link
             onClick={() => navigate(-1)}
-            className="border hover:border-transparent text-zinc-500  hover:bg-gray-200  rounded-full p-2 transition-colors duration-300 tooltip tooltip-left" data-tip="Go back"
+            className="border hover:border-transparent text-zinc-500  hover:bg-gray-200 dark:hover:bg-zinc-600/30 rounded-full p-2 transition-colors duration-300 tooltip tooltip-left dark:border-zinc-600" data-tip="Go back"
           >
             <RxCross2 className='text-2xl' />
           </Link>
