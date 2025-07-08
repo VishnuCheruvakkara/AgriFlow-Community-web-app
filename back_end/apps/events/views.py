@@ -267,3 +267,43 @@ class EventEnrollmentHistoryAPIView(APIView):
         )
         serializer = EventEnrollmentHistorySerializer(participations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+ 
+ 
+################## mark evnent as completed by the creator of the event #######################
+
+class MarkEventAsCompletedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, event_id):
+        try:
+            event = CommunityEvent.objects.get(id=event_id, created_by=request.user, is_deleted=False)
+
+            if event.event_status == "completed":
+                return Response({"detail": "Event is already marked as completed."}, status=status.HTTP_400_BAD_REQUEST)
+
+            event.event_status = "completed"
+            event.save()
+
+            return Response({"detail": "Event marked as completed successfully."}, status=status.HTTP_200_OK)
+
+        except CommunityEvent.DoesNotExist:
+            return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
+
+########################### mark event as cancelled  ############################
+
+
+class MarkEventAsCancelledView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, event_id):
+        try:
+            event = CommunityEvent.objects.get(id=event_id, created_by=request.user, is_deleted=False)
+            if event.event_status == "cancelled":
+                return Response({"detail": "Event is already cancelled."}, status=status.HTTP_400_BAD_REQUEST)
+            if event.event_status == "completed":
+                return Response({"detail": "Completed events cannot be cancelled."}, status=status.HTTP_400_BAD_REQUEST)
+            event.event_status = "cancelled"
+            event.save()
+            return Response({"detail": "Event has been cancelled successfully."}, status=status.HTTP_200_OK)
+        except CommunityEvent.DoesNotExist:
+            return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)

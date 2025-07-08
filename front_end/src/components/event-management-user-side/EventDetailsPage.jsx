@@ -97,6 +97,64 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
   };
 
 
+  // mark as completed    
+  const handleMarkAsCompleted = async () => {
+    const result = await showConfirmationAlert({
+      title: 'Mark as Completed?',
+      text: 'Are you sure you want to mark this event as completed?',
+      confirmButtonText: 'Yes, Mark Completed',
+      cancelButtonText: 'No, Cancel',
+    });
+
+    if (result) {
+      try {
+        const response = await AuthenticatedAxiosInstance.patch(
+          `/events/mark-as-completed/${currentEvent.id}/`
+        );
+        console.log(response.data);
+        showToast("Event marked as completed.", "success");
+        setCurrentEvent((prev) => ({
+          ...prev,
+          event_status: "completed",
+        }));
+      } catch (error) {
+        console.error("Error marking event as completed:", error);
+        const errorMessage =
+          error?.response?.data?.detail ||
+          "Failed to mark the event as completed.";
+        showToast(errorMessage, "error");
+      }
+    }
+  };
+
+  // mark as removed/cancelled 
+  const handleMarkAsCancelled = async () => {
+    const result = await showConfirmationAlert({
+      title: "Cancel Event?",
+      text: "Are you sure you want to cancel this event?",
+      confirmButtonText: "Yes, Cancel Event",
+      cancelButtonText: "No, Keep Event",
+    });
+    if (result) {
+      try {
+        const response = await AuthenticatedAxiosInstance.patch(`/events/mark-as-cancelled/${currentEvent.id}/`);
+        console.log(response.data);
+        showToast("Event has been cancelled.", "success");
+        setCurrentEvent((prev) => ({
+          ...prev,
+          event_status: "cancelled",
+        }));
+      } catch (error) {
+        console.error("Error cancelling event:", error);
+        const errorMessage = error?.response?.data?.detail || "Failed to cancel the event.";
+        showToast(errorMessage, "error");
+      }
+    }
+  };
+
+
+
+
   return (
     <div className="flex flex-col w-full rounded-md bg-gray-100 shadow-lg overflow-y-auto no-scrollbar dark:bg-zinc-950 dark:text-zinc-200">
       {/* Header */}
@@ -296,20 +354,30 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
 
       </div>
 
-      <button
-        onClick={handleDelete}
-        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-green-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-green-900"
-      >
-        <IoMdCheckmarkCircle className="text-green-600 text-xl dark:text-green-400" />
-        <span className="text-green-600 font-bold dark:text-green-400">Mark as Completed</span>
-      </button>
-      <button
-        onClick={handleDelete}
-        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-yellow-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-yellow-900"
-      >
-        <MdCancel className="text-yellow-600 text-xl dark:text-yellow-400" />
-        <span className="text-yellow-600 font-bold dark:text-yellow-400">Cancel Event</span>
-      </button>
+      {currentEvent.event_status !== 'completed' &&
+        currentEvent.event_status !== 'cancelled' && (
+          <>
+            <button
+              onClick={handleMarkAsCompleted}
+              className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-green-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-green-900"
+            >
+              <IoMdCheckmarkCircle className="text-green-600 text-xl dark:text-green-400" />
+              <span className="text-green-600 font-bold dark:text-green-400">
+                Mark as Completed
+              </span>
+            </button>
+
+            <button
+              onClick={handleMarkAsCancelled}
+              className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-yellow-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-yellow-900"
+            >
+              <MdCancel className="text-yellow-600 text-xl dark:text-yellow-400" />
+              <span className="text-yellow-600 font-bold dark:text-yellow-400">Cancel Event</span>
+            </button>
+
+          </>
+        )}
+
       <button
         onClick={handleDelete}
         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900"

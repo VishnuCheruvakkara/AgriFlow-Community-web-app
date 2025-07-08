@@ -58,7 +58,6 @@ class CommunityEvent(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
-
     event_status = models.CharField( max_length=10, choices=EVENT_STATUS_CHOICES, default='upcoming', help_text="Status of the event" )
 
     class Meta:

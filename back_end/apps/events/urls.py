@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView,MarkEventAsCompletedView,MarkEventAsCancelledView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -28,4 +28,10 @@ urlpatterns = [
 
     ############## Get the enrolled event history for a user ##########################
     path("get-event-enrollment-history/",EventEnrollmentHistoryAPIView.as_view(), name="event-enrollment-history" ),
+
+    ############## mark event as completed by the creator of the event #######################
+    path( "mark-as-completed/<int:event_id>/", MarkEventAsCompletedView.as_view(), name="mark-event-as-completed"),
+
+    #####################  mark event as removed  ###########################
+    path("mark-as-cancelled/<int:event_id>/", MarkEventAsCancelledView.as_view(), name="mark-event-as-cancelled"),
 ]
