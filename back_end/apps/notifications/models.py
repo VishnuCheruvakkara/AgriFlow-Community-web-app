@@ -33,6 +33,8 @@ class Notification(models.Model):
         #For Events 
         ("event_start_notification","Event Start Notification"),
         ("event_deleted","Event Deleted"),
+        ("event_completed","Event Completed"),
+        ("event_cancelled","Event Cancelled"),
 
         #For products 
         ("product_deleted","Product Deleted"),
