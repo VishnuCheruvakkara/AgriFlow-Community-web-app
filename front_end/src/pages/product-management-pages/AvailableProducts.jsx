@@ -190,11 +190,11 @@ function AvailableProducts() {
 
                     <div
                       className={`
-    absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full
-    ${product.is_available ? 'bg-green-500' : 'bg-red-500'}
-    text-white
-    opacity-100
-  `}
+                        absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full
+                        ${product.is_available ? 'bg-green-500' : 'bg-red-500'}
+                        text-white
+                        opacity-100
+                      `}
                     >
                       {product.is_available ? 'Available' : 'Not Available'}
                     </div>

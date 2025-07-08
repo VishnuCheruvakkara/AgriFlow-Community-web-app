@@ -158,7 +158,7 @@ function CreatedEvents() {
                                     </div>
                                 ) : (
                                     events.map((event) => (
-                                        <div key={event.id} className=" relative z-50 bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:shadow-zinc-700/50">
+                                        <div key={event.id} className=" relative z-20 bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:shadow-zinc-700/50">
 
                                             <div
                                                 className={`ribbon absolute h-40 w-40 -top-2 -left-2 overflow-hidden

@@ -138,108 +138,110 @@ function EnrolledEvents() {
               </p>
             </div>
           ) : (events.map((event, index) => (
+<div>
 
 
-            <div
-              key={index}
-              className=" relative z-50 bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:shadow-zinc-700/50"
-            >
-
-             <div
-                className={`ribbon absolute h-40 w-40 -top-2 -left-2 overflow-hidden
-                  before:absolute before:top-0 before:right-[2px] before:border-4 before:-z-[1] before:border-zinc-600 dark:before:border-zinc-100
-                  after:absolute after:left-0 after:bottom-[2px] after:border-4 after:-z-[1] after:border-zinc-600 dark:after:border-zinc-100
-                `}
+            
+              <div
+                key={index}
+                className=" relative bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:shadow-zinc-700/50"
               >
+
                 <div
-                  className={`
-                      absolute -left-14 top-10 w-60 py-2.5 text-center text-white shadow-md -rotate-45
-                      ${event.event_status === 'upcoming'
-                      ? 'bg-gradient-to-br from-blue-600 via-blue-400 to-blue-500'
-                      : event.event_status === 'completed'
-                        ? 'bg-gradient-to-br from-green-600 via-green-400 to-green-500'
-                        : 'bg-gradient-to-br from-red-600 via-red-400 to-red-500'
-                    }
-                 `}
+                  className={`ribbon absolute h-40 w-40 -top-2 -left-2 overflow-hidden
+                  before:absolute before:top-0 before:right-[2px] before:border-4  before:border-zinc-600 dark:before:border-zinc-100
+                  after:absolute after:left-0 after:bottom-[2px] after:border-4  after:border-zinc-600 dark:after:border-zinc-100
+                `}
                 >
-                  {event.event_status.charAt(0).toUpperCase() + event.event_status.slice(1)}
+                  <div
+                    className={`
+                      absolute -left-14  z-10 top-10 w-60 py-2.5 text-center text-white shadow-md -rotate-45
+                      ${event.event_status === 'upcoming'
+                        ? 'bg-gradient-to-br from-blue-600 via-blue-400 to-blue-500'
+                        : event.event_status === 'completed'
+                          ? 'bg-gradient-to-br from-green-600 via-green-400 to-green-500'
+                          : 'bg-gradient-to-br from-red-600 via-red-400 to-red-500'
+                      }
+                 `}
+                  >
+                    {event.event_status.charAt(0).toUpperCase() + event.event_status.slice(1)}
+                  </div>
                 </div>
-              </div>
 
 
-              <div className="flex-1">
-                <div className="">
-                  <img
-                    src={event.banner_url || DeafultBannerImage}
-                    alt="Event Banner"
-                    className="w-full h-40 object-cover rounded-md mb-3"
-                  />
-                  <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${event.event_type === 'online' ? 'bg-green-500' : 'bg-yellow-500'
-                    } text-white`}>
-                    {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
+                <div className="flex-1">
+                  <div className="">
+                    <img
+                      src={event.banner_url || DeafultBannerImage}
+                      alt="Event Banner"
+                      className="w-full h-40 object-cover rounded-md mb-3"
+                    />
+                    <div className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${event.event_type === 'online' ? 'bg-green-500' : 'bg-yellow-500'
+                      } text-white`}>
+                      {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
+                    </div>
+
                   </div>
 
+                  <h3 className="text-sm font-bold mb-2 text-green-700 border-t border-green-500 pt-2 dark:text-green-400 dark:border-green-600">
+                    {event.title}
+                  </h3>
+                  <p className="text-gray-500 text-xs mb-1 dark:text-zinc-400">Hosted by : {event.community_name}</p>
+                  <p className="mt-1 text-gray-700 text-xs dark:text-zinc-300">{event.description}</p>
+
+                  <div className="flex items-center mt-2 text-xs text-gray-600 dark:text-zinc-400">
+                    <FaRegCalendarAlt className="mr-1 text-green-500 dark:text-green-400" />
+                    <span>
+                      Starts at: {new Date(event.start_datetime).toLocaleString('en-US', {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center mt-1 text-xs text-gray-600 dark:text-zinc-400">
+                    <FaMapMarkerAlt className="mr-1 text-green-500 dark:text-green-400" />
+                    <span>
+                      {event.event_type === 'online'
+                        ? 'Online Event'
+                        : event.location_name || 'Venue details coming soon'}
+                    </span>
+                  </div>
                 </div>
 
-                <h3 className="text-sm font-bold mb-2 text-green-700 border-t border-green-500 pt-2 dark:text-green-400 dark:border-green-600">
-                  {event.title}
-                </h3>
-                <p className="text-gray-500 text-xs mb-1 dark:text-zinc-400">Hosted by : {event.community_name}</p>
-                <p className="mt-1 text-gray-700 text-xs dark:text-zinc-300">{event.description}</p>
+                <div className="mt-4">
+                  {event.event_type == "online" ?
+                    <button onClick={() => setModalEvent(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700">
+                      <RiVideoOnAiLine className="text-white text-2xl" />
+                      Join the Meet
+                    </button>
+                    :
+                    <button onClick={() => setModalEvent(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700">
+                      <GrMapLocation className="text-white text-xl" />
+                      View Location
+                    </button>
+                  }
 
-                <div className="flex items-center mt-2 text-xs text-gray-600 dark:text-zinc-400">
-                  <FaRegCalendarAlt className="mr-1 text-green-500 dark:text-green-400" />
-                  <span>
-                    Starts at: {new Date(event.start_datetime).toLocaleString('en-US', {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </span>
-                </div>
 
-                <div className="flex items-center mt-1 text-xs text-gray-600 dark:text-zinc-400">
-                  <FaMapMarkerAlt className="mr-1 text-green-500 dark:text-green-400" />
-                  <span>
-                    {event.event_type === 'online'
-                      ? 'Online Event'
-                      : event.location_name || 'Venue details coming soon'}
-                  </span>
                 </div>
+                {/* Modal */}
+                <AnimatePresence>
+                  {modalEvent && (
+                    <JoinEventModal
+                      event={modalEvent}
+                      onClose={() => setModalEvent(null)}
+                      title="Event Details"
+                      hideConfirmBtn={true}
+                      cancelBtnLabel="Close"
+                    />
+                  )}
+                </AnimatePresence>
+
+
               </div>
 
-              <div className="mt-4">
-                {event.event_type == "online" ?
-                  <button onClick={() => setModalEvent(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700">
-                    <RiVideoOnAiLine className="text-white text-2xl" />
-                    Join the Meet
-                  </button>
-                  :
-                  <button onClick={() => setModalEvent(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700">
-                    <GrMapLocation className="text-white text-xl" />
-                    View Location
-                  </button>
-                }
 
-
-              </div>
-              {/* Modal */}
-              <AnimatePresence>
-                {modalEvent && (
-                  <JoinEventModal
-                    event={modalEvent}
-                    onClose={() => setModalEvent(null)}
-                    title="Event Details"
-                    hideConfirmBtn={true}
-                    cancelBtnLabel="Close"
-                  />
-                )}
-              </AnimatePresence>
-
-
-            </div>
-
-
-
+         </div>
 
 
 
