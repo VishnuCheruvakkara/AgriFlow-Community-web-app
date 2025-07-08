@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -25,4 +25,7 @@ urlpatterns = [
 
     ############## Get all the enrolled events ################## 
     path('get-enrolled-events/', EnrolledEventsView.as_view(), name='get-enrolled-events'),
+
+    ############## Get the enrolled event history for a user ##########################
+    path("get-event-enrollment-history/",EventEnrollmentHistoryAPIView.as_view(), name="event-enrollment-history" ),
 ]

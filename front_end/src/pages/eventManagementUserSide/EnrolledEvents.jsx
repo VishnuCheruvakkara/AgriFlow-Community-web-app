@@ -14,9 +14,10 @@ import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import debounce from 'lodash/debounce';
 import { AnimatePresence } from "framer-motion";
 import SearchNotFound from "../../assets/images/no_result_search.png"
+import { MdOutlineHistory } from "react-icons/md";
+import EventHistoryModalButton from '../../components/event-management-user-side/EventHistoryModalButton';
 
 function EnrolledEvents() {
-
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,7 +73,14 @@ function EnrolledEvents() {
 
   return (
     <div >
-      <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">Enrolled events</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-medium text-gray-800 dark:text-zinc-200">
+          Enrolled events
+        </h2>
+        
+        <EventHistoryModalButton/>
+       
+      </div>
 
       {/* Search Bar */}
       <div className="relative mb-6">
@@ -217,6 +225,9 @@ function EnrolledEvents() {
           />
         </div>
       )}
+
+     
+
 
     </div>
   );

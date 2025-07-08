@@ -313,3 +313,54 @@ class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
     def get_participants(self, obj):
         participations = obj.participations.select_related('user').all()
         return EventParticipantSerializer([p.user for p in participations], many=True).data
+
+############## Get the enrolled event history for a user ##########################
+
+class EventEnrollmentHistorySerializer(serializers.ModelSerializer):
+    event_id = serializers.IntegerField(source="event.id")
+    title = serializers.CharField(source="event.title")
+    description = serializers.CharField(source="event.description")
+    event_status = serializers.CharField(source="event.event_status")
+    start_datetime = serializers.DateTimeField(source="event.start_datetime")
+    event_type = serializers.CharField(source="event.event_type")
+    address = serializers.CharField(source="event.address", default=None)
+
+    # Banner URL instead of raw string
+    banner_url = serializers.SerializerMethodField()
+
+    # Safe location fields
+    location_name = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
+
+    class Meta:
+        model = EventParticipation
+        fields = [
+            "id",
+            "event_id",
+            "title",
+            "description",
+            "banner_url",
+            "event_status",
+            "start_datetime",
+            "event_type",
+            "address",
+            "location_name",
+            "country",
+            "joined_at",
+        ]
+
+    def get_banner_url(self, obj):
+        banner_id = obj.event.banner
+        if not banner_id:
+            return None
+        try:
+            return generate_secure_image_url(banner_id)
+        except Exception as e:
+            print(f"Error generating banner URL for event ID {obj.event.id}: {str(e)}")
+            return None
+
+    def get_location_name(self, obj):
+        return getattr(obj.event.event_location, 'location_name', None)
+
+    def get_country(self, obj):
+        return getattr(obj.event.event_location, 'country', None)

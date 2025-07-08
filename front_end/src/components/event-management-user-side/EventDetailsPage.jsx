@@ -18,6 +18,9 @@ import DefaultUserImage from "../../assets/images/user-default.png"
 import { Link } from "react-router-dom";
 import JoinMeetingButton from "../zego-cloud-video-call/JoinMeetingButton";
 import { useSelector } from "react-redux";
+import SearchNotFound from "../../assets/images/no-weather-data-found.png"
+import { IoMdCheckmarkCircle } from "react-icons/io";
+import { MdCancel } from "react-icons/md";
 
 const EventDetailsPage = ({ event, onClose, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -124,12 +127,12 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
 
         {/* Edit event  */}
         <div className="mt-4">
-        <JoinMeetingButton
-          roomId={currentEvent?.id}
-          userId={user?.id}
-          userName={user?.username}
-          startTime={currentEvent?.start_datetime}
-        />
+          <JoinMeetingButton
+            roomId={currentEvent?.id}
+            userId={user?.id}
+            userName={user?.username}
+            startTime={currentEvent?.start_datetime}
+          />
         </div>
 
         {/* join to the event  */}
@@ -228,7 +231,7 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
         </div>
 
         {/* Participants Section */}
-        {currentEvent.participants && currentEvent.participants.length > 0 && (
+        {currentEvent.participants && currentEvent.participants.length > 0 ? (
           <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
@@ -241,7 +244,7 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
             </div>
 
             <div className="mx-2 overflow-hidden rounded-lg">
-              {currentEvent.participants.map((participant, index) => (
+              {currentEvent.participants.map((participant) => (
                 <div
                   key={participant.id}
                   className="flex items-center p-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4 dark:border-zinc-700 dark:hover:bg-zinc-800"
@@ -264,17 +267,49 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
                     <p className="text-xs text-gray-500 mt-1 dark:text-zinc-400">{participant.email}</p>
                   </div>
 
-                  <Link to={`/user-dash-board/user-profile-view/${participant.id}`}
-                    className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800" data-tip="View">
+                  <Link
+                    to={`/user-dash-board/user-profile-view/${participant.id}`}
+                    className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
+                    data-tip="View"
+                  >
                     <FaEye className="text-green-600 text-xl hover:text-green-800 dark:text-green-400 dark:hover:text-green-200" />
                   </Link>
                 </div>
               ))}
             </div>
           </div>
+        ) : (
+          <div className="col-span-3 mx-2 text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-300 mt-2">
+            <img
+              src={SearchNotFound}
+              alt="No Participants"
+              className="mx-auto w-64 object-contain"
+            />
+            <p className="text-lg font-semibold dark:text-zinc-100">No Participants Found!</p>
+            <p className="text-xs text-gray-500 dark:text-zinc-400">
+              When users join this event, their details will appear here.
+            </p>
+          </div>
         )}
+
+
+
       </div>
 
+      <button
+        onClick={handleDelete}
+        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-green-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-green-900"
+      >
+        <IoMdCheckmarkCircle className="text-green-600 text-xl dark:text-green-400" />
+        <span className="text-green-600 font-bold dark:text-green-400">Mark as Completed</span>
+      </button>
+      <button
+        onClick={handleDelete}
+        className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-yellow-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-yellow-900"
+      >
+        <MdCancel className="text-yellow-600 text-xl dark:text-yellow-400" />
+        <span className="text-yellow-600 font-bold dark:text-yellow-400">Cancel Event</span>
+      </button>
       <button
         onClick={handleDelete}
         className="flex items-center justify-center gap-2 w-full mt-2 p-4 border-b bg-white hover:bg-red-100 transition-colors duration-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-red-900"

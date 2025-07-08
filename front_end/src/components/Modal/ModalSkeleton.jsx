@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import ButtonLoader from "../LoaderSpinner/ButtonLoader";
 
-const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubmitDisabled = false, submitButtonText = "Create", submitButtonId = "postConfirmationButton", width = "", height = "" }) => {
+const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubmitDisabled = false, submitButtonText = "Create", submitButtonId = "postConfirmationButton", width = "", height = "", showCancelButton = true }) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -41,13 +41,15 @@ const ModalSkeleton = ({ isOpen, onClose, title = "", children, onSubmit, isSubm
 
                             {/* Footer */}
                             <div className="bg-gray-100 dark:bg-zinc-700 px-6 py-3 flex justify-end gap-3 border-t border-gray-200 dark:border-zinc-600 flex-shrink-0">
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-gray-800 dark:text-white rounded-md transition-colors font-medium"
-                                    onClick={onClose}
-                                >
-                                    Cancel
-                                </button>
+                                {showCancelButton && (
+                                    <button
+                                        type="button"
+                                        className="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-gray-800 dark:text-white rounded-md transition-colors font-medium"
+                                        onClick={onClose}
+                                    >
+                                        Cancel
+                                    </button>
+                                )}
                                 <ButtonLoader
                                     buttonId={submitButtonId}
                                     type="button"

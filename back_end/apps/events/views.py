@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from apps.common.pagination import CustomUserPagination, CustomEventPagination
-from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer,EventParticipationSerializer,CommunityEventParticipantGetSerializer
+from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer,EventParticipationSerializer,CommunityEventParticipantGetSerializer,EventEnrollmentHistorySerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
@@ -250,3 +250,20 @@ class EnrolledEventsView(APIView):
         paginated_events = paginator.paginate_queryset(events, request)
         serializer = CommunityEventCombinedSerializer(paginated_events, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
+
+############################# Get the enrolled event history for a user ########################################
+
+class EventEnrollmentHistoryAPIView(APIView):
+    """
+    API view to return event participation history for the current authenticated user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        participations = (
+            EventParticipation.objects
+            .filter(user=request.user)
+            .select_related("event", "event__event_location")
+        )
+        serializer = EventEnrollmentHistorySerializer(participations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

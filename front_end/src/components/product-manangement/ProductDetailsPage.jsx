@@ -237,29 +237,25 @@ const ProductDetailsPage = () => {
                 {/* Product Info */}
                 <div className="bg-white p-2 space-y-2 border-b dark:bg-zinc-900 dark:border-zinc-800">
                     {userId === localProduct?.seller?.id &&
-                        <div className=" relative  w-full border border-zinc-300 p-3 rounded-sm flex items-center dark:border-zinc-700">
-                            <input
-                                type="checkbox"
-                                checked={localProduct.is_available}
-                                onChange={(e) => {
-                                    const newValue = e.target.checked;
-                                    handleAvailabilityToggle(newValue);
-                                }}
-                                className="checkbox"
-                            />
 
-                            <div className="absolute left-1/2 transform -translate-x-1/2">
-                                <div
-                                    className={`text-sm font-medium px-3 py-1 rounded-full text-white
-          ${localProduct.is_available
-                                            ? "bg-green-500 dark:bg-green-600"
-                                            : "bg-red-500 dark:bg-red-600"
-                                        }`}
-                                >
-                                    {localProduct.is_available ? "Available" : "Unavailable"}
-                                </div>
+
+                        <div
+                            onClick={() => handleAvailabilityToggle(!localProduct.is_available)}
+                            className={`relative w-full flex items-center justify-center cursor-pointer transition-colors duration-300
+                            text-sm
+                            ${localProduct.is_available
+                                    ? "border border-green-400 bg-green-200 hover:bg-green-300 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800 dark:text-green-100 text-gray-700"
+                                    : "border border-red-400 bg-red-200 hover:bg-red-300 dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-700 text-gray-700 dark:text-green-100"
+                                }
+                                    px-2 py-4 rounded-sm
+                                `}
+                        >
+                            <div className="font-medium">
+                                {localProduct.is_available ? "Available" : "Unavailable"}
                             </div>
                         </div>
+
+
 
                     }
 
