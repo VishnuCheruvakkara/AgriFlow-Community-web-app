@@ -110,7 +110,7 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description',
             'event_type', 'start_datetime', 'max_participants', 'is_full',
-            'address', 'created_at', 'updated_at',
+            'address', 'created_at', 'updated_at','event_status',
 
             # Related Community fields
             'community_id', 'community_name',
