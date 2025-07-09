@@ -364,3 +364,52 @@ class EventEnrollmentHistorySerializer(serializers.ModelSerializer):
 
     def get_country(self, obj):
         return getattr(obj.event.event_location, 'country', None)
+
+
+#########################  Admin side Event handling #################################
+
+#======================= Get all events in the admin page =============================# 
+
+class CommunityEventAdminSideListSerializer(serializers.ModelSerializer):
+    location_name = serializers.SerializerMethodField()
+    participants_count = serializers.SerializerMethodField()
+    # Banner URL instead of raw string
+    banner_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunityEvent
+        fields = [
+            "id",
+            "title",
+            "description",
+            "event_type",
+            "start_datetime",
+            "location_name",
+            "participants_count",
+            "max_participants",
+            "event_status",
+            "is_deleted",
+            "banner_url",
+        ]
+
+    def get_location_name(self, obj):
+        # Prefer event_location name if exists, fallback to address, else '-'
+        if obj.event_location:
+            return obj.event_location.location_name or "-"
+        if obj.address:
+            return obj.address
+        return "-"
+
+    def get_participants_count(self, obj):
+        return obj.participations.count()
+
+    def get_banner_url(self, obj):
+        banner_id = obj.banner
+        if not banner_id:
+            return None
+        try:
+            return generate_secure_image_url(banner_id)
+        except Exception as e:
+            print(f"Error generating banner URL for event ID {obj.event.id}: {str(e)}")
+            return None
+

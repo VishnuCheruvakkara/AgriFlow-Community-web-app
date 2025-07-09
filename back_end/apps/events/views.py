@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from apps.common.pagination import CustomUserPagination, CustomEventPagination
-from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer, EventParticipationSerializer, CommunityEventParticipantGetSerializer, EventEnrollmentHistorySerializer
+from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer, EventParticipationSerializer, CommunityEventParticipantGetSerializer, EventEnrollmentHistorySerializer, CommunityEventAdminSideListSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
@@ -351,3 +351,15 @@ class MarkEventAsCancelledView(APIView):
             return Response({"detail": "Event has been cancelled successfully."}, status=status.HTTP_200_OK)
         except CommunityEvent.DoesNotExist:
             return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#########################  Admin side Event handling #################################
+
+#======================= Get all events in the admin page =============================# 
+
+class AdminEventListAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, format=None):
+        queryset = CommunityEvent.objects.all().order_by("-start_datetime")
+        serializer = CommunityEventAdminSideListSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
