@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView,MarkEventAsCompletedView,MarkEventAsCancelledView,AdminEventListAPIView,CommunityEventDetailView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView,MarkEventAsCompletedView,MarkEventAsCancelledView,AdminEventListAPIView,CommunityEventDetailView,ToggleEventDeleteStatusView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -41,5 +41,9 @@ urlpatterns = [
 
     #================= get single event details page in the admin side ======================# 
     path("admin/get-event-details/<int:id>/",CommunityEventDetailView.as_view(),name="admin-event-detail"),
+
+    #================= toggle the delete status of the event ========================# 
+    path("admin/toggle-delete-status/<int:pk>/",ToggleEventDeleteStatusView.as_view(),name="toggle_event_delete_status",),
+
 
 ]

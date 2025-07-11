@@ -428,11 +428,16 @@ class EventLocationAdminSideSerializer(serializers.ModelSerializer):
         ]
 
 
+
 class CommunityAdminSideSerializer(serializers.ModelSerializer):
+    community_logo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Community
-        fields = ["id", "name", "description"]
+        fields = ["id", "name", "description", "community_logo_url"]
 
+    def get_community_logo_url(self, obj):
+        return generate_secure_image_url(obj.community_logo)
 
 class CreatorAdminSideSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()

@@ -1,3 +1,4 @@
+from tkinter import E
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
@@ -407,3 +408,26 @@ class CommunityEventDetailView(APIView):
         )
         serializer = CommunityEventDetailAdminSideSerializer(event)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+#========================  Event delete status toggling view ===========================# 
+
+class ToggleEventDeleteStatusView(APIView):
+    """
+    Toggle the is_deleted status of a Event.
+    Only accessible by admin users.
+    """
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        event = get_object_or_404(CommunityEvent, pk=pk)
+        event.is_deleted = not event.is_deleted
+        event.save()
+
+        return Response(
+            {
+                "message": f"Event marked as {'deleted' if event.is_deleted else 'available'}.",
+                "is_deleted": event.is_deleted,
+            },
+            status=status.HTTP_200_OK,
+        )
