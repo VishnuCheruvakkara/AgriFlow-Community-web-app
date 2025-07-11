@@ -132,7 +132,7 @@ const AdminProductDetailsPage = () => {
           </button>
         </div>
 
-        
+
         {loading || !product ? (
           <div className="flex flex-col items-center justify-center h-[510px] space-y-3">
             <PulseLoader color="#16a34a" speedMultiplier={1} />
@@ -435,26 +435,26 @@ const AdminProductDetailsPage = () => {
         )}
       </div>
 
-        {/* Modal setup  */}
-        {isMapOpen && (
-          <MapModal
-            lat={product?.location?.latitude}
-            lng={product?.location?.longitude}
-            onClose={() => setIsMapOpen(false)}
-          />
-        )}
+      {/* Modal setup  */}
+      {isMapOpen && (
+        <MapModal
+          lat={product?.location?.latitude}
+          lng={product?.location?.longitude}
+          onClose={() => setIsMapOpen(false)}
+        />
+      )}
 
-        {/* show image in modal  */}
-        {selectedImage && (
-          <ShowEventBannerModal
-            imageUrl={selectedImage}
-            onClose={() => setSelectedImage(null)}
-          />
-        )}
+      {/* show image in modal  */}
+      {selectedImage && (
+        <ShowEventBannerModal
+          imageUrl={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
 
 
-      </div>
-      );
+    </div>
+  );
 };
 
-      export default AdminProductDetailsPage;
+export default AdminProductDetailsPage;

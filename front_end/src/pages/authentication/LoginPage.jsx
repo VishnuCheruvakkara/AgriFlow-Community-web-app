@@ -149,7 +149,7 @@ const Login = () => {
                                         )}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">Must be at least 8 characters</p>
+                                
                             </div>
 
                             <div className="flex justify-end">

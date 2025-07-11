@@ -157,7 +157,8 @@ class ToggleWishlistSerializer(serializers.Serializer):
                 "This product does not exist.")
         return value
 
-#============================== Get the prodcuts from the model  ###########################
+#============================== Get the prodcuts from the model  ===================================#
+
 class WishlistSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source='product.id', read_only=True)
     title = serializers.CharField(source='product.title', read_only=True)

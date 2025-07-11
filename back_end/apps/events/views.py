@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
-from apps.common.pagination import CustomUserPagination, CustomEventPagination
-from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer, EventParticipationSerializer, CommunityEventParticipantGetSerializer, EventEnrollmentHistorySerializer, CommunityEventAdminSideListSerializer
+from apps.common.pagination import CustomUserPagination, CustomEventPagination,CustomAdminEventPagination
+from .serializers import CommunitySerializer, CommunityEventCombinedSerializer, CommunityEventEditSerializer, EventParticipationSerializer, CommunityEventParticipantGetSerializer, EventEnrollmentHistorySerializer, CommunityEventAdminSideListSerializer,CommunityEventDetailAdminSideSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from community.models import CommunityMembership
@@ -355,11 +355,55 @@ class MarkEventAsCancelledView(APIView):
 #########################  Admin side Event handling #################################
 
 #======================= Get all events in the admin page =============================# 
-
 class AdminEventListAPIView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, format=None):
         queryset = CommunityEvent.objects.all().order_by("-start_datetime")
-        serializer = CommunityEventAdminSideListSerializer(queryset, many=True)
+
+        # Search
+        search = request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+
+        # Status Filter
+        status = request.query_params.get("status")
+        if status == "upcoming":
+            queryset = queryset.filter(event_status="upcoming", is_deleted=False)
+        elif status == "completed":
+            queryset = queryset.filter(event_status="completed", is_deleted=False)
+        elif status == "cancelled":
+            queryset = queryset.filter(event_status="cancelled", is_deleted=False)
+        elif status == "deleted":
+            queryset = queryset.filter(is_deleted=True)
+
+        paginator = CustomAdminEventPagination()
+        page = paginator.paginate_queryset(queryset, request)
+
+        serializer = CommunityEventAdminSideListSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+#=========================== Event details amdin side ============================#
+
+class CommunityEventDetailView(APIView):
+    """
+    Retrieve detailed event info for admin.
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, id, format=None):
+        event = get_object_or_404(
+            CommunityEvent.objects.prefetch_related(
+                "participations__user"
+            ).select_related(
+                "event_location",
+                "community",
+                "created_by"
+            ),
+            id=id
+        )
+        serializer = CommunityEventDetailAdminSideSerializer(event)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView,MarkEventAsCompletedView,MarkEventAsCancelledView,AdminEventListAPIView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView,MarkEventAsCompletedView,MarkEventAsCancelledView,AdminEventListAPIView,CommunityEventDetailView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -38,4 +38,8 @@ urlpatterns = [
     ##################### Admin side event handling ################################
     #=================== get the all events in the admin side ========================# 
     path("admin/get-all-event/", AdminEventListAPIView.as_view(), name="admin-get-all-event"),
+
+    #================= get single event details page in the admin side ======================# 
+    path("admin/get-event-details/<int:id>/",CommunityEventDetailView.as_view(),name="admin-event-detail"),
+
 ]

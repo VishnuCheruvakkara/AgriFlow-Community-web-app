@@ -413,3 +413,111 @@ class CommunityEventAdminSideListSerializer(serializers.ModelSerializer):
             print(f"Error generating banner URL for event ID {obj.event.id}: {str(e)}")
             return None
 
+#========================== Get the event data in the admin side =======================# 
+
+class EventLocationAdminSideSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventLocation
+        fields = [
+            "place_id",
+            "full_location",
+            "latitude",
+            "longitude",
+            "location_name",
+            "country",
+        ]
+
+
+class CommunityAdminSideSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = ["id", "name", "description"]
+
+
+class CreatorAdminSideSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    profile_picture_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "full_name",
+            "phone_number",
+            "is_verified",
+            "profile_picture_url",
+        ]
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip()
+
+    def get_profile_picture_url(self, obj):
+        if not obj.profile_picture:
+            return None
+        return generate_secure_image_url(obj.profile_picture)
+
+
+class EventParticipationAdminSideSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source="user.id")
+    username = serializers.CharField(source="user.username")
+    full_name = serializers.SerializerMethodField()
+    email = serializers.EmailField(source="user.email")
+    profile_picture_url = serializers.SerializerMethodField()
+    joined_at = serializers.DateTimeField()
+
+    class Meta:
+        model = EventParticipation
+        fields = [
+            "user_id",
+            "username",
+            "full_name",
+            "email",
+            "profile_picture_url",
+            "joined_at",
+        ]
+
+    def get_full_name(self, obj):
+        return f"{obj.user.first_name} {obj.user.last_name}".strip()
+
+    def get_profile_picture_url(self, obj):
+        if not obj.user.profile_picture:
+            return None
+        return generate_secure_image_url(obj.user.profile_picture)
+
+
+class CommunityEventDetailAdminSideSerializer(serializers.ModelSerializer):
+    event_location = EventLocationAdminSideSerializer()
+    community = CommunityAdminSideSerializer()
+    created_by = CreatorAdminSideSerializer()
+    participations = EventParticipationAdminSideSerializer(many=True)
+    banner_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunityEvent
+        fields = [
+            "id",
+            "title",
+            "description",
+            "event_type",
+            "event_status",
+            "max_participants",
+            "is_full",
+            "start_datetime",
+            "address",
+            "created_at",
+            "updated_at",
+            "community",
+            "event_location",
+            "created_by",
+            "participations",
+            "banner_url",
+        ]
+
+    def get_banner_url(self, obj):
+        if not obj.banner:
+            return None
+        return generate_secure_image_url(obj.banner)
