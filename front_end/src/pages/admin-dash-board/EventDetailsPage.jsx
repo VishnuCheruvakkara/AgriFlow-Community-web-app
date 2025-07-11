@@ -10,12 +10,19 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
 import { useParams } from 'react-router-dom';
+import MapModal from '../../components/MapLocation/MapModal';
+import { FiGlobe } from "react-icons/fi";
 
 const EventDetailsPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
   const [event, setEvent] = useState(null);
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  // Get the latitude and longitude 
+  const lat = event?.event_location?.latitude;
+  const lng = event?.event_location?.longitude;
 
   useEffect(() => {
     const getEventDetails = async () => {
@@ -180,14 +187,14 @@ const EventDetailsPage = () => {
 
                     <div
                       className={`flex items-center justify-between p-3 border rounded-lg
-    ${event.is_deleted ? 'border-red-400' : 'border-green-400'}`}
+                       ${event.is_deleted ? 'border-red-400' : 'border-green-400'}`}
                     >
                       <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
                         Status:
                       </span>
                       <span
                         className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-2
-      ${event.is_deleted
+                         ${event.is_deleted
                             ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                             : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'}`}
                       >
@@ -229,14 +236,14 @@ const EventDetailsPage = () => {
                     </div>
                     <div className="p-3">
                       <p className="text-gray-600 dark:text-zinc-100 text-lg font-medium">
-                        {new Date(event.start_datetime).toLocaleDateString('en-US', {
+                        {new Date(event.start_datetime).toLocaleDateString('en-IN', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
                         })}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-zinc-100 mb-2">
-                        {new Date(event.start_datetime).toLocaleTimeString('en-US', {
+                        {new Date(event.start_datetime).toLocaleTimeString('en-IN', {
                           hour: '2-digit',
                           minute: '2-digit',
                           hour12: true
@@ -255,36 +262,71 @@ const EventDetailsPage = () => {
                         Location Details
                       </h3>
                     </div>
-                    <div className="p-3 space-y-3">
-                      <div>
-                        <h4 className="font-medium text-gray-800 dark:text-zinc-200 text-sm">
-                          {event?.event_location?.location_name}
-                        </h4>
-                        <p className="text-xs text-gray-600 dark:text-zinc-200">
-                          {event?.event_location?.full_location}
+
+
+
+
+                    {event?.event_location ? (
+                      // Show location info
+                      <div className="p-3 space-y-3">
+                        <div>
+                          <h4 className="font-medium text-gray-800 dark:text-zinc-200 text-sm">
+                            {event?.event_location?.location_name}
+                          </h4>
+                          <p className="text-xs text-gray-600 dark:text-zinc-200">
+                            {event?.event_location?.full_location}
+                          </p>
+                        </div>
+
+                        <p className="text-xs text-gray-500 dark:text-zinc-100">
+                          <strong>Address:</strong> {event?.address}
+                        </p>
+
+                        <div className="space-y-4">
+                          {/* Button */}
+                          <button
+                            onClick={() => setShowMapModal(true)}
+                            className="bg-green-500 rounded-full text-white p-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-md"
+                          >
+                            <div className="bg-white rounded-full p-2">
+                              <GrMapLocation className="text-green-500 text-md" />
+                            </div>
+                            <span className="text-xs pr-6 pl-2">View on Map</span>
+                          </button>
+
+                          {/* Lat/Lng Info */}
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-zinc-300 space-x-4">
+                            <span>
+                              <strong>Lat:</strong> {lat}
+                            </span>
+                            <span>
+                              <strong>Lng:</strong> {lng}
+                            </span>
+                          </div>
+
+                          {/* Map Modal */}
+                          {showMapModal && (
+                            <MapModal
+                              lat={lat}
+                              lng={lng}
+                              onClose={() => setShowMapModal(false)}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      // Show fallback card
+                      <div className="p-4 w-full  bg-gray-50  dark:bg-zinc-700     flex items-center justify-center space-x-2">
+                        <div className="bg-white dark:bg-zinc-800 p-2 rounded-full shadow">
+                          <FiGlobe className="text-green-600 dark:text-green-400 w-5 h-5" />
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-zinc-200">
+                          This is an online event conducted remotely.
                         </p>
                       </div>
+                    )}
 
-                      <p className="text-xs text-gray-500 dark:text-zinc-100">
-                        <strong>Address:</strong> {event?.address}
-                      </p>
 
-                      <button className="bg-green-500 rounded-full text-white p-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-md">
-                        <div className="bg-white rounded-full p-2">
-                          <GrMapLocation className="text-green-500 text-md" />
-                        </div>
-                        <span className="text-xs pr-6 pl-2">View on Map</span>
-                      </button>
-
-                      <div className="flex justify-between text-xs text-gray-500 dark:text-zinc-300 space-x-4">
-                        <span>
-                          <strong>Lat:</strong> {event?.event_location?.latitude}
-                        </span>
-                        <span>
-                          <strong>Lng:</strong> {event?.event_location?.longitude}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
