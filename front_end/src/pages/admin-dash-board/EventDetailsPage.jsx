@@ -110,40 +110,96 @@ const EventDetailsPage = () => {
                     {event.description}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="flex items-center justify-between p-3 border border-green-400 rounded-lg">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div
+                      className={`flex items-center justify-between p-3 border rounded-lg
+    ${event.event_status === 'upcoming' ? 'border-green-400' :
+                          event.event_status === 'active' ? 'border-blue-400' :
+                            event.event_status === 'completed' ? 'border-gray-400' :
+                              'border-red-400'
+                        }`}
+                    >
                       <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
                         Status:
                       </span>
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-2 ${
-                        event.event_status === 'upcoming' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-                        event.event_status === 'active' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
-                        event.event_status === 'completed' ? 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200' :
-                        'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                      }`}>
-                        {event.event_status === 'upcoming' && <FaCheckCircle className="text-green-600 dark:text-green-400 w-4 h-3" />}
-                        {event.event_status === 'active' && <FaCheckCircle className="text-blue-600 dark:text-blue-400 w-4 h-3" />}
-                        {event.event_status === 'completed' && <FaCheckCircle className="text-gray-600 dark:text-gray-400 w-4 h-3" />}
-                        {event.event_status === 'cancelled' && <FaTimesCircle className="text-red-600 dark:text-red-400 w-4 h-3" />}
-                        {event.event_status.charAt(0).toUpperCase() + event.event_status.slice(1)}
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-2
+      ${event.event_status === 'upcoming'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                            : event.event_status === 'active'
+                              ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                              : event.event_status === 'completed'
+                                ? 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200'
+                                : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                          }`}
+                      >
+                        {event.event_status === 'upcoming' && (
+                          <FaCheckCircle className="text-green-600 dark:text-green-400 w-4 h-3" />
+                        )}
+                        {event.event_status === 'active' && (
+                          <FaCheckCircle className="text-blue-600 dark:text-blue-400 w-4 h-3" />
+                        )}
+                        {event.event_status === 'completed' && (
+                          <FaCheckCircle className="text-gray-600 dark:text-gray-400 w-4 h-3" />
+                        )}
+                        {event.event_status === 'cancelled' && (
+                          <FaTimesCircle className="text-red-600 dark:text-red-400 w-4 h-3" />
+                        )}
+                        {event.event_status.charAt(0).toUpperCase() +
+                          event.event_status.slice(1)}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between p-3 border border-blue-400 rounded-lg">
+                    <div
+                      className={`flex items-center justify-between p-3 border rounded-lg
+    ${event.event_type === 'offline'
+                          ? 'border-blue-400'
+                          : 'border-green-400'
+                        }`}
+                    >
                       <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
                         Type:
                       </span>
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-2 ${
-                        event.event_type === 'offline' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
-                        'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                      }`}>
-                        {event.event_type === 'offline' ? 
-                          <FaMapMarkerAlt className="text-blue-600 dark:text-blue-400 w-4 h-3" /> :
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-2
+                            ${event.event_type === 'offline'
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                            : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                          }`}
+                      >
+                        {event.event_type === 'offline' ? (
+                          <FaMapMarkerAlt className="text-blue-600 dark:text-blue-400 w-4 h-3" />
+                        ) : (
                           <FaGlobe className="text-green-600 dark:text-green-400 w-4 h-3" />
-                        }
-                        {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
+                        )}
+                        {event.event_type.charAt(0).toUpperCase() +
+                          event.event_type.slice(1)}
                       </span>
                     </div>
+
+
+                    <div
+                      className={`flex items-center justify-between p-3 border rounded-lg
+    ${event.is_deleted ? 'border-red-400' : 'border-green-400'}`}
+                    >
+                      <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
+                        Status:
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-2
+      ${event.is_deleted
+                            ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                            : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'}`}
+                      >
+                        {event.is_deleted ? (
+                          <FaTimesCircle className="text-red-600 dark:text-red-400 w-4 h-3" />
+                        ) : (
+                          <FaCheckCircle className="text-green-600 dark:text-green-400 w-4 h-3" />
+                        )}
+                        {event.is_deleted ? 'Deleted' : 'Active'}
+                      </span>
+                    </div>
+
 
                     <div className="flex items-center justify-between p-3 border border-orange-400 rounded-lg">
                       <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
@@ -154,6 +210,8 @@ const EventDetailsPage = () => {
                         {event.participations.length}/{event.max_participants}
                       </span>
                     </div>
+
+
                   </div>
                 </div>
 

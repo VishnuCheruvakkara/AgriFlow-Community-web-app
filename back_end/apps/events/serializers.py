@@ -506,6 +506,7 @@ class CommunityEventDetailAdminSideSerializer(serializers.ModelSerializer):
             "event_status",
             "max_participants",
             "is_full",
+            "is_deleted",
             "start_datetime",
             "address",
             "created_at",
