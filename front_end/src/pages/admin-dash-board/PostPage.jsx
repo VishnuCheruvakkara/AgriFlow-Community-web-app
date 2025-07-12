@@ -39,9 +39,7 @@ function PostPage() {
         <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300 dark:border-zinc-600 shadow-lg">
           <div className="flex justify-between items-center my-4">
             <h3 className="font-bold text-gray-700 dark:text-zinc-200">Post Management</h3>
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-300">
-              + Add Post
-            </button>
+            
           </div>
 
           {/* Search Bar */}
@@ -96,13 +94,13 @@ function PostPage() {
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                     <div className="flex items-center gap-1">
-                      <FaThumbsUp className="text-green-500 w-3 h-3" />
+                      <FaThumbsUp className="text-green-500 w-4 h-4" />
                       125
                     </div>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                     <div className="flex items-center gap-1">
-                      <FaComments className="text-purple-500 w-3 h-3" />
+                      <FaComments className="text-purple-500 w-4 h-4" />
                       18
                     </div>
                   </td>
@@ -119,14 +117,9 @@ function PostPage() {
                   <td className="px-4 py-4 text-center whitespace-nowrap">
                     <div className="flex justify-center gap-2">
                       <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition" title="View Details">
-                        <FaEye size={16} />
+                        <FaEye size={22} />
                       </button>
-                      <button className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition" title="Edit">
-                        <FaEdit size={16} />
-                      </button>
-                      <button className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition" title="Delete">
-                        <FaTrash size={16} />
-                      </button>
+                     
                     </div>
                   </td>
                 </tr>
