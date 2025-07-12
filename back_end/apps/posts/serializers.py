@@ -240,3 +240,24 @@ class PostDetailSerializer(serializers.ModelSerializer):
             user.is_authenticated and
             Like.objects.filter(post=obj, user=user).exists()
         )
+
+############################ Handle post in the admin side ##################################
+
+#======================= get the post in the admin side serializer ==========================#
+
+class GetAllPostAdminSideSerialzier(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model=Post 
+        fields = [
+            'author','content','image_url','video_url','is_deleted','created_at','updated_at','like_count','comment_count'
+        ]
+
+    def get_like_count(self,obj):
+        return obj.likes.count()
+    
+    def get_comment_count(self,obj):
+        return obj.comments.count()

@@ -1,7 +1,8 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import { FaUsers, FaShoppingCart, FaChartLine, FaMoneyBillWave } from "react-icons/fa";
 
 const DashboardPage = () => {
+  
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold text-green-600">Dashboard Overview</h2>

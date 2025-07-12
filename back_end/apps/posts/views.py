@@ -1,14 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework import status
-from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer,PostDetailSerializer
+from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer,PostDetailSerializer,GetAllPostAdminSideSerialzier
 from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination
 from django.db import models
 from django.db.models import Q
 from notifications.utils import create_and_send_notification
 from common.cloudinary_utils import generate_secure_image_url
+
+#logger set up 
+import logging
+logger = logging.getLogger(__name__)
+
 
 
 ########################## Create New post View  #######################
@@ -271,3 +276,19 @@ class GetSinglePostView(APIView):
         
         serializer = PostDetailSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+######################## Admin side posts handling #############################
+
+#==================== Get all post data in the admi side api view ========================# 
+
+class GetAllPostsAdminSide(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self,request):
+        try:
+            posts = Post.objects.all()
+            serializer = GetAllPostAdminSideSerialzier(posts,many=True)
+            return Response({"success":True, "message":"post fetched successfully","data":serializer.data},status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(f"Error fetching the data :{e}")
+            return Response( {"success":False,"message":"Error fetching the post details","data":[]},status=status.HTTP_500_INTERNAL_SERVER_ERROR ) 

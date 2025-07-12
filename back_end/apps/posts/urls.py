@@ -1,5 +1,5 @@
 from django.urls import path
-from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView,EditPostAPIView,GetSinglePostView
+from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView,EditPostAPIView,GetSinglePostView,GetAllPostsAdminSide
 
 urlpatterns = [
     ############################ Create new post url #########################
@@ -31,5 +31,10 @@ urlpatterns = [
     path('add-comment/', AddCommentAPIView.as_view(), name='add-comment'),
     # ====================== get all the comment ===========================#
     path('get-all-comment/', CommentListAPIView.as_view(), name='comment-list'),
+
+    ########################  Admin side urls ###############################
+
+    #======================= Admin side get all the posts ========================# 
+    path("admin/get-all-post-admin-side/",GetAllPostsAdminSide.as_view(),name="get-posts-data-in-admin-side"),
 
 ]

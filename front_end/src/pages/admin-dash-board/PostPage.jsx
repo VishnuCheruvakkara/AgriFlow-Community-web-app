@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { ImCancelCircle } from 'react-icons/im';
-import { 
+import {
   FaCheckCircle,
   FaTimesCircle,
   FaEye,
@@ -11,8 +11,28 @@ import {
   FaEdit,
   FaTrash
 } from 'react-icons/fa';
+import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
 
 function PostPage() {
+
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getAllPosts = async () => {
+      try {
+        const response = await AdminAuthenticatedAxiosInstance.get(`/posts/admin/get-all-post-admin-side/`)
+        setPosts(response.data.data);
+        console.log("Arrived posts data :", response.data.data)
+      } catch (error) {
+        console.error("Error fetching post : ", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    getAllPosts();
+  }, [])
+
   return (
     <div className="mb-4 max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
       {/* Header */}
@@ -39,7 +59,7 @@ function PostPage() {
         <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300 dark:border-zinc-600 shadow-lg">
           <div className="flex justify-between items-center my-4">
             <h3 className="font-bold text-gray-700 dark:text-zinc-200">Post Management</h3>
-            
+
           </div>
 
           {/* Search Bar */}
@@ -73,56 +93,62 @@ function PostPage() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-zinc-600">
                 {/* Sample Row */}
-                <tr className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition">
-                  <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">1</td>
-                  <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-zinc-100">
-                    <div className="flex items-center gap-2">
-                      <FaUser className="text-blue-500 w-4 h-4" />
-                      jane_doe
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-zinc-400">jane@example.com</div>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300 max-w-xs truncate">
-                    Excited to share my new project with everyone!
-                  </td>
-                  <td className="px-4 py-4">
-                    <img
-                      src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=80&h=80&fit=crop"
-                      alt="Post Media"
-                      className="h-12 w-12 rounded-md object-cover border dark:border-zinc-500"
-                    />
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
-                    <div className="flex items-center gap-1">
-                      <FaThumbsUp className="text-green-500 w-4 h-4" />
-                      125
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
-                    <div className="flex items-center gap-1">
-                      <FaComments className="text-purple-500 w-4 h-4" />
-                      18
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1">
-                      <FaCheckCircle className="text-green-600 dark:text-green-400 w-3 h-3" />
-                      Active
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
-                    <div className="font-medium">Jul 15, 2024</div>
-                    <div className="text-xs text-gray-500 dark:text-zinc-400">2 weeks ago</div>
-                  </td>
-                  <td className="px-4 py-4 text-center whitespace-nowrap">
-                    <div className="flex justify-center gap-2">
-                      <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition" title="View Details">
-                        <FaEye size={22} />
-                      </button>
-                     
-                    </div>
-                  </td>
-                </tr>
+
+
+                {posts.map((post, index) => (
+
+
+                  <tr className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition">
+                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">1</td>
+                    <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-zinc-100">
+                      <div className="flex items-center gap-2">
+                        <FaUser className="text-blue-500 w-4 h-4" />
+                        jane_doe
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-zinc-400">jane@example.com</div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300 max-w-xs truncate">
+                      Excited to share my new project with everyone!
+                    </td>
+                    <td className="px-4 py-4">
+                      <img
+                        src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=80&h=80&fit=crop"
+                        alt="Post Media"
+                        className="h-12 w-12 rounded-md object-cover border dark:border-zinc-500"
+                      />
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
+                      <div className="flex items-center gap-1">
+                        <FaThumbsUp className="text-green-500 w-4 h-4" />
+                        125
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
+                      <div className="flex items-center gap-1">
+                        <FaComments className="text-purple-500 w-4 h-4" />
+                        18
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1">
+                        <FaCheckCircle className="text-green-600 dark:text-green-400 w-3 h-3" />
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
+                      <div className="font-medium">Jul 15, 2024</div>
+                      <div className="text-xs text-gray-500 dark:text-zinc-400">2 weeks ago</div>
+                    </td>
+                    <td className="px-4 py-4 text-center whitespace-nowrap">
+                      <div className="flex justify-center gap-2">
+                        <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition" title="View Details">
+                          <FaEye size={22} />
+                        </button>
+
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
