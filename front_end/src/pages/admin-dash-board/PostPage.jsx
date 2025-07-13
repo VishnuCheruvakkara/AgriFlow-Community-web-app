@@ -215,7 +215,7 @@ function PostPage() {
                     <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition">
                       {/* Row number */}
                       <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">
-                        {index + 1}
+                        {(currentPage - 1) * 5 + index + 1}
                       </td>
 
                       {/* Author info */}

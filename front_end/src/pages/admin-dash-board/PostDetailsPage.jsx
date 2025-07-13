@@ -13,6 +13,8 @@ import FormattedDateTime from '../../components/common-date-time/FormattedDateTi
 import AllPostCommentsPostDetailsPage from '../../components/admin-dash-board/AllPostCommentsPostDetailsPage';
 import DefaultUserImage from "../../assets/images/user-default.png"
 import DefaultPostImage from "../../assets/images/banner_default_user_profile.png"
+import { showToast } from '../../components/toast-notification/CustomToast';
+import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 
 
 function PostDetailsPage() {
@@ -24,7 +26,7 @@ function PostDetailsPage() {
     const fetchSinglePostData = async () => {
         try {
             const response = await AdminAuthenticatedAxiosInstance.get(`/posts/admin/get-single-post-data/${postId}`)
-            console.log("Arrived single product :", response.data)
+            console.log("Arrived single post:", response.data)
             setPost(response.data);
         } catch (error) {
             console.error("Error fetching data :", error)
@@ -36,6 +38,47 @@ function PostDetailsPage() {
     useEffect(() => {
         fetchSinglePostData();
     }, [postId])
+
+
+    // toggle delete post status 
+    const toggleDeleteStatus = async (postId, currentStatus) => {
+        const newStatus = !currentStatus;
+        const actionText = newStatus ? "mark as deleted" : "mark as available";
+
+        // Show confirmation alert before proceeding
+        const result = await showConfirmationAlert({
+            title: `Confirm Action`,
+            text: `Are you sure you want to ${actionText} this post?\n\n(Current status: ${currentStatus ? "Deleted" : "Available"})`,
+            confirmButtonText: `Yes, ${newStatus ? "Delete" : "Make Available"}`,
+        });
+        if (result) {
+            try {
+                const response = await AdminAuthenticatedAxiosInstance.patch(
+                    `/posts/admin/toggle-delete-status/${postId}/`,
+                    { is_deleted: !currentStatus }
+                );
+
+                console.log("Delete Status updated", response.data);
+
+                // Update local state immediately
+                setPost((prev) => ({
+                    ...prev,
+                    is_deleted: !currentStatus,
+                }));
+
+                // Proper message depending on new status
+                const newStatus = !currentStatus;
+                const message = newStatus
+                    ? "Post status marked as deleted."
+                    : "Post status marked as available.";
+
+                showToast(message, "success");
+            } catch (error) {
+                console.error("Failed to toggle delete status", error);
+                showToast("Failed to update post status.", "error");
+            }
+        }
+    };
 
     return (
         <div className="min-h-screen w-full mb-4">
@@ -135,7 +178,7 @@ function PostDetailsPage() {
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div className={`flex items-center justify-between p-3 border  ${post?.is_deleted ? "border-red-400": "border-green-400" } rounded-lg`}>
+                                        <div className={`flex items-center justify-between p-3 border  ${post?.is_deleted ? "border-red-400" : "border-green-400"} rounded-lg`}>
                                             <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
                                                 Status:
                                             </span>
@@ -147,7 +190,7 @@ function PostDetailsPage() {
                                             ) : (
                                                 <span className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-2">
                                                     <FaCheckCircle className="text-green-600 dark:text-green-400 w-4 h-3" />
-                                                    Available
+                                                    Active
                                                 </span>
                                             )}
                                         </div>
@@ -276,19 +319,27 @@ function PostDetailsPage() {
                     <div className="mt-6 py-4 border-t border-gray-200 dark:border-zinc-600">
                         <div className="flex flex-col sm:flex-row justify-center gap-3">
                             {/* Toggle Delete / Restore */}
-                            <button className="bg-green-500 hover:bg-green-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md">
-                                <div className="bg-green-100 rounded-full p-2">
-                                    <ImCheckmark2 className="text-green-500 text-lg" />
-                                </div>
-                                <span className="text-sm pr-4 pl-2">Mark as Active</span>
-                            </button>
-
-                            <button className="bg-red-500 hover:bg-red-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md">
-                                <div className="bg-red-100 rounded-full p-2">
-                                    <MdDelete className="text-red-500 text-lg" />
-                                </div>
-                                <span className="text-sm pr-4 pl-2">Mark as Deleted</span>
-                            </button>
+                            {post?.is_deleted ? (
+                                <button
+                                    onClick={() => toggleDeleteStatus(post.id, post.is_deleted)}
+                                    className="bg-green-500 hover:bg-green-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md"
+                                >
+                                    <div className="bg-green-100 rounded-full p-2">
+                                        <ImCheckmark2 className="text-green-500 text-lg " />
+                                    </div>
+                                    <span className="text-sm pr-4 pl-2">Mark as Available</span>
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => toggleDeleteStatus(post.id, post.is_deleted)}
+                                    className="bg-red-500 hover:bg-red-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md"
+                                >
+                                    <div className="bg-red-100 rounded-full p-2">
+                                        <MdDelete className="text-red-500 text-lg" />
+                                    </div>
+                                    <span className="text-sm pr-4 pl-2">Mark as Deleted</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -298,13 +349,13 @@ function PostDetailsPage() {
                             <div className="flex items-center mb-1 sm:mb-0">
                                 <MdAccessTime className="w-4 h-4 mr-1" />
                                 <span>
-                                    <strong>Created:</strong> <FormattedDateTime date={ post?.created_at  } />
+                                    <strong>Created:</strong> <FormattedDateTime date={post?.created_at} />
                                 </span>
                             </div>
                             <div className="flex items-center">
                                 <MdUpdate className="w-4 h-4 mr-1" />
                                 <span>
-                                    <strong>Last Updated:</strong> <FormattedDateTime date={ post?.updated_at } />
+                                    <strong>Last Updated:</strong> <FormattedDateTime date={post?.updated_at} />
                                 </span>
                             </div>
                         </div>

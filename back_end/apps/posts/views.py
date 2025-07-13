@@ -321,7 +321,7 @@ class GetAllPostsAdminSide(APIView):
             logger.exception(f"Error fetching the data :{e}")
             return Response( {"success":False,"message":"Error fetching the post details","data":[]},status=status.HTTP_500_INTERNAL_SERVER_ERROR ) 
 
-#=============================== Get Single product details in the admin side =========================#
+#=============================== Get Single post details in the admin side =========================#
 
 class GetSinglePostDetailsAdminSide(APIView):
     permission_classes = [IsAdminUser]
@@ -332,3 +332,24 @@ class GetSinglePostDetailsAdminSide(APIView):
         serializer = SinglePostDetailAdminSerializer(post,context={"request":request})
         return Response(serializer.data,status=status.HTTP_200_OK)
         
+#========================  post delete status toggling view ===========================# 
+
+class TogglePostDeleteStatusView(APIView):
+    """
+    Toggle the is_deleted status of a Post.
+    Only accessible by admin users.
+    """
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        post.is_deleted = not post.is_deleted
+        post.save()
+
+        return Response(
+            {
+                "message": f"Post marked as {'deleted' if post.is_deleted else 'available'}.",
+                "is_deleted": post.is_deleted,
+            },
+            status=status.HTTP_200_OK,
+        )

@@ -1,5 +1,5 @@
 from django.urls import path
-from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView, UserPostsAPIView, DeletePostAPIView, EditPostAPIView, GetSinglePostView, GetAllPostsAdminSide,GetSinglePostDetailsAdminSide
+from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView, UserPostsAPIView, DeletePostAPIView, EditPostAPIView, GetSinglePostView, GetAllPostsAdminSide,GetSinglePostDetailsAdminSide,TogglePostDeleteStatusView
 
 urlpatterns = [
     ############################ Create new post url #########################
@@ -42,5 +42,9 @@ urlpatterns = [
 
     # =============================== Get Single product details in the admin side =========================#
     path('admin/get-single-post-data/<int:post_id>',GetSinglePostDetailsAdminSide.as_view(),name="get-single-post-details"),
+
+    #======================= Post Delete status toggling ============================# 
+    path("admin/toggle-delete-status/<int:pk>/",TogglePostDeleteStatusView.as_view(),name="toggle_post_delete_status",),
+
 
 ]
