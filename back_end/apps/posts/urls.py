@@ -1,5 +1,5 @@
 from django.urls import path
-from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView,UserPostsAPIView,DeletePostAPIView,EditPostAPIView,GetSinglePostView,GetAllPostsAdminSide
+from posts.views import CreatNewPostAPIView, GetAllThePosts, ToggleLikeAPIView, LikedPostStatusView, AddCommentAPIView, CommentListAPIView, UserPostsAPIView, DeletePostAPIView, EditPostAPIView, GetSinglePostView, GetAllPostsAdminSide,GetSinglePostDetailsAdminSide
 
 urlpatterns = [
     ############################ Create new post url #########################
@@ -18,13 +18,15 @@ urlpatterns = [
     # ======================= Get post of the current user in the prifile side ====================#
     path('user-posts/', UserPostsAPIView.as_view(), name='user-posts'),
 
-    #===================== Delete teh post based on the id ====================================#
-    path('delete-post/<int:post_id>/', DeletePostAPIView.as_view(), name='delete-post'),
+    # ===================== Delete teh post based on the id ====================================#
+    path('delete-post/<int:post_id>/',
+         DeletePostAPIView.as_view(), name='delete-post'),
 
-    #==================== Update or edit post ======================# 
+    # ==================== Update or edit post ======================#
     path('edit-post/<int:pk>/', EditPostAPIView.as_view(), name='edit-post'),
-    #================== Get a single post to show that and enable share option ============================# 
-    path('get-single-post/<int:post_id>/',GetSinglePostView.as_view(),name="get-single-post"),
+    # ================== Get a single post to show that and enable share option ============================#
+    path('get-single-post/<int:post_id>/',
+         GetSinglePostView.as_view(), name="get-single-post"),
 
     ########################## Handle the comments ####################
     # ====================== posts/add new comment for a perticular post ========================#
@@ -34,7 +36,11 @@ urlpatterns = [
 
     ########################  Admin side urls ###############################
 
-    #======================= Admin side get all the posts ========================# 
-    path("admin/get-all-post-admin-side/",GetAllPostsAdminSide.as_view(),name="get-posts-data-in-admin-side"),
+    # ======================= Admin side get all the posts ========================#
+    path("admin/get-all-post-admin-side/", GetAllPostsAdminSide.as_view(),
+         name="get-posts-data-in-admin-side"),
+
+    # =============================== Get Single product details in the admin side =========================#
+    path('admin/get-single-post-data/<int:post_id>',GetSinglePostDetailsAdminSide.as_view(),name="get-single-post-details"),
 
 ]

@@ -202,7 +202,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=CustomUser 
-        fields = ['id','username','profile_picture']
+        fields = ['id','username','profile_picture','email','phone_number']
     
     def get_profile_picture(self,obj):
         return generate_secure_image_url(obj.profile_picture)
@@ -253,7 +253,7 @@ class GetAllPostAdminSideSerialzier(serializers.ModelSerializer):
     class Meta:
         model=Post 
         fields = [
-            'author','content','image_url','video_url','is_deleted','created_at','updated_at','like_count','comment_count'
+            'id','author','content','image_url','video_url','is_deleted','created_at','updated_at','like_count','comment_count'
         ]
 
     def get_like_count(self,obj):
@@ -261,3 +261,46 @@ class GetAllPostAdminSideSerialzier(serializers.ModelSerializer):
     
     def get_comment_count(self,obj):
         return obj.comments.count()
+    
+#=========================== get single post details serializers admin side =======================# 
+
+class CommentUserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser 
+        fields = ['id','username','email','profile_picture']
+
+    def get_profile_picture(self,obj):
+        return generate_secure_image_url(obj.profile_picture)
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = CommentUserSerializer(read_only=True)
+
+    class Meta:
+        model=Comment 
+        fields = ['id','user','content','created_at']
+
+class SinglePostDetailAdminSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    all_comments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post 
+        fields = [
+            'id','author','content','image_url','video_url','is_deleted','created_at','updated_at','like_count','comment_count','all_comments',
+        ]
+
+    def get_like_count(self,obj):
+        return obj.likes.count()
+    
+    def get_comment_count(self,obj):
+        return obj.comments.count()
+    
+    def get_all_comments(self,obj):
+        all_comments = obj.comments.order_by('-created_at')
+        return CommentSerializer(all_comments,many=True,context=self.context).data
+

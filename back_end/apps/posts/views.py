@@ -2,14 +2,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework import status
-from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer,PostDetailSerializer,GetAllPostAdminSideSerialzier
+from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer,PostDetailSerializer,GetAllPostAdminSideSerialzier,SinglePostDetailAdminSerializer
 from posts.models import Post, Like, Comment
 from common.pagination import CustomPostPagination,CustomAdminPostPagination
 from django.db import models
 from django.db.models import Q
 from notifications.utils import create_and_send_notification
 from common.cloudinary_utils import generate_secure_image_url
-
+from django.shortcuts import get_object_or_404
 #logger set up 
 import logging
 logger = logging.getLogger(__name__)
@@ -295,7 +295,6 @@ class GetAllPostsAdminSide(APIView):
                 posts = posts.filter(
                     Q(content__icontains=search) | 
                     Q(author__username__icontains=search)
-
                 )
 
             # Filter by status
@@ -321,3 +320,15 @@ class GetAllPostsAdminSide(APIView):
         except Exception as e:
             logger.exception(f"Error fetching the data :{e}")
             return Response( {"success":False,"message":"Error fetching the post details","data":[]},status=status.HTTP_500_INTERNAL_SERVER_ERROR ) 
+
+#=============================== Get Single product details in the admin side =========================#
+
+class GetSinglePostDetailsAdminSide(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self,request,post_id):
+    
+        post = get_object_or_404(Post,id=post_id) 
+        serializer = SinglePostDetailAdminSerializer(post,context={"request":request})
+        return Response(serializer.data,status=status.HTTP_200_OK)
+        

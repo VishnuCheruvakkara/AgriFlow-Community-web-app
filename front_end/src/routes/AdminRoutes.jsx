@@ -12,6 +12,7 @@ import EventManagementPage from '../pages/admin-dash-board/EventPage'
 import PostPage from '../pages/admin-dash-board/PostPage'
 import CommunityDetailsPage from '../pages/admin-dash-board/CommunityDetailsPage'
 import EventDetailsPage from '../pages/admin-dash-board/EventDetailsPage'
+import PostDetailsPage from '../pages/admin-dash-board/PostDetailsPage'
 
 function AdminRoutes() {
     return (
@@ -46,6 +47,7 @@ function AdminRoutes() {
 
                 {/*======================== Admin side post management =============================*/}\
                 <Route path="post-management" element={ <PostPage/>} />
+                <Route path="post-management/post-details/:postId" element={ <PostDetailsPage/>} />
                 
                 
             </Route>

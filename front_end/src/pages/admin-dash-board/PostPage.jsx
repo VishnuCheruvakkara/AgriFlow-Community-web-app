@@ -22,9 +22,9 @@ import Select from "react-select";
 
 
 function PostPage() {
-
+  
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [inputValue, setInputValue] = useState("");
 
@@ -51,7 +51,7 @@ function PostPage() {
   ];
 
   const getAllPosts = useCallback(async () => {
-
+    setLoading(true);
     try {
       const response = await AdminAuthenticatedAxiosInstance.get(`/posts/admin/get-all-post-admin-side/`, {
         params: {
@@ -64,7 +64,6 @@ function PostPage() {
       console.log("Full response object:", response.data);
       setPosts(response.data.results);
       setTotalPages(Math.ceil(response.data.count / 5));
-      console.log("Arrived posts data :", response.data.data)
     } catch (error) {
       console.error("Error fetching post : ", error);
     } finally {
@@ -276,7 +275,7 @@ function PostPage() {
                       {/* Comment Count */}
                       <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                         <div className="flex items-center gap-1">
-                          <FaComments className="text-purple-500 w-4 h-4" />
+                          <FaComments className="text-green-500 w-4 h-4" />
                           {post.comment_count ?? "0"}
                         </div>
                       </td>
@@ -311,12 +310,13 @@ function PostPage() {
                       {/* Actions */}
                       <td className="px-4 py-4 text-center whitespace-nowrap">
                         <div className="flex justify-center gap-2">
-                          <button
+                          <Link 
+                            to={`/admin/post-management/post-details/${post.id}`}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition"
                             title="View Details"
                           >
                             <FaEye size={22} />
-                          </button>
+                          </Link>
                         </div>
                       </td>
                     </tr>
