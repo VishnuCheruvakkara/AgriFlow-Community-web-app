@@ -12,11 +12,15 @@ import {
   FaTrash
 } from 'react-icons/fa';
 import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
+import { Link } from "react-router-dom"
+import FormattedDateTime from '../../components/common-date-time/FormattedDateTime';
 
 function PostPage() {
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  
 
   useEffect(() => {
     const getAllPosts = async () => {
@@ -81,7 +85,7 @@ function PostPage() {
               <thead className="bg-gray-100 border-b dark:bg-zinc-900 dark:border-zinc-600">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">#</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Author</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase w-56 min-w-[14rem]">Author</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Content</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Media</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Likes</th>
@@ -96,58 +100,114 @@ function PostPage() {
 
 
                 {posts.map((post, index) => (
+                  <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition">
+                    {/* Row number */}
+                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">
+                      {index + 1}
+                    </td>
 
-
-                  <tr className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition">
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-zinc-300">1</td>
+                    {/* Author info */}
                     <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-zinc-100">
-                      <div className="flex items-center gap-2">
-                        <FaUser className="text-blue-500 w-4 h-4" />
-                        jane_doe
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-zinc-400">jane@example.com</div>
+                      <Link
+                        to={`/admin/users-management/user-details/${post.author.id}`}
+                        className="flex items-center gap-2"
+                      >
+                        <img
+                          src={post.author.profile_picture}
+                          alt={post.author.username}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className="text-xs text-gray-500 dark:text-zinc-400">
+                          {post.author.username}
+                        </div>
+                      </Link>
                     </td>
+
+                    {/* Post Content */}
                     <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300 max-w-xs truncate">
-                      Excited to share my new project with everyone!
+                      {post.content || "--------"}
                     </td>
+
+                    {/* Media */}
                     <td className="px-4 py-4">
-                      <img
-                        src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=80&h=80&fit=crop"
-                        alt="Post Media"
-                        className="h-12 w-12 rounded-md object-cover border dark:border-zinc-500"
-                      />
+                      {post.image_url ? (
+                        <img
+                          src={post.image_url}
+                          alt="Post Image"
+                          className="h-10 w-10 rounded-md object-cover border dark:border-zinc-500"
+                        />
+                      ) : post.video_url ? (
+                        <video
+                          src={post.video_url}
+                          className="h-10 w-10 rounded-md object-cover border dark:border-zinc-500"
+                          muted
+                          playsInline
+                          preload="metadata"
+                          controls={false}
+                          onMouseOver={(e) => e.target.play()}
+                          onMouseOut={(e) => e.target.pause()}
+                        />
+                      ) : (
+                        <span className="text-xs text-gray-500 italic">No Media</span>
+                      )}
                     </td>
+
+                    {/* Like Count */}
                     <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                       <div className="flex items-center gap-1">
                         <FaThumbsUp className="text-green-500 w-4 h-4" />
-                        125
+                        {post.like_count ?? "0"}
                       </div>
                     </td>
+
+                    {/* Comment Count */}
                     <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                       <div className="flex items-center gap-1">
                         <FaComments className="text-purple-500 w-4 h-4" />
-                        18
+                        {post.comment_count ?? "0"}
                       </div>
                     </td>
+
+                    {/* Active Status */}
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1">
-                        <FaCheckCircle className="text-green-600 dark:text-green-400 w-3 h-3" />
-                        Active
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap px-2 py-1
+        ${post.is_deleted
+                            ? "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+                            : "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                          }`}
+                      >
+                        <FaCheckCircle
+                          className={`w-3 h-3 ${post.is_deleted
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-green-600 dark:text-green-400"
+                            }`}
+                        />
+                        {post.is_deleted ? "Deleted" : "Active"}
                       </span>
                     </td>
+
+                    {/* Created Date */}
                     <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
-                      <div className="font-medium">Jul 15, 2024</div>
-                      <div className="text-xs text-gray-500 dark:text-zinc-400">2 weeks ago</div>
+                      <div className="font-medium">
+                        <FormattedDateTime date={post.created_at}/>
+                      </div>
+                     
                     </td>
+
+                    {/* Actions */}
                     <td className="px-4 py-4 text-center whitespace-nowrap">
                       <div className="flex justify-center gap-2">
-                        <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition" title="View Details">
+                        <button
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition"
+                          title="View Details"
+                        >
                           <FaEye size={22} />
                         </button>
-
                       </div>
                     </td>
                   </tr>
+
                 ))}
               </tbody>
             </table>

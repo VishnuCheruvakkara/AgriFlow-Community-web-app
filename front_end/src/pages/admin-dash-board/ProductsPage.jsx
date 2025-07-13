@@ -17,7 +17,6 @@ const ProductsPage = () => {
   
   const [inputValue, setInputValue] = useState("");
 
-
   // search set up  
   const [searchProduct, setSearchProduct] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
