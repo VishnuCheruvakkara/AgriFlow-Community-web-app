@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework import status
 from posts.serializers import PostCreateSerializer, PostSerializer, ToggleLikeSerializer, LikedPostStatusSerializer,CommentCreateSerializer,CommentSerializer,PostUpdateSerializer,PostDetailSerializer,GetAllPostAdminSideSerialzier
 from posts.models import Post, Like, Comment
-from common.pagination import CustomPostPagination
+from common.pagination import CustomPostPagination,CustomAdminPostPagination
 from django.db import models
 from django.db.models import Q
 from notifications.utils import create_and_send_notification
@@ -279,16 +279,45 @@ class GetSinglePostView(APIView):
 
 ######################## Admin side posts handling #############################
 
-#==================== Get all post data in the admi side api view ========================# 
+#==================== Get all post data in the admin side api view ========================# 
 
 class GetAllPostsAdminSide(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self,request):
+
         try:
             posts = Post.objects.all()
-            serializer = GetAllPostAdminSideSerialzier(posts,many=True)
-            return Response({"success":True, "message":"post fetched successfully","data":serializer.data},status=status.HTTP_200_OK)
+
+            # Search
+            search = request.query_params.get("search")
+            if search:
+                posts = posts.filter(
+                    Q(content__icontains=search) | 
+                    Q(author__username__icontains=search)
+
+                )
+
+            # Filter by status
+            status = request.query_params.get("status")
+            if status== "active":
+                posts = posts.filter(is_deleted=False)
+            elif status == "deleted":
+                posts = posts.filter(is_deleted=True)
+
+            # Filter by type
+            post_type = request.query_params.get("type")
+            if post_type == "image":
+                posts = posts.filter(image_url__isnull=False).exclude(image_url="")
+            elif post_type == "video":
+                posts = posts.filter(video_url__isnull=False).exclude(video_url="")
+
+            #pagination 
+            paginator = CustomAdminPostPagination()
+            paginated_posts = paginator.paginate_queryset(posts,request)
+            serializer = GetAllPostAdminSideSerialzier(paginated_posts,many=True)
+            return paginator.get_paginated_response(serializer.data)
+
         except Exception as e:
             logger.exception(f"Error fetching the data :{e}")
             return Response( {"success":False,"message":"Error fetching the post details","data":[]},status=status.HTTP_500_INTERNAL_SERVER_ERROR ) 

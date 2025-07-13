@@ -10,7 +10,7 @@ import {
   MdPhone,
   MdDelete,
   MdBlock,
-  MdApproval
+  MdApproval,
 } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { FaCheckCircle, FaTimesCircle, FaCrown, FaUsers, FaLock, FaGlobe } from "react-icons/fa";
