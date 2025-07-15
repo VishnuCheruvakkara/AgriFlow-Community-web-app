@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 #==============product model===============#
-from products.models import Product
+from products.models import Product,Wishlist,ProductChatMessage
 #==============community model===============#
 from community.models import Community
 #==============event model===============#
@@ -36,6 +36,14 @@ class GetDashBoardDataView(APIView):
         email_verified = User.objects.filter(is_verified=True).count()
         active_users= User.objects.filter(is_active=True).count()
 
+        # Get the data for the poduct metric 
+        available_products = Product.objects.filter(is_available=True, is_deleted=False).count()
+        wishlist_items = Wishlist.objects.filter(is_active=True).count()
+        chat_messages = ProductChatMessage.objects.count()
+        # Units counts
+        units_piece = Product.objects.filter(unit="piece", is_deleted=False).count()
+        units_kg = Product.objects.filter(unit="kg", is_deleted=False).count()
+        units_litre = Product.objects.filter(unit="litre", is_deleted=False).count()
 
         return Response({
             "cards":{
@@ -51,5 +59,14 @@ class GetDashBoardDataView(APIView):
                 "aadhaar_verified":aadhaar_verified,
                 "email_verified":email_verified,
                 "active_users":active_users,
+            },
+            "product_metrics": {
+                "total_products": total_products,
+                "available_products": available_products,
+                "wishlist_items": wishlist_items,
+                "chat_messages": chat_messages,
+                "units_piece": units_piece,
+                "units_kg": units_kg,
+                "units_litre": units_litre,
             }
         })

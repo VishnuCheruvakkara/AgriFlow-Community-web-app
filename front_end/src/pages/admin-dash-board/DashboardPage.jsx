@@ -4,7 +4,8 @@ import { BsPostcardHeartFill } from "react-icons/bs";
 import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
 //user radial chart 
 import UserRadialChart from "../../components/admin-dash-board/UserRadialChart";
-
+//product metric chart 
+import ProductMetricsChart from "../../components/admin-dash-board/ProductMetricsChart";
 
 
 const DashboardPage = () => {
@@ -140,9 +141,18 @@ const DashboardPage = () => {
         </div>
 
         {/* Right Column - Blank */}
-        <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 border border-green-200 dark:border-green-600 flex items-center justify-center">
-          <span className="text-gray-400 dark:text-gray-500">Coming Soon</span>
+        <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
+          {/* Heading */}
+          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            Product Details
+          </h3>
+          <div className="px-4 pb-4">
+<ProductMetricsChart data={data?.product_metrics} />
+
+           
+          </div>
         </div>
+
       </div>
 
     </>
