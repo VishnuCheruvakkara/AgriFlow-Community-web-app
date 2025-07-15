@@ -148,6 +148,19 @@ class GetDashBoardDataView(APIView):
             for c in top_participant_communities_qs
         ]
 
+        # Event type counts (online/offline)
+        event_type_counts = (
+            CommunityEvent.objects
+            .values("event_type")
+            .annotate(count=Count("id"))
+        )
+
+        # Event status counts (upcoming/completed/cancelled)
+        event_status_counts = (
+            CommunityEvent.objects
+            .values("event_status")
+            .annotate(count=Count("id"))
+        )
 
 
         
@@ -182,7 +195,11 @@ class GetDashBoardDataView(APIView):
                 "messages": format_data(messages_send),
             },
             "community_highlights": {
-            "most_engaged": list(top_engaged_communities),
-            "most_participants": list(top_participant_communities),
+                "most_engaged": list(top_engaged_communities),
+                "most_participants": list(top_participant_communities),
+            },
+            "event_details": {
+                "event_type": list(event_type_counts),
+                "event_status": list(event_status_counts),
             }
         })

@@ -11,6 +11,8 @@ import CommunityLineChart from "../../components/admin-dash-board/CommunityLineC
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import DefautlCommunityImage from "../../assets/images/banner_default_user_profile.png"
+// event horizontal chart 
+import EventDetailsHorizontalBar from "../../components/admin-dash-board/EventDetailsHorizontalBar";
 
 // for commuinity date based filtering 
 const options = [
@@ -314,8 +316,8 @@ const DashboardPage = () => {
           </h3>
           <div className="px-4 pb-4">
 
+            <EventDetailsHorizontalBar data={data?.event_details} />
 
-           
           </div>
         </div>
 
@@ -326,7 +328,7 @@ const DashboardPage = () => {
             Posts Details
           </h3>
           <div className="px-4 pb-4">
-           
+
 
           </div>
         </div>
