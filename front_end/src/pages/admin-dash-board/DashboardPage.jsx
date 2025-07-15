@@ -6,30 +6,47 @@ import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticat
 import UserRadialChart from "../../components/admin-dash-board/UserRadialChart";
 //product metric chart 
 import ProductMetricsChart from "../../components/admin-dash-board/ProductMetricsChart";
+//Community line chart 
+import CommunityLineChart from "../../components/admin-dash-board/CommunityLineChart";
+import Select from "react-select";
+import { useNavigate } from "react-router-dom";
+import DefautlCommunityImage from "../../assets/images/banner_default_user_profile.png"
 
+// for commuinity date based filtering 
+const options = [
+  { value: "year", label: "Year" },
+  { value: "month", label: "Month" },
+  { value: "week", label: "Week" },
+  { value: "day", label: "Day" }
+];
 
 const DashboardPage = () => {
-
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  // for commuinity date based filtering 
+  const [groupBy, setGroupBy] = useState("month");
 
   useEffect(() => {
     setLoading(true);
     const FetchDashBoardData = async () => {
       try {
-        const response = await AdminAuthenticatedAxiosInstance.get('/dash-board/get-dash-board-data/')
+        const response = await AdminAuthenticatedAxiosInstance.get(`/dash-board/get-dash-board-data/?group_by=${groupBy}`)
         setData(response.data);
         console.log(response.data);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading("Error fetching data : ", error);
+        setLoading(false);
       }
     }
 
     FetchDashBoardData();
-  }, [])
+  }, [groupBy])
 
+  const goToCommunity = (communityId) => {
+    navigate(`/admin/community-management/community-details/${communityId}`)
+  }
   return (
     <>
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
@@ -147,9 +164,170 @@ const DashboardPage = () => {
             Product Details
           </h3>
           <div className="px-4 pb-4">
-<ProductMetricsChart data={data?.product_metrics} />
+            <ProductMetricsChart data={data?.product_metrics} />
+
+
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      {/* for community data  */}
+      <div className="my-4 grid grid-cols-1 gap-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-lg">
+          {/* Heading */}
+          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            Community Details
+          </h3>
+
+          {/* Inside content split left & right */}
+          <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left Side */}
+            <div className="  p-4 rounded">
+              <div className="mb-3 w-48">
+                <Select
+                  options={options}
+                  value={options.find((o) => o.value === groupBy)}
+                  onChange={(selected) => setGroupBy(selected.value)}
+                  isSearchable={false}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+              </div>
+
+              <CommunityLineChart data={data?.community_graph} />
+            </div>
+
+
+            {/* Right Side */}
+            <div className="p-4 rounded">
+              <div className="space-y-6">
+                {/* Highly Engaged Communities */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 text-green-700 dark:text-green-400">
+                    Highly Engaged Communities
+                  </h4>
+                  <table className="w-full text-sm text-left">
+                    <thead>
+                      <tr className="border-b border-gray-300 dark:border-zinc-700">
+                        <th className="p-2">#</th>
+                        <th className="p-2">Image</th>
+                        <th className="p-2">Community</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data?.community_highlights?.most_engaged?.length > 0 ? (
+                        data.community_highlights.most_engaged.map((community, index) => (
+                          <tr
+                            onClick={() => goToCommunity(community?.id)}
+                            key={community.id}
+                            className=" cursor-pointer border-b border-gray-200 dark:border-zinc-700"
+                          >
+                            <td className="p-2">{index + 1}</td>
+                            <td className="p-2">
+                              <img
+                                src={
+                                  community.community_logo ||
+                                  DefautlCommunityImage
+                                }
+                                alt={community.name}
+                                className="rounded-full w-8 h-8"
+                              />
+                            </td>
+                            <td className="p-2">{community.name}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="p-2 text-gray-500" colSpan="3">
+                            No data available
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Communities with Most Participants */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 text-green-700 dark:text-green-400">
+                    Communities with Most Participants
+                  </h4>
+                  <table className="w-full text-sm text-left">
+                    <thead>
+                      <tr className="border-b border-gray-300 dark:border-zinc-700">
+                        <th className="p-2">#</th>
+                        <th className="p-2">Image</th>
+                        <th className="p-2">Community</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data?.community_highlights?.most_participants?.length > 0 ? (
+                        data.community_highlights.most_participants.map(
+                          (community, index) => (
+                            <tr
+                              onClick={() => goToCommunity(community?.id)}
+                              key={community.id}
+                              className="cursor-pointer border-b border-gray-200 dark:border-zinc-700"
+                            >
+                              <td className="p-2">{index + 1}</td>
+                              <td className="p-2">
+                                <img
+                                  src={
+                                    community.community_logo ||
+                                    DefautlCommunityImage
+                                  }
+                                  alt={community.name}
+                                  className="rounded-full w-8 h-8"
+                                />
+                              </td>
+                              <td className="p-2">{community.name}</td>
+                            </tr>
+                          )
+                        )
+                      ) : (
+                        <tr>
+                          <td className="p-2 text-gray-500" colSpan="3">
+                            No data available
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2-Column Section */}
+      <div className=" my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Left Column - Radial Chart */}
+        <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
+          {/* Heading */}
+          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            Events Details
+          </h3>
+          <div className="px-4 pb-4">
+
 
            
+          </div>
+        </div>
+
+        {/* Right Column - Blank */}
+        <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
+          {/* Heading */}
+          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            Posts Details
+          </h3>
+          <div className="px-4 pb-4">
+           
+
           </div>
         </div>
 
