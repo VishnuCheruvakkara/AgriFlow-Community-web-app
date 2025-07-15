@@ -248,18 +248,6 @@ const Sidebar = ({ onToggle }) => {
           </Link>
 
 
-          <Link to="/admin/notifications" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
-            <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
-              <FaBell />
-            </div>
-            {isOpen && (
-              <div className="transition-opacity duration-300">
-                <div className="font-medium group-hover:text-white">Notifications</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Alerts & messages</div>
-              </div>
-            )}
-          </Link>
-
           <div
             onClick={() => {
               const themeBtn = document.querySelector(
@@ -301,7 +289,7 @@ const Sidebar = ({ onToggle }) => {
         </div>
       </div>
 
-      {/* Add global styles to hide scrollbar */}
+    
 
     </div>
   );

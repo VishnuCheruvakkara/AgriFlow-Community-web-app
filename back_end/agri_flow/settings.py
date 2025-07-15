@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'connections',
     'products',
     'posts',
+    'dash_board',
     # Django main page (Home) for initial load (optional).
     'Home',
     #Custom app for handle websoket

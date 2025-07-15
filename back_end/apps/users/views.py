@@ -37,6 +37,12 @@ from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.contrib.sessions.models import Session
 ############ for User profile update ##################
+#============ while change user status by admin handle changes in other models ========================# 
+from events.models import CommunityEvent
+from posts.models import Post
+from products.models import Product
+from community.models import Community
+
 # ============ for user location updated =============#
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 import requests
@@ -768,7 +774,18 @@ class UserStatusUpdateView(generics.UpdateAPIView):
         # Ensure that the logged-in user has permission to update the status
         if not request.user.is_superuser and request.user != user:
             return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
-        return self.update(request, *args, **kwargs)
+        
+        # First, save is_active
+        response = self.update(request, *args, **kwargs)
+    
+        #refresh the db to get the right result for is_active state 
+        user.refresh_from_db()
+
+        if not user.is_active:
+            CommunityEvent.objects.filter(created_by=user).update(is_deleted=True)
+        else:
+            CommunityEvent.objects.filter(created_by=user).update(is_deleted=False)
+        return response
 
 # ======================= Admin side user detail page view set up ======================#
 

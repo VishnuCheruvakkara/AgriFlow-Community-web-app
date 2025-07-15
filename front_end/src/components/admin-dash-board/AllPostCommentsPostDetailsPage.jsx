@@ -4,6 +4,7 @@ import { ImCancelCircle } from "react-icons/im";
 import FormattedDateTime from "../common-date-time/FormattedDateTime";
 import DefaultUserImage from "../../assets/images/user-default.png"
 import NoCommentsFoundImage from "../../assets/images/no-product-user-profile.png"
+import { Link } from "react-router-dom";
 
 const AllPostCommentsPostDetailsPage = ({ comments = [] }) => {
   const [inputValue, setInputValue] = useState("");
@@ -66,7 +67,7 @@ const AllPostCommentsPostDetailsPage = ({ comments = [] }) => {
               key={comment.id}
               className="bg-white dark:bg-zinc-800 rounded-lg p-3 border border-gray-200 dark:border-zinc-600"
             >
-              <div className="flex items-start space-x-3">
+              <Link to={`/admin/users-management/user-details/${comment?.user?.id}`} className="flex items-start space-x-3">
                 <img
                   src={
                     comment.user?.profile_picture ||
@@ -88,7 +89,7 @@ const AllPostCommentsPostDetailsPage = ({ comments = [] }) => {
                     {comment.content}
                   </p>
                 </div>
-              </div>
+              </Link>
             </div>
           ))
         ) : (

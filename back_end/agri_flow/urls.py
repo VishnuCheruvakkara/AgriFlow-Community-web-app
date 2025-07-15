@@ -13,6 +13,8 @@ urlpatterns = [
     path('notifications/',include('apps.notifications.urls')),
     path('products/',include('apps.products.urls')),
     path('posts/',include('apps.posts.urls')),
+    path('dash-board/',include('apps.dash_board.urls')),
+
 ]
 
 
