@@ -11,7 +11,7 @@ from community.models import Community, CommunityMembership, CommunityMessage
 # ==============event model===============#
 from events.models import CommunityEvent
 # ==============post model===============#
-from posts.models import Post
+from posts.models import Post,Like,Comment
 
 from apps.common.cloudinary_utils import generate_secure_image_url
 
@@ -105,6 +105,9 @@ class GetDashBoardDataView(APIView):
                 formatted[label] = entry["count"]
             return formatted
 
+        
+       
+
         # Get top engaged communities
         top_engaged_communities_qs = (
             Community.objects.annotate(
@@ -162,6 +165,41 @@ class GetDashBoardDataView(APIView):
             .annotate(count=Count("id"))
         )
 
+        # Posts created over time
+        posts_created = (
+            Post.objects
+            .filter(created_at__gte=since)
+            .annotate(period=trunc_func("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .order_by("period")
+        )
+
+        # Comments created over time
+        comments_created = (
+            Comment.objects
+            .filter(created_at__gte=since)
+            .annotate(period=trunc_func("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .order_by("period")
+        )
+
+        # Likes created over time
+        likes_created = (
+            Like.objects
+            .filter(created_at__gte=since)
+            .annotate(period=trunc_func("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .order_by("period")
+        )
+
+
+        # Format post engagement data
+        formatted_posts_created = format_data(posts_created)
+        formatted_comments_created = format_data(comments_created)
+        formatted_likes_created = format_data(likes_created)
 
         
             
@@ -201,5 +239,11 @@ class GetDashBoardDataView(APIView):
             "event_details": {
                 "event_type": list(event_type_counts),
                 "event_status": list(event_status_counts),
-            }
+            },
+            "post_engagement": {
+                "posts": formatted_posts_created,
+                "comments": formatted_comments_created,
+                "likes": formatted_likes_created,
+            },
+
         })

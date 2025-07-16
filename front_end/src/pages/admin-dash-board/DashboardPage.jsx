@@ -13,6 +13,9 @@ import { useNavigate } from "react-router-dom";
 import DefautlCommunityImage from "../../assets/images/banner_default_user_profile.png"
 // event horizontal chart 
 import EventDetailsHorizontalBar from "../../components/admin-dash-board/EventDetailsHorizontalBar";
+import { Link } from "react-router-dom";
+//post area chart 
+import PostEngagementAreaChart from "../../components/admin-dash-board/PostEngagementAreaChart";
 
 // for commuinity date based filtering 
 const options = [
@@ -59,7 +62,7 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 ">
 
           {/* Total Users Card */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
+          <Link to="/admin/users-management" className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
             <div className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-2">
               Total Users / Farmers
             </div>
@@ -71,10 +74,10 @@ const DashboardPage = () => {
                 <FaUsers className="text-green-600 dark:text-green-400 text-lg" />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Products Card */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
+          <Link to="/admin/products-management/" className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
             <div className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-2">
               Total Products
             </div>
@@ -86,10 +89,10 @@ const DashboardPage = () => {
                 <FaShoppingBag className="text-green-600 dark:text-green-400 text-lg" />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Communities Card */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
+          <Link to="/admin/community-management" className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
             <div className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-2">
               Total Communities
             </div>
@@ -101,10 +104,10 @@ const DashboardPage = () => {
                 <FaPeopleCarry className="text-green-600 dark:text-green-400 text-lg" />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Events Card */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
+          <Link to="/admin/event-management" className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
             <div className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-2">
               Total Events
             </div>
@@ -116,10 +119,10 @@ const DashboardPage = () => {
                 <FaCalendarAlt className="text-green-600 dark:text-green-400 text-lg" />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Posts Card */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
+          <Link to="/admin/post-management" className="bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 p-4 rounded-xl border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-102 group">
             <div className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-2">
               Total Posts
             </div>
@@ -131,7 +134,7 @@ const DashboardPage = () => {
                 <BsPostcardHeartFill className="text-green-600 dark:text-green-400 text-lg" />
               </div>
             </div>
-          </div>
+          </Link>
 
         </div>
       </div>
@@ -141,9 +144,11 @@ const DashboardPage = () => {
         {/* Left Column - Radial Chart */}
         <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
           {/* Heading */}
-          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
-            User Details
-          </h3>
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            <h3 className="text-lg font-semibold m-0">User Details</h3>
+            <Link to="/admin/users-management" className="text-xs no-underline hover:underline ">View Details</Link>
+          </div>
+
           <div className="px-4 pb-4">
 
 
@@ -162,9 +167,11 @@ const DashboardPage = () => {
         {/* Right Column - Blank */}
         <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
           {/* Heading */}
-          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
-            Product Details
-          </h3>
+
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            <h3 className="text-lg font-semibold m-0">Product Details</h3>
+            <Link to="/admin/products-management" className="text-xs no-underline hover:underline ">View Details</Link>
+          </div>
           <div className="px-4 pb-4">
             <ProductMetricsChart data={data?.product_metrics} />
 
@@ -181,9 +188,11 @@ const DashboardPage = () => {
       <div className="my-4 grid grid-cols-1 gap-4">
         <div className="bg-white dark:bg-zinc-900 rounded-lg">
           {/* Heading */}
-          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
-            Community Details
-          </h3>
+
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            <h3 className="text-lg font-semibold m-0">Community Details</h3>
+            <Link to="/admin/community-management" className="text-xs no-underline hover:underline ">View Details</Link>
+          </div>
 
           {/* Inside content split left & right */}
           <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -212,21 +221,16 @@ const DashboardPage = () => {
                   <h4 className="text-sm font-semibold mb-2 text-green-700 dark:text-green-400">
                     Highly Engaged Communities
                   </h4>
+
                   <table className="w-full text-sm text-left">
-                    <thead>
-                      <tr className="border-b border-gray-300 dark:border-zinc-700">
-                        <th className="p-2">#</th>
-                        <th className="p-2">Image</th>
-                        <th className="p-2">Community</th>
-                      </tr>
-                    </thead>
+
                     <tbody>
                       {data?.community_highlights?.most_engaged?.length > 0 ? (
                         data.community_highlights.most_engaged.map((community, index) => (
                           <tr
                             onClick={() => goToCommunity(community?.id)}
                             key={community.id}
-                            className=" cursor-pointer border-b border-gray-200 dark:border-zinc-700"
+                            className=" cursor-pointer border-b border-t hover:bg-zinc-100 dark:hover:bg-zinc-700 border-gray-200 dark:border-zinc-700"
                           >
                             <td className="p-2">{index + 1}</td>
                             <td className="p-2">
@@ -259,13 +263,7 @@ const DashboardPage = () => {
                     Communities with Most Participants
                   </h4>
                   <table className="w-full text-sm text-left">
-                    <thead>
-                      <tr className="border-b border-gray-300 dark:border-zinc-700">
-                        <th className="p-2">#</th>
-                        <th className="p-2">Image</th>
-                        <th className="p-2">Community</th>
-                      </tr>
-                    </thead>
+
                     <tbody>
                       {data?.community_highlights?.most_participants?.length > 0 ? (
                         data.community_highlights.most_participants.map(
@@ -273,7 +271,7 @@ const DashboardPage = () => {
                             <tr
                               onClick={() => goToCommunity(community?.id)}
                               key={community.id}
-                              className="cursor-pointer border-b border-gray-200 dark:border-zinc-700"
+                              className="cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 border-t border-b border-gray-200 dark:border-zinc-700"
                             >
                               <td className="p-2">{index + 1}</td>
                               <td className="p-2">
@@ -311,9 +309,11 @@ const DashboardPage = () => {
         {/* Left Column - Radial Chart */}
         <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
           {/* Heading */}
-          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
-            Events Details
-          </h3>
+
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            <h3 className="text-lg font-semibold m-0">Events Details</h3>
+            <Link to="/admin/event-management" className="text-xs no-underline hover:underline ">View Details</Link>
+          </div>
           <div className="px-4 pb-4">
 
             <EventDetailsHorizontalBar data={data?.event_details} />
@@ -324,12 +324,13 @@ const DashboardPage = () => {
         {/* Right Column - Blank */}
         <div className="bg-white dark:bg-zinc-900 rounded-lg  ">
           {/* Heading */}
-          <h3 className="text-lg font-semibold p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
-            Posts Details
-          </h3>
+
+          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-700 to-green-400 mb-4 text-white rounded-t-lg">
+            <h3 className="text-lg font-semibold m-0">Posts Details</h3>
+            <Link to="/admin/post-management" className="text-xs no-underline hover:underline ">View Details</Link>
+          </div>
           <div className="px-4 pb-4">
-
-
+            <PostEngagementAreaChart data={data?.post_engagement} />
           </div>
         </div>
 

@@ -79,11 +79,10 @@ const EventDetailsHorizontalBar = ({ data }) => {
         barHeight: "60%",
       },
     },
-    colors: ["#16a34a"], // Tailwind green-700
+    colors: ["#16a34a"], 
     dataLabels: {
       enabled: true,
       style: {
-        colors: [isDark ? "#FFFFFF" : "#000000"],
         fontSize: "12px",
       },
     },
