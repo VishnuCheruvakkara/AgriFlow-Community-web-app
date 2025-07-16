@@ -57,7 +57,7 @@ const CustomScrollToTop = () => {
 
   return (
     <div 
-      className={`fixed bottom-14 right-5 z-50 transition-all duration-700 ease-in-out ${
+      className={`fixed bottom-20 right-5 z-50 transition-all duration-700 ease-in-out ${
         visible 
           ? "opacity-100 translate-y-0" 
           : "opacity-0 translate-y-10 pointer-events-none"
@@ -66,7 +66,7 @@ const CustomScrollToTop = () => {
       <button
         onClick={scrollToTop}
         aria-label="Scroll to top"
-        className={`hidden lg:flex bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-all duration-300 ${
+        className={`lg:flex bg-green-600 text-white p-1 md:p-3 sm:p-2 rounded-full shadow-lg hover:bg-green-700 transition-all duration-300 ${
           isScrolling ? "animate-pulse" : ""
         }`}
       >

@@ -113,7 +113,15 @@ function CreatedEvents() {
                             onDelete={(deletedId) => {
                                 setEvents((prevEvents) => prevEvents.filter((e) => e.id !== deletedId));
                                 setViewedEvent(null); // Close the detail view
-                            }} />
+                            }}
+                            onEventStatusUpdate={(updatedEvent) => {
+                                setEvents((prev) =>
+                                    prev.map((e) =>
+                                        e.id === updatedEvent.id ? { ...e, event_status: updatedEvent.event_status } : e
+                                    )
+                                );
+                            }}
+                        />
                     </motion.div>
                 ) : (
                     <>

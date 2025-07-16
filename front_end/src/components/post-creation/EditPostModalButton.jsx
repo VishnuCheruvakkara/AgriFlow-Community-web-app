@@ -46,8 +46,8 @@ const EditPostModalButton = ({ post, onSuccess }) => {
 
             await AuthenticatedAxiosInstance.patch(`/posts/edit-post/${post.id}/`, formData);
             showToast("Post updated successfully!", "success");
+            onSuccess(); // Refresh post list
             closeModal();
-            onSuccess?.(); // Refresh post list
         } catch (error) {
             console.error(error);
             showToast(error?.response?.data?.[0] || "Something went wrong", "error");

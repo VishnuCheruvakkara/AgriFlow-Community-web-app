@@ -22,7 +22,7 @@ import SearchNotFound from "../../assets/images/no-weather-data-found.png"
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import { MdCancel } from "react-icons/md";
 
-const EventDetailsPage = ({ event, onClose, onDelete }) => {
+const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(event);
 
@@ -113,10 +113,14 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
         );
         console.log(response.data);
         showToast("Event marked as completed.", "success");
-        setCurrentEvent((prev) => ({
-          ...prev,
+        const updatedEvent = {
+          ...currentEvent,
           event_status: "completed",
-        }));
+        };
+
+        setCurrentEvent(updatedEvent);
+        //changes in parent event status
+        if (onEventStatusUpdate) onEventStatusUpdate(updatedEvent);
       } catch (error) {
         console.error("Error marking event as completed:", error);
         const errorMessage =
@@ -140,10 +144,15 @@ const EventDetailsPage = ({ event, onClose, onDelete }) => {
         const response = await AuthenticatedAxiosInstance.patch(`/events/mark-as-cancelled/${currentEvent.id}/`);
         console.log(response.data);
         showToast("Event has been cancelled.", "success");
-        setCurrentEvent((prev) => ({
-          ...prev,
+        const updatedEvent = {
+          ...currentEvent,
           event_status: "cancelled",
-        }));
+        };
+
+        setCurrentEvent(updatedEvent);
+
+        //changes in parent event status
+        if (onEventStatusUpdate) onEventStatusUpdate(updatedEvent);
       } catch (error) {
         console.error("Error cancelling event:", error);
         const errorMessage = error?.response?.data?.detail || "Failed to cancel the event.";

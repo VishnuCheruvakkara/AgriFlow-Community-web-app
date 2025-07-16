@@ -138,10 +138,10 @@ function EnrolledEvents() {
               </p>
             </div>
           ) : (events.map((event, index) => (
-<div>
+            <div>
 
 
-            
+
               <div
                 key={index}
                 className=" relative bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:shadow-zinc-700/50"
@@ -210,20 +210,46 @@ function EnrolledEvents() {
                 </div>
 
                 <div className="mt-4">
-                  {event.event_type == "online" ?
-                    <button onClick={() => setModalEvent(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700">
-                      <RiVideoOnAiLine className="text-white text-2xl" />
-                      Join the Meet
+                  {["cancelled", "completed"].includes(event.event_status) ? (
+                    <button
+                      disabled
+                      className="w-full py-2 bg-gray-400 text-white rounded-md cursor-not-allowed flex items-center justify-center gap-2 dark:bg-gray-700"
+                    >
+                      {event.event_type === "online" ? (
+                        <>
+                          <RiVideoOnAiLine className="text-white text-2xl" />
+                          {event.event_status === "cancelled" ? "Event Cancelled" : "Event Completed"}
+                        </>
+                      ) : (
+                        <>
+                          <GrMapLocation className="text-white text-xl" />
+                          {event.event_status === "cancelled" ? "Event Cancelled" : "Event Completed"}
+                        </>
+                      )}
                     </button>
-                    :
-                    <button onClick={() => setModalEvent(event)} className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700">
-                      <GrMapLocation className="text-white text-xl" />
-                      View Location
-                    </button>
-                  }
-
-
+                  ) : (
+                    <>
+                      {event.event_type === "online" ? (
+                        <button
+                          onClick={() => setModalEvent(event)}
+                          className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700"
+                        >
+                          <RiVideoOnAiLine className="text-white text-2xl" />
+                          Join the Meet
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setModalEvent(event)}
+                          className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center gap-2 dark:bg-green-600 dark:hover:bg-green-700"
+                        >
+                          <GrMapLocation className="text-white text-xl" />
+                          View Location
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
+
                 {/* Modal */}
                 <AnimatePresence>
                   {modalEvent && (
@@ -241,7 +267,7 @@ function EnrolledEvents() {
               </div>
 
 
-         </div>
+            </div>
 
 
 

@@ -77,9 +77,7 @@ function Footer() {
                     <p className="flex justify-center items-center gap-1">
                         <MdCopyright className="text-base" />  {new Date().getFullYear()} AgriFlow. All rights reserved.
                     </p>
-                    <p className="mt-1 flex justify-center items-center gap-1">
-                        Made with <IoIosHeart className="text-red-500 text-lg" /> for farmers across the world
-                    </p>
+                    
                 </div>
             </div>
         </footer>
