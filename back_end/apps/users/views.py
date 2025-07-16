@@ -42,6 +42,7 @@ from events.models import CommunityEvent
 from posts.models import Post
 from products.models import Product
 from community.models import Community
+from connections.models import Connection
 
 # ============ for user location updated =============#
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -783,8 +784,17 @@ class UserStatusUpdateView(generics.UpdateAPIView):
 
         if not user.is_active:
             CommunityEvent.objects.filter(created_by=user).update(is_deleted=True)
+            Post.objects.filter(author=user).update(is_deleted=True)
+            Product.objects.filter(seller=user).update(is_deleted=True)
+            Community.objects.filter(created_by=user).update(is_deleted=True)
+            # Cancel pending sent connections
+            Connection.objects.filter(sender=user, status="pending").update(status="cancelled")
         else:
             CommunityEvent.objects.filter(created_by=user).update(is_deleted=False)
+            Post.objects.filter(author=user).update(is_deleted=False)
+            Product.objects.filter(seller=user).update(is_deleted=False)
+            Community.objects.filter(created_by=user).update(is_deleted=False)
+
         return response
 
 # ======================= Admin side user detail page view set up ======================#
