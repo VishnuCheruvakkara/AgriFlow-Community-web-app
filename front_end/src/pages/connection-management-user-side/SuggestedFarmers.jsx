@@ -30,7 +30,7 @@ const SuggestedFarmers = () => {
                     search: search
                 }
             });
-
+            console.log("suggested farmers ::",response.data.results)
             setFarmers(response.data.results);
             setTotalPages(Math.ceil(response.data.count / 6)); // Match backend pagination page_size
         } catch (error) {
@@ -193,7 +193,7 @@ const SuggestedFarmers = () => {
                             {/* Banner Image */}
                             <Link to={`/user-dash-board/user-profile-view/${farmer?.id}`} className="h-24 w-full bg-green-100 dark:bg-green-900 relative">
                                 <img
-                                    src={DefaultBannerImage}
+                                    src={farmer.banner_image || DefaultBannerImage}
                                     alt="Farm banner"
                                     className="w-full h-full object-cover"
                                 />

@@ -16,14 +16,19 @@ class AddressSerializer(serializers.ModelSerializer):
 class GetSuggestedFarmersSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
     profile_picture = serializers.SerializerMethodField()
+    banner_image = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'profile_picture', 'farming_type', 'address']
+        fields = ['id', 'username', 'profile_picture', 'farming_type', 'address','banner_image']
 
     def get_profile_picture(self,obj):
         public_id = obj.profile_picture 
         return generate_secure_image_url(public_id)
+
+    def get_banner_image(self,obj):
+        return generate_secure_image_url(obj.banner_image)
+    
 
 ##################  Pending request section ( Requests You Sent - front end section in the connection page  ) ################### 
 
