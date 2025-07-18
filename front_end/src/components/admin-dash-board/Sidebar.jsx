@@ -14,6 +14,7 @@ import {
   FaTimes,
   FaRegArrowAltCircleRight,
 } from "react-icons/fa";
+import { BsPostcardHeartFill } from "react-icons/bs";
 import { IoArrowForwardCircle } from "react-icons/io5";
 import { persistor } from '../../redux/Store';
 import AgriFlowWhiteLogo from '../../assets/images/agriflowwhite.png';
@@ -113,8 +114,8 @@ const Sidebar = ({ onToggle }) => {
 
           {isOpen && (
             <div className="ml-3 transition-opacity duration-300">
-              <p className="font-medium">Admin Portal</p>
-
+              <p className="font-semibold text-xl">Agri Flow</p>
+             
             </div>
           )}
         </div>
@@ -174,70 +175,78 @@ const Sidebar = ({ onToggle }) => {
             {isOpen && (
               <div className="transition-opacity duration-300">
                 <div className="font-medium group-hover:text-white">Products</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Inventory & listings</div>
+                <div className="text-xs text-green-200 group-hover:text-white">Mange selling products</div>
               </div>
             )}
           </Link>
 
-          <Link to="/admin/community" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+          <Link
+            to="/admin/community-management"
+            className={`flex items-center ${isOpen ? "gap-3" : "justify-center"
+              } 
+    px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+    ${location.pathname.startsWith("/admin/community-management")
+                ? "bg-green-500 text-white shadow-md"
+                : "text-white hover:bg-green-500 hover:shadow-md"
+              }`}
+          >
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaPeopleCarry />
             </div>
             {isOpen && (
               <div className="transition-opacity duration-300">
-                <div className="font-medium group-hover:text-white">Community</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Forums & discussions</div>
+                <div className="font-medium group-hover:text-white">Communities</div>
+                <div className="text-xs text-green-200 group-hover:text-white">
+                  Manage Communities
+                </div>
               </div>
             )}
           </Link>
 
-          <Link to="/admin/events" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+
+          <Link
+            to="/admin/event-management"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'
+              } 
+    px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+    ${location.pathname.startsWith('/admin/event-management')
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'
+              }
+  `}
+          >
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
               <FaCalendarAlt />
             </div>
             {isOpen && (
               <div className="transition-opacity duration-300">
                 <div className="font-medium group-hover:text-white">Events</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Workshops & training</div>
+                <div className="text-xs text-green-200 group-hover:text-white">Manage Events</div>
               </div>
             )}
           </Link>
 
-          <Link to="/admin/knowledge" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
+          <Link
+            to="/admin/post-management"
+            className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'}
+    px-4 py-3 mx-2 my-1 rounded-md transition-all duration-200 group 
+    ${location.pathname.startsWith('/admin/post-management')
+                ? 'bg-green-500 text-white shadow-md'
+                : 'text-white hover:bg-green-500 hover:shadow-md'
+              }
+  `}
+          >
             <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
-              <FaBook />
+              <BsPostcardHeartFill />
             </div>
             {isOpen && (
               <div className="transition-opacity duration-300">
-                <div className="font-medium group-hover:text-white">Knowledge Hub</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Resources & guides</div>
+                <div className="font-medium group-hover:text-white">Posts</div>
+                <div className="text-xs text-green-200 group-hover:text-white">Manage Posts</div>
               </div>
             )}
           </Link>
 
-          <Link to="/admin/analytics" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
-            <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
-              <FaChartLine />
-            </div>
-            {isOpen && (
-              <div className="transition-opacity duration-300">
-                <div className="font-medium group-hover:text-white">Analytics</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Reports & insights</div>
-              </div>
-            )}
-          </Link>
-
-          <Link to="/admin/notifications" className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 group`}>
-            <div className="flex items-center justify-center w-6 h-6 text-lg group-hover:scale-110 transition-transform">
-              <FaBell />
-            </div>
-            {isOpen && (
-              <div className="transition-opacity duration-300">
-                <div className="font-medium group-hover:text-white">Notifications</div>
-                <div className="text-xs text-green-200 group-hover:text-white">Alerts & messages</div>
-              </div>
-            )}
-          </Link>
 
           <div
             onClick={() => {
@@ -248,7 +257,7 @@ const Sidebar = ({ onToggle }) => {
             }}
             className={`flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-4 py-3 mx-2 my-1 text-white rounded-md hover:bg-green-500 hover:shadow-md transition-all duration-200 cursor-pointer group`}
           >
-            <div className="flex items-center justify-center w-6 h-6 text-lg transition-transform group-hover:scale-110">
+            <div className="flex items-center justify-center w-6 h-6 text-lg transition-transform ">
               <ThemeToggle />
             </div>
 
@@ -259,10 +268,6 @@ const Sidebar = ({ onToggle }) => {
               </div>
             )}
           </div>
-
-
-
-
         </div>
       </div>
 
@@ -284,8 +289,7 @@ const Sidebar = ({ onToggle }) => {
         </div>
       </div>
 
-
-      {/* Add global styles to hide scrollbar */}
+    
 
     </div>
   );

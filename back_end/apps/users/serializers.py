@@ -415,7 +415,7 @@ class UserDashboardSerializer(serializers.ModelSerializer):
             "profile_picture", "address", "farming_type",
             "experience", "bio", "date_of_birth", "profile_completed",
             "created_at", "is_active", "is_aadhar_verified", "aadhar_resubmission_message",
-        ]  # Only necessary fields
+        ]  
 
     def get_profile_picture(self, obj):
         """Return a secure profile picture URL."""
@@ -581,16 +581,26 @@ class UserProfileSerializer(serializers.ModelSerializer):
     community_count = serializers.SerializerMethodField()
     connection_count = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
+    banner_image = serializers.SerializerMethodField()
     connection_status = serializers.SerializerMethodField()
+    post_count = serializers.SerializerMethodField()
+    product_count = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'username', 'phone_number', 'profile_picture',
+            'id', 'email', 'username', 'phone_number', 'profile_picture','banner_image',
             'is_verified', 'farming_type', 'experience', 'bio', 'aadhar_card',
             'is_aadhar_verified', 'aadhar_resubmission_message', 'date_of_birth',
             'profile_completed', 'created_at', 'updated_at',
-            'address', 'community_count', 'connection_count', 'connection_status'
+            'address', 'community_count', 'connection_count', 'connection_status','post_count', 'product_count'
         ]
+    
+    def get_post_count(self, obj):
+        return obj.posts.filter(is_deleted=False).count()
+
+
+    def get_product_count(self, obj):
+        return obj.products.filter(is_deleted=False, is_available=True).count()
 
     def get_community_count(self, obj):
         return CommunityMembership.objects.filter(user=obj, status='approved').count()
@@ -603,6 +613,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.profile_picture)
+    
+    def get_banner_image(self, obj): 
+        return generate_secure_image_url(obj.banner_image)
 
     def get_connection_status(self, obj):
         request = self.context.get('request')
@@ -659,3 +672,16 @@ class PrivateMessageSerializer(serializers.ModelSerializer):
 
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
+
+#################################### User Profile update serializer  ######################################3
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "phone_number",
+            "farming_type",
+            "experience",
+            "bio",
+        ]

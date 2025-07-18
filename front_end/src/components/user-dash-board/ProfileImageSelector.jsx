@@ -52,15 +52,19 @@ const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
     <div className="flex flex-col items-center">
       {/* Profile Image Upload Area */}
       <div className="relative w-32 h-32">
-        <label className="w-32 h-32 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center cursor-pointer overflow-hidden relative">
+        <label className="w-32 h-32 rounded-full border-2 border-dashed 
+                      border-gray-400 dark:border-zinc-600 
+                      hover:border-green-700 dark:hover:border-green-500 
+                      flex items-center justify-center cursor-pointer 
+                      overflow-hidden transition duration-300">
           {displayImage ? (
             <img
               src={displayImage}
               alt="Profile"
-              className="w-full h-full object-cover border-4 border-white rounded-full"
+              className="w-full h-full object-cover border-4 border-white dark:border-zinc-800 rounded-full"
             />
           ) : (
-            <AiOutlinePlus size={40} className="text-gray-500" />
+            <AiOutlinePlus size={40} className="text-gray-500 dark:text-zinc-400" />
           )}
           <input
             type="file"
@@ -73,7 +77,8 @@ const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
         {/* Remove Image Button */}
         {displayImage && (
           <button
-            className="absolute top-4 right-4 transform translate-x-1/2 -translate-y-1/2 bg-red-500 p-2 rounded-full text-white shadow-lg hover:bg-red-600 transition"
+            className="absolute top-2 right-2 bg-red-500 p-1.5 rounded-full 
+                   text-white shadow-md hover:bg-red-600 transition duration-200"
             onClick={removeImage}
           >
             <AiOutlineClose size={14} />
@@ -83,9 +88,12 @@ const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
 
       {/* Error Message */}
       {error && (
-        <p className="text-red-500 text-sm mt-5 text-center w-full">{error}</p>
+        <p className="text-red-500 text-sm mt-5 text-center w-full dark:text-red-400">
+          {error}
+        </p>
       )}
     </div>
+
   );
 };
 

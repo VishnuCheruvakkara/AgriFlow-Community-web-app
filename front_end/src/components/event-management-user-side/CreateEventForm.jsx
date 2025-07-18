@@ -72,8 +72,8 @@ function CreateEventForm({ selectedCommunity, onBack }) {
 
 
     return (
-       <div className="max-w-full mx-auto px-4">
-            <div className="text-center mb-4">
+       <div className="max-w-full mx-auto ">
+            <div className="text-center mb-4 mt-4">
                 <div className="overflow-hidden rounded-lg">
                     <div
                         className="flex items-center justify-between p-3 mb-4 border border-gray-300 hover:bg-green-600 cursor-pointer rounded-lg hover:shadow-gray-300 dark:hover:shadow-zinc-700 hover:shadow-md bg-green-500 transition-colors duration-300 dark:border-zinc-700"
@@ -83,19 +83,19 @@ function CreateEventForm({ selectedCommunity, onBack }) {
                             onClick={onBack}
                             className="flex items-center space-x-2 text-sm text-green-600 hover:text-green-700"
                         >
-                            <div className="bg-white rounded-full p-2 dark:bg-zinc-800">
+                            <div className="bg-white rounded-full p-2 ">
                                 <IoArrowBackCircleSharp className="text-green-600 dark:text-green-400 h-5 w-5" />
                             </div>
                             <span className="text-white">Back to Select Community</span>
                         </button>
 
                         {/* Community Info */}
-                        <div className="flex items-center gap-3 mr-4">
+                        <div className="flex items-center gap-3 mr-4 ">
                             <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
                                 <img
                                     src={selectedCommunity?.logo || DefaultCommunityImage}
                                     alt="Community Logo"
-                                    className="h-12 w-12 rounded-full object-cover border-2 border-white dark:border-zinc-800"
+                                    className="h-12 w-12 rounded-full object-cover border-2 border-white shrink-0"
                                 />
                             </div>
                             <div>

@@ -8,8 +8,11 @@ import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmat
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { Link } from "react-router-dom";
 import { PulseLoader } from 'react-spinners';
-import Pagination from "../../components/Common-Pagination/UserSidePagination";
-
+import AdminSidePagination from "../../components/Common-Pagination/AdminSidePagination";
+//debounce in search 
+import debounce from "lodash/debounce";
+import UsersNotFound from "../../assets/images/connection_no_search_found.png"
+import { ImCancelCircle } from "react-icons/im";
 
 const UsersPage = () => {
 
@@ -24,7 +27,18 @@ const UsersPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchUsers(currentPage, filter, searchQuery);
+
+    // Debounced fetch function
+    const debouncedFetch = debounce(() => {
+      fetchUsers(currentPage, filter, searchQuery);
+    }, 500); // 500ms debounce
+
+    debouncedFetch();
+
+    // cancel debounce if component unmounts or dependencies change
+    return () => {
+      debouncedFetch.cancel();
+    };
   }, [currentPage, filter, searchQuery]);
 
   const fetchUsers = async (page, filter, search) => {
@@ -97,64 +111,84 @@ const UsersPage = () => {
   return (
     <>
 
-      <div className="max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
+      <div className=" mb-4  max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
         <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
-          <h1 className="text-2xl font-bold">Farmers Management</h1>
+          <h1 className="text-xl font-bold">Farmers Management</h1>
         </div>
 
         {/* filter option  */}
         <div className="my-4 mx-2 px-2"> {/* Added px-4 for spacing on the sides */}
-          <div className="flex bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
+          <div className="flex flex-col sm:flex-row bg-green-100 dark:bg-zinc-600 rounded-lg overflow-hidden shadow-md">
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("")}>
               All
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "profile_not_updated" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("profile_not_updated")}>
-              Profile Not Updated
+              <span className="hidden sm:inline">Profile Not Updated</span>
+              <span className="sm:hidden">Profile Not Updated</span>
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "aadhaar_not_verified" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("aadhaar_not_verified")}>
-              Aadhaar Not Verified
+              <span className="hidden sm:inline">Aadhaar Not Verified</span>
+              <span className="sm:hidden">Aadhaar Not Verified</span>
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "active" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "active" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("active")}>
               Active
             </button>
             <button
-              className={`flex-1 py-3 text-center font-medium ${filter === "blocked" ? "bg-green-600" : "bg-green-400 "}
+              className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filter === "blocked" ? "bg-green-600" : "bg-green-400 "}
       text-white hover:bg-green-600  hover:brightness-110 transition duration-300 ease-in-out`}
               onClick={() => handleFilterChange("blocked")}>
               Blocked
             </button>
           </div>
         </div>
+
+
         {/* Filters */}
-
-
-        <div className="grid grid-cols-1  gap-6">
-          <div className="bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300  dark:border-zinc-600 shadow-lg">
+        <div className="grid grid-cols-1  gap-6 ">
+          <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300  dark:border-zinc-600 shadow-lg">
             <h3 className="font-bold text-gray-700 dark:text-zinc-200 my-4">Available Farmers</h3>
 
             {/* Search Bar */}
-            <div className="flex border border-zinc-300 my-4 focus-within:border-green-500 dark:focus-within:border-green-500 dark:border-zinc-700 first-letter:items-center w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-3 transition duration-300 ease-in-out">
+            <div className="flex items-center border border-zinc-300 my-4 focus-within:border-green-500 dark:focus-within:border-green-500 dark:border-zinc-700 w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm px-3 py-2 transition duration-300 ease-in-out">
+              {/* Search Icon */}
               <RiSearchLine className="text-gray-500 dark:text-zinc-300 text-xl" />
+
+              {/* Input */}
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearch}
-                className="w-full outline-none px-2 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
+                className="flex-1 outline-none px-2 py-1 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
               />
+
+              {/* Cancel Button */}
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    // Clear input and optionally reset results
+                    handleSearch({ target: { value: "" } });
+                  }}
+                  className="text-gray-500 hover:text-red-500 transition-colors duration-300"
+                  aria-label="Clear search"
+                >
+                  <ImCancelCircle size={18} />
+                </button>
+              )}
             </div>
+
 
             {/* Parent Container is Required for Ternary */}
             {loading ? (
@@ -184,7 +218,7 @@ const UsersPage = () => {
                     </thead>
 
                     {/* Table Body (Conditional Rendering) */}
-                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-600">
+                    <tbody className="divide-y divide-gray-200 dark:divide-zinc-600">
 
                       {users.map((user, index) => (
                         <tr
@@ -272,7 +306,7 @@ const UsersPage = () => {
                 </div>
 
                 {/* Pagination Controls */}
-                <Pagination
+                <AdminSidePagination
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={handlePageChange}
@@ -281,18 +315,24 @@ const UsersPage = () => {
                 />
               </>
             ) : (
-              <div class="flex justify-center  w-full">
-                <div class="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-6 rounded-lg shadow-md text-center max-w-md border border-red-200 dark:border-red-700 transform transition-all duration-300 ">
-                  <svg class="w-12 h-12 mx-auto text-red-500 dark:text-red-400 mb-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <p class="text-xl font-bold mb-2">No Users Found</p>
-                  <p class="text-sm text-red-600 dark:text-red-300">Try adjusting your search or filter criteria.</p>
-                  <button onClick={() => setSearchQuery("")} class="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200 text-sm font-medium">
-                    Clear Filters
-                  </button>
-                </div>
+
+              <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700">
+                <img
+                  src={UsersNotFound}
+                  alt="No Events"
+                  className="mx-auto w-64 object-contain"
+                />
+                <p className="text-lg font-semibold dark:text-zinc-400">No Users Found</p>
+                <p className="text-xs text-gray-500 dark:text-zinc-400">Try adjusting your search or filter criteria.</p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200 text-sm font-medium"
+                >
+                  Clear Filters
+                </button>
               </div>
+
+
             )}
           </div>
         </div>

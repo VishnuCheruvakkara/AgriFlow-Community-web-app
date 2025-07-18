@@ -14,6 +14,7 @@ function PostCreationModalButton({ user }) {
 
     const [postText, setPostText] = useState("");
     const [mediaFile, setMediaFile] = useState(null);
+    const [previewURL, setPreviewURL] = useState(null); 
 
     const dispatch = useDispatch();
 
@@ -41,6 +42,7 @@ function PostCreationModalButton({ user }) {
             // Reset form after successfull creation 
             setPostText("");
             setMediaFile(null);
+            setPreviewURL(null); 
             closeModal();
         } catch (error) {
             console.error(error);
@@ -75,12 +77,19 @@ function PostCreationModalButton({ user }) {
                 title="Create Post"
                 onSubmit={handleAddPost}
                 isSubmitDisabled={!postText.trim() && !mediaFile}
+                submitButtonText="Create Post"
+                submitButtonId="postConfirmationButton"
+                width="w-[1000px]"
+                height="h-[670px]"
+
             >
                 <PostCreationModalContent
                     postText={postText}
                     setPostText={setPostText}
                     mediaFile={mediaFile}
                     setMediaFile={setMediaFile}
+                    previewURL={previewURL}
+                    setPreviewURL={setPreviewURL}
                 />
             </ModalSkeleton>
         </>

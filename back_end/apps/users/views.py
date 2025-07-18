@@ -1,4 +1,5 @@
 
+from apps.common.cloudinary_utils import upload_image_and_get_url, upload_image_to_cloudinary
 from .serializers import AadharResubmissionMessageSerializer
 from users.serializers import UserStatusSerializer
 from rest_framework import generics, filters
@@ -22,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 # import file from users folder
-from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer,PrivateMessageSerializer
+from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer,PrivateMessageSerializer,UserProfileUpdateSerializer
 from .utils import generate_otp_and_send_email
 from .services import generate_tokens
 ########## google authentication ############
@@ -36,6 +37,13 @@ from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.contrib.sessions.models import Session
 ############ for User profile update ##################
+#============ while change user status by admin handle changes in other models ========================# 
+from events.models import CommunityEvent
+from posts.models import Post
+from products.models import Product
+from community.models import Community
+from connections.models import Connection
+
 # ============ for user location updated =============#
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 import requests
@@ -767,7 +775,27 @@ class UserStatusUpdateView(generics.UpdateAPIView):
         # Ensure that the logged-in user has permission to update the status
         if not request.user.is_superuser and request.user != user:
             return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
-        return self.update(request, *args, **kwargs)
+        
+        # First, save is_active
+        response = self.update(request, *args, **kwargs)
+    
+        #refresh the db to get the right result for is_active state 
+        user.refresh_from_db()
+
+        if not user.is_active:
+            CommunityEvent.objects.filter(created_by=user).update(is_deleted=True)
+            Post.objects.filter(author=user).update(is_deleted=True)
+            Product.objects.filter(seller=user).update(is_deleted=True)
+            Community.objects.filter(created_by=user).update(is_deleted=True)
+            # Cancel pending sent connections
+            Connection.objects.filter(sender=user, status="pending").update(status="cancelled")
+        else:
+            CommunityEvent.objects.filter(created_by=user).update(is_deleted=False)
+            Post.objects.filter(author=user).update(is_deleted=False)
+            Product.objects.filter(seller=user).update(is_deleted=False)
+            Community.objects.filter(created_by=user).update(is_deleted=False)
+
+        return response
 
 # ======================= Admin side user detail page view set up ======================#
 
@@ -863,3 +891,63 @@ class PrivateChatMessagesView(APIView):
 
         serializers = PrivateMessageSerializer(messages,many=True) 
         return Response(serializers.data,status=status.HTTP_200_OK)
+    
+###############################  User Profile Edit section ##############################
+
+#====================== user side profile picture edit view =====================================# 
+
+class UpdateUserProfilePictureView(APIView):
+    permission_classes = [IsAuthenticated] 
+
+    def patch(self,request):
+
+        image_file=request.FILES.get("profile_picture")
+        if not image_file:
+            return Response({"error":"Only image is allowed"},status=status.HTTP_400_BAD_REQUEST)
+        
+        public_id=upload_image_to_cloudinary(image_file,folder_name="user_profile_pictures")
+        if not public_id:
+            return Response({"error":"Image upload failed."},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        request.user.profile_picture = public_id
+        request.user.save()
+
+        return Response({"message":"Prfoile picture updated successfully."},status=status.HTTP_200_OK)
+    
+#=============================== user side edit banner image ==============================# 
+
+class UpdateUserBannerImageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        image_file = request.FILES.get("banner_image")
+        if not image_file:
+            return Response({"error": "Only image is allowed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Upload to Cloudinary
+        public_id = upload_image_to_cloudinary(image_file, folder_name="user_banner_images")
+        if not public_id:
+            return Response({"error": "Image upload failed."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Save to user model
+        request.user.banner_image = public_id
+        request.user.save()
+
+        return Response({"message": "Banner image updated successfully."}, status=status.HTTP_200_OK)
+
+#===================================== Update user profile datas ========================================# 
+
+class UserProfileUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserProfileUpdateSerializer(
+            user,
+            data=request.data,
+            partial=True  # Allow partial updates
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

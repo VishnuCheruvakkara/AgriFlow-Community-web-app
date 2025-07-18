@@ -13,6 +13,7 @@ class Post(models.Model):
         max_length=500, blank=True, null=True, help_text="Cloudinary image URL")
     video_url = models.URLField(
         max_length=500, blank=True, null=True, help_text="Cloudinary video URL")
+    is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

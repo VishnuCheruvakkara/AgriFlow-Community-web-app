@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 import environ
 from datetime import timedelta
+from celery.schedules import crontab 
 
 env = environ.Env()
 environ.Env.read_env()
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     'connections',
     'products',
     'posts',
+    'dash_board',
     # Django main page (Home) for initial load (optional).
     'Home',
     #Custom app for handle websoket
@@ -329,8 +331,11 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 # Get the API key from the environment variable
 LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")
 
+#################### Celery Cron job setup ##################################
 
-
-
-
-
+CELERY_BEAT_SCHEDULE = {
+    'scan-and-send-event-notifications-every-minute': {
+        'task': 'events.tasks.scan_and_send_event_notifications',
+        'schedule': crontab(),  # every minute
+    },
+}

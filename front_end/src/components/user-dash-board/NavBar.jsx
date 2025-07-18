@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { FaBell, FaEnvelope, FaSearch } from 'react-icons/fa';
+import { FaBell, FaEnvelope, FaSearch, FaCloudSun, FaRegUserCircle } from 'react-icons/fa';
 import { IoMdLogOut } from "react-icons/io";
 // for lgout section 
 import { useNavigate, Link } from 'react-router-dom';
@@ -19,6 +19,7 @@ import agriFlowLogo from '../../assets/images/agriflowwhite.png'
 import ThemeToggle from '../ThemeController/ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AiOutlineClose } from 'react-icons/ai';
+
 
 import NoSearchFound from '../../assets/images/no_messages_1.png'
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
@@ -44,7 +45,8 @@ function NavBar() {
     const dispatch = useDispatch();
 
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const dropdownRef = useRef(null);
+    const dropdownRef = useRef(null); // For the dropdown
+    const profileContainerRef = useRef(null); // For the profile image + dropdown wrapper
 
     const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
 
@@ -59,19 +61,27 @@ function NavBar() {
     const closeSidebar = () => {
         setIsSidebarOpen(false);
     };
-
-    // Close the dropdown if clicked outside
+    // close drop down out side click 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target) &&
+                profileContainerRef.current &&
+                !profileContainerRef.current.contains(event.target)
+            ) {
                 setIsDropdownVisible(false);
             }
         };
 
-        document.addEventListener("click", handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
 
-        return () => document.removeEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, []);
+
+
 
     const handleLogout = async () => {
         try {
@@ -254,7 +264,7 @@ function NavBar() {
                     </div>
 
                     {/* Search Bar */}
-                    {AadharVerified &&
+                    {/* {AadharVerified &&
                         <div className="hidden md:block flex-1 max-w-xl mx-6">
                             <div className="relative">
                                 <input
@@ -265,7 +275,7 @@ function NavBar() {
                                 <FaSearch className="absolute left-3 top-3 text-green-200 " />
                             </div>
                         </div>
-                    }
+                    } */}
 
                     {/* Navigation Icons */}
                     <div className="flex items-center space-x-4">
@@ -315,38 +325,64 @@ function NavBar() {
                                     </div>
                                 </div>
 
-                                <div className="relative">
+                                <div ref={profileContainerRef} className="relative">
                                     <div
                                         className="h-8 w-8 cursor-pointer rounded-full overflow-hidden lg:hidden ripple-parent ripple-white"
-                                        onClick={toggleDropdown} // Toggle on click
+                                        onClick={toggleDropdown}
                                     >
                                         <img
                                             src={userData?.profile_picture || defaultUserImage}
                                             alt="User profile"
-                                            className="h-full w-full object-cover "
+                                            className="h-full w-full object-cover"
                                         />
                                     </div>
 
-                                    {/* Dropdown */}
-                                    {isDropdownVisible && (
-                                        <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                                            <ul className="py-2">
-                                                <li className="px-4 py-2 text-gray-700 flex items-center space-x-2 hover:bg-gray-100 cursor-pointer">
-                                                    <FaCog className="text-lg" />
-                                                    <span>Settings</span>
-                                                </li>
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="px-4 py-2 text-red-500 flex items-center space-x-2 hover:bg-red-50 cursor-pointer w-full text-left"
-                                                >
-                                                    <FaSignOutAlt className="text-lg" />
-                                                    <span>Logout</span>
-                                                </button>
+                                    <AnimatePresence>
+                                        {isDropdownVisible && (
+                                            <motion.div
+                                                ref={dropdownRef}
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="absolute -right-16 mt-5 w-36 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg z-10 lg:hidden"
+                                            >
+                                                <ul className="py-2">
+                                                    <Link
+                                                        to={`/user-dash-board/user-profile-view/${userData?.id}`}
+                                                        onClick={() => setIsDropdownVisible(false)}
+                                                        className="px-4 py-2 text-gray-700 dark:text-gray-200 flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
+                                                    >
+                                                        <FaRegUserCircle className="text-lg" />
+                                                        <span> My Profile</span>
+                                                    </Link>
 
-                                            </ul>
-                                        </div>
-                                    )}
+                                                    <Link
+                                                        to="/user-dash-board/weather-page"
+                                                        onClick={() => setIsDropdownVisible(false)}
+                                                        className="px-4 py-2 text-gray-700 dark:text-gray-200 flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer"
+                                                    >
+                                                        <FaCloudSun className="text-lg" />
+                                                        <span>Weather</span>
+                                                    </Link>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsDropdownVisible(false);
+                                                            handleLogout();
+                                                        }}
+                                                        className="px-4 py-2 text-red-500 flex items-center space-x-2 hover:bg-red-50 dark:hover:bg-zinc-800 cursor-pointer w-full text-left"
+                                                    >
+                                                        <FaSignOutAlt className="text-lg" />
+                                                        <span>Logout</span>
+                                                    </button>
+                                                </ul>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
                                 </div>
+
 
 
                                 {/* Theme toggle button here */}
@@ -445,6 +481,14 @@ function NavBar() {
                                                                 linkPath = `/user-dash-board/farmer-community/my-communities/community-chat/${notif.community_id}`;
                                                             } else if (notif.notification_type === "community_invite") {
                                                                 linkPath = `/user-dash-board/farmer-community/pending-request`;
+                                                            } else if (notif.notification_type === "post_liked") {
+                                                                linkPath = `/user-dash-board/user-profile-view/${notif.sender_id}`;
+                                                            } else if (notif.notification_type === "event_start_notification") {
+                                                                linkPath = `/user-dash-board/event-management/enrolled-events`;
+                                                            } else if (notif.notification_type === "post_commented") {
+                                                                linkPath = `/user-dash-board/posts/${notif.post_id}`;
+                                                            } else if (notif.notification_type === "post_commented") {
+                                                                linkPath = `/user-dash-board/posts/${notif.post_id}`;
                                                             }
 
                                                             return (
@@ -462,7 +506,7 @@ function NavBar() {
                                                                                 className="h-full w-full object-cover"
                                                                             />
                                                                         </Link>
-                                                                        <div className="text-sm text-gray-700 dark:text-white">
+                                                                        <div className="text-sm text-gray-700 dark:text-white w-[190px]">
                                                                             <Link
                                                                                 to={linkPath}
                                                                                 className={` block p-2 border-l-2 border-green-500 bg-white dark:bg-gray-900 text-xs break-words w-full max-w-[195px] ${notif.is_read ? "bg-zinc-100 dark:bg-zinc-900" : ""

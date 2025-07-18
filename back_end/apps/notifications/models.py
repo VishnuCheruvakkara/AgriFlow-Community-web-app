@@ -3,6 +3,7 @@ from django.db import models
 from users.models import CustomUser
 from community.models import Community
 from products.models import Product
+from posts.models import Post
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
@@ -24,10 +25,23 @@ class Notification(models.Model):
         
         ("custom", "Custom"),
 
-        #for message notification 
+        #For message notification 
         ("private_message","Private Message"),
         ("community_message","Community Message"),
         ("product_message","Product Message"),
+
+        #For Events 
+        ("event_start_notification","Event Start Notification"),
+        ("event_deleted","Event Deleted"),
+        ("event_completed","Event Completed"),
+        ("event_cancelled","Event Cancelled"),
+
+        #For products 
+        ("product_deleted","Product Deleted"),
+
+        #For posts 
+        ("post_liked","Post Liked"),
+        ("post_commented","Post Commented"),
 
     ]
 
@@ -41,6 +55,9 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+    
+    
 
     class Meta:
         unique_together = ('recipient', 'sender', 'community', 'notification_type')

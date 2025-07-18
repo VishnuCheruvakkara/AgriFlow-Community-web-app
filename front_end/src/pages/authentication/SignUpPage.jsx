@@ -14,11 +14,37 @@ import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
 import ThemeToggle from '../../components/ThemeController/ThemeToggle';
+// for front end validation
+import { Formik, useFormik } from 'formik';
+import * as Yup from 'yup';
+
+
+
+const SignupSchema = Yup.object().shape({
+    username: Yup.string()
+        .min(4, 'Name must be at least 4 characters')
+        .matches(/^[A-Za-z\s]+$/, 'Name can only contain letters and spaces')
+        .max(50, 'Name too long')
+        .required('Name is required'),
+
+    email: Yup.string()
+        .email('Invalid email')
+        .required('Email is required'),
+
+    password: Yup.string()
+        .min(8, 'Password must be at least 8 characters')
+        .required('Password is required'),
+
+    password2: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .required('Confirm password is required'),
+});
+
+
 
 const SignUp = () => {
     const dispatch = useDispatch();
-    //To show the Errors under respective fields 
-    const [errors, setErrors] = useState({});
+
 
     const navigate = useNavigate(); //React Router's navigation function
     // For show paassword
@@ -27,45 +53,48 @@ const SignUp = () => {
     // For show confirmpassword 
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // State for Collect form data 
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        password2: ''
+
+
+
+
+    const formik = useFormik({
+        initialValues: {
+            username: '',
+            email: '',
+            password: '',
+            password2: ''
+        },
+        validationSchema: SignupSchema,
+        onSubmit: async (values, { setSubmitting, setErrors }) => {
+            const buttonId = "signUpButton";
+            dispatch(showButtonLoader(buttonId));
+
+            try {
+                const response = await PublicAxiosInstance.post("/users/register/", values);
+                showToast("An OTP has been sent to your email for verification.", "success");
+                navigate("/otp-page", { state: { email: values.email } });
+
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    const serverErrors = error.response.data;
+
+                    // Flatten nested error responses like password: { password: "message" }
+                    const flatErrors = {};
+                    for (const key in serverErrors) {
+                        const value = serverErrors[key];
+                        flatErrors[key] = typeof value === "string" ? value : Object.values(value)[0];
+                    }
+
+                    setErrors(flatErrors); // Set backend errors
+                    showToast("Registration failed. Please check your input.", "error");
+                }
+            } finally {
+                setSubmitting(false);
+                dispatch(hideButtonLoader(buttonId));
+            }
+        }
     });
 
-    // Add inputed data into the State 'formData'
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    // works while submit a form 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const buttonId = "signUpButton"
-        dispatch(showButtonLoader(buttonId)) //showloader
-
-        try {
-            const response = await PublicAxiosInstance.post("/users/register/", formData);
-            console.log("Registration Successful:", response.data);
-            showToast("An OTP has been sent to your email for verification.", "success")
-            // Handle success 
-            navigate("/otp-page", { state: { email: formData.email } });
-
-        } catch (error) {
-            if (error.response && error.response.data) {
-                showToast("Registration failed! Please check your details and try again!", "error");
-                setErrors(error.response.data); // Store backend errors in state
-            }
-        } finally {
-            dispatch(hideButtonLoader(buttonId)); //Hide loader after process
-        }
-    };
 
     return (
         <div className="h-screen flex flex-col md:flex-row bg-gray-50 dark:bg-zinc-900">
@@ -105,7 +134,7 @@ const SignUp = () => {
                             </div>
                         </div>
 
-                        <form className="space-y-5" onSubmit={handleSubmit}>
+                        <form onSubmit={formik.handleSubmit} className="space-y-5">
                             <div>
                                 <label className="block text-gray-700 dark:text-zinc-300 font-medium mb-1">Full Name</label>
                                 <div className="relative">
@@ -117,15 +146,16 @@ const SignUp = () => {
                                     <input
                                         type="text"
                                         name="username"
-                                        value={formData.username}
-                                        onChange={handleChange}
-                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${errors.username ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
+                                        value={formik.values.username}
+                                        onBlur={formik.handleBlur}
+                                        onChange={formik.handleChange}
+                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${formik.errors.username ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
                                             } transition duration-500 ease-in-out`}
                                         placeholder="Enter you name"
                                         required
                                     />
                                 </div>
-                                {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
+                                {formik.errors.username && formik.touched.username && (<p className="text-red-500 text-sm mt-1">{formik.errors.username}</p>)}
                             </div>
 
                             <div>
@@ -140,15 +170,16 @@ const SignUp = () => {
                                     <input
                                         type="email"
                                         name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${errors.email ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
+                                        value={formik.values.email}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${formik.errors.email ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
                                             } transition duration-500 ease-in-out`}
                                         placeholder="your@email.com"
                                         required
                                     />
                                 </div>
-                                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                                {formik.errors.email && formik.touched.email && (<p className="text-red-500 text-sm mt-1">{formik.errors.email}</p>)}
                             </div>
 
                             <div>
@@ -162,9 +193,10 @@ const SignUp = () => {
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${errors.password ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
+                                        value={formik.values.password}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${formik.errors.password ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
                                             } transition duration-500 ease-in-out`}
                                         placeholder="••••••••"
                                         required
@@ -186,11 +218,11 @@ const SignUp = () => {
                                         )}
                                     </span>
                                 </div>
-                                {errors.password?.password && (
-                                    <p className="text-sm text-red-500 mt-1">{errors.password.password}</p>
+                                {formik.errors.password && formik.touched.password && (
+                                    <p className="text-sm text-red-500 mt-1">{formik.errors.password}</p>
                                 )}
 
-                                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">Must be at least 8 characters</p>
+
                             </div>
 
                             <div>
@@ -204,9 +236,10 @@ const SignUp = () => {
                                     <input
                                         type={showConfirmPassword ? "text" : "password"}
                                         name="password2"
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${errors.password ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
+                                        value={formik.values.password2}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full pl-10 px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${formik.errors.password ? " focus:ring-red-500" : "focus:ring-green-500 dark:focus:ring-green-400"
                                             } transition duration-500 ease-in-out`}
                                         placeholder="••••••••"
                                         required
@@ -228,6 +261,10 @@ const SignUp = () => {
                                         )}
                                     </span>
                                 </div>
+                                {formik.touched.password2 && formik.errors.password2 && (
+                                    <p className="text-sm text-red-500 mt-1">{formik.errors.password2}</p>
+                                )}
+
                             </div>
 
                             <div className="flex items-center space-x-2">

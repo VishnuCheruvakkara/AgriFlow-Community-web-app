@@ -122,10 +122,48 @@ const ProductDetailsPage = () => {
                 productId: localProduct?.id,
                 productName: localProduct?.title,
                 productImage: localProduct?.image1,
-
             }
         })
     }
+
+    // Active and Inactive setup for the product 
+    const handleAvailabilityToggle = async (newValue) => {
+        const result = await showConfirmationAlert({
+            title: localProduct.is_available ? "Mark as Unavailable" : "Mark as Available",
+            text: localProduct.is_available
+                ? "Are you sure you want to mark this product as unavailable? buyer cannot buy this product."
+                : "Are you sure you want to mark this product as available again? Buyers will be able to see and purchase it.",
+            confirmButtonText: localProduct.is_available ? "Mark Unavailable" : "Mark Available",
+            cancelButtonText: "Cancel"
+        });
+
+        if (result) {
+            try {
+
+                // Update local state optimistically
+                setLocalProduct((prev) => ({
+                    ...prev,
+                    is_available: newValue,
+                }));
+
+                // Call your backend
+                await AuthenticatedAxiosInstance.patch(`/products/toggle-product-state/${localProduct.id}/`, {
+                    is_available: newValue,
+                });
+
+                showToast("Product availability updated!", "success");
+            } catch (error) {
+                // Revert local state on error
+                setLocalProduct((prev) => ({
+                    ...prev,
+                    is_available: !newValue,
+                }));
+
+                showToast("Failed to update availability.", "error");
+            }
+        }
+    };
+
 
     // show the shimmer while loading the page 
     if (loading) {
@@ -167,29 +205,60 @@ const ProductDetailsPage = () => {
                         </button>
                     }
 
-                    {userId !== localProduct?.seller?.id &&
-                        <button
-                            onClick={NavigateToChat}
-                            className=" bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
-                        >
-                            <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
-                                < GrContact className="text-green-500" />
+                    {userId !== localProduct?.seller?.id && (
+                        localProduct?.is_available ? (
+                            <button
+                                onClick={NavigateToChat}
+                                className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"
+                            >
+                                <div className="bg-white rounded-full p-2 dark:bg-zinc-100">
+                                    <GrContact className="text-green-500" />
+                                </div>
+                                <span className="text-sm pr-10 pl-4">Contact Farmer</span>
+                            </button>
+                        ) : (
+                            <div
+                                className="bg-gray-400 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 opacity-70 cursor-not-allowed dark:bg-zinc-700"
+                            >
+                                <div className="bg-gray-300 rounded-full p-2 dark:bg-zinc-600">
+                                    <GrContact className="text-white" />
+                                </div>
+                                <span className="text-sm pr-10 pl-4">Product is not available</span>
                             </div>
-                            <span className="text-sm pr-10 pl-4">Contact Farmer</span>
-                        </button>
-                    }
+                        )
+                    )}
 
 
 
-                    <div className="flex gap-2 mt-3">
-                        <p className="text-sm px-2 py-1 rounded-full border bg-green-200 border-green-400 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-100">
-                            {localProduct.is_available ? "Available" : "Unavailable"}
-                        </p>
-                    </div>
+
+
                 </div>
 
                 {/* Product Info */}
                 <div className="bg-white p-2 space-y-2 border-b dark:bg-zinc-900 dark:border-zinc-800">
+                    {userId === localProduct?.seller?.id &&
+
+
+                        <div
+                            onClick={() => handleAvailabilityToggle(!localProduct.is_available)}
+                            className={`relative w-full flex items-center justify-center cursor-pointer transition-colors duration-300
+                            text-sm
+                            ${localProduct.is_available
+                                    ? "border border-green-400 bg-green-200 hover:bg-green-300 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800 dark:text-green-100 text-gray-700"
+                                    : "border border-red-400 bg-red-200 hover:bg-red-300 dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-700 text-gray-700 dark:text-green-100"
+                                }
+                                    px-2 py-4 rounded-sm
+                                `}
+                        >
+                            <div className="font-medium">
+                                {localProduct.is_available ? "Available" : "Unavailable"}
+                            </div>
+                        </div>
+
+
+
+                    }
+
                     <div className="flex text-sm text-gray-700 border border-green-400 bg-green-200 px-2 py-4 rounded-sm dark:bg-green-900 dark:border-green-700 dark:text-green-100">
                         <span className="w-48 font-medium flex items-center gap-4"><RiMoneyRupeeCircleFill size={18} />Price</span>
                         <span className="mr-5">:</span>
@@ -210,29 +279,29 @@ const ProductDetailsPage = () => {
                 {/* Details */}
                 <div className="flex flex-col">
                     <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
-                        <div className="flex items-start"><FaCalendarAlt className="mt-1 mr-3" /><div>
-                            <h3 className="text-sm font-medium">Created Date</h3>
+                        <div className="flex items-start"><FaCalendarAlt className="mt-1 mr-3 flex-shrink-0" /><div>
+                            <h3 className="text-sm  font-semibold">Created Date</h3>
                             <p>{formatDateTime(localProduct.created_at)}</p>
                         </div></div>
                     </div>
 
                     <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
-                        <div className="flex items-start"><BsClock className="mt-1 mr-3" /><div>
-                            <h3 className="text-sm font-medium">Closing Date</h3>
+                        <div className="flex items-start"><BsClock className="mt-1 mr-3 flex-shrink-0" /><div>
+                            <h3 className="text-sm  font-semibold">Closing Date</h3>
                             <p>{formatDateTime(localProduct.closing_date)}</p>
                         </div></div>
                     </div>
 
                     <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
-                        <div className="flex items-start"><FaInfoCircle className="mt-1 mr-3" /><div>
-                            <h3 className="text-sm font-medium">About this Product</h3>
+                        <div className="flex items-start "><FaInfoCircle className="mt-1 mr-3 flex-shrink-0" /><div>
+                            <h3 className="text-sm font-semibold">About this Product</h3>
                             <p className="whitespace-pre-wrap">{localProduct.description}</p>
                         </div></div>
                     </div>
 
                     <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
-                        <div className="flex items-start"><FaMapMarkerAlt className="mt-1 mr-3" /><div>
-                            <h3 className="text-sm font-medium">Location Details</h3>
+                        <div className="flex items-start"><FaMapMarkerAlt className="mt-1 mr-3 flex-shrink-0" /><div>
+                            <h3 className="text-sm  font-semibold">Location Details</h3>
                             <p>{localProduct?.location?.full_location}</p>
                         </div>
 

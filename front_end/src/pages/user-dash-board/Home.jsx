@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 // Importing necessary icons from react-icons
-import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare } from 'react-icons/fa';
+import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare, FaRegHeart, FaPaperPlane } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 import defaultFarmerImage from '../../assets/images/farmer-wheat-icons.png'
 import defaultUserImage from '../../assets/images/user-default.png'
@@ -12,9 +12,24 @@ import { MdPostAdd } from "react-icons/md";
 import PostCreationModalButton from '../../components/post-creation/PostCreationModalButton';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
+import { FiShare2 } from "react-icons/fi";
+import { motion, AnimatePresence } from 'framer-motion';
+import ShareButton from '../../components/post-creation/ShareButton';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import WeatherCardShimmer from '../../components/shimmer-ui-component/WeatherCardShimmer';
+import { FaWind, FaWater, FaCloud, FaMapMarkerAlt } from "react-icons/fa";
+import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
+import { Search } from 'lucide-react';
+import { ImCancelCircle } from 'react-icons/im';
+
+import { PulseLoader } from 'react-spinners';
+
+import { Link } from 'react-router-dom';
 
 function Home() {
 
+  const navigate = useNavigate()
   const user = useSelector((state) => state.user.user)
   //state for store the post from backend
   const [posts, setPosts] = useState([]);
@@ -22,7 +37,29 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  //search a post 
+  const [searchQuery, setSearchQuery] = useState("");
+  //filter option for the image and videos 
+  const [filterType, setFilterType] = useState('all');
 
+  // for post like tracking and animation 
+  const [likedPosts, setLikedPosts] = useState({});
+  const [likeCounts, setLikeCounts] = useState({});
+  const [heartAnimations, setHeartAnimations] = useState({});
+
+  // comment handling state 
+  const [commentInputs, setCommentInputs] = useState({});
+  const [commentSectionsVisible, setCommentSectionsVisible] = useState({});
+  const [commentsByPost, setCommentsByPost] = useState({});
+  const [loadingComments, setLoadingComments] = useState({});
+
+
+  //Weather tracking card
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
+  const [hasTriedFetchingWeather, setHasTriedFetchingWeather] = useState(false);
+
+  //for infinite scroll
   const observer = useRef();
 
   const lastPostRef = (node) => {
@@ -37,15 +74,30 @@ function Home() {
     if (node) observer.current.observe(node);
   };
 
-
-  const fetchPosts = async () => {
+  //fetch posts
+  const fetchPosts = async (customPage = page) => {
     setLoading(true);
     try {
-      const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-posts/?page=${page}`);
+      let url = `/posts/get-all-posts/?page=${customPage}`;
+
+      if (searchQuery.trim() !== '') {
+        url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+      }
+
+      if (filterType === 'image') {
+        url += `&filter=image`;
+      } else if (filterType === 'video') {
+        url += `&filter=video`;
+      }
+
+      const res = await AuthenticatedAxiosInstance.get(url);
+      console.log("Post data in Home :::", res.data.results)
       if (res.data.results.length === 0) {
         setHasMore(false);
       } else {
-        setPosts(prev => [...prev, ...res.data.results]);
+        setPosts(prev =>
+          customPage === 1 ? res.data.results : [...prev, ...res.data.results]
+        );
       }
     } catch (err) {
       console.error('Error fetching posts:', err);
@@ -57,156 +109,574 @@ function Home() {
     }
   };
 
+
+  useEffect(() => {
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+    fetchPosts(1);
+  }, [searchQuery, filterType]);
+
   useEffect(() => {
     console.log("Fetching page:", page);
     fetchPosts();
   }, [page]);
+
+  // liked post 
+  const handleLikeClick = async (postId) => {
+    // Only trigger animation when liking (not unliking)
+    const isCurrentlyLiked = likedPosts[postId] || false;
+
+    if (!isCurrentlyLiked) {
+      // Trigger animation only when liking
+      setHeartAnimations(prev => ({
+        ...prev,
+        [postId]: true,
+      }));
+
+      setTimeout(() => {
+        setHeartAnimations(prev => ({
+          ...prev,
+          [postId]: false,
+        }));
+      }, 1000);
+    }
+
+    // Toggle like state (whether like or unlike)
+    setLikedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+
+    setLikeCounts(prev => ({
+      ...prev,
+      [postId]: (prev[postId] || 0) + (isCurrentlyLiked ? -1 : 1),
+    }));
+
+    //Backend call for toogle the like
+    // Backend call
+    try {
+      await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+
+      // Revert UI if API fails
+      setLikedPosts(prev => ({
+        ...prev,
+        [postId]: isCurrentlyLiked,
+      }));
+
+      setLikeCounts(prev => ({
+        ...prev,
+        [postId]: (prev[postId] || 0) + (isCurrentlyLiked ? 1 : -1),
+      }));
+    }
+  };
+
+  // Get all the liked post status and the count 
+  useEffect(() => {
+    const fetchLikeStatus = async () => {
+      try {
+        const res = await AuthenticatedAxiosInstance.get("/posts/like-status/");
+        console.log("Liked data ::::", res.data)
+        const likeStatus = {};
+        const likeCounts = {};
+
+        res.data.forEach(item => {
+          likeStatus[item.post_id] = item.liked_by_user;
+          likeCounts[item.post_id] = item.total_likes;
+        });
+
+        setLikedPosts(likeStatus);
+        setLikeCounts(likeCounts);
+
+      } catch (error) {
+        console.error("Failed to fetch like status", error);
+      }
+    };
+
+    fetchLikeStatus();
+  }, []);
+
+  // Toggle visibility
+  const toggleComments = async (postId) => {
+    setCommentSectionsVisible(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+
+    // Only fetch if not already loaded
+    if (!commentsByPost[postId]) {
+      // Mark as loading
+      setLoadingComments(prev => ({
+        ...prev,
+        [postId]: true
+      }));
+
+      try {
+        const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
+        console.log("Arrived comments ::", res.data);
+        setCommentsByPost(prev => ({
+          ...prev,
+          [postId]: res.data
+        }));
+      } catch (err) {
+        console.error("Failed to fetch comments:", err);
+      } finally {
+        // Unset loading no matter what
+        setLoadingComments(prev => ({
+          ...prev,
+          [postId]: false
+        }));
+      }
+    }
+  };
+
+
+  const handleCommentInputChange = (postId, value) => {
+    setCommentInputs(prev => ({
+      ...prev,
+      [postId]: value
+    }));
+  };
+
+  const handleCommentSubmit = async (postId) => {
+    const content = commentInputs[postId];
+    if (!content || content.trim() === "") return;
+
+    try {
+      // Post the comment
+      await AuthenticatedAxiosInstance.post("/posts/add-comment/", {
+        post: postId,
+        content
+      });
+
+      // Re-fetch all comments for this post
+      const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
+      console.log("Arrived comments after posting:", res.data);
+
+      setCommentsByPost(prev => ({
+        ...prev,
+        [postId]: res.data
+      }));
+
+      // Clear input
+      setCommentInputs(prev => ({
+        ...prev,
+        [postId]: ""
+      }));
+    } catch (err) {
+      console.error("Failed to post comment:", err);
+    }
+  };
+
+
+
+  //get the weather data for card 
+  useEffect(() => {
+    const fetchWeather = async () => {
+      if (!user?.address?.latitude || !user?.address?.longitude) return;
+
+      try {
+        const res = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${user.address.latitude}&lon=${user.address.longitude}&units=metric&appid=${import.meta.env.VITE_WEATHER_API_KEY}`
+        );
+        setWeather(res.data);
+      } catch (err) {
+        console.error("Failed to fetch weather", err);
+      } finally {
+        setWeatherLoading(false);
+        setHasTriedFetchingWeather(true);
+      }
+    };
+
+    fetchWeather();
+  }, [user]);
+
+  // navigate to the single product details  
+  const navigateToProductDetails = (postId) => {
+    navigate(`/user-dash-board/posts/${postId}`);
+  }
+
+
+
 
   return (
     <>
       {/* for scroll set up  */}
       <CustomScrollToTop />
 
-      <div className="lg:w-10/12 space-y-4 mt-4 mb-11 " >
-        {/* Welcome bar with ThemeToggle */}
 
-        <div
-          className=" h-32 rounded-lg shadow-sm p-4 mb-4 bg-gradient-to-r from-green-700 via-green-500 to-green-400 bg-[length:200%_200%] relative overflow-hidden"
-          style={{
-            backgroundImage: "url('/images/farmer_land_doodle.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div className="relative z-10 flex justify-between items-center text-white ">
+      <div className="w-[100%] space-y-4 mt-4 mb-11 " >
 
-            <div>
-              <h1 className="text-2xl text-zinc-800/80 font-bold">
+
+
+        {/* Welcome bar with Weather & Forecast Link */}
+        <div className="h-auto rounded-lg shadow-lg p-4 mb-4 bg-white dark:bg-zinc-800 relative overflow-hidden">
+          <div className="relative z-10 text-zinc-800 dark:text-white space-y-4">
+
+            {/* Top Row: Welcome + Forecast Link */}
+            <div className="flex justify-between items-center">
+              <h1 className="text-md font-bold">
                 Welcome back, {user?.username || "Farmer"}!
               </h1>
-
+              <button
+                onClick={() => navigate("/user-dash-board/weather-page")}
+                className="text-sm text-green-600 dark:text-green-300 font-medium hover:underline"
+              >
+                View Weather Forecast
+              </button>
             </div>
+
+            {/* Underline both headings */}
+            <div className="flex justify-between border-b border-gray-300 dark:border-zinc-600 " />
+            {/* Weather Info Section */}
+            {weatherLoading ? (
+              <WeatherCardShimmer />
+            ) : weather ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+                {/* Left: Temperature & Location */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <FaCloudSun className="text-3xl text-yellow-400 shrink-0" />
+                    <span className="text-2xl font-bold text-zinc-800 dark:text-white">
+                      {Math.round(weather.main.temp)}°C
+                    </span>
+                  </div>
+                  <p className="capitalize text-sm text-zinc-700 dark:text-zinc-300">
+                    {weather.weather[0].description}
+                  </p>
+                  <p className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <FaMapMarkerAlt className="text-green-500" />
+                    {weather.name}
+                  </p>
+                </div>
+
+                {/* Right: Weather Stats in Blur Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                  {/* Air Moisture */}
+                  <div className="flex items-center gap-3 p-3 backdrop-blur-md bg-white/60 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md min-w-0 overflow-hidden">
+                    <FaWater className="text-blue-500 text-xl shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-300 truncate">Air Moisture</span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                        {weather.main.humidity}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Wind */}
+                  <div className="flex items-center gap-3 p-3 backdrop-blur-md bg-white/60 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md min-w-0 overflow-hidden">
+                    <FaWind className="text-cyan-500 text-xl shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-300 truncate">Wind</span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                        {weather.wind.speed} km/h
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cloud Cover */}
+                  <div className="flex items-center gap-3 p-3 backdrop-blur-md bg-white/60 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-md min-w-0 overflow-hidden">
+                    <FaCloud className="text-gray-400 text-xl shrink-0" />
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm text-zinc-600 dark:text-zinc-300 truncate">Cloud Cover</span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                        {weather.clouds.all}%
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            ) : hasTriedFetchingWeather ? (
+              <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-300 rounded-md">
+                <p className="text-md font-semibold">Weather data not available</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Please try again later or check your connection.</p>
+              </div>
+            ) : null}
+
+
+
           </div>
         </div>
+
 
 
         {/* Create post card */}
 
         <PostCreationModalButton user={user} />
 
-
-
-        {/* Posts */}
-        {/* Posts */}
-        {posts.map((post, index) => {
-          const isLastPost = index === posts.length - 1;
-          return (
-            <div
-              key={post.id}
-              ref={isLastPost ? lastPostRef : null}
-              className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4"
+        {/* search section  */}
+        <div className="relative  w-full  mx-auto">
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-lg py-3 pl-12 pr-10 border border-gray-300 dark:border-zinc-600  bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out"
+          />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-400 h-5 w-5" />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400 transition-colors duration-300"
+              aria-label="Clear search"
             >
-              {/* Author Info */}
-              <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
-                <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                    <img
-                      src={post.author?.profile_picture || defaultUserImage}
-                      onError={(e) => { e.target.src = defaultUserImage }}
-                      alt="User profile"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-green-700 dark:text-green-400">
-                      {post.author?.username || "Unknown"}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(post.created_at).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })} at {new Date(post.created_at).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                      })}
-                    </p>
-                  </div>
-                </div>
-                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                  <FaEllipsisH />
-                </button>
-              </div>
+              <ImCancelCircle size={18} />
+            </button>
+          )}
+        </div>
 
-              {/* Post Text Content */}
-              <div className="mb-4">
-                <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
-              </div>
+        {/* Tab Navigation */}
+        <div className="bg-white dark:bg-zinc-900 rounded-t-lg shadow-sm mb-4">
+          <div className="flex border-b dark:border-zinc-700">
+            {['all', 'image', 'video'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setFilterType(type)}
+                className={`ripple-parent ripple-green flex-1 py-3 px-4 font-medium text-center transition-all ${filterType === type
+                  ? 'text-green-700 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400'
+                  : 'text-gray-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400'
+                  }`}
+              >
+                {type === 'all' ? 'All' : type === 'image' ? 'Images' : 'Videos'}
+              </button>
+            ))}
+          </div>
+        </div>
 
-              {/* Post Image or Video */}
-              {post.image_url && (
-                <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
-                  <div
-                    className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
-                    style={{ backgroundImage: `url(${post.image_url})` }}
-                  ></div>
-                  <div className="relative z-10 flex justify-center items-center">
-                    <img
-                      src={post.image_url}
-                      alt="Post media"
-                      className="max-w-full h-auto object-contain"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {post.video_url && (
-                <div className="relative mb-4 overflow-hidden border-t border-b border-green-500">
-                  <div
-                    className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
-                    style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}
-                  ></div>
-                  <div className="relative z-10 flex justify-center items-center">
-                    <video
-                      controls
-                      className="w-full h-auto max-h-[500px]"
-                      poster={post.image_url}
-                    >
-                      <source src={post.video_url} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                </div>
-              )}
-
-              {/* Interaction Buttons */}
-              <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
-                  <FaHeart className="mr-2" /> Like
-                </button>
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
-                  <FaRegComment className="mr-2" /> Comment
-                </button>
-                <button className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                  <FaShare className="mr-2" /> Share
-                </button>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Show shimmer loader while loading */}
-        {loading && hasMore && (
+        {/* Posts */}
+        {loading && hasMore ? (
+          //  Show shimmer loader while loading
           <>
             <PostShimmer />
             <PostShimmer />
             <PostShimmer />
           </>
+        ) : posts.length > 0 ? (
+          posts.map((post, index) => {
+            const isLastPost = index === posts.length - 1;
+            const isLiked = likedPosts[post.id] || false;
+
+            return (
+              <div
+                key={post.id}
+                ref={isLastPost ? lastPostRef : null}
+                className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4"
+              >
+                {/* Author Info */}
+                <div className="flex justify-between mb-4 border-b border-zinc-300 pb-3 dark:border-zinc-600">
+                  <Link to={`/user-dash-board/user-profile-view/${post.author?.id}`} className="flex items-center space-x-4">
+                    <div className="h-10 w-10 border rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
+                      <img
+                        src={post.author?.profile_picture || defaultUserImage}
+                        onError={(e) => { e.target.src = defaultUserImage }}
+                        alt="User profile"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-green-700 dark:text-green-400">
+                        {post.author?.username || "Unknown"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(post.created_at).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })} at {new Date(post.created_at).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}
+                      </p>
+                    </div>
+                  </Link>
+
+                </div>
+
+                {/* Post Text Content */}
+                <div className="mb-4 cursor-pointer " onClick={() => navigateToProductDetails(post?.id)}  >
+                  <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
+                </div>
+
+                {/* Post Image or Video */}
+                {post.image_url && (
+                  <div onClick={() => navigateToProductDetails(post?.id)} className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
+                    <div
+                      className="absolute inset-0 bg-center bg-cover filter blur-3xl scale-110 z-0"
+                      style={{ backgroundImage: `url(${post.image_url})` }}
+                    ></div>
+                    <div className="relative z-10 flex justify-center items-center">
+                      <img
+                        src={post.image_url}
+                        alt="Post media"
+                        className="max-w-full h-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {post.video_url && (
+                  <div onClick={() => navigateToProductDetails(post?.id)} className=" cursor-pointer relative mb-4 overflow-hidden border-t border-b border-green-500">
+                    <div
+                      className="absolute inset-0 bg-center bg-cover filter blur-md scale-110 z-0"
+                      style={{ backgroundImage: `url(${post.image_url || '/fallback-thumbnail.jpg'})` }}
+                    ></div>
+                    <div className="relative z-10 flex justify-center items-center">
+                      <video
+                        controls
+                        className="w-full h-auto max-h-[500px]"
+                        poster={post.image_url}
+                      >
+                        <source src={post.video_url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  </div>
+                )}
+
+                {/* Interaction Buttons */}
+                <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
+
+
+                  {/* Like button  */}
+                  <div className="relative">
+                    <button
+                      onClick={() => handleLikeClick(post.id)} // Attach to post.id
+                      className={`flex dark:hover:text-green-400  items-center w-20 transition-colors duration-300 ${isLiked
+                        ? "text-green-500 hover:text-green-700"
+                        : "text-gray-600 dark:text-gray-400 hover:text-green-500"
+                        }`}
+                    >
+                      <span className="mr-2">{likeCounts[post.id] || 0}</span> {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
+                      {isLiked ? "Liked" : "Like"}
+                    </button>
+
+
+
+                    {/* Flying Heart inside like button wrapper */}
+                    {heartAnimations[post.id] && (
+                      <div className="flying-heart-wrapper">
+                        <div className="flying-heart heart1">💚</div>
+                        <div className="flying-heart heart2">💚</div>
+                        <div className="flying-heart heart3">💚</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => toggleComments(post.id)}
+                    className="flex items-center text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+                  >
+                    <FaRegComment className="mr-2" /> {commentSectionsVisible[post.id] ? "Hide" : "Comment"}
+                  </button>
+                  {/* share button  */}
+                  <ShareButton postId={post.id} />
+                </div>
+
+                {/* show the comment box and input comment field  */}
+                <AnimatePresence initial={false}>
+                  {commentSectionsVisible[post.id] && (
+                    <motion.div
+                      key="commentBox"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden border-t pt-3 dark:border-zinc-600 mt-4"
+                    >
+                      <div className=" flex items-center space-x-2 mb-3">
+                        <input
+                          type="text"
+                          value={commentInputs[post.id] || ""}
+                          onChange={(e) => handleCommentInputChange(post.id, e.target.value)}
+                          placeholder="Write a comment..."
+                          className="w-full p-2 border bg-gray-50 focus:border-green-500 dark:focus:border-green-400 rounded dark:bg-zinc-700 dark:text-white dark:border-zinc-500 transition duration-300 ease-in-out"
+                        />
+
+                        <button
+                          onClick={() => handleCommentSubmit(post.id)}
+                          className="p-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-200 flex items-center justify-center"
+                          title="Submit Comment"
+                        >
+                          <FaPaperPlane />
+                        </button>
+                      </div>
+
+                      {/* Scrollable Comment Section */}
+                      {loadingComments[post.id] ? (
+                        <div className="flex justify-center items-center py-10">
+                          <PulseLoader color="#16a34a" speedMultiplier={1} />
+                        </div>
+                      ) : (
+                        <div className="max-h-[199px] overflow-y-auto custom-scrollbar space-y-2 scrollbar-hide">
+                          {(commentsByPost[post.id] || []).map((comment) => (
+                            <div
+                              key={comment.id}
+                              className="p-2  bg-green-100 dark:bg-zinc-700 rounded flex items-start space-x-3"
+                            >
+                              {/* Profile image */}
+                              <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-600 shrink-0">
+                                <img
+                                  src={comment.user?.profile_picture || defaultUserImage}
+                                  alt="User profile"
+                                  className="h-full w-full object-cover"
+                                  onError={(e) => { e.target.src = defaultUserImage }}
+                                />
+                              </div>
+
+                              {/* Comment content */}
+                              <div className="flex flex-col">
+                                <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                                  {comment.user?.username}
+                                </p>
+                                <p className="text-sm text-gray-700 dark:text-gray-200">
+                                  {comment.content}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {new Date(comment.created_at).toLocaleDateString('en-IN', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                  })} at {new Date(comment.created_at).toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                  })}
+                                </p>
+
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })) : (
+          <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-white rounded-md dark:bg-zinc-900 dark:border-zinc-700">
+            <img
+              src={PostNotFoundImage}
+              alt="No Posts"
+              className="mx-auto w-64 object-contain"
+            />
+            <p className="text-lg font-semibold dark:text-zinc-400">No Posts found!</p>
+            <p className="text-xs text-gray-500 dark:text-zinc-400">
+              Try creating a new post or check again later.
+            </p>
+          </div>
         )}
 
-        {!hasMore && (
+
+
+        {!hasMore && !hasMore && (
           <p className="text-center text-gray-500 dark:text-gray-400 py-4">
             🎉 You've reached the end of the posts.
           </p>
@@ -215,124 +685,7 @@ function Home() {
 
       </div>
 
-      {/* Right sidebar - Weather, Suggestions, Events, Schemes */}
-      <div className="lg:w-1/3 space-y-4 hidden lg:block">
-        {/* Weather card - Moved from left to right */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4 mt-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Weather</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">View Forecast</span>
-          </div>
-          <div className="flex items-center justify-center flex-col">
-            <FaCloudSun className="text-5xl text-yellow-500 mb-2" />
-            <span className="text-3xl font-bold text-black dark:text-white">28°C</span>
-            <p className="text-gray-600 dark:text-gray-300">Partly Cloudy</p>
-            <div className="flex justify-between w-full mt-4 text-sm text-gray-600 dark:text-gray-300">
-              <div className="text-center">
-                <p>Humidity</p>
-                <p className="font-semibold">65%</p>
-              </div>
-              <div className="text-center">
-                <p>Wind</p>
-                <p className="font-semibold">12 km/h</p>
-              </div>
-              <div className="text-center">
-                <p>Rainfall</p>
-                <p className="font-semibold">30%</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Suggestions card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Suggestions</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">See All</span>
-          </div>
-          <ul className="space-y-3">
-            <li className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                  <img src={defaultGroupImage} alt="User profile" className="h-full w-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-medium text-green-700 dark:text-green-400">Organic Farmers Group</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">324 members</p>
-                </div>
-              </div>
-              <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                <FaPlus />
-              </button>
-            </li>
-            <li className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-700 overflow-hidden">
-                  <img src={defaultGroupImage} alt="User profile" className="h-full w-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-medium text-green-700 dark:text-green-400">Sustainable Farming</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">512 members</p>
-                </div>
-              </div>
-              <button className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                <FaPlus />
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        {/* Events card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Upcoming Events</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">See All</span>
-          </div>
-          <ul className="space-y-3">
-            <li className="border-l-4 border-green-500 pl-3 py-1">
-              <p className="font-semibold text-gray-600 dark:text-gray-300">Seed Distribution</p>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <BsCalendarEvent className="mr-1" />
-                <span>Tomorrow, 10:00 AM</span>
-              </div>
-            </li>
-            <li className="border-l-4 border-blue-500 pl-3 py-1">
-              <p className="font-semibold text-gray-600 dark:text-gray-300">Irrigation Workshop</p>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <BsCalendarEvent className="mr-1" />
-                <span>Mar 15, 2:00 PM</span>
-              </div>
-            </li>
-            <li className="border-l-4 border-yellow-500 pl-3 py-1">
-              <p className="font-semibold text-gray-600 dark:text-gray-300">Community Meeting</p>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <BsCalendarEvent className="mr-1" />
-                <span>Mar 20, 4:30 PM</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        {/* Govt Schemes card */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-lg text-gray-800 dark:text-gray-200">Govt Schemes</h2>
-            <span className="text-blue-500 dark:text-blue-400 text-sm cursor-pointer">View All</span>
-          </div>
-          <ul className="space-y-3">
-            <li className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-600">
-              <p className="font-semibold text-gray-800 dark:text-gray-200">Crop Insurance Scheme</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Applications open until Mar 31</p>
-              <button className="mt-2 text-sm text-green-600 dark:text-green-400 font-medium hover:text-green-700 dark:hover:text-green-300">Apply Now</button>
-            </li>
-            <li className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-600">
-              <p className="font-semibold text-gray-800 dark:text-gray-200">Solar Pump Subsidy</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">50% subsidy on installation</p>
-              <button className="mt-2 text-sm text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300">Check Eligibility</button>
-            </li>
-          </ul>
-        </div>
-      </div>
 
     </>
   )

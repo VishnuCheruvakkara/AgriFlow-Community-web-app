@@ -7,7 +7,7 @@ function ProductManagementLayout() {
         <div className="container mx-auto py-4 max-w-full">
             {/* Header Section */}
             <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
-                <h1 className="text-2xl font-bold">Product Marketplace</h1>
+                <h1 className="text-xl font-bold">Product Marketplace</h1>
             </div>
 
             {/* Card Container */}
@@ -18,10 +18,10 @@ function ProductManagementLayout() {
                             <FaInfoCircle className="text-yellow-700 dark:text-yellow-400" />
                         </div>
                         <div className="ml-3 space-y-2">
-                            <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                            <p className="text-xs sm:text-sm font-semibold text-yellow-800 dark:text-yellow-300">
                                 Sell or find products from other farmers in your community.
                             </p>
-                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                            <p className="text-xs sm:text-sm text-yellow-800 dark:text-yellow-300">
                                 You can browse products, create listings, manage your listings, and wishlist items you're interested in.
                             </p>
                         </div>
@@ -29,11 +29,11 @@ function ProductManagementLayout() {
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex border-b border-gray-200 dark:border-gray-600 mt-4 overflow-x-auto">
+                <div className="flex border-b border-gray-200 dark:border-gray-600 mt-4 overflow-x-auto text-xs sm:text-sm ">
                     <NavLink
                         to="available-products"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900  ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }
@@ -44,7 +44,7 @@ function ProductManagementLayout() {
                     <NavLink
                         to="product-deals"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900  ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }
@@ -55,7 +55,7 @@ function ProductManagementLayout() {
                     <NavLink
                         to="my-products"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900  ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }
@@ -66,7 +66,7 @@ function ProductManagementLayout() {
                     <NavLink
                         to="wishlist"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900  ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }

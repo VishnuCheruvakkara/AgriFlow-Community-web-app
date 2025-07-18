@@ -38,9 +38,9 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
                 // Send a PATCH request to update the status to "cancelled"
                 await AuthenticatedAxiosInstance.patch(`/community/cancel-join-request/${communityId}/`);
                 setRequests((prev) => prev.filter(req => req.community_id !== communityId));  // Remove the cancelled request from the list
-                showToast(`Request to join the community "${communityName}" cancelled successfully`,"success")
+                showToast(`Request to join the community "${communityName}" cancelled successfully`, "success")
             } catch (error) {
-                showToast("Error happen try again","error")
+                showToast("Error happen try again", "error")
                 console.error("Error cancelling request:", error);
             }
         }
@@ -61,7 +61,7 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
 
                     <h2 className="text-md font-semibold text-white">Your Requests to Join Communities</h2>
                     <span className="ml-3 px-2 py-1 border border-green-600 bg-white text-green-600 font-semibold text-xs rounded-full">
-                        {requests.length||"0"}
+                        {requests.length || "0"}
                     </span>
 
                 </div>
@@ -74,22 +74,22 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
             </div>
 
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="p-3 border-t-0 border rounded-b-lg border-gray-300">
+                <div className="p-3 border-t-0 border rounded-b-lg border-gray-300 dark:border-zinc-700 dark:bg-zinc-900">
 
                     <div className="space-y-3">
                         {requests.length === 0 ? (
-                            <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md">
+                            <div className="text-center border-2 border-dashed border-gray-300 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 py-5 px-4 bg-gray-100 dark:bg-zinc-800 rounded-md">
                                 <p className="text-md font-semibold ">No pending requests at the moment.</p>
-                                <p className="text-xs text-gray-500">Check after sometime...</p>
+                                <p className="text-xs text-gray-500 dark:text-zinc-500">Check after sometime...</p>
                             </div>
                         ) : (
                             requests.map((req, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-center justify-between border border-gray-300 p-3 bg-white rounded-lg hover:bg-gray-100 transition"
+                                    className="flex items-center justify-between border border-gray-300 dark:border-zinc-700 p-3 bg-white dark:bg-zinc-800 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition"
                                 >
                                     <div className="flex items-center">
-                                        <div className="h-12 w-12 rounded-lg overflow-hidden mr-4">
+                                        <div className="h-12 w-12 rounded-lg overflow-hidden mr-4 border border-gray-300 dark:border-zinc-600">
                                             <img
                                                 src={req.community_logo || DefaultCommunityIcon}
                                                 alt={req.community_name}
@@ -97,8 +97,8 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
                                             />
                                         </div>
                                         <div>
-                                            <h3 className="font-medium text-gray-800">{req.community_name}</h3>
-                                            <p className="text-xs text-gray-500">
+                                            <h3 className="font-medium text-gray-800 dark:text-zinc-200">{req.community_name}</h3>
+                                            <p className="text-xs text-gray-500 dark:text-zinc-400">
                                                 Request sent on {new Date(req.sent_at).toLocaleDateString(undefined, {
                                                     year: 'numeric',
                                                     month: 'long',
@@ -111,7 +111,7 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
                                         <span className="px-3 py-1.5 bg-green-500 text-white rounded-md text-sm transition">Pending...</span>
                                         <button
                                             onClick={() => handleCancelRequest(req.community_id, req.community_name)}
-                                            className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
+                                            className="px-3 py-1.5 bg-gray-300 dark:bg-zinc-500 text-gray-700 dark:text-zinc-300 rounded-md text-sm hover:bg-gray-500 hover:text-white dark:hover:bg-zinc-600 transition"
                                         >
                                             Cancel
                                         </button>

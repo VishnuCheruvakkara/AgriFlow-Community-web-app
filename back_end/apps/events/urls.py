@@ -1,5 +1,5 @@
 from django.urls import path
-from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView
+from events.views import GetCommunityForCreateEvent,CommunityEventCreateAPIView, GetAllCommunityEventsView,UserCreatedEventsView,CommunityEventUpdateAPIView,DeleteCommunityEventView,JoinEventAPIView,EnrolledEventsView,EventEnrollmentHistoryAPIView,MarkEventAsCompletedView,MarkEventAsCancelledView,AdminEventListAPIView,CommunityEventDetailView,ToggleEventDeleteStatusView
 
 urlpatterns = [
     ##############  Get community in the event creation section (only get the community where user is admin ) #################
@@ -25,4 +25,25 @@ urlpatterns = [
 
     ############## Get all the enrolled events ################## 
     path('get-enrolled-events/', EnrolledEventsView.as_view(), name='get-enrolled-events'),
+
+    ############## Get the enrolled event history for a user ##########################
+    path("get-event-enrollment-history/",EventEnrollmentHistoryAPIView.as_view(), name="event-enrollment-history" ),
+
+    ############## mark event as completed by the creator of the event #######################
+    path( "mark-as-completed/<int:event_id>/", MarkEventAsCompletedView.as_view(), name="mark-event-as-completed"),
+
+    #####################  mark event as removed  ###########################
+    path("mark-as-cancelled/<int:event_id>/", MarkEventAsCancelledView.as_view(), name="mark-event-as-cancelled"),
+
+    ##################### Admin side event handling ################################
+    #=================== get the all events in the admin side ========================# 
+    path("admin/get-all-event/", AdminEventListAPIView.as_view(), name="admin-get-all-event"),
+
+    #================= get single event details page in the admin side ======================# 
+    path("admin/get-event-details/<int:id>/",CommunityEventDetailView.as_view(),name="admin-event-detail"),
+
+    #================= toggle the delete status of the event ========================# 
+    path("admin/toggle-delete-status/<int:pk>/",ToggleEventDeleteStatusView.as_view(),name="toggle_event_delete_status",),
+
+
 ]

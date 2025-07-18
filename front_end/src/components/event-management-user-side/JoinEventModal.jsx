@@ -12,6 +12,9 @@ import { useNavigate } from 'react-router-dom';
 import { MdOutlineLocationCity } from "react-icons/md";
 import { RiVideoOnAiLine } from 'react-icons/ri';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
+
+import JoinMeetingButton from '../zego-cloud-video-call/JoinMeetingButton';
 
 function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideConfirmBtn = false, cancelBtnLabel = "Cancel" }) {
     const [showMapModal, setShowMapModal] = React.useState(false);
@@ -19,7 +22,9 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
     const navigate = useNavigate();
     if (!event) return null;
 
-
+    // get the user data for the video call meet with zego cloude
+    const user = useSelector((state) => state.user.user)
+    
     const openInGoogleMaps = (lat, lng) => {
         const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
         window.open(googleMapsUrl, '_blank');
@@ -48,7 +53,7 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                 navigate('/user-dash-board/event-management/enrolled-events');
             } catch (error) {
                 console.error('Error while enrolling:', error);
-                showToast("Failed to enroll the event, try agian!", "error")
+                showToast(error?.response?.data?.event_id[0] || "Failed to enroll the event, try agian!", "error")
             }
         }
     };
@@ -165,14 +170,16 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                             </button>
                         ) : (
                             hideConfirmBtn && (
-                                <button
-                                    className="bg-green-500 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg shadow-gray-300 dark:shadow-zinc-800"
-                                >
-                                    <div className="bg-white rounded-full p-2">
-                                        <RiVideoOnAiLine className="text-green-500 text-lg" />
-                                    </div>
-                                    <span className="text-sm pr-10 pl-4">Join the Video Call Now</span>
-                                </button>
+                              
+
+                                <JoinMeetingButton
+                                    roomId={event?.id}
+                                    userId={user?.id}
+                                    userName={user?.username}
+                                    startTime={event?.start_datetime}
+                                />
+
+
                             )
                         )}
                     </div>

@@ -7,7 +7,7 @@ function UserConnectionLayout() {
         <div className="container mx-auto py-4 max-w-full">
             {/* Header Section */}
             <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
-                <h1 className="text-2xl font-bold">Connection Management</h1>
+                <h1 className="text-xl font-bold">Connection Management</h1>
             </div>
 
             {/* Card Container */}
@@ -29,11 +29,11 @@ function UserConnectionLayout() {
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex border-b border-gray-200 dark:border-gray-600 mt-4 overflow-x-auto">
+                <div className="flex border-b border-gray-200 dark:border-gray-600 mt-4 overflow-x-auto text-xs sm:text-sm ">
                     <NavLink
                         to="suggested-farmers"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }
@@ -44,7 +44,7 @@ function UserConnectionLayout() {
                     <NavLink
                         to="pending-requests"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }
@@ -55,7 +55,7 @@ function UserConnectionLayout() {
                     <NavLink
                         to="my-connections"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }
@@ -66,7 +66,7 @@ function UserConnectionLayout() {
                     <NavLink
                         to="blocked-users"
                         className={({ isActive }) =>
-                            `ripple-parent ripple-green py-3 px-6 ${isActive
+                            `ripple-parent ripple-green py-3 px-6 hover:bg-green-200 dark:hover:bg-green-900 ${isActive
                                 ? 'border-b-2 border-green-600 text-green-600 font-medium'
                                 : 'text-gray-600 dark:text-gray-300'}`
                         }

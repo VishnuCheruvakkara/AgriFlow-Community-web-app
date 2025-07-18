@@ -45,8 +45,13 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                 formData.append('banner', values.banner);
             }
 
+            // DEBUG: Print all FormData entries
+            for (let pair of formData.entries()) {
+                console.log(`${pair[0]}:`, pair[1]);
+            }
+
             const response = await AuthenticatedAxiosInstance.patch(`/events/edit-event/${eventData.id}/`, formData);
-            console.log('Event updated:', response.data);
+            console.log('Event updated 234234234:', response.data);
             onSave({
                 ...eventData,
                 ...values,

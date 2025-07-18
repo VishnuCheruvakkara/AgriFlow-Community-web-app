@@ -64,7 +64,7 @@ class ProductChatMessageSerializer(serializers.ModelSerializer):
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
 
-# Serializer for get the product selling by the user ########################33
+################################ Serializer for get the product selling by the user ########################33
 
 
 class BuyerMessageSerializer(serializers.ModelSerializer):
@@ -116,6 +116,10 @@ class BuyingDealSerializer(serializers.ModelSerializer):
         source='receiver.id', read_only=True)
     product_is_deleted = serializers.BooleanField(
         source='product.is_deleted', read_only=True)
+    product_is_available = serializers.BooleanField(
+    source='product.is_available',
+    read_only=True
+    )
 
     class Meta:
         model = ProductChatMessage
@@ -130,6 +134,7 @@ class BuyingDealSerializer(serializers.ModelSerializer):
             'message',
             'timestamp',
             'product_is_deleted',
+            'product_is_available',
         ]
 
     def get_product_image(self, obj):
@@ -147,12 +152,13 @@ class ToggleWishlistSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
 
     def validate_product_id(self, value):
-        if not Product.objects.filter(id=value, is_available=True, is_deleted=False).exists():
+        if not Product.objects.filter(id=value, is_deleted=False).exists():
             raise serializers.ValidationError(
-                "This product does not exist or is not available.")
+                "This product does not exist.")
         return value
 
-#============================== Get the prodcuts from the serialzier ###########################
+#============================== Get the prodcuts from the model  ===================================#
+
 class WishlistSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source='product.id', read_only=True)
     title = serializers.CharField(source='product.title', read_only=True)
@@ -160,11 +166,12 @@ class WishlistSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2, read_only=True)
     unit = serializers.CharField(source='product.unit', read_only=True)
     closing_date = serializers.DateTimeField(source='product.closing_date', read_only=True)
+    is_available = serializers.BooleanField(source='product.is_available', read_only=True)
     location = serializers.SerializerMethodField()
 
     class Meta:
         model = Wishlist
-        fields = ['id', 'product_id', 'title', 'image1', 'price', 'unit', 'closing_date', 'location']
+        fields = ['id', 'product_id', 'title', 'image1', 'price', 'unit', 'closing_date', 'location','is_available']
 
     def get_location(self, obj):
         if obj.product.location:

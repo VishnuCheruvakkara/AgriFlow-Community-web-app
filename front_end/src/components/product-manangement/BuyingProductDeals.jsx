@@ -77,18 +77,22 @@ function BuyingProductDeals() {
               ) : (
                 deals.map((deal) => {
                   const isDeleted = deal.product_is_deleted;
+                  const isUnavailable = !deal.product_is_available;
 
                   return (
                     <div
                       key={deal.id}
-                      className={`flex items-start justify-between border border-gray-300 dark:border-zinc-700 p-4 rounded-lg transition ${isDeleted ? 'bg-gray-100 dark:bg-zinc-800 opacity-60 cursor-default' : 'bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer'
+                      className={`flex items-start justify-between border border-gray-300 dark:border-zinc-700 p-4 rounded-lg transition ${(isDeleted || isUnavailable)
+                        ? 'bg-gray-100 dark:bg-zinc-800 opacity-60 cursor-default'
+                        : 'bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer'
                         }`}
                       onClick={() => {
-                        if (!isDeleted) {
+                        if (!isDeleted && !isUnavailable) {
                           NavigateToChat(deal);
                         }
                       }}
                     >
+
                       {/* Left Section: Product + Seller Info */}
                       <div className="flex items-start">
                         <div className="h-14 w-14 rounded-md overflow-hidden mr-4 border border-gray-300 dark:border-zinc-600">
@@ -104,9 +108,11 @@ function BuyingProductDeals() {
                           </h3>
 
                           {/* Show tag if deleted */}
-                          {isDeleted && (
-                            <span className="text-xs italic text-red-600 dark:text-red-400 ">
-                              Product removed by seller
+                          {(isDeleted || isUnavailable) && (
+                            <span className="text-xs italic text-red-600 dark:text-red-400">
+                              {isDeleted
+                                ? "Product removed by seller"
+                                : "Product is not available"}
                             </span>
                           )}
 
@@ -124,13 +130,13 @@ function BuyingProductDeals() {
 
                           <p className="text-xs text-gray-500 dark:text-zinc-500">
                             Last message • {new Date(deal.timestamp).toLocaleString('en-IN', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true
-                              })}
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
                           </p>
                         </div>
                       </div>

@@ -33,29 +33,13 @@ const Navbar = () => {
 
 
   return (
-    <div className="navbar fixed top-0 z-40  bg-white border-b  dark:border-green-500 w-full px-4 justify-between dark:bg-zinc-800">
+    <div className="navbar fixed top-0 z-40  bg-white border-b  border-green-500 w-full px-4 justify-between dark:bg-zinc-800">
       <div className="flex-1">
         <h1 className="text-lg font-bold text-green-600 ml-[91px]">Welcome, Admin!</h1>
       </div>
 
       <div className="flex-none">
         <div className="flex items-center gap-4">
-
-       
-          {/* Messages Button with Tooltip */}
-          <div className="tooltip tooltip-bottom " data-tip="Messages">
-            <button className="btn btn-ghost btn-circle hover:bg-gray-200">
-              <FaEnvelope className="h-5 w-5 text-green-600" />
-            </button>
-          </div>
-
-          {/* Notifications Button with Tooltip */}
-          <div className="tooltip tooltip-bottom" data-tip="Notifications">
-            <button className="btn btn-ghost btn-circle hover:bg-gray-200">
-              <FaBell className="h-5 w-5 text-green-600" />
-            </button>
-          </div>
-
           {/* Logout Button with Tooltip */}
           <div className="tooltip tooltip-bottom" data-tip="Logout">
             <button className="btn btn-ghost btn-circle hover:bg-gray-200"

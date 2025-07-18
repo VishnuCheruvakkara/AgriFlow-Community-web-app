@@ -27,7 +27,7 @@ function SentRequestsSection() {
     }, []);
 
     //cancell connection request logic
-    const handleCancelRequest = async (requestId,receiverUsername) => {
+    const handleCancelRequest = async (requestId, receiverUsername) => {
         const result = await showConfirmationAlert({
             title: 'Cancel Connection Request?',
             text: `If you cancel this connection request, you won’t be able to send another one to farmer : "${receiverUsername}" for the next 3 days. Are you sure you want to proceed?`,
@@ -78,12 +78,12 @@ function SentRequestsSection() {
             {/* Expandable Content */}
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
 
-                <div className="p-3 border-t-0 border rounded-b-lg border-gray-300 max-h-96 overflow-y-auto scrollbar-hide ">
+                <div className="p-3 border-t-0 border rounded-b-lg border-gray-300 dark:border-zinc-700 max-h-96 overflow-y-auto scrollbar-hide bg-white dark:bg-zinc-900">
                     <div className="space-y-4 max-h-72 overflow-y-auto scrollbar-hide">
                         {sentRequests.length === 0 ? (
-                            <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md">
+                            <div className="text-center border-2 border-dashed border-gray-300 dark:border-zinc-600 text-gray-600 dark:text-gray-300 py-5 px-4 bg-gray-100 dark:bg-zinc-800 rounded-md">
                                 <p className="text-md font-semibold">No pending sent requests.</p>
-                                <p className="text-xs text-gray-500">Your sent connection requests will appear here.</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Your sent connection requests will appear here.</p>
                             </div>
                         ) : (
                             sentRequests.map((request) => {
@@ -99,10 +99,10 @@ function SentRequestsSection() {
                                 return (
                                     <div
                                         key={request.id}
-                                        className="flex items-center justify-between border border-gray-300 p-3 bg-white rounded-lg hover:bg-gray-100 transition"
+                                        className="flex items-center justify-between border border-gray-300 dark:border-zinc-700 p-3 bg-white dark:bg-zinc-800 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition"
                                     >
                                         <div className="flex items-center">
-                                            <div className="h-12 w-12 rounded-full overflow-hidden mr-4">
+                                            <div className="h-12 w-12 rounded-full overflow-hidden mr-4 shrink-0">
                                                 <img
                                                     src={request.profile_picture || DefaultUserImage}
                                                     alt="User"
@@ -110,8 +110,8 @@ function SentRequestsSection() {
                                                 />
                                             </div>
                                             <div>
-                                                <h3 className="font-medium text-gray-800">{request.receiver_username}</h3>
-                                                <p className="text-xs text-gray-500">Sent on • {formattedDate}</p>
+                                                <h3 className="font-medium text-gray-800 dark:text-gray-100">{request.receiver_username}</h3>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">Sent on • {formattedDate}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
@@ -119,8 +119,8 @@ function SentRequestsSection() {
                                                 Pending...
                                             </span>
                                             <button
-                                                onClick={() => handleCancelRequest(request.id,request.receiver_username)}
-                                                className="px-3 py-2 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
+                                                onClick={() => handleCancelRequest(request.id, request.receiver_username)}
+                                                className="px-3 py-2 bg-gray-300 dark:bg-zinc-600 text-gray-700 dark:text-gray-200 rounded-md text-sm hover:bg-gray-500 dark:hover:bg-zinc-500 hover:text-white transition"
                                             >
                                                 Cancel
                                             </button>
@@ -133,6 +133,7 @@ function SentRequestsSection() {
                 </div>
             </div>
         </div>
+
     );
 }
 

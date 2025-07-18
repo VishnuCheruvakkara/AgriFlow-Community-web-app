@@ -1,7 +1,7 @@
 
 from os import read
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 from django.contrib.auth import get_user_model
 
 from community.serializers import UserMinimalSerializer
@@ -11,11 +11,11 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 # create community
 from rest_framework import generics, permissions, status
-from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer
+from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer, SimpleCommunityAdminSerializer,CommunityAdmiSideDetailsSerializer
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership,CommunityMessage
 # imports from the custom named app
-from apps.common.pagination import CustomCommunityPagination, CustomUserPagination
+from apps.common.pagination import CustomCommunityPagination, CustomUserPagination,CustomAdminCommunityPagination
 from django.utils import timezone
 # import for the admin send request to user section
 from community.serializers import CommunityWithPendingUsersSerializer
@@ -901,3 +901,69 @@ class CloudinaryUploadView(APIView):
             return Response({'error': str(ve)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': 'Something went wrong during upload.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+  
+#######################  Admin side community management view  ###############################
+
+#====================== Get all communities in the admin side table view =========================# 
+
+class GetAllCommunityAdminSide(APIView):
+    permission_classes=[IsAdminUser]
+
+    def get(self,request):
+        queryset = Community.objects.all()
+
+        #Search set up 
+        search = request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains = search) | 
+                Q(description__icontains = search) 
+            )
+        
+        # Status filter 
+        status = request.query_params.get("status")
+        if status == "public":
+            queryset = queryset.filter(is_private = False)
+        elif status == "private":
+            queryset = queryset.filter(is_private=True)
+        elif status == "deleted":
+            queryset = queryset.filter(is_deleted = True)
+
+        # Pagination 
+        paginator = CustomAdminCommunityPagination()
+        page = paginator.paginate_queryset(queryset,request)
+
+        serializer = SimpleCommunityAdminSerializer(page,many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+#==========================  Community details admin side ==================================# 
+
+class CommunityDetailsAdminAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, pk):
+        try:
+            community = Community.objects.get(pk=pk)
+            serializer = CommunityAdmiSideDetailsSerializer(community, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Community.DoesNotExist:
+            return Response({"detail": "Community not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+#============================ Toggle community delete status ===============================# 
+
+class ToggleProductDeleteStatusView(APIView):
+    permission_classes= [IsAuthenticated]
+
+    def patch(self,request,communityId):
+        community = get_object_or_404(Community,id=communityId)
+        community.is_deleted = not community.is_deleted
+        community.save() 
+
+        return Response (  
+            {
+            "message": f"Product marked as {'deleted' if community.is_deleted else 'available'}.",
+            "is_deleted": community.is_deleted,
+            },
+            status= status.HTTP_200_OK
+        )

@@ -136,14 +136,14 @@ function SelectMembersModal({
     if (!isOpen) return null;
 
     return (
-        <AnimatePresence>
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+       <AnimatePresence>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[999]">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.85, y: 40 }}
                     animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 180, damping: 18 } }}
                     exit={{ opacity: 0, scale: 0.85, y: 40, transition: { duration: 0.2 } }}
 
-                    className="bg-white rounded-lg shadow-xl w-[90%] max-w-md overflow-hidden">
+                    className="bg-white dark:bg-zinc-800 rounded-lg shadow-xl w-[90%] max-w-md overflow-hidden">
                     {/* Green Header */}
                     <div className="bg-gradient-to-r from-green-700 to-green-400 px-6 py-4 flex justify-between items-center">
                         <h2 className="text-xl font-bold text-white">{modalTitle || "Select Group Members"}</h2>
@@ -163,14 +163,14 @@ function SelectMembersModal({
                         <div className="relative mb-5">
                             <div className="relative w-full">
                                 {/* Search Icon on the left */}
-                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-500" size={18} />
 
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search by name or location..."
-                                    className="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 outline-none transition-colors duration-300"
+                                    className="w-full pl-10 pr-10 py-3 border-2 border-gray-300 dark:border-zinc-600 rounded-lg focus:border-green-500 dark:focus:border-green-400 outline-none transition-colors duration-300 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500"
                                 />
 
                                 {/* Clear button on the right */}
@@ -178,7 +178,7 @@ function SelectMembersModal({
                                     <button
                                         type="button"
                                         onClick={() => setSearchQuery('')}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 transition-colors duration-300"
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-300"
                                     >
                                         <ImCancelCircle size={20} />
                                     </button>
@@ -190,14 +190,14 @@ function SelectMembersModal({
                         {loading && members.length === 0 ? (
                             <div className="flex flex-col justify-center items-center py-28">
                                 <PulseLoader color="#16a34a" speedMultiplier={1} />
-                                <p className="mt-4 text-sm text-gray-500">Loading farmers, please wait...</p>
+                                <p className="mt-4 text-sm text-gray-500 dark:text-zinc-400">Loading farmers, please wait...</p>
                             </div>
                         ) : (
                             <div>
                                 {members.length === 0 ? (
-                                    <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
+                                    <div className="text-center border-2 border-dashed border-gray-300 dark:border-zinc-600 text-gray-600 dark:text-zinc-400 py-10 px-4 bg-gray-100 dark:bg-zinc-900 rounded-md">
                                         <p className="text-lg font-semibold">No farmers found!</p>
-                                        <p className="text-xs text-gray-500">Try using a different search keyword.</p>
+                                        <p className="text-xs text-gray-500 dark:text-zinc-500">Try using a different search keyword.</p>
                                     </div>
                                 ) : (
                                     <>
@@ -214,7 +214,7 @@ function SelectMembersModal({
                                                             setSelectedMembers([]);
                                                         }
                                                     }}
-                                                    className="peer relative h-5 w-5 appearance-none rounded-full border border-green-600 shadow-sm transition-all
+                                                    className="peer relative h-5 w-5 appearance-none rounded-full border border-green-600 dark:border-green-500 shadow-sm transition-all bg-white dark:bg-zinc-700
                    before:absolute before:top-1/2 before:left-1/2 before:h-12 before:w-12 before:-translate-y-1/2 before:-translate-x-1/2 
                    before:rounded-full before:bg-green-400 before:opacity-0 before:transition-opacity 
                    checked:border-green-600 checked:bg-green-600 checked:before:bg-green-400 hover:before:opacity-10"
@@ -225,21 +225,21 @@ function SelectMembersModal({
                                                     <AiOutlineCheck className="font-bold text-xs" />
                                                 </span>
 
-                                                <span className="text-sm font-medium text-gray-700 pl-1">Select All</span>
+                                                <span className="text-sm font-medium text-gray-700 dark:text-zinc-300 pl-1">Select All</span>
                                             </label>
                                         </div>
 
                                         {/* Member List with Scroll Event */}
                                         <div
                                             ref={listContainerRef}
-                                            className="max-h-60 overflow-y-auto border-2 border-t-green-500 border-b-green-500  mb-3 scrollbar-hide"
+                                            className="max-h-60 overflow-y-auto border-2 border-t-green-500 border-b-green-500  dark:border-l-zinc-700 dark:border-r-zinc-700 mb-3 scrollbar-hide"
                                             onScroll={handleScroll}
                                         >
                                             <div >
                                                 {members.map((member) => (
                                                     <label
                                                         key={member.id}
-                                                        className=" border m-2 border-gray-300  flex items-center justify-between  px-2 py-2 hover:bg-green-100 rounded-md cursor-pointer transition duration-500 ease-in-out"
+                                                        className=" border m-2 border-gray-300 dark:border-zinc-600  flex items-center justify-between  px-2 py-2 hover:bg-green-100 dark:hover:bg-green-900 rounded-md cursor-pointer transition duration-500 ease-in-out"
                                                     >
                                                         <div className="flex items-center gap-5">
                                                             <img
@@ -250,10 +250,10 @@ function SelectMembersModal({
 
                                                             {/* Wrap text in a vertical flex container */}
                                                             <div className="flex flex-col">
-                                                                <span className="text-gray-800 font-medium">
+                                                                <span className="text-gray-800 dark:text-zinc-200 font-medium">
                                                                     {member.username}
                                                                 </span>
-                                                                <p className="text-xs text-gray-500">
+                                                                <p className="text-xs text-gray-500 dark:text-zinc-400">
                                                                     {member.location ? `${member.location.location_name}-${member.location.country}` : "No location"}
                                                                 </p>
                                                             </div>
@@ -264,7 +264,7 @@ function SelectMembersModal({
                                                                 type="checkbox"
                                                                 checked={selectedMembers.includes(member.id)}
                                                                 onChange={() => handleToggleMember(member.id)}
-                                                                className="peer appearance-none h-5 w-5 rounded-full border border-green-600 bg-white
+                                                                className="peer appearance-none h-5 w-5 rounded-full border border-green-600 dark:border-green-500 bg-white dark:bg-zinc-900
                   checked:bg-green-600 checked:border-green-600 cursor-pointer transition relative"
                                                             />
                                                             <span className="pointer-events-none absolute top-[10px] left-1/2 -translate-x-1/2 -translate-y-1/2 
@@ -285,7 +285,7 @@ function SelectMembersModal({
                                         </div>
 
                                         {/* Selected Count */}
-                                        <div className="text-right text-sm text-gray-600 px-3">
+                                        <div className="text-right text-sm text-gray-600 dark:text-zinc-400 px-3">
                                             {selectedMembers.length} selected
                                         </div>
                                     </>
@@ -295,9 +295,9 @@ function SelectMembersModal({
                     </div>
 
                     {/* Footer with Actions */}
-                    <div className="bg-gray-100 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
+                    <div className="bg-gray-100 dark:bg-zinc-700 px-6 py-2 flex justify-end gap-3 border-t border-gray-200 dark:border-zinc-600">
                         <button
-                            className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium flex items-center gap-2"
+                            className="px-4 py-3 bg-gray-400 dark:bg-zinc-600 hover:bg-gray-500 dark:hover:bg-zinc-500 text-gray-800 dark:text-zinc-200 rounded-md transition-colors font-medium flex items-center gap-2"
                             onClick={handleCloseModal}
                         >
                             <ImCancelCircle />

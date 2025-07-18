@@ -4,13 +4,16 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 import json
-from products.models import Product, ProductLocation, ProductChatMessage,Wishlist
-from .serializers import ProductSerializer, ProductChatMessageSerializer, ProductWithBuyersSerializer, BuyingDealSerializer, ToggleWishlistSerializer,WishlistSerializer
-from apps.common.cloudinary_utils import upload_image_and_get_url
+from products.models import Product, ProductLocation, ProductChatMessage, Wishlist
+from .serializers import ProductSerializer, ProductChatMessageSerializer, ProductWithBuyersSerializer, BuyingDealSerializer, ToggleWishlistSerializer, WishlistSerializer
+from apps.common.cloudinary_utils import generate_secure_image_url, upload_image_and_get_url
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
-from apps.common.pagination import CustomProductPagination
+from apps.common.pagination import CustomAdminProductPagination, CustomProductPagination
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+from apps.notifications.utils import create_and_send_notification
+User = get_user_model()
 
 ##############################  Create Products #####################
 
@@ -79,7 +82,7 @@ class GetAllProductsAddedByCurrentUser(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-#########################3 Update the product by the user who create the product ####################3
+# 3 Update the product by the user who create the product ####################3
 
 class UpdateProductAPIView(APIView):
     parser_classes = [MultiPartParser, FormParser]
@@ -137,7 +140,34 @@ class SoftDeleteProductView(APIView):
         product = get_object_or_404(Product, pk=pk, seller=request.user)
         product.is_deleted = True
         product.save()
-        return Response({'message': 'Product soft deleted successfylly!'}, status=status.HTTP_200_OK)
+
+        # Notification set up for all the buyer those who messaged to by the product
+        # Get all users who messaged about this product
+        messages = ProductChatMessage.objects.filter(product=product)
+
+        # Collect all unique user id's
+        participant_ids = set()
+        for msg in messages:
+            if msg.sender_id != request.user.id:
+                participant_ids.add(msg.sender_id)
+            if msg.receiver_id != request.user.id:
+                participant_ids.add(msg.receiver_id)
+
+        # Load the user instances
+        recipients = User.objects.filter(id__in=participant_ids)
+
+        # Send notification to each buyers
+        for recipient in recipients:
+            create_and_send_notification(
+                recipient=recipient,
+                sender=request.user,
+                type="product_deleted",
+                message=f"The Product `{product.title}` has been removed by the seller.",
+                image_url=product.image1,
+                product=product
+            )
+
+        return Response({'message': 'Product soft deleted successfylly and notification sent!'}, status=status.HTTP_200_OK)
 
 ############################## Get all the available products #############################################
 
@@ -148,7 +178,7 @@ class GetAllAvailableProducts(APIView):
     def get(self, request):
         search_query = request.query_params.get('search', '')
         products = Product.objects.filter(
-            is_available=True, is_deleted=False).exclude(seller=request.user)
+            is_deleted=False).exclude(seller=request.user)
 
         if search_query:
             products = products.filter(
@@ -237,9 +267,42 @@ class BuyingDealsView(APIView):
             latest_messages, many=True, context={'request': request})
         return Response(serializer.data)
 
+############################ Toggle the product status view #######################
+
+
+class ToggleProductAvailabilityView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, seller=request.user)
+
+        is_available = request.data.get("is_available")
+
+        if is_available is None:
+            return Response(
+                {"error": "is_available field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not isinstance(is_available, bool):
+            return Response(
+                {"error": "is_available must be a boolean value."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        product.is_available = is_available
+        product.save()
+
+        return Response(
+            {"message": "Product availability updated successfully.",
+                "is_available": product.is_available},
+            status=status.HTTP_200_OK,
+        )
+
 ############################# Wish list ##################################
 
-#========================== Toggle wishlist (Add or remove product fromt eh wish list ) =================================#
+# ========================== Toggle wishlist (Add or remove product fromt eh wish list ) =================================#
+
 
 class ToggleWishlistAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -271,16 +334,20 @@ class ToggleWishlistAPIView(APIView):
         else:
             return Response({"message": "Added to wishlist", "status": "added"}, status=status.HTTP_201_CREATED)
 
-#============================ Fetch all active wishlist products of the user =============================#
+# ============================ Fetch all active wishlist products of the user =============================#
+
+
 class WishlistListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        wishlist_items = Wishlist.objects.filter(user=request.user, is_active=True).select_related('product')
+        wishlist_items = Wishlist.objects.filter(
+            user=request.user, is_active=True).select_related('product')
         serializer = WishlistSerializer(wishlist_items, many=True)
         return Response(serializer.data)
-    
-#============================== Get the prodcuts from the serialzier ###########################
+
+# ============================== Get the prodcuts from the model ###########################
+
 
 class GetMyWishlistProductsAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -291,7 +358,7 @@ class GetMyWishlistProductsAPIView(APIView):
         wishlist_qs = Wishlist.objects.filter(
             user=request.user,
             is_active=True,
-            product__is_available=True,
+
             product__is_deleted=False
         ).select_related('product')
 
@@ -308,3 +375,71 @@ class GetMyWishlistProductsAPIView(APIView):
         serializer = WishlistSerializer(paginated_qs, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+########################### Admin side Product handling View #############################
+
+# ========================= Get all the products in the admin side =============================#
+
+
+class GetAllProductsAdminSideView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+
+        queryset = Product.objects.all()
+
+        # Search set up
+        search = request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(seller__username__icontains=search) |
+                Q(seller__email__icontains=search)
+            )
+
+        # Status filter
+        status = request.query_params.get("status")
+        if status == "available":
+            queryset = queryset.filter(is_available=True)
+        elif status == "unavailable":
+            queryset = queryset.filter(is_available=False)
+        elif status == "deleted":
+            queryset = queryset.filter(is_deleted=True)
+
+        # Pagination
+        paginator = CustomAdminProductPagination()
+        page = paginator.paginate_queryset(queryset, request)
+
+        serializer = ProductSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+    
+#======================= Get single product details admin side ========================# 
+
+class GetSingleProductAdminSideView(APIView):
+    permission_classes = [permissions.IsAdminUser] 
+
+    def get(self,request,product_id):
+        product = get_object_or_404(Product,id=product_id)
+        serializer = ProductSerializer(product) 
+        return Response(serializer.data,status = status.HTTP_200_OK)
+
+#========================  Product delete status toggling view ===========================# 
+
+class ToggleProductDeleteStatusView(APIView):
+    """
+    Toggle the is_deleted status of a Product.
+    Only accessible by admin users.
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def patch(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        product.is_deleted = not product.is_deleted
+        product.save()
+
+        return Response(
+            {
+                "message": f"Product marked as {'deleted' if product.is_deleted else 'available'}.",
+                "is_deleted": product.is_deleted,
+            },
+            status=status.HTTP_200_OK,
+        )

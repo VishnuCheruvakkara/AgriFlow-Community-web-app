@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, FaCalendarAlt,FaCloudSun } from 'react-icons/fa';
 //importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
 //import from react-redux 
@@ -49,9 +49,9 @@ function SideBar() {
         <div className=" mt-4 hidden lg:block md:w-1/2 lg:w-1/4 xl:w-1/5 2xl:w-1/4 lg:sticky lg:top-20 lg:self-start">
             <div className="bg-white rounded-lg shadow-sm mb-4 dark:bg-zinc-800 ">
                 {/* User profile section */}
-                <div onClick={handleViewProfile} className="flex items-center p-4 border-b ripple-parent ripple-green ">
+                <div onClick={handleViewProfile} className="flex items-center p-4 border-b dark:border-zinc-700 ripple-parent ripple-green ">
                     {/* Profile Image Container */}
-                    <div className="h-16 w-16 border rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
+                    <div className="h-16 w-16 border dark:border-zinc-700 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 cursor-pointer">
                         <img
                             src={user?.profile_picture || defaultUserImage}
                             alt="User profile"
@@ -71,9 +71,9 @@ function SideBar() {
                     <li className="">
                         <Link
                             to="/user-dash-board/"
-                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname === '/user-dash-board/'
-                                ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800 '
-                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname === '/user-dash-board/'
+                                ? ' border-l-2 border-r-2 border-green-700 dark:border-green-400 bg-green-100  dark:bg-green-900 text-green-700 dark:text-white '
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors dark:text-zinc-300'
                                 }`}
                         >
                             <FaHome className="text-xl" />
@@ -84,9 +84,9 @@ function SideBar() {
                     <li className="">
                         <Link
                             to="/user-dash-board/farmer-community/"
-                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/farmer-community')
-                                ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/farmer-community')
+                                ? ' border-l-2 border-r-2 border-green-700 dark:border-green-400 bg-green-100  dark:bg-green-900 text-green-700 dark:text-white '
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors dark:text-zinc-300'
                                 }`}
                         >
                             <FaUsers className="text-xl" />
@@ -97,9 +97,9 @@ function SideBar() {
                     <li className="">
                         <Link
                             to="/user-dash-board/event-management"
-                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname.startsWith('/user-dash-board/event-management')
-                                ? ' border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3  font-medium ${location.pathname.startsWith('/user-dash-board/event-management')
+                                ? ' border-l-2 border-r-2 border-green-700 dark:border-green-400 bg-green-100  dark:bg-green-900 text-green-700 dark:text-white '
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors dark:text-zinc-300'
                                 }`}
                         >
                             <FaCalendarAlt className="text-xl" />
@@ -110,9 +110,9 @@ function SideBar() {
                     <li>
                         <Link
                             to="/user-dash-board/connection-management"
-                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/connection-management')
-                                ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/connection-management')
+                                ? ' border-l-2 border-r-2 border-green-700 dark:border-green-400 bg-green-100  dark:bg-green-900 text-green-700 dark:text-white '
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors dark:text-zinc-300'
                                 }`}
                         >
                             <FaUser className="text-xl" />
@@ -123,9 +123,9 @@ function SideBar() {
                     <li>
                         <Link
                             to="/user-dash-board/products/available-products"
-                            className={`dark:text-zinc-400 ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/products')
-                                    ? 'border-l-2 border-r-2 border-green-700 bg-green-100 text-green-700 dark:text-zinc-800'
-                                    : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors'
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/products')
+                                ? ' border-l-2 border-r-2 border-green-700 dark:border-green-400 bg-green-100  dark:bg-green-900 text-green-700 dark:text-white '
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors dark:text-zinc-300'
                                 }`}
                         >
                             <FaStore className="text-xl" />
@@ -133,30 +133,26 @@ function SideBar() {
                         </Link>
                     </li>
 
-
-
-
-                    <li className="">
-                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors ">
-                            <FaChartLine className="text-xl" />
-                            <span>Activity</span>
-                        </a>
-                    </li>
-
-                    <li className="">
-                        <a href="#" className="hover:dark:bg-zinc-950 dark:text-zinc-400 flex items-center space-x-3 p-3  hover:bg-gray-100 text-gray-700 transition-colors">
-                            <FaScroll className="text-xl" />
-                            <span>Schemes</span>
-                        </a>
+                    <li>
+                        <Link
+                            to="/user-dash-board/weather-page"
+                            className={` ripple-parent ripple-green flex items-center space-x-3 p-3 font-medium ${location.pathname.startsWith('/user-dash-board/weather')
+                                   ? ' border-l-2 border-r-2 border-green-700 dark:border-green-400 bg-green-100  dark:bg-green-900 text-green-700 dark:text-white '
+                                : 'hover:bg-gray-100 hover:dark:bg-zinc-950 text-gray-700 transition-colors dark:text-zinc-300'
+                                }`}
+                        >
+                            <FaCloudSun className="text-xl" />
+                            <span>Weather</span>
+                        </Link>
                     </li>
                 </ul>
 
                 {/* Logout Button */}
                 <div className="">
-                    <li className="list-none  py-3 border-t">
+                    <li className="list-none  py-3 border-t dark:border-zinc-600" >
                         <button
                             onClick={handleLogout}
-                            className=" flex items-center space-x-3 p-3 hover:bg-red-100 text-red-600 transition duration-500 ease-in-out w-full"
+                            className=" flex items-center space-x-3 p-3 hover:bg-red-100 text-red-600 transition hover:dark:bg-red-900 dark:hover:text-red-100 duration-500 ease-in-out w-full"
                         >
                             <FaSignOutAlt className="text-xl" />
                             <span>Logout</span>

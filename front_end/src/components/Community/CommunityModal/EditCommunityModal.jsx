@@ -126,20 +126,20 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
 
     return (
         <AnimatePresence>
-            <div className="fixed  inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="fixed  inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[999]">
 
                 <motion.div
                     initial={{ opacity: 0, scale: 0.85, y: 40 }}
                     animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 180, damping: 18 } }}
                     exit={{ opacity: 0, scale: 0.85, y: 40, transition: { duration: 0.2 } }}
-                    className="bg-white rounded-lg shadow-xl w-[90%] max-w-md overflow-hidden "
+                    className="bg-white dark:bg-zinc-800 rounded-lg shadow-xl w-[90%] max-w-md overflow-hidden "
                 >
                     {/* Loader overlay INSIDE modal */}
                     {loading && (
-                        <div className="absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
+                        <div className="absolute inset-0 bg-white dark:bg-zinc-800 bg-opacity-80 dark:bg-opacity-80 z-20 flex justify-center items-center">
                             <div className="flex flex-col items-center">
                                 <PulseLoader color="#16a34a" size={12} />
-                                <p className="mt-4 text-black font-medium">Updating community...</p>
+                                <p className="mt-4 text-black dark:text-zinc-200 font-medium">Updating community...</p>
                             </div>
                         </div>
                     )}
@@ -169,14 +169,14 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                         {/* community image  */}
                         {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
                         <div className="flex flex-col items-center justify-center mb-4">
-                            <h2 className="text-lg font-semibold mb-2">Edit Community Image</h2>
-                            <div className="w-full bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-zinc-100">Edit Community Image</h2>
+                            <div className="w-full bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-400 p-4 mb-6">
                                 <div className="flex">
                                     <div className="flex-shrink-0">
-                                        <FaInfoCircle className="text-yellow-700" />
+                                        <FaInfoCircle className="text-yellow-700 dark:text-yellow-400" />
                                     </div>
                                     <div className="ml-3">
-                                        <p className="text-sm text-yellow-700">
+                                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
                                             Click image to select a new one
                                         </p>
                                     </div>
@@ -184,7 +184,7 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                             </div>
                             <ProfileImageSelector
                                 onImageSelect={handleImageSelect}
-                                reset={false} // if you don’t want it to auto-reset
+                                reset={false} // if you don't want it to auto-reset
                                 initialImage={initialImageUrl}
                             />
                             {/* {errors.communityImage && (<p className="text-red-500 text-sm mt-4">{errors.communityImage}</p>)} */}
@@ -201,7 +201,7 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                             {({ values, handleChange, handleBlur, errors, touched }) => (
                                 <Form id="edit-community-form">
                                     <div className="mb-4">
-                                        <label className="block mb-1 text-sm font-medium text-gray-700">Name</label>
+                                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-zinc-300">Name</label>
                                         <motion.div variants={shakeErrorInputVariant} animate={errors.name && touched.name ? 'shake' : ''}>
                                             <Field
                                                 type="text"
@@ -209,16 +209,16 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                                                 value={values.name}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                className={`w-full px-3 py-3 border-2 mb-2 ${errors.name && touched.name
+                                                className={`w-full px-3 py-3 border-2 mb-2 dark:bg-zinc-700 dark:text-zinc-100 ${errors.name && touched.name
                                                     ? 'border-red-500'
-                                                    : 'border-gray-300 focus:border-green-500'
+                                                    : 'border-gray-300 dark:border-zinc-600 focus:border-green-500'
                                                     } rounded-lg  outline-none transition-colors duration-300`}
                                             />
                                         </motion.div>
                                         <ErrorMessage name="name" component="div" className="text-red-500 text-sm" />
                                     </div>
                                     <div className="mb-4">
-                                        <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
+                                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-zinc-300">Description</label>
                                         <motion.div variants={shakeErrorInputVariant} animate={errors.description && touched.description ? 'shake' : ''}>
                                             <Field
                                                 as="textarea"
@@ -226,9 +226,9 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                                                 value={values.description}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                className={`w-full px-3 py-3 border-2 ${errors.description && touched.description
+                                                className={`w-full px-3 py-3 border-2 dark:bg-zinc-700 dark:text-zinc-100 ${errors.description && touched.description
                                                     ? 'border-red-500'
-                                                    : 'border-gray-300 focus:border-green-500'
+                                                    : 'border-gray-300 dark:border-zinc-600 focus:border-green-500'
                                                     } rounded-lg  outline-none transition-colors duration-300`}
                                             />
                                         </motion.div>
@@ -241,9 +241,9 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
 
                     </div>
                     {/* Modal Footer */}
-                    <div className="bg-gray-100 px-6 py-3 flex justify-end gap-3 border-t border-gray-200">
+                    <div className="bg-gray-100 dark:bg-zinc-700 px-6 py-2 flex justify-end gap-3 border-t border-gray-200 dark:border-zinc-600">
                         <button
-                            className="px-4 py-3 bg-gray-400 hover:bg-gray-500 text-gray-800 rounded-md transition-colors font-medium flex items-center gap-2"
+                            className="px-4 py-3 bg-gray-400 dark:bg-zinc-500 hover:bg-gray-500 dark:hover:bg-zinc-600 text-gray-800 dark:text-zinc-300 rounded-md transition-colors font-medium flex items-center gap-2"
                             onClick={onClose}
                         >
                             <ImCancelCircle />

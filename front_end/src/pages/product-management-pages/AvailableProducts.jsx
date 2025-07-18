@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback  } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaMapMarkerAlt, FaRegCalendarAlt, FaEye, FaRegHeart, FaHeart, FaSpinner } from 'react-icons/fa';
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from "react-icons/im";
@@ -78,8 +78,17 @@ function AvailableProducts() {
   const fetchProducts = async (query = '', page = 1) => {
     try {
       setLoading(true);
-      const response = await AuthenticatedAxiosInstance.get(`/products/get-all-available-products/?search=${query}&page=${page}`);
-      const availableOnly = response.data.results.filter(product => product.is_available && !product.is_deleted);
+
+      const response = await AuthenticatedAxiosInstance.get(
+        `/products/get-all-available-products/?search=${query}&page=${page}`
+      );
+
+      // Log the entire response data
+      console.log("Fetched products response:", response.data);
+
+      // Fix the filter to correctly exclude deleted products
+      const availableOnly = response.data.results
+
       setProducts(availableOnly);
       setTotalPages(Math.ceil(response.data.count / 6));
       setCurrentPage(page);
@@ -162,6 +171,10 @@ function AvailableProducts() {
               </p>
             </div>
           ) : (
+
+
+
+
             products.map((product) => (
               <div
                 key={product.id}
@@ -174,9 +187,19 @@ function AvailableProducts() {
                       alt={product.title}
                       className="w-full h-40 object-cover rounded-md mb-3"
                     />
-                    <div className="absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
-                      Available
+
+                    <div
+                      className={`
+                        absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full
+                        ${product.is_available ? 'bg-green-500' : 'bg-red-500'}
+                        text-white
+                        opacity-100
+                      `}
+                    >
+                      {product.is_available ? 'Available' : 'Not Available'}
                     </div>
+
+
                     <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm font-semibold">
                       ₹{product.price} per {product.unit}
                     </div>
@@ -240,10 +263,13 @@ function AvailableProducts() {
               </div>
             ))
           )}
+
+
+
       </div>
 
       {/* Pagination */}
-      {!loading && (
+      {!loading && totalPages >= 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

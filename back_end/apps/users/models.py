@@ -8,13 +8,13 @@ class Address(models.Model):
     """Stores address details separately for better normalization."""
 
     place_id = models.CharField(max_length=50, unique=True)  # Unique ID from location API
-    full_location=models.CharField(max_length=150,null=True, blank=True)
+    full_location=models.CharField(max_length=500,null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     location_name=models.CharField(max_length=100,null=True, blank=True,)
     country = models.CharField(max_length=100)
     
-    home_address = models.CharField(max_length=255, null=True, blank=True)
+    home_address = models.CharField(max_length=300, null=True, blank=True)
 
     class Meta:
         app_label = 'users' 
@@ -33,6 +33,12 @@ class CustomUser(AbstractUser):
         null=True, 
         help_text="Stores the secure Cloudinary URL for the user's profile picture."
     )
+    banner_image = models.CharField(
+            max_length=255,
+            blank=True,
+            null=True,
+            help_text="Stores the secure Cloudinary URL for the user's banner image."
+        )
 
     is_verified = models.BooleanField(default=False)  # OTP verification status
 

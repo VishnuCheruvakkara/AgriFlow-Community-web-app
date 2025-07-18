@@ -11,7 +11,7 @@ import SelectCommunityCreateEventShimmer from '../../components/shimmer-ui-compo
 import { CgUnblock } from "react-icons/cg";
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 
 function BlockedUsers() {
     const [blockedUsers, setBlockedUsers] = useState([]);
@@ -120,16 +120,16 @@ function BlockedUsers() {
                     placeholder="Search blocked users..."
                     value={searchTerm}
                     onChange={handleSearchChange}
-                    className=" w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent 
-               transition duration-500 ease-in-out
-               bg-white text-gray-800 placeholder-gray-400 
-               dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-500 dark:border-zinc-700"
+                    className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent 
+            transition duration-500 ease-in-out
+            bg-white text-gray-800 placeholder-gray-400 
+            dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-500 dark:border-zinc-700"
                 />
-                <Search className=" absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-zinc-400" size={20}  />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-zinc-400" size={20} />
                 {searchTerm && (
                     <button
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400"
                         onClick={handleClearSearch}
                     >
                         <ImCancelCircle size={20} />
@@ -155,7 +155,7 @@ function BlockedUsers() {
                     blockedUsers.map(({ id, blocked, blocked_at }) => (
                         <div
                             key={id}
-                            className="flex items-center px-4 py-2 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4"
+                            className="flex items-center px-4 py-2 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4 bg-white dark:bg-zinc-900 dark:border-zinc-700 dark:hover:bg-zinc-800"
                         >
                             <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
                                 <img
@@ -166,17 +166,17 @@ function BlockedUsers() {
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-gray-900 truncate">{blocked.username}</h3>
-                                <p className="text-xs text-gray-500 capitalize">
+                                <h3 className="font-medium text-gray-900 truncate dark:text-zinc-100">{blocked.username}</h3>
+                                <p className="text-xs text-gray-500 capitalize dark:text-zinc-400">
                                     Farming Type: {blocked.farming_type || 'N/A'}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-1">
+                                <p className="text-xs text-gray-400 mt-1 dark:text-zinc-500">
                                     Blocked at: {new Date(blocked_at).toLocaleString()}
                                 </p>
                             </div>
 
                             {/* View Profile */}
-                            <Link 
+                            <Link
                                 to={`/user-dash-board/user-profile-view/${blocked?.id}`}
                                 className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mr-2 hover:bg-gray-200 border border-gray-300 cursor-pointer tooltip tooltip-left dark:bg-zinc-800 dark:border-zinc-600 dark:hover:bg-zinc-700"
                                 data-tip="View Profile"
@@ -198,7 +198,7 @@ function BlockedUsers() {
             </div>
 
             {/* Pagination */}
-            {!loading && blockedUsers.length > 0 && totalPages > 1 && (
+            {!loading && blockedUsers.length > 0 && totalPages >= 1 && (
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -208,6 +208,7 @@ function BlockedUsers() {
                 />
             )}
         </div>
+
     );
 }
 

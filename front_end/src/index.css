@@ -495,3 +495,130 @@ button:focus {
 .gradient-bubble-gray::before {
   background:#4b5563 ;
 }
+
+
+/* css flying heart when like a post  */
+.flying-heart {
+  position: absolute;
+  left: 28%;
+  top: -30px;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background: none;
+  animation: flyHeart 1s ease-out forwards;
+  pointer-events: none;
+  z-index:999;
+}
+
+.flying-heart::before {
+  content: '💚';
+  font-size: 25px;
+  display: block;
+  animation: popHeart 1s ease-out forwards;
+  
+}
+
+.heart1 {
+  left: 28%;
+  top: -38px;
+  animation-delay: 0s;
+}
+.heart2 {
+  left: 28%;
+  top:-38px;
+  animation-delay: 0.2s;
+}
+.heart3 {
+  left: 28%;
+  top:-38px;
+  animation-delay: 0.4s;
+}
+
+
+/* Flying Up + Fading */
+@keyframes flyHeart {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -100px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Optional pop effect */
+@keyframes popHeart {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/*====================== Common styles ======================*/
+
+/* Normal state */
+.react-select__control {
+  border-radius: 0.5rem !important; 
+  padding: 2px;
+}
+
+/* Focused state */
+.react-select__control--is-focused {
+  border: 1px solid #4ade80 !important;
+  box-shadow: none !important;
+}
+
+/* Options */
+.react-select__option {
+  font-size: 0.875rem !important;
+  color: #374151 !important;
+  cursor: pointer !important;
+}
+
+.react-select__option--is-focused {
+  background-color: #aef7bf !important;
+}
+
+.react-select__option--is-selected {
+  background-color: #4ade80 !important;
+  color: white !important;
+}
+
+/*====================== Dark mode styles ======================*/
+.dark .react-select__control {
+  background-color: #242425 !important;       /* Tailwind zinc-800 */
+  border-color: #52525b !important;           /* Tailwind zinc-700 */
+}
+
+.dark .react-select__control--is-focused {
+  border-color: #4ade80 !important;
+  box-shadow: none !important;
+}
+
+.dark .react-select__single-value {
+  color: #f9fafb !important;                  /* Tailwind gray-50 */
+}
+
+.dark .react-select__menu {
+  background-color: #242425 !important;       /* Tailwind zinc-800 */
+}
+
+.dark .react-select__option {
+  color: #f9fafb !important;                  /* Tailwind gray-50 */
+}
+
+.dark .react-select__option--is-focused {
+  background-color: #52525b !important;       /* Tailwind zinc-700 */
+}
+
+.dark .react-select__option--is-selected {
+  background-color: #4ade80 !important;
+  color: white !important;
+}

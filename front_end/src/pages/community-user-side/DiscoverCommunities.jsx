@@ -15,6 +15,7 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { showToast } from '../../components/toast-notification/CustomToast';
 
 import CommunityShimmer from '../../components/shimmer-ui-component/CommunityShimmer';
+import CommunityDataNotFoundImage from "../../assets/images/no-community-imagef-found.png"
 
 function DiscoverCommunities() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,11 +129,15 @@ function DiscoverCommunities() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">Discover Communities</h2>
-      <div className="relative mb-8">
+      <div className="relative mb-4">
         <input
           type="text"
           placeholder="Search communities..."
-          className="w-full py-3 pl-12 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition duration-300 ease-in-out "
+          className=" w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg 
+               focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent 
+               transition duration-500 ease-in-out
+               bg-white text-gray-800 placeholder-gray-400 
+               dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-500 dark:border-zinc-700"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -149,17 +154,22 @@ function DiscoverCommunities() {
       </div>
 
       {loading ? (
-        <CommunityShimmer/>
+        <CommunityShimmer />
       ) : communities.length === 0 ? (
         <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md dark:bg-zinc-900 dark:border-zinc-700 ">
+          <img
+            src={CommunityDataNotFoundImage}
+            alt="No Events"
+            className="mx-auto w-64 object-contain"
+          />
           <p className="text-lg font-semibold dark:text-zinc-400">No Communities found!</p>
           <p className="text-xs text-gray-500 dark:text-zinc-400">Try using a different search keyword.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {communities.map((community) => (
-            <div key={community.id} className="dark:bg-zinc-900 bg-white rounded-lg p-5 flex lex-row items-start shadow-xs border border-gray-30f0 hover:shadow-lg transition-shadow duration-300 h-full">
-              <div className=" border border-gray-300 h-16 w-16 rounded-lg bg-gray-200 overflow-hidden mr-4 flex-shrink-0 mt-1 ">
+            <div key={community.id} className="dark:bg-zinc-900 dark:border-zinc-600 bg-white rounded-lg p-5 flex lex-row items-start shadow-xs border border-gray-30f0 hover:shadow-lg transition-shadow duration-300 h-full">
+              <div className=" border border-gray-300 dark:border-zinc-700 h-16 w-16 rounded-lg bg-gray-200 overflow-hidden mr-4 flex-shrink-0 mt-1 ">
                 <img
                   src={community.community_logo || DefaultCommunityIcon}
                   alt={community.name}
@@ -168,13 +178,13 @@ function DiscoverCommunities() {
               </div>
               <div className="flex-1 min-w-0 w-full">
                 <div className="flex flex-row items-center justify-between gap-2">
-                  <h3 className="font-semibold text-green-700 truncate max-w-full">
+                  <h3 className="font-semibold text-green-700 dark:text-green-500 truncate max-w-full">
                     {community.name}
                   </h3>
                   <div
                     className={`border flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap self-start ${community.is_private
-                      ? 'border-red-500 bg-red-50 text-red-600'
-                      : 'border-green-500 bg-green-50 text-green-600'
+                      ? 'border-red-500 bg-red-50 text-red-600 dark:bg-red-950'
+                      : 'border-green-500 bg-green-50 text-green-600 dark:bg-green-950'
                       }`}
                   >
                     {community.is_private ? (
@@ -190,11 +200,11 @@ function DiscoverCommunities() {
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-1 break-words line-clamp-3 overflow-hidden truncate ">
+                <p className="text-sm text-gray-600 dark:text-zinc-200 mt-1 break-words line-clamp-3 overflow-hidden truncate ">
                   {community.description}
                 </p>
                 <div className="flex justify-between items-center ">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-zinc-200">
                     {community.members_count} members
                   </span>
                   <button
@@ -217,17 +227,17 @@ function DiscoverCommunities() {
               initial={{ opacity: 0, scale: 0.85, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 180, damping: 18 } }}
               exit={{ opacity: 0, scale: 0.85, y: 40, transition: { duration: 0.2 } }}
-              className="bg-white dark:bg-zinc-900 w-[90%] max-w-md rounded-lg shadow-xl overflow-hidden">
+              className="bg-white dark:bg-zinc-800 w-[90%] max-w-md rounded-lg shadow-xl overflow-hidden">
 
               {/* loader set up  */}
               {joinCommunityLoading && (
-                <div className="absolute inset-0 bg-white bg-opacity-80 z-20 flex justify-center items-center">
+                <div className="absolute inset-0 bg-white bg-opacity-80 dark:bg-zinc-900 dark:bg-opacity-80 z-20 flex justify-center items-center">
                   <div className="flex flex-col items-center">
                     <PulseLoader color="#16a34a" size={12} />
                     {selectedCommunity.is_private ?
-                      <p className="mt-4 text-black font-medium">Requesting to join community...</p>
+                      <p className="mt-4 text-black dark:text-white font-medium">Requesting to join community...</p>
                       :
-                      <p className="mt-4 text-black font-medium">Joining community...</p>}
+                      <p className="mt-4 text-black dark:text-white font-medium">Joining community...</p>}
                   </div>
                 </div>
               )}
@@ -243,18 +253,18 @@ function DiscoverCommunities() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 text-gray-700 space-y-4 max-h-[450px] overflow-y-auto scrollbar-hide">
+              <div className="p-6 text-gray-700 dark:text-zinc-300 space-y-4 max-h-[450px] overflow-y-auto scrollbar-hide">
 
-                <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
+                <div className="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-400 dark:border-yellow-500 p-4 mb-6">
                   <div className="flex">
                     <div className="flex-shrink-0">
-                      <FaInfoCircle className="text-yellow-700" />
+                      <FaInfoCircle className="text-yellow-700 dark:text-yellow-400" />
                     </div>
                     <div className="ml-3">
-                      <p className="text-sm text-yellow-700">
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
                         {selectedCommunity.is_private ? (
                           <>
-                            This is a <span className="font-semibold">private community</span>. You can send a request to join, and once approved by the admin, you’ll be able to participate.
+                            This is a <span className="font-semibold">private community</span>. You can send a request to join, and once approved by the admin, you'll be able to participate.
                           </>
                         ) : (
                           <>
@@ -268,11 +278,11 @@ function DiscoverCommunities() {
 
                 {/* Community Image Centered */}
                 <div className="flex justify-center">
-                  <div className="w-28 h-28 rounded-full border-2 border-gray-400 hover:border-green-700 border-dashed flex items-center justify-center">
+                  <div className="w-28 h-28 rounded-full border-2 border-gray-400 dark:border-zinc-500 hover:border-green-700 dark:hover:border-green-500 border-dashed flex items-center justify-center">
                     <img
                       src={selectedCommunity.community_logo || DefaultCommunityIcon}
                       alt={selectedCommunity.name}
-                      className="h-24 w-24 object-cover rounded-full border-gray-300"
+                      className="h-24 w-24 object-cover rounded-full border-gray-300 dark:border-zinc-600"
                     />
                   </div>
                 </div>
@@ -288,8 +298,8 @@ function DiscoverCommunities() {
                 {/* Privacy Status */}
                 <div
                   className={`border flex items-center px-2 py-1 rounded text-xs font-medium w-fit ${selectedCommunity.is_private
-                    ? 'border-red-500 bg-red-50 text-red-600'
-                    : 'border-green-500 bg-green-50 text-green-600'
+                    ? 'border-red-500 bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-400'
+                    : 'border-green-500 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-400'
                     }`}
                 >
                   {selectedCommunity.is_private ? (
@@ -309,16 +319,16 @@ function DiscoverCommunities() {
                 <div>
                   {selectedCommunity.sample_members && selectedCommunity.sample_members.length > 0 && (
                     <>
-                      <h3 className="font-semibold mb-2 text-gray-700">Members:</h3>
+                      <h3 className="font-semibold mb-2 text-gray-700 dark:text-zinc-300">Members:</h3>
                       <div>
                         {selectedCommunity.sample_members.map((member) => (
-                          <div key={member.id} className="flex items-center gap-3 border border-gray-300 rounded-md my-2.5 p-2">
+                          <div key={member.id} className="flex items-center gap-3 border border-gray-300 dark:border-zinc-600 rounded-md my-2.5 p-2">
                             <img
                               src={member.profile_picture || DeafaultUserImage}
                               alt={member.username}
-                              className="w-10 h-10 rounded-full object-cover border ml-3"
+                              className="w-10 h-10 rounded-full object-cover border dark:border-zinc-600 ml-3"
                             />
-                            <span className="text-gray-800 font-medium">{member.username}</span>
+                            <span className="text-gray-800 dark:text-zinc-200 font-medium">{member.username}</span>
                           </div>
                         ))}
                       </div>
@@ -328,7 +338,7 @@ function DiscoverCommunities() {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex justify-end gap-3 px-6 py-2.5 bg-gray-100 border-t">
+              <div className="flex justify-end gap-3 px-6 py-2.5 bg-gray-100 dark:bg-zinc-700 border-t dark:border-zinc-600">
                 <div>
                   <button
                     onClick={handleJoinCommunity}
@@ -340,7 +350,7 @@ function DiscoverCommunities() {
                 </div>
                 <button
                   onClick={handleCloseModal}
-                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition"
+                  className="px-4 py-2 bg-gray-300 dark:bg-zinc-600 hover:bg-gray-400 dark:hover:bg-zinc-500 text-gray-800 dark:text-zinc-200 rounded-md transition"
                 >
                   Close
                 </button>
@@ -351,13 +361,17 @@ function DiscoverCommunities() {
         )}
       </AnimatePresence>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        hasPrev={!!prevPageUrl}
-        hasNext={!!nextPageUrl}
-      />
+      
+
+      { !loading && totalPages >= 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          hasPrev={!!prevPageUrl}
+          hasNext={!!nextPageUrl}
+        />
+      )}
     </div>
   );
 }

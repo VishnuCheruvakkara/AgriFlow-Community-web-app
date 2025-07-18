@@ -49,7 +49,7 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
                         <FaInfoCircle className="text-red-700 dark:text-red-400" />
                     </div>
                     <div className="ml-3 space-y-2">
-                        <p className="text-sm text-red-800 dark:text-red-300">
+                        <p className="sm:text-sm text-xs text-red-800 dark:text-red-300">
                             You must be an Admin of a group to create a community Event. Select a community below to create an event.
                         </p>
                     </div>
@@ -127,7 +127,7 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center">
                                     <h3 className="font-medium text-gray-900 dark:text-white truncate">{community.name}</h3>
-                                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200">
                                         Admin
                                     </span>
                                 </div>

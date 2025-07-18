@@ -7,6 +7,7 @@ import debounce from 'lodash.debounce';
 import { ImCancelCircle } from "react-icons/im";
 import { Link } from 'react-router-dom';
 import SelectCommunityCreateEventShimmer from '../../components/shimmer-ui-component/SelectCommunityCreateEventShimmer';
+import CommunityDataNotFoundImage from "../../assets/images/no-community-imagef-found.png"
 
 function MyCommunities() {
     const [communities, setCommunities] = useState([]);
@@ -106,13 +107,17 @@ function MyCommunities() {
                     value={inputValue}
                     placeholder="Search communities..."
                     onChange={handleSearchChange}
-                    className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-500 ease-in-out"
+                    className=" w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg 
+               focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent 
+               transition duration-500 ease-in-out
+               bg-white text-gray-800 placeholder-gray-400 
+               dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder-zinc-500 dark:border-zinc-700"
                 />
-                <Search className=" absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className=" absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
                 {searchTerm && (
                     <button
                         onClick={clearSearchBar}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500 transition-colors duration-300"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-300"
                     >
                         <ImCancelCircle size={20} />
                     </button>
@@ -121,9 +126,14 @@ function MyCommunities() {
 
             <div className="overflow-hidden  rounded-lg ">
                 {!loading && communities.length === 0 ? (
-                    <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-10 px-4 bg-gray-100 rounded-md">
-                        <p className="text-lg font-semibold ">No Communities found!</p>
-                        <p className="text-xs text-gray-500">Try using a different search keyword.</p>
+                    <div className="text-center border-2 border-dashed border-gray-300 dark:border-zinc-600 text-gray-600 dark:text-zinc-400 py-10 px-4 bg-gray-100 dark:bg-zinc-900 rounded-md">
+                        <img
+                            src={CommunityDataNotFoundImage}
+                            alt="No Events"
+                            className="mx-auto w-64 object-contain"
+                        />
+                        <p className="text-lg font-semibold dark:text-zinc-400">No Communities found!</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500">Try using a different search keyword.</p>
                     </div>
                 ) : (
                     communities.map((community, index) => {
@@ -132,13 +142,13 @@ function MyCommunities() {
                         const isLast = index === communities.length - 1;
 
                         return (
-                            <Link 
+                            <Link
                                 to={`community-chat/${community.id}`}
                                 key={community.id}
                                 ref={isLast ? lastCommunityRef : null}
-                                className="flex items-center p-4 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4"
+                                className="flex items-center p-4 mb-2 border border-gray-300 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-900 cursor-pointer rounded-lg gap-4"
                             >
-                                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
+                                <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-700 dark:text-green-400 mr-3 flex-shrink-0">
                                     <img
                                         src={community.logo}
                                         alt="Community Logo"
@@ -148,31 +158,31 @@ function MyCommunities() {
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center">
-                                        <h3 className="font-medium text-gray-900 truncate">{community.name}</h3>
-                                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                        <h3 className="font-medium text-gray-900 dark:text-zinc-100 truncate">{community.name}</h3>
+                                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400">
                                             {isAdmin ? "Admin" : "Member"}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-zinc-500 mt-1">
                                         {community.members_count || 0} members
                                     </p>
                                 </div>
 
                                 {notificationCount > 0 && (
                                     <div className="flex-shrink-0 mr-3">
-                                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600">
+                                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 text-xs font-medium text-red-600 dark:text-red-400">
                                             {notificationCount}
                                         </span>
                                     </div>
                                 )}
-                                <FaChevronRight className="text-gray-400 h-4 w-4 flex-shrink-0" />
+                                <FaChevronRight className="text-gray-400 dark:text-zinc-500 h-4 w-4 flex-shrink-0" />
                             </Link>
                         );
                     })
                 )}
 
                 {loading && (
-                    <SelectCommunityCreateEventShimmer/>
+                    <SelectCommunityCreateEventShimmer />
                 )}
             </div>
         </div>
