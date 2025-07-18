@@ -3,12 +3,17 @@ import bleach
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, FileExtensionValidator
 from rest_framework import serializers
+from users.models import CustomUser
 
 # Phone Number Validation
 def validate_phone_number(value):
-    """Validate phone number format (10 to 15 digits)."""
+    """Validate phone number format and uniqueness (only for creation)."""
     if not re.match(r'^\d{10,15}$', value):
         raise serializers.ValidationError("Phone number must be 10 to 15 digits long.")
+
+    if CustomUser.objects.filter(phone_number=value).exists():
+        raise serializers.ValidationError("This phone number is already registered.")
+
     return value
 
 # Experience Validation
@@ -59,7 +64,8 @@ def validate_profile_image(image):
 # Name Validation (First & Last Name)
 def validate_name(value):
     """Ensure the name contains only alphabets and is at least 2 characters long."""
-    if not re.match(r'^[A-Za-z]{2,}$', value):
+    value = value.strip()
+    if not re.match(r'^[A-Za-z\s]{2,}$', value):
         raise serializers.ValidationError("Name must contain only alphabets and be at least 2 characters long.")
     return value
 
@@ -73,52 +79,41 @@ def validate_date_of_birth(value):
         raise serializers.ValidationError("User must be at least 18 years old.")
     return value
 
-
 def validate_text_field(value):
-    """Allow letters, numbers, periods, commas, hyphens, apostrophes, and spaces, but reject inputs that are only numbers, only dots, only commas, or too short."""
+  
 
-    # Strip any HTML tags using bleach
+    # Step 1: Clean HTML
     cleaned_value = bleach.clean(value, tags=[], strip=True).strip()
 
-    # Ensure it contains only allowed characters
-    if not re.fullmatch(r"[A-Za-z0-9.,' -]+", cleaned_value):
-        raise ValidationError("Invalid input: Only letters, numbers, periods, commas, hyphens, apostrophes, and spaces are allowed.")
+    # This catches scripts that bleach might miss due to clever formatting
+    if re.search(r'(?i)<\s*script.*?>.*?<\s*/\s*script\s*>', value, re.DOTALL):
+        raise ValidationError("Script tags are not allowed.")
 
-    # Reject inputs that contain only numbers, only dots, or only commas
-    if cleaned_value.isdigit() or cleaned_value.replace('.', '').strip() == '' or cleaned_value.replace(',', '').strip() == '':
-        raise ValidationError("Invalid input: Cannot be only numbers, only dots, or only commas.")
+    # Step 3: Allow only letters, numbers, and select punctuation
+    if not re.fullmatch(r"[A-Za-z0-9\s.,#()'’\"/-]+", cleaned_value):
+        raise ValidationError("Invalid input: Use only letters, numbers, or common punctuation.")
 
-    # Ensure at least one letter is present
-    if not re.search(r'[A-Za-z]', cleaned_value):
-        raise ValidationError("Invalid input: The text must contain at least one letter.")
-
-    # Ensure the text is at least 25 characters long
-    if len(cleaned_value) < 25:
-        raise ValidationError("Invalid input: The text must be at least 25 characters long.")
+    # Step 4: Ensure it’s not empty or too short after cleaning
+    if len(cleaned_value) < 10:
+        raise ValidationError("Input too short. Please enter at least 10 characters.")
 
     return cleaned_value
 
-def validate_home_address(value):
-    """Validate home address: Allow letters, numbers, spaces, commas, periods, hyphens, and apostrophes.
-    Must be at least 10 characters long and contain at least one letter."""
 
-    # Strip any HTML tags using bleach
+def validate_home_address(value):
+    """
+    Basic address validation:
+    - Strips HTML tags
+    - Allows letters, numbers, basic punctuation
+    - Requires minimum length of 5 characters
+    """
     cleaned_value = bleach.clean(value, tags=[], strip=True).strip()
 
-    # Ensure it contains only allowed characters
-    if not re.fullmatch(r"[A-Za-z0-9.,' -]+", cleaned_value):
-        raise ValidationError("Invalid address: Only letters, numbers, spaces, commas, periods, hyphens, and apostrophes are allowed.")
+    # Allow only common address characters
+    if not re.fullmatch(r"[A-Za-z0-9\s.,#'()/-]+", cleaned_value):
+        raise ValidationError("Invalid characters in address.")
 
-    # Reject addresses that contain only numbers, only dots, or only commas
-    if cleaned_value.isdigit() or cleaned_value.replace('.', '').strip() == '' or cleaned_value.replace(',', '').strip() == '':
-        raise ValidationError("Invalid address: Cannot be only numbers, only dots, or only commas.")
-
-    # Ensure at least one letter is present
-    if not re.search(r'[A-Za-z]', cleaned_value):
-        raise ValidationError("Invalid address: The address must contain at least one letter.")
-
-    # Ensure the address is at least 10 characters long
-    if len(cleaned_value) < 10:
-        raise ValidationError("Invalid address: The address must be at least 10 characters long.")
+    if len(cleaned_value) < 5:
+        raise ValidationError("Address must be at least 5 characters long.")
 
     return cleaned_value
