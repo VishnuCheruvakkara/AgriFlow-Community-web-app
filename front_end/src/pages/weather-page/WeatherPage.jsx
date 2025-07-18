@@ -52,7 +52,7 @@ const WeatherPage = () => {
         <div className="container mx-auto py-4 max-w-full">
             {/* Header */}
             <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white rounded-t-lg">
-                <h1 className="text-2xl font-bold">Weather Overview</h1>
+                <h1 className="text-xl font-bold">Weather Overview</h1>
             </div>
 
             {/* Container */}
@@ -62,10 +62,10 @@ const WeatherPage = () => {
                     <div className="flex">
                         <FaInfoCircle className="text-yellow-700 dark:text-yellow-400 mr-3 mt-1" />
                         <div>
-                            <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                            <p className="text-xs sm:text-sm font-semibold text-yellow-800 dark:text-yellow-300">
                                 Weather at your farming location
                             </p>
-                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                            <p className="text-xs sm:text-sm text-yellow-800 dark:text-yellow-300">
                                 Use this data to plan agricultural activities better and smarter.
                             </p>
                         </div>

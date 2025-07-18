@@ -93,21 +93,21 @@ function IncomingRequestsSection() {
             </div>
 
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="p-3 border-t-0 border rounded-b-lg border-gray-300 max-h-[500px] overflow-y-auto scrollbar-hide">
+                <div className="p-3 border-t-0 border rounded-b-lg border-gray-300 dark:border-zinc-700 dark:bg-zinc-900 max-h-[500px] overflow-y-auto scrollbar-hide">
                     <div className="space-y-4">
                         {loading ? (
-                            <div className="text-center text-gray-600">Loading...</div>
+                            <div className="text-center text-gray-600 dark:text-zinc-400">Loading...</div>
                         ) : requestsData.length === 0 || totalPending === 0 ? (
-                            <div className="text-center border-2 border-dashed border-gray-300 text-gray-600 py-5 px-4 bg-gray-100 rounded-md">
+                            <div className="text-center border-2 border-dashed border-gray-300 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 py-5 px-4 bg-gray-100 dark:bg-zinc-800 rounded-md">
                                 <p className="text-md font-semibold">No pending requests at the moment.</p>
-                                <p className="text-xs text-gray-500">Check after sometime...</p>
+                                <p className="text-xs text-gray-500 dark:text-zinc-500">Check after sometime...</p>
                             </div>
                         ) : (
                             requestsData.map((community) => (
-                                <div key={community.id} className="bg-white border border-gray-300 rounded-lg">
-                                    <div className="p-3 border-b rounded-t-lg border-gray-200 bg-gray-200">
+                                <div key={community.id} className="bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-lg">
+                                    <div className="p-3 border-b rounded-t-lg border-gray-200 dark:border-zinc-600 bg-gray-200 dark:bg-zinc-700">
                                         <div className="flex items-center gap-2">
-                                            <div className="h-12 w-12 rounded-lg overflow-hidden mr-4 border border-gray-300">
+                                            <div className="h-12 w-12 rounded-lg overflow-hidden mr-4 border border-gray-300 dark:border-zinc-600">
                                                 <img
                                                     src={community.community_logo || DefaultCommunityIcon}
                                                     alt={community.name}
@@ -115,19 +115,19 @@ function IncomingRequestsSection() {
                                                 />
                                             </div>
                                             <div>
-                                                <h3 className="font-medium text-gray-800">Community : {community.name}</h3>
-                                                <p className="text-xs text-gray-500">
+                                                <h3 className="font-medium text-gray-800 dark:text-zinc-200">Community : {community.name}</h3>
+                                                <p className="text-xs text-gray-500 dark:text-zinc-400">
                                                     Total {community.requested_users.length} member{community.requested_users.length !== 1 && 's'} requested to join
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="divide-y divide-gray-100">
+                                    <div className="divide-y divide-gray-100 dark:divide-zinc-700">
                                         {community.requested_users.map((user) => (
-                                            <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50 transition">
+                                            <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-zinc-700 transition">
                                                 <div className="flex items-center gap-4 ml-2">
-                                                    <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200">
+                                                    <div className="h-10 w-10 rounded-full overflow-hidden mr-3 border border-gray-200 dark:border-zinc-600">
                                                         <Link to={`/user-dash-board/user-profile-view/${user.user_id}`}>
                                                             <img
                                                                 src={user.profile_picture || DefaultUserIcon}
@@ -137,11 +137,11 @@ function IncomingRequestsSection() {
                                                         </Link>
                                                     </div>
                                                     <div>
-                                                        <p className="font-medium text-gray-800">{user.username}</p>
-                                                        <p className="text-xs text-gray-500">requested on • {new Date(user.requested_at).toLocaleString('en-IN', {
-                                                                    dateStyle: 'medium',
-                                                                    timeStyle: 'short'
-                                                                })}</p>
+                                                        <p className="font-medium text-gray-800 dark:text-zinc-200">{user.username}</p>
+                                                        <p className="text-xs text-gray-500 dark:text-zinc-400">requested on • {new Date(user.requested_at).toLocaleString('en-IN', {
+                                                            dateStyle: 'medium',
+                                                            timeStyle: 'short'
+                                                        })}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2 ">
@@ -153,7 +153,7 @@ function IncomingRequestsSection() {
                                                     </button>
                                                     <button
                                                         onClick={() => handleRequestAction(community.id, user.username, 'rejected')}
-                                                        className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-500 hover:text-white transition"
+                                                        className="px-3 py-1.5 bg-gray-300 dark:bg-zinc-500 text-gray-700 dark:text-zinc-300 rounded-md text-sm hover:bg-gray-500 hover:text-white dark:hover:bg-zinc-600 transition"
                                                     >
                                                         Reject
                                                     </button>

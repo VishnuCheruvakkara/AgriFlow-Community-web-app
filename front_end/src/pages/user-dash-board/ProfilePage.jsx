@@ -164,7 +164,7 @@ function ProfilePage() {
 
   let content;
 
-  if (!user.profile_completed) {
+  if (!user?.profile_completed) {
     content = (
 
       <>

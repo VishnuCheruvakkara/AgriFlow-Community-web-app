@@ -223,13 +223,13 @@ function CreateCommunity() {
             <div className="mt-6 ">
                 <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">Create Community</h2>
 
-                <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6">
+                <div className="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-400 dark:border-yellow-500 p-4 mb-6">
                     <div className="flex">
                         <div className="flex-shrink-0">
-                            <FaInfoCircle className="text-yellow-700" />
+                            <FaInfoCircle className="text-yellow-700 dark:text-yellow-400" />
                         </div>
                         <div className="ml-3">
-                            <p className="text-sm text-yellow-700">
+                            <p className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-300">
                                 Let's build your community, A space to connect, share, and grow together. Start by entering the details below.
                             </p>
                         </div>
@@ -238,43 +238,43 @@ function CreateCommunity() {
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     {/* Community logo upload icon : Used the same componet used for the profile image upload.*/}
                     <div className="flex flex-col items-center justify-center ">
-                        <h2 className="text-lg font-semibold mb-4">Upload Community Image</h2>
+                        <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-zinc-200">Upload Community Image</h2>
                         <ProfileImageSelector onImageSelect={handleImageSelect} reset={resetImage} />
-                        {errors.communityImage && (<p className="text-red-500 text-sm mt-4">{errors.communityImage}</p>)}
+                        {errors.communityImage && (<p className="text-red-500 dark:text-red-400 text-sm mt-4">{errors.communityImage}</p>)}
                     </div>
 
                     {/* Basic information */}
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Community Name</label>
+                        <label className="block text-gray-700 dark:text-zinc-300 font-medium mb-2">Community Name</label>
                         <input
                             id='name'
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className={`bg-white text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.name ? " focus:ring-red-500" : "focus:ring-green-500"
-                                } transition duration-500 ease-in-out`}
+                            className={`bg-white  text-black dark:text-zinc-100 w-full px-4 py-3 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-900 rounded-lg focus:outline-none focus:ring-2 ${errors.name ? " focus:ring-red-500" : "focus:ring-green-500"
+                                } transition duration-500 ease-in-out placeholder-gray-400 dark:placeholder-zinc-500`}
                             placeholder="Enter your community name"
                         />
-                        {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
+                        {errors.name && <p className="text-red-500 dark:text-red-400 text-sm mt-2">{errors.name}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Description</label>
+                        <label className="block text-gray-700 dark:text-zinc-300 font-medium mb-2">Description</label>
                         <textarea
                             id='description'
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className={`bg-white text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.name ? " focus:ring-red-500" : "focus:ring-green-500"
-                                } transition duration-500 ease-in-out`}
+                            className={`bg-white dark:bg-zinc-900 text-black dark:text-zinc-100 w-full px-4 py-3 border border-gray-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 ${errors.name ? " focus:ring-red-500" : "focus:ring-green-500"
+                                } transition duration-500 ease-in-out placeholder-gray-400 dark:placeholder-zinc-500`}
                             placeholder="Describe what your community is about"
                             rows="3"
                         ></textarea>
-                        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                        {errors.description && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.description}</p>}
                     </div>
 
                     {/* Privacy settings */}
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Privacy Settings</label>
+                        <label className="block text-gray-700 dark:text-zinc-300 font-medium mb-2">Privacy Settings</label>
                         <div className="grid grid-cols-2 gap-4">
 
                             {/* Public Option */}
@@ -282,14 +282,14 @@ function CreateCommunity() {
                                 onClick={() => setFormData({ ...formData, is_private: false })}
                                 className={`border rounded-md p-4 cursor-pointer transition-colors duration-500
                                 ${formData.is_private === false
-                                        ? "border-green-600 bg-green-100"
-                                        : "border-gray-300"}`}
+                                        ? "border-green-600 bg-green-100 dark:bg-green-900 dark:border-green-500"
+                                        : "border-gray-300 dark:border-zinc-600 dark:bg-zinc-900"}`}
                             >
                                 <div className="flex items-center">
-                                    <FaGlobe className={`mr-2 ${formData.is_private === false ? "text-green-500" : "text-gray-400"}`} />
-                                    <h3 className="font-medium">Public Community</h3>
+                                    <FaGlobe className={`mr-2 ${formData.is_private === false ? "text-green-500 dark:text-green-400" : "text-gray-400 dark:text-zinc-500"}`} />
+                                    <h3 className="font-medium text-gray-800 dark:text-zinc-200">Public Community</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 mt-2">Anyone can see and join this community</p>
+                                <p className="text-sm text-gray-600 dark:text-zinc-400 mt-2">Anyone can see and join this community</p>
                             </div>
 
                             {/* Private Option */}
@@ -297,14 +297,14 @@ function CreateCommunity() {
                                 onClick={() => setFormData({ ...formData, is_private: true })}
                                 className={`border rounded-md p-4 cursor-pointer transition 
                                 ${formData.is_private === true
-                                        ? "border-green-600 bg-green-100"
-                                        : "border-gray-300"}`}
+                                        ? "border-green-600 bg-green-100 dark:bg-green-900 dark:border-green-500"
+                                        : "border-gray-300 dark:border-zinc-600 dark:bg-zinc-900"}`}
                             >
                                 <div className="flex items-center">
-                                    <FaLock className={`mr-2 ${formData.is_private === true ? "text-green-500" : "text-gray-400"}`} />
-                                    <h3 className="font-medium">Private Community</h3>
+                                    <FaLock className={`mr-2 ${formData.is_private === true ? "text-green-500 dark:text-green-400" : "text-gray-400 dark:text-zinc-500"}`} />
+                                    <h3 className="font-medium text-gray-800 dark:text-zinc-200">Private Community</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 mt-2">Admin approval required to join</p>
+                                <p className="text-sm text-gray-600 dark:text-zinc-400 mt-2">Admin approval required to join</p>
                             </div>
 
                         </div>
@@ -312,20 +312,20 @@ function CreateCommunity() {
 
                     {/* Tags */}
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">Tags</label>
+                        <label className="block text-gray-700 dark:text-zinc-300 font-medium mb-2">Tags</label>
                         <div className="flex">
                             <input
                                 type="text"
                                 value={tagInput}
                                 onChange={(e) => setTagInput(e.target.value)}
                                 onKeyDown={handleKeyPress}
-                                className="flex-1 py-3 px-4 border-2 border-r-0 border-gray-300 rounded-l-lg focus:outline-none focus:border-green-500 transition-colors duration-300"
+                                className="flex-1 py-3 px-4 border-2 border-r-0 border-gray-300 dark:border-zinc-600 rounded-l-lg focus:outline-none focus:border-green-500 dark:focus:border-green-400 transition-colors duration-300 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-500"
                                 placeholder="Add relevant tags (e.g., organic, rice, livestock)"
                             />
                             <button
                                 type="button"
                                 onClick={handleAddTag}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-r-lg hover:bg-green-700 transition duration-200"
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-r-lg hover:bg-green-700 dark:hover:bg-green-600 transition duration-200"
                             >
                                 <IoMdAddCircle className="text-xl" />
                                 <span className="font-medium">Add</span>
@@ -333,13 +333,13 @@ function CreateCommunity() {
                         </div>
                         {/* Tag Errors */}
                         {errors.tags && (
-                            <p className="text-red-500 text-sm mt-2">{errors.tags}</p>
+                            <p className="text-red-500 dark:text-red-400 text-sm mt-2">{errors.tags}</p>
                         )}
 
 
                         <div className="flex flex-wrap gap-2 mt-3">
                             {formData.tags.map((tag, index) => (
-                                <span onClick={() => handleRemoveTag(tag)} key={index} className="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full flex items-center cursor-pointer">
+                                <span onClick={() => handleRemoveTag(tag)} key={index} className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm px-3 py-1 rounded-full flex items-center cursor-pointer hover:bg-green-200 dark:hover:bg-green-800 transition-colors">
                                     {tag}
                                     <span className='ml-2'>&times;</span>
                                 </span>
@@ -352,7 +352,7 @@ function CreateCommunity() {
                     <div className="pt-4">
                         <button
                             type="submit"
-                            className="w-full bg-green-600 text-white font-medium py-3 rounded-lg hover:bg-green-700 transition"
+                            className="w-full bg-green-600 dark:bg-green-700 text-white font-medium py-3 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition"
                         >
                             Create Community
                         </button>

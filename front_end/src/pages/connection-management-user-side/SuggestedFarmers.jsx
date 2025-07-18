@@ -108,46 +108,39 @@ const SuggestedFarmers = () => {
     return (
         <div>
 
-            {/* accepted user section  */}
             {notifications.length > 0 && (
-                <h2 className="text-lg font-medium text-gray-800 mb-3">
+                <h2 className="text-lg font-medium text-zinc-800 dark:text-zinc-100 mb-3">
                     Request accepted by
                 </h2>
             )}
+
             {notifications.map((notif) => (
-                <>
-
-                    <div key={notif.id} className="overflow-hidden rounded-lg">
-
-
-
-                        <div className="flex items-center px-4 py-3 mb-2 border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-lg gap-4">
-                            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 mr-3 flex-shrink-0">
-                                <img
-                                    src={notif.sender.profile_picture || DefaultUserImage}
-                                    alt="User Avatar"
-                                    className="h-12 w-12 rounded-full object-cover"
-                                />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-gray-900 truncate">
-                                    {notif.sender.username}
-                                </h3>
-                                <p className="text-xs text-gray-500 mt-1 capitalize">
-                                    {notif.message}
-                                </p>
-                            </div>
-
-                            <div
-                                onClick={() => handleClearNotification(notif.id)}
-                                className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-2 hover:bg-red-300 border border-red-400 cursor-pointer tooltip tooltip-left dark:bg-red-900 dark:border-red-700 dark:hover:bg-red-800"
-                                data-tip="Clear"
-                            >
-                                <MdOutlineCancel className="text-red-600 text-xl hover:text-red-800 dark:text-red-400 dark:hover:text-red-200" />
-                            </div>
+                <div key={notif.id} className="overflow-hidden rounded-lg ">
+                    <div className="flex items-center px-4 py-3 mb-2 border dark:hover:bg-zinc-900 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100  cursor-pointer rounded-lg gap-4 transition-colors duration-200">
+                        <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-700 dark:text-green-300 mr-3 flex-shrink-0">
+                            <img
+                                src={notif.sender.profile_picture || DefaultUserImage}
+                                alt="User Avatar"
+                                className="h-12 w-12 rounded-full object-cover"
+                            />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                                {notif.sender.username}
+                            </h3>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 capitalize">
+                                {notif.message}
+                            </p>
+                        </div>
+                        <div
+                            onClick={() => handleClearNotification(notif.id)}
+                            className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center mr-2 hover:bg-red-300 dark:hover:bg-red-800 border border-red-400 dark:border-red-700 cursor-pointer tooltip tooltip-left"
+                            data-tip="Clear"
+                        >
+                            <MdOutlineCancel className="text-red-600 dark:text-red-400 text-xl hover:text-red-800 dark:hover:text-red-200" />
                         </div>
                     </div>
-                </>
+                </div>
             ))}
 
 
