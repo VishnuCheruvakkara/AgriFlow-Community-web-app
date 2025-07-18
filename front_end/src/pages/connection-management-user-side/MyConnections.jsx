@@ -184,7 +184,7 @@ function MyConnections() {
     </div>
 
     {/* Pagination */}
-    {!loading && totalPages > 1 && (
+    {!loading && totalPages >= 1 && (
         <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

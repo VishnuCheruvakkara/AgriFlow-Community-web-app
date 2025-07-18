@@ -18,9 +18,7 @@ const FarmerSingleChat = () => {
     const [newMessage, setNewMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const socketRef = useRef(null)
-    //track online or offline for receiver user
-    const [receiverOnlineStatus, setReceiverOnlineStatus] = useState("offline");
-
+   
     // handle imoji
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
@@ -57,7 +55,7 @@ const FarmerSingleChat = () => {
                 if (data.type === "online_status") {
                     // data.online_users is an array of user IDs currently online
                     const isReceiverOnline = data.online_users.includes(String(receiverId));
-                    setReceiverOnlineStatus(isReceiverOnline ? "online" : "offline"); // true if online, false if offline
+                    
                 } else {
                     // it's a chat message
                     setMessages((prev) => [...prev, data]);
@@ -179,9 +177,7 @@ const FarmerSingleChat = () => {
                     />
                     <div>
                         <h3 className="font-semibold text-white dark:text-zinc-100">{username || "no data found"}</h3>
-                        <p className="text-xs text-gray-200">
-                            {receiverOnlineStatus === "online" ? "Online" : "Offline"}
-                        </p>
+                       
                     </div>
                 </div>
                

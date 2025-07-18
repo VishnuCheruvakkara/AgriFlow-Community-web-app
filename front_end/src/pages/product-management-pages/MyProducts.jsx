@@ -208,7 +208,7 @@ function MyProducts() {
 
 
             {/* Pagination Placeholder */}
-            {!loading &&
+            {!loading && totalPages >= 1 &&
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}

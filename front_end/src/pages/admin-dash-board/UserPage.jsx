@@ -8,7 +8,7 @@ import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmat
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { Link } from "react-router-dom";
 import { PulseLoader } from 'react-spinners';
-import Pagination from "../../components/Common-Pagination/UserSidePagination";
+import AdminSidePagination from "../../components/Common-Pagination/AdminSidePagination";
 //debounce in search 
 import debounce from "lodash/debounce";
 import UsersNotFound from "../../assets/images/connection_no_search_found.png"
@@ -306,7 +306,7 @@ const UsersPage = () => {
                 </div>
 
                 {/* Pagination Controls */}
-                <Pagination
+                <AdminSidePagination
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={handlePageChange}

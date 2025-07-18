@@ -361,13 +361,17 @@ function DiscoverCommunities() {
         )}
       </AnimatePresence>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        hasPrev={!!prevPageUrl}
-        hasNext={!!nextPageUrl}
-      />
+      
+
+      { !loading && totalPages >= 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          hasPrev={!!prevPageUrl}
+          hasNext={!!nextPageUrl}
+        />
+      )}
     </div>
   );
 }

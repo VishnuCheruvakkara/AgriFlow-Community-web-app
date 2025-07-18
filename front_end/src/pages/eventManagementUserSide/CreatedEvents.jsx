@@ -227,8 +227,8 @@ function CreatedEvents() {
                         </div>
 
                         {/* Pagination Component */}
-                        {events.length > 0 && totalPages > 1 && (
-                            <div className="dark:bg-zinc-900 dark:text-zinc-200">
+                        {!loading && totalPages > 1 && (
+                            
                                 <Pagination
                                     currentPage={currentPage}
                                     totalPages={totalPages}
@@ -236,7 +236,7 @@ function CreatedEvents() {
                                     hasNext={currentPage < totalPages}
                                     onPageChange={setCurrentPage}
                                 />
-                            </div>
+                           
                         )}
                     </>
                 )}

@@ -198,7 +198,7 @@ function BlockedUsers() {
             </div>
 
             {/* Pagination */}
-            {!loading && blockedUsers.length > 0 && totalPages > 1 && (
+            {!loading && blockedUsers.length > 0 && totalPages >= 1 && (
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}

@@ -206,7 +206,7 @@ function AllEvents() {
 
 
       {/* Pagination */}
-      {pagination.totalPages > 1 && (
+      {!loading && pagination.totalPages >= 1 && (
         <Pagination className="dark:bg-zinc-900 dark:text-zinc-200"
           currentPage={currentPage}
           totalPages={pagination.totalPages}

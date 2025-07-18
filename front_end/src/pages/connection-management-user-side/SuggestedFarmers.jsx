@@ -233,7 +233,7 @@ const SuggestedFarmers = () => {
 
 
             {/* Pagination */}
-            {totalPages > 1 && !loading && (
+            {totalPages >= 1 && !loading && (
                 <Pagination
                     currentPage={page}
                     totalPages={totalPages}
