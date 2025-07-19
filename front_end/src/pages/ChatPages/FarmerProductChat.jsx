@@ -10,6 +10,7 @@ import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosIns
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import { BsEmojiSmile } from 'react-icons/bs'
 import { IoMdSend } from "react-icons/io";
+import { Link } from 'react-router-dom'
 
 
 function FarmerProductChat() {
@@ -188,7 +189,7 @@ function FarmerProductChat() {
 
             {/* Header */}
             <header className="bg-gradient-to-r from-green-700 to-green-400 border-b dark:border-zinc-700 p-4 flex justify-between items-center">
-                <div className="flex items-center gap-3">
+                <Link to={`/user-dash-board/user-profile-view/${receiverId}`} className="flex items-center gap-3">
                     <img
                         src={profilePicture || DefaultUserImage}
                         alt="profile"
@@ -201,7 +202,7 @@ function FarmerProductChat() {
 
                     </div>
 
-                </div>
+                </Link>
 
                 <button onClick={() => navigate(-1)} className="border-white hover:border-transparent text-white hover:bg-green-700 rounded-full p-1 transition-colors duration-300">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

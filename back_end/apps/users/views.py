@@ -736,7 +736,7 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
     search_fields = ['username', 'email']
 
     def get_queryset(self):
-        queryset = User.objects.filter(is_superuser=False, is_verified=True)
+        queryset = User.objects.filter(is_superuser=False, is_verified=True).order_by('-created_at')
         filter_type = self.request.query_params.get('filter', None)
         search_query = self.request.query_params.get('search', None)
 
