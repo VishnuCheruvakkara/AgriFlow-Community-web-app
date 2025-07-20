@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
-// redux set up 
 import { useDispatch } from 'react-redux'
 import { loginSuccess } from '../../redux/slices/AuthSlice';
 import { showToast } from '../../components/toast-notification/CustomToast';
-//import logo
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
-//import the button loader 
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 
@@ -89,7 +86,6 @@ const OTPVerification = () => {
                     return prevTimer - 1;
                 });
             }, 1000);
-
             // Cleanup interval on component unmount or when timer reaches 0
             return () => clearInterval(intervalId);
         }
@@ -117,7 +113,6 @@ const OTPVerification = () => {
         if (!domain) return email;
         return `${username.substring(0, 3)}${"*".repeat(username.length - 3)}@${domain}`;
     };
-
 
     // Function to format timer in MM:SS format
     const formatTime = (time) => {

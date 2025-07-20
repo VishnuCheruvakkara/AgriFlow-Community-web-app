@@ -7,7 +7,6 @@ import { showToast } from "../toast-notification/CustomToast"
 
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 
-
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const GoogleAuthButton = () => {

@@ -29,7 +29,6 @@ function EventLayout() {
                     </div>
                 </div>
 
-
                 {/* Tab Navigation */}
                 <div className="flex border-b border-gray-200 dark:border-gray-600 mt-4 overflow-x-auto text-xs sm:text-sm">
                     <NavLink

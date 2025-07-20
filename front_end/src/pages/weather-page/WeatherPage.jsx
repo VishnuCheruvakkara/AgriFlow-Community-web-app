@@ -25,8 +25,6 @@ const WeatherPage = () => {
         const fetchWeather = async () => {
 
             try {
-
-
                 const res = await axios.get(
                     `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`
                 );
@@ -118,7 +116,6 @@ const WeatherPage = () => {
                                         </div>
                                     </div>
                                 </div>
-
 
                                 {/* Atmospheric Conditions */}
                                 <div className="border rounded-lg p-4 shadow-md dark:bg-zinc-900 dark:border-zinc-600">

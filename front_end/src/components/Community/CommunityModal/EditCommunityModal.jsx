@@ -2,20 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImCancelCircle } from "react-icons/im";
-//For Edit the community Image using the same profile upload component 
 import ProfileImageSelector from '../../user-dash-board/ProfileImageSelector';
-import * as Yup from 'yup'; //importing Yuo for validation 
-import { Formik, Field, Form, ErrorMessage } from 'formik'; //import formic for form handling
+import * as Yup from 'yup'; 
+import { Formik, Field, Form, ErrorMessage } from 'formik'; 
 import { FaInfoCircle } from 'react-icons/fa';
-//toast 
 import { showToast } from '../../toast-notification/CustomToast';
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';
 import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
-//To set up local loader 
 import { PulseLoader } from 'react-spinners';
-
 import { shakeErrorInputVariant } from '../../common-animations/ShakingErrorInputVariant';
-
 
 const validationSchema = Yup.object({
     name: Yup.string()
@@ -30,7 +25,6 @@ const validationSchema = Yup.object({
         .required('Please enter a description'),
 
 });
-
 
 const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
     const [name, setName] = useState('');
@@ -50,7 +44,6 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
             setCommunityImage(null); // reset file on modal open
         }
     }, [community]);
-
 
     const handleSave = async (values) => {
         const formData = new FormData();
@@ -115,12 +108,12 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
         }
     };
 
-    //============== Add community image/Icon in to the state 
+    // Add community image/Icon in to the state 
     const handleImageSelect = (imageFile) => {
         setCommunityImage(imageFile);
     };
 
-    //*************** */ add community image section ends
+    // add community image section ends
 
     if (!isOpen) return null;
 
@@ -187,7 +180,6 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                                 reset={false} // if you don't want it to auto-reset
                                 initialImage={initialImageUrl}
                             />
-                            {/* {errors.communityImage && (<p className="text-red-500 text-sm mt-4">{errors.communityImage}</p>)} */}
                         </div>
 
                         <Formik

@@ -13,7 +13,6 @@ import { MdOutlineCancel } from "react-icons/md";
 import { Link } from 'react-router-dom';
 
 const SuggestedFarmers = () => {
-
     const [farmers, setFarmers] = useState([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -101,12 +100,9 @@ const SuggestedFarmers = () => {
         }
     };
 
-
-
     return (
         <div>
             <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200">Suggested Farmers</h2>
-
             {/* Search Bar */}
             <div className="relative mb-5">
                 <input
@@ -190,8 +186,6 @@ const SuggestedFarmers = () => {
                 </div>
             )}
 
-
-
             {/* Pagination */}
             {totalPages >= 1 && !loading && (
                 <Pagination
@@ -203,7 +197,6 @@ const SuggestedFarmers = () => {
                 />
             )}
         </div >
-
     );
 };
 

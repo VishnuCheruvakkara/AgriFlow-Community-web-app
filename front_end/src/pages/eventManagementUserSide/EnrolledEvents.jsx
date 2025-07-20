@@ -62,13 +62,11 @@ function EnrolledEvents() {
     debouncedSearch(value);
   };
 
-
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       fetchEnrolledEvents(page, searchQuery);
     }
   };
-
 
   return (
     <div >
@@ -113,12 +111,8 @@ function EnrolledEvents() {
         )}
       </div>
 
-
       {/* Event Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Dummy Card 1 */}
-
-
         {/* Dynamic Event Cards */}
         {loading
           ? (Array.from({ length: 6 }).map((_, index) => < EventPageShimmer key={index} />)
@@ -138,9 +132,6 @@ function EnrolledEvents() {
             </div>
           ) : (events.map((event, index) => (
             <div>
-
-
-
               <div
                 key={index}
                 className=" relative bg-white p-4 rounded-lg border border-gray-300 hover:shadow-xl transition duration-500 ease-in-out flex flex-col h-full dark:bg-zinc-900 dark:border-zinc-700 dark:text-white dark:hover:shadow-zinc-700/50"
@@ -166,8 +157,6 @@ function EnrolledEvents() {
                     {event.event_status.charAt(0).toUpperCase() + event.event_status.slice(1)}
                   </div>
                 </div>
-
-
                 <div className="flex-1">
                   <div className="">
                     <img
@@ -179,9 +168,7 @@ function EnrolledEvents() {
                       } text-white`}>
                       {event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)}
                     </div>
-
                   </div>
-
                   <h3 className="text-sm font-bold mb-2 text-green-700 border-t border-green-500 pt-2 dark:text-green-400 dark:border-green-600">
                     {event.title}
                   </h3>
@@ -261,15 +248,8 @@ function EnrolledEvents() {
                     />
                   )}
                 </AnimatePresence>
-
-
               </div>
-
-
             </div>
-
-
-
           )))}
       </div>
       {/* pagination setup  */}
@@ -284,10 +264,6 @@ function EnrolledEvents() {
           />
         </div>
       )}
-
-
-
-
     </div>
   );
 }

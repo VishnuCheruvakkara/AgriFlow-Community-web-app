@@ -6,7 +6,6 @@ import { useDispatch } from 'react-redux';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png';
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
-// logo and images 
 import AgriFlowWhiteLogo from '../../assets/images/agriflowwhite.png'
 import { adminLoginSuccess } from '../../redux/slices/AdminAuthSlice';
 import ThemeToggle from '../../components/ThemeController/ThemeToggle';
@@ -85,19 +84,12 @@ const AdminLogin = () => {
                     <p className="text-xl text-white opacity-90">
                         Dashboard access for agricultural management
                     </p>
-
-
                 </div>
             </div>
-
 
             <div className="bg-green-500 absolute top-8 right-11 rounded-lg p-[1px]">
                 <ThemeToggle />
             </div>
-
-
-
-
 
             {/* Right side form panel */}
             <div className="w-full lg:w-1/2 lg:ml-auto overflow-y-auto h-screen scrollbar-hide">
@@ -182,7 +174,6 @@ const AdminLogin = () => {
                                     </span>
                                 </div>
                             </div>
-
 
                             <ButtonLoader
                                 buttonId="adminLoginButton"

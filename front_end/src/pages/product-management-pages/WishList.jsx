@@ -37,7 +37,6 @@ function WishList() {
     }
   };
 
-
   const debouncedFetchWishlist = useCallback(
     debounce((query) => fetchWishlist(query), 500),
     []
@@ -111,7 +110,6 @@ function WishList() {
           </button>
         )}
       </div>
-
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

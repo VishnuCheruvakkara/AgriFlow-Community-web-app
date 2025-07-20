@@ -288,9 +288,6 @@ const Sidebar = ({ onToggle }) => {
           )}
         </div>
       </div>
-
-    
-
     </div>
   );
 };

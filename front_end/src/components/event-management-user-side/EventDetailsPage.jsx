@@ -157,9 +157,6 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
     }
   };
 
-
-
-
   return (
     <div className="flex flex-col w-full rounded-md bg-gray-100 shadow-lg overflow-y-auto no-scrollbar dark:bg-zinc-950 dark:text-zinc-200">
       {/* Header */}
@@ -354,9 +351,6 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
             </p>
           </div>
         )}
-
-
-
       </div>
 
       {currentEvent.event_status !== 'completed' &&

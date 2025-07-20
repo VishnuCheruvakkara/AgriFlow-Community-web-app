@@ -7,7 +7,6 @@ const BASE_URL = "http://localhost:8000";
 
 const AuthenticatedAxiosInstance = axios.create({
     baseURL: BASE_URL,
-    // headers: { "Content-Type": "application/json" },
     withCredentials: true, // Required for sending cookies (refresh token)
 });
 

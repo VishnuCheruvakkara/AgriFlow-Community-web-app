@@ -13,9 +13,7 @@ import { FaPaperPlane } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import CommunityDataNotFoundImage from "../../assets/images/connection_no_search_found.png"
 
-
 const SinglePostPage = () => {
-
   const navigate = useNavigate();
   const { postId } = useParams();
   const [post, setPost] = useState(null);
@@ -123,10 +121,6 @@ const SinglePostPage = () => {
     setCommentInput(e.target.value);
   };
 
-
-
-
-
   if (loading) {
     return <SinglePostShimmer />;
   }
@@ -138,8 +132,6 @@ const SinglePostPage = () => {
       </div>
     );
   }
-
-
 
   return (
     <div className="w-full    mt-4 mb-14">
@@ -171,8 +163,6 @@ const SinglePostPage = () => {
                 })}
               </p>
             </div>
-
-
           </div>
           <Link
             onClick={() => navigate(-1)}
@@ -312,7 +302,6 @@ const SinglePostPage = () => {
                         Be the first to leave a comment.
                       </p>
                     </div>
-
                   ) : (
                     comments.map((comment) => (
                       <div
@@ -358,7 +347,6 @@ const SinglePostPage = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </div>
   );

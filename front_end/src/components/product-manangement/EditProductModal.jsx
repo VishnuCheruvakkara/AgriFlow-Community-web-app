@@ -28,7 +28,6 @@ const EditProductModal = ({ isOpen, onClose, onSave, product }) => {
         image2: '',
         image3: ''
     });
-
     // Create initial values from the product data
     const getInitialValues = () => {
         if (!product) {

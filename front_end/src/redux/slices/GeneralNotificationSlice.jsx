@@ -8,7 +8,6 @@ const generalNotificationSlice = createSlice({
   reducers: {
     addGeneralNotification: (state, action) => {
       const newItems = Array.isArray(action.payload) ? action.payload : [action.payload];
-
       newItems.forEach(newItem => {
         const index = state.notifications.findIndex(n => n.id === newItem.id);
         if (index !== -1) {

@@ -26,7 +26,7 @@ function AvailableProducts() {
 
   // Add or remove product from the wishlist
   const toggleWishlist = async (productId) => {
-    const isInWishlist = wishlist.includes(productId);  // check current state
+    const isInWishlist = wishlist.includes(productId);
     setWishlistLoadingId(productId);
 
     try {
@@ -53,7 +53,6 @@ function AvailableProducts() {
     } finally {
       setWishlistLoadingId(null); // End loading
     }
-
   };
 
   //Get the prodcuts from wishlist 
@@ -70,8 +69,6 @@ function AvailableProducts() {
   useEffect(() => {
     fetchWishlist();
   }, []);
-
-
 
   const fetchProducts = async (query = '', page = 1) => {
     try {
@@ -166,10 +163,6 @@ function AvailableProducts() {
               </p>
             </div>
           ) : (
-
-
-
-
             products.map((product) => (
               <div
                 key={product.id}
@@ -251,18 +244,11 @@ function AvailableProducts() {
                       <FaRegHeart />
                     )}
                   </button>
-
                 </div>
-
-
               </div>
             ))
           )}
-
-
-
       </div>
-
       {/* Pagination */}
       {!loading && totalPages >= 1 && (
         <Pagination

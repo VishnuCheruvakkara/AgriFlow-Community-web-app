@@ -25,7 +25,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { GrContact } from "react-icons/gr";
 import ProductDetailsShimmer from "../shimmer-ui-component/ProductDetailsShimmer";
 
-
 const ProductDetailsPage = () => {
 
     const [loading, setLoading] = useState(true);
@@ -77,8 +76,6 @@ const ProductDetailsPage = () => {
         setIsEditModalOpen(false);
     };
 
-
-
     // Handle delete with confirmation
     const handleDeleteClick = async () => {
         const result = await showConfirmationAlert({
@@ -100,7 +97,6 @@ const ProductDetailsPage = () => {
             }
         }
     };
-
 
     // Handle product update
     const handleProductUpdate = (updatedProduct) => {
@@ -167,7 +163,6 @@ const ProductDetailsPage = () => {
         return <ProductDetailsShimmer />;
     }
 
-
     return (
         <>
             <div className="flex flex-col w-full rounded-md bg-gray-100 shadow-lg overflow-y-auto no-scrollbar dark:bg-zinc-950 dark:text-zinc-200">
@@ -224,18 +219,11 @@ const ProductDetailsPage = () => {
                             </div>
                         )
                     )}
-
-
-
-
-
                 </div>
 
                 {/* Product Info */}
                 <div className="bg-white p-2 space-y-2 border-b dark:bg-zinc-900 dark:border-zinc-800">
                     {userId === localProduct?.seller?.id &&
-
-
                         <div
                             onClick={() => handleAvailabilityToggle(!localProduct.is_available)}
                             className={`relative w-full flex items-center justify-center cursor-pointer transition-colors duration-300
@@ -251,9 +239,6 @@ const ProductDetailsPage = () => {
                                 {localProduct.is_available ? "Available" : "Unavailable"}
                             </div>
                         </div>
-
-
-
                     }
 
                     <div className="flex text-sm text-gray-700 border border-green-400 bg-green-200 px-2 py-4 rounded-sm dark:bg-green-900 dark:border-green-700 dark:text-green-100">
@@ -269,10 +254,6 @@ const ProductDetailsPage = () => {
                     </div>
 
                 </div>
-
-
-
-
                 {/* Details */}
                 <div className="flex flex-col">
                     <div className="bg-white mt-2 p-4 border-b dark:bg-zinc-900 dark:border-zinc-800">
@@ -301,7 +282,6 @@ const ProductDetailsPage = () => {
                             <h3 className="text-sm  font-semibold">Location Details</h3>
                             <p>{localProduct?.location?.full_location}</p>
                         </div>
-
                         </div>
                         <div className="py-4 pl-7">
                             <button
@@ -314,7 +294,6 @@ const ProductDetailsPage = () => {
                                 <span className="text-sm pr-10 pl-4">View Location on Map</span>
                             </button>
                         </div>
-
                     </div>
                 </div>
 

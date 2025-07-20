@@ -24,7 +24,6 @@ function BlockedUsers() {
     const [prevPage, setPrevPage] = useState(null);
     const [totalCount, setTotalCount] = useState(0);
     const pageSize = 6;
-
     const totalPages = Math.ceil(totalCount / pageSize);
 
     const fetchBlockedUsers = async (page = 1, search = '') => {
@@ -36,7 +35,6 @@ function BlockedUsers() {
                     search,
                 },
             });
-
             setBlockedUsers(response.data.results);
             setNextPage(response.data.next);
             setPrevPage(response.data.previous);
@@ -106,7 +104,6 @@ function BlockedUsers() {
             }
         }
     };
-
 
     return (
         <div className="mt-4">
@@ -195,7 +192,6 @@ function BlockedUsers() {
                     ))
                 )}
             </div>
-
             {/* Pagination */}
             {!loading && blockedUsers.length > 0 && totalPages >= 1 && (
                 <Pagination

@@ -8,7 +8,6 @@ const NoInternetPage = () => {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-white px-4 text-center">
-     
 
       {/* Image */}
       <img

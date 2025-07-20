@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-// Importing necessary icons from react-icons
 import { FaCloudSun, FaPlus, FaEllipsisH, FaHeart, FaRegComment, FaShare, FaRegHeart, FaPaperPlane } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 import defaultFarmerImage from '../../assets/images/farmer-wheat-icons.png'
@@ -22,9 +21,7 @@ import { FaWind, FaWater, FaCloud, FaMapMarkerAlt } from "react-icons/fa";
 import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
 import { Search } from 'lucide-react';
 import { ImCancelCircle } from 'react-icons/im';
-
 import { PulseLoader } from 'react-spinners';
-
 import { Link } from 'react-router-dom';
 
 function Home() {
@@ -107,7 +104,6 @@ function Home() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     setPosts([]);
@@ -228,7 +224,6 @@ function Home() {
     }
   };
 
-
   const handleCommentInputChange = (postId, value) => {
     setCommentInputs(prev => ({
       ...prev,
@@ -265,13 +260,10 @@ function Home() {
     }
   };
 
-
-
   //get the weather data for card 
   useEffect(() => {
     const fetchWeather = async () => {
       if (!user?.address?.latitude || !user?.address?.longitude) return;
-
       try {
         const res = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?lat=${user.address.latitude}&lon=${user.address.longitude}&units=metric&appid=${import.meta.env.VITE_WEATHER_API_KEY}`
@@ -293,18 +285,12 @@ function Home() {
     navigate(`/user-dash-board/posts/${postId}`);
   }
 
-
-
-
   return (
     <>
       {/* for scroll set up  */}
       <CustomScrollToTop />
 
-
       <div className="w-[100%] space-y-4 mt-4 mb-11 " >
-
-
 
         {/* Welcome bar with Weather & Forecast Link */}
         <div className="h-auto rounded-lg shadow-lg p-4 mb-4 bg-white dark:bg-zinc-800 relative overflow-hidden">
@@ -392,18 +378,11 @@ function Home() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Please try again later or check your connection.</p>
               </div>
             ) : null}
-
-
-
           </div>
         </div>
 
-
-
         {/* Create post card */}
-
         <PostCreationModalButton user={user} />
-
         {/* search section  */}
         <div className="relative  w-full  mx-auto">
           <input
@@ -490,7 +469,6 @@ function Home() {
                       </p>
                     </div>
                   </Link>
-
                 </div>
 
                 {/* Post Text Content */}
@@ -550,8 +528,6 @@ function Home() {
                       <span className="mr-2">{likeCounts[post.id] || 0}</span> {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
                       {isLiked ? "Liked" : "Like"}
                     </button>
-
-
 
                     {/* Flying Heart inside like button wrapper */}
                     {heartAnimations[post.id] && (
@@ -643,7 +619,6 @@ function Home() {
                                     hour12: true,
                                   })}
                                 </p>
-
                               </div>
                             </div>
                           ))}
@@ -669,19 +644,12 @@ function Home() {
           </div>
         )}
 
-
-
         {!hasMore && !hasMore && (
           <p className="text-center text-gray-500 dark:text-gray-400 py-4">
             🎉 You've reached the end of the posts.
           </p>
         )}
-
-
       </div>
-
-
-
     </>
   )
 }

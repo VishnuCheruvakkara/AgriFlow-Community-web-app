@@ -4,14 +4,12 @@ import { FiSearch } from "react-icons/fi";
 import { IoMdSend } from "react-icons/io";
 import { useParams } from "react-router-dom";
 import { RxCross2 } from "react-icons/rx";
-//import images 
 import CommunityDefaultImage from '../../assets/images/user-group-default.png'
 import GardenImage from '../../assets/images/farmer-garden-image.jpg'
 import UserDefaultImage from '../../assets/images/user-default.png'
 import { useSelector } from "react-redux"
 import CommunityDrawer from "../../components/Community/community-details/communityDetails";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
-//import message date badge here 
 import DateBadge from "../../components/Community/community-message/MessageDateBadge";
 import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 import TwemojiText from "../../components/Community/community-message/TwemojiText";
@@ -174,7 +172,7 @@ const FarmerCommunityChat = () => {
 
     let fileURL = null;
 
-    // === FRONTEND VALIDATION START ===
+    // FRONTEND VALIDATION START
     if (selectedFile) {
       const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
       const allowedVideoTypes = ["video/mp4", "video/webm"];
@@ -199,7 +197,7 @@ const FarmerCommunityChat = () => {
         return;
       }
     }
-    // === FRONTEND VALIDATION END ===
+    // FRONTEND VALIDATION END 
 
     // Upload the file if selected
     if (selectedFile) {
@@ -249,7 +247,6 @@ const FarmerCommunityChat = () => {
     }
   };
 
-
   // update height dynamically for the message input
   const handleInput = (e) => {
     setNewMessage(e.target.value);
@@ -284,7 +281,6 @@ const FarmerCommunityChat = () => {
     }
   };
 
-
   return (
     <div className="flex flex-col w-full border border-gray-200 dark:border-zinc-700 bg-gray-300 dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden h-[80vh]">
       {/* Chat Header */}
@@ -310,7 +306,6 @@ const FarmerCommunityChat = () => {
             >
               <RxCross2 className='text-2xl' />
             </Link>
-
           </div>
 
           {/* Messages Area */}
@@ -438,22 +433,8 @@ const FarmerCommunityChat = () => {
                       </li>
                     </React.Fragment>
                   );
-
-
-
-
-
-
-
                 })}
               </ul>
-
-              {/*  System Message */}
-              {/* <div className="flex justify-center my-4">
-                <div className="bg-zinc-300 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-100 text-xs px-3 py-1 rounded-full">
-                  James joined the group
-                </div>
-              </div> */}
 
               {/* Typing Indicator */}
               {typingUser && typingUser.userId !== userId && (
@@ -479,7 +460,6 @@ const FarmerCommunityChat = () => {
                   <div className="chat-footer opacity-50">Typing...</div>
                 </div>
               )}
-
 
               {/* Invisible div to scroll to - placed at the bottom */}
               <div ref={messagesEndRef} />
@@ -580,9 +560,7 @@ const FarmerCommunityChat = () => {
                   placeholder="Type a message"
                   className="emoji-text w-full  mt-1 py-2 px-4 resize-none bg-transparent text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 focus:outline-none overflow-y-auto max-h-20"
                 />
-
               </div>
-
 
               {/* Send Button */}
               <button
@@ -599,8 +577,6 @@ const FarmerCommunityChat = () => {
                   <IoMdSend className="text-2xl" />
                 )}
               </button>
-
-
             </form>
           </div>
 

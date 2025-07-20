@@ -16,7 +16,6 @@ function MyCommunities() {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [inputValue, setInputValue] = useState('');
-
     const observer = useRef();
 
     // Fetch communities with search support

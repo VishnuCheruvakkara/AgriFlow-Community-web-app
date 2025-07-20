@@ -24,10 +24,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
         eventType: eventData.event_type || '',
         startDate: eventData.start_datetime ? new Date(eventData.start_datetime) : null,
         banner: eventData.banner_url || null,
-
         address: eventData.address || '',
-
-
     };
 
     const onSubmit = async (values, { setSubmitting, setErrors }) => {
@@ -68,10 +65,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
         }
     };
 
-
     return (
-
-
         <div className="fixed inset-0 z-[9999]">
             {/* Overlay */}
             <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-90" onClick={onClose} />
@@ -252,7 +246,6 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                 </motion.div>
             </div>
         </div>
-
     );
 };
 

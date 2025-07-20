@@ -92,7 +92,6 @@ const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
         </p>
       )}
     </div>
-
   );
 };
 

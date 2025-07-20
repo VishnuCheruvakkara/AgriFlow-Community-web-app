@@ -1,4 +1,3 @@
-// src/components/ToastNotifications.js
 import React from 'react';
 import { ToastContainer, toast,Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

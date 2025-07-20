@@ -55,7 +55,6 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
                 </div>
             </div>
 
-
             {/* Search Bar */}
             <div className="relative mb-6">
                 <input

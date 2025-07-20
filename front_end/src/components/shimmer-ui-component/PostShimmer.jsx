@@ -1,5 +1,3 @@
-
-
 const PostShimmer = () => (
   <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-sm p-4 animate-pulse space-y-4 border border-gray-200 dark:border-zinc-700">
     

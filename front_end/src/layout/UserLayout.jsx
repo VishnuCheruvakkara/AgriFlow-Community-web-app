@@ -18,7 +18,6 @@ import { addGeneralNotification } from "../redux/slices/GeneralNotificationSlice
 //notificaiton sound set up 
 import useSound from 'use-sound'
 import notificationSound from "../sounds/mixkit-software-interface-remove-2576.wav"
-
 import { showRealTimeToast } from "../components/toast-notification/RealTimeNotificationToast";
 
 const UserLayout = () => {
@@ -33,7 +32,6 @@ const UserLayout = () => {
     const [playNotification] = useSound(notificationSound,{
         volume: 0.4 //40% volume
     })
-
 
     useEffect(() => {
         const fetchUserData = async () => {

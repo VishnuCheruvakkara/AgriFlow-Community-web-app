@@ -22,13 +22,11 @@ import { FaMapMarkedAlt } from 'react-icons/fa';
 import { FaGlobe } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-
 function EventManagementPage() {
   
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inputValue, setInputValue] = useState("");
-
 
   // search set up  
   const [searchEvent, setSearchEvent] = useState("");
@@ -121,7 +119,6 @@ function EventManagementPage() {
           >
             Deleted
           </button>
-
         </div>
       </div>
 
@@ -147,7 +144,6 @@ function EventManagementPage() {
               }}
               className="flex-1 outline-none px-2 py-1 text-gray-700 dark:text-zinc-200 bg-transparent placeholder-gray-500 dark:placeholder-zinc-400"
             />
-
             {/* Cancel Button */}
             {inputValue && (
               <button
@@ -162,7 +158,6 @@ function EventManagementPage() {
               </button>
             )}
           </div>
-
 
           {/* Table with loader overlay */}
           {/* Events Table with Loading and Empty States */}
@@ -343,8 +338,6 @@ function EventManagementPage() {
             hasNext={currentPage < totalPages}
             onPageChange={(page) => setCurrentPage(page)}
           />
-
-
 
         </div>
       </div>

@@ -6,14 +6,11 @@ import { showToast } from '../../components/toast-notification/CustomToast';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../redux/slices/AuthSlice';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
-//import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader'
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import ThemeToggle from '../../components/ThemeController/ThemeToggle';
 
-
 const Login = () => {
-
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false);
@@ -149,7 +146,6 @@ const Login = () => {
                                         )}
                                     </span>
                                 </div>
-                                
                             </div>
 
                             <div className="flex justify-end">

@@ -38,8 +38,6 @@ const SignupSchema = Yup.object().shape({
         .required('Confirm password is required'),
 });
 
-
-
 const SignUp = () => {
     const dispatch = useDispatch();
 
@@ -50,10 +48,6 @@ const SignUp = () => {
 
     // For show confirmpassword 
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-
-
-
 
     const formik = useFormik({
         initialValues: {
@@ -66,7 +60,6 @@ const SignUp = () => {
         onSubmit: async (values, { setSubmitting, setErrors }) => {
             const buttonId = "signUpButton";
             dispatch(showButtonLoader(buttonId));
-
             try {
                 const response = await PublicAxiosInstance.post("/users/register/", values);
                 showToast("An OTP has been sent to your email for verification.", "success");
@@ -308,14 +301,12 @@ const SignUp = () => {
                             </ButtonLoader>
 
                         </form>
-
                         <p className="mt-6 text-center text-gray-600 dark:text-zinc-400">
                             Already have an account? <Link to="/login" className="text-green-600 dark:text-green-400 font-medium hover:underline">Sign in</Link>
                         </p>
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };

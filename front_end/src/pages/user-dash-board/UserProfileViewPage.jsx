@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-// Using the same icons you imported in your home page
 import { FaEdit, FaMapMarkerAlt, FaUserFriends, FaStore, FaEnvelope, FaPhone, FaUserCheck, FaExclamationTriangle, FaCalendarAlt, FaBullseye, FaRegHeart, FaHeart, FaRegComment, FaPaperPlane } from 'react-icons/fa';
 import { BsCalendarEvent } from 'react-icons/bs';
 import { CgCommunity } from 'react-icons/cg';
@@ -9,9 +8,7 @@ import defaultUserImage from '../../assets/images/user-default.png';
 import tomatoImage from '../../assets/images/tomato-1.jpg';
 import defaultGroupImage from '../../assets/images/user-group-default.png';
 import CustomScrollToTop from '../../components/CustomScrollBottomToTop/CustomScrollToTop';
-//import default banner image 
 import BannerImage from "../../assets/images/banner_default_user_profile.png"
-//get the user data here from redux 
 import { useSelector } from 'react-redux';
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { GoFileMedia } from "react-icons/go";
@@ -21,7 +18,6 @@ import UserProfileViewPageShimmer from '../../components/shimmer-ui-component/Us
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { showInfoAlert } from '../../components/SweetAlert/showInfoAlert';
 import PostShimmer from '../../components/shimmer-ui-component/PostShimmer';
-
 import ShareButton from '../../components/post-creation/ShareButton';
 import { AnimatePresence, motion } from 'framer-motion';
 import PostNotFoundImage from "../../assets/images/no-product-user-profile.png"
@@ -43,17 +39,14 @@ function UserProfileViewPage() {
     const { userId } = useParams();
     //loading shimmer set up 
     const [loading, setLoading] = useState(false)
-
     //select the user data from the redux state
     const userData = useSelector((state) => state.user.user)
-
     //local state for store the user details to show in the respctive profile
     const [user, setUser] = useState({})
     // store the userId from redux store for further usage
     const loggedInUserId = userData?.id
     //check if the logged-in user is viewing their own profile
     const isOwnProfile = loggedInUserId === userId;
-
 
     //handle post
     //state for store the post from backend
@@ -66,7 +59,6 @@ function UserProfileViewPage() {
     const [searchQuery, setSearchQuery] = useState("");
     //filter option for the image and videos 
     const [filterType, setFilterType] = useState('all');
-
 
     // for post like tracking and animation 
     const [likedPosts, setLikedPosts] = useState({});
@@ -82,7 +74,6 @@ function UserProfileViewPage() {
     //for infinite scroll
     const observer = useRef();
 
-
     // state fpr show image in zoom mode 
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [selectedImageUrl, setSelectedImageUrl] = useState("");
@@ -93,12 +84,10 @@ function UserProfileViewPage() {
         setIsImageModalOpen(true);
     };
 
-
     // navigate to the single product details  
     const navigateToProductDetails = (postId) => {
         navigate(`/user-dash-board/posts/${postId}`);
     }
-
 
     const lastPostRef = (node) => {
         if (infiniteScrollLoading || !hasMore) return;
@@ -180,7 +169,6 @@ function UserProfileViewPage() {
         }
     };
 
-
     // trigger fetch post when page changes 
     useEffect(() => {
         // Reset state when profile changes
@@ -191,8 +179,6 @@ function UserProfileViewPage() {
         // Fetch new posts
         fetchPosts();
     }, [userId, isOwnProfile, searchQuery, filterType]);
-
-
 
     // liked post 
     const handleLikeClick = async (postId) => {
@@ -411,7 +397,6 @@ function UserProfileViewPage() {
             }
         }
     };
-
 
     return (
         <>
@@ -640,11 +625,6 @@ function UserProfileViewPage() {
                                     </div>
                                 </div>
 
-
-
-
-
-
                                 {/* Posts - Note: This section would need to be completed with the rest of your post rendering logic */}
                                 {infiniteScrollLoading && hasMore ? (
                                     <>
@@ -697,9 +677,7 @@ function UserProfileViewPage() {
                                                     <div className="flex items-start space-x-3">
                                                         {/* Edit Icon */}
                                                         {userId == loggedInUserId &&
-
                                                             <EditPostModalButton post={post} onSuccess={fetchPosts} />
-
                                                         }
 
                                                         {/* Delete Icon */}
@@ -714,7 +692,6 @@ function UserProfileViewPage() {
                                                         }
                                                     </div>
                                                 </div>
-
 
                                                 {/* Post Text Content */}
                                                 <div onClick={() => navigateToProductDetails(post?.id)} className="mb-4 cursor-pointer">
@@ -761,7 +738,6 @@ function UserProfileViewPage() {
                                                 {/* Interaction Buttons */}
                                                 <div className="flex justify-around border-t pt-4 dark:border-zinc-600">
 
-
                                                     {/* Like button  */}
                                                     <div className="relative">
                                                         <button
@@ -774,8 +750,6 @@ function UserProfileViewPage() {
                                                             <span className="mr-2">{likeCounts[post.id] || 0}</span> {isLiked ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
                                                             {isLiked ? "Liked" : "Like"}
                                                         </button>
-
-
 
                                                         {/* Flying Heart inside like button wrapper */}
                                                         {heartAnimations[post.id] && (
@@ -892,8 +866,6 @@ function UserProfileViewPage() {
                                         </p>
                                     </div>
                                 )}
-
-
 
                                 {!hasMore && (
                                     <p className="text-center text-gray-500 dark:text-gray-400 py-4">

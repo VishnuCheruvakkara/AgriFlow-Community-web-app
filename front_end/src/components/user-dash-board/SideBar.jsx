@@ -1,15 +1,10 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { FaHome, FaUser, FaUsers, FaChartLine, FaStore, FaScroll, FaSignOutAlt, FaCalendarAlt,FaCloudSun } from 'react-icons/fa';
-//importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
-//import from react-redux 
 import { useDispatch, useSelector } from 'react-redux';
-//import from redux-auth-slice 
 import { logout } from '../../redux/slices/AuthSlice'
-// persitor imported from the redux store to purge the data in the local storage
 import { persistor } from '../../redux/Store';
-//
 import { showToast } from '../toast-notification/CustomToast';
 import { Link } from 'react-router-dom';
 import defaultUserImage from '../../assets/images/user-default.png'
@@ -18,7 +13,6 @@ function SideBar() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user)
-
     // common handler for to navigate the user in to the user-profile view page 
     const handleViewProfile = () => {
         navigate(`/user-dash-board/user-profile-view/${user.id}`);

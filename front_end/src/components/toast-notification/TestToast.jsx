@@ -1,4 +1,3 @@
-// src/pages/ToastTestPage.js
 import React from 'react';
 import { showToast } from "./CustomToast";
 

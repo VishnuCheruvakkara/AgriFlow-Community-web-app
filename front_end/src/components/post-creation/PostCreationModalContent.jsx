@@ -26,8 +26,6 @@ const PostCreationModalContent = ({
     }
   }, [mediaFile, existingMediaUrl, previewURL]);
 
-
-
   //handle imoji theme dark or white 
   useEffect(() => {
     const updateTheme = () => {

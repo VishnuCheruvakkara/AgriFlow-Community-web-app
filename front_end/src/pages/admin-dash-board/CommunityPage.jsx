@@ -41,7 +41,6 @@ function CommunityPage() {
     setFilterStatus(status);
   }
 
-
   const getCommunityData = useCallback(async () => {
     setLoading(true);
     try {
@@ -73,7 +72,6 @@ function CommunityPage() {
   useEffect(() => {
     getCommunityData();
   }, [getCommunityData])
-
 
   return (
     <div className="mb-4 max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
@@ -115,10 +113,7 @@ function CommunityPage() {
 
       <div className="grid grid-cols-1 gap-6">
         <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300 dark:border-zinc-600 shadow-lg">
-
           <h3 className="font-bold text-gray-700 dark:text-zinc-200 mt-4 ">Community List</h3>
-
-
           {/* Search Bar */}
           <div className="flex items-center border border-zinc-300 my-4 focus-within:border-green-500 dark:focus-within:border-green-500 dark:border-zinc-700 w-full bg-white dark:bg-zinc-900 rounded-lg shadow-sm px-3 py-2 transition duration-300 ease-in-out">
             {/* Search Icon */}
@@ -169,9 +164,7 @@ function CommunityPage() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Members</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Privacy</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">Status</th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">View
-                        
-                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-zinc-200 uppercase">View</th>
                   </tr>
                 </thead>
                 <tbody className="text-xs divide-y divide-gray-200 dark:divide-zinc-600 ">
@@ -302,7 +295,6 @@ function CommunityPage() {
             hasNext={currentPage < totalPages}
             onPageChange={(page) => setCurrentPage(page)}
           />
-
         </div>
       </div>
     </div>

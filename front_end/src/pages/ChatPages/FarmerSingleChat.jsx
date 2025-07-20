@@ -62,7 +62,6 @@ const FarmerSingleChat = () => {
             }
         };
 
-
         // Check conection open  
         socketRef.current.onopen = () => {
             // console.log("Websocket Connected")
@@ -299,7 +298,6 @@ const FarmerSingleChat = () => {
                             </div>
                         )}
                     </div>
-
 
                     <div className="flex-1 relative">
                         <textarea

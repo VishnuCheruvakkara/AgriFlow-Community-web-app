@@ -2,7 +2,6 @@ import * as Yup from 'yup';
 
 // Regex to prevent scripts (basic XSS protection) and allow only text for name/unit
 const safeTextRegex = /^[a-zA-Z0-9\s.,'-]*$/;
-
 const imageFormats = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
 
 export const productValidationSchema = Yup.object({

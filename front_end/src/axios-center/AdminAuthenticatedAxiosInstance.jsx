@@ -30,7 +30,6 @@ AdminAuthenticatedAxiosInstance.interceptors.response.use(
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           
-
             originalRequest._retry = true; // Prevent infinite loops
 
             try {
@@ -52,8 +51,6 @@ AdminAuthenticatedAxiosInstance.interceptors.response.use(
                     return axios(originalRequest);
                 }
             } catch (refreshError) {
-                // console.error("Admin token refresh failed:", refreshError.response?.data);
-
                 // Logout admin if token refresh fails
                 store.dispatch(adminLogout());
                 window.location.href = "/admin-login";

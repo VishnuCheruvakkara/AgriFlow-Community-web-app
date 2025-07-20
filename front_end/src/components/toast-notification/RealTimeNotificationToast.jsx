@@ -1,4 +1,3 @@
-// src/components/RealTimeNotificationToast.js
 import React from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { IoNotifications } from 'react-icons/io5'; // Using react-icons for notification icon

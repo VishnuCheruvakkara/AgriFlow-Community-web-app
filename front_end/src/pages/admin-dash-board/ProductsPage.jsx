@@ -14,7 +14,6 @@ import { ImCancelCircle } from "react-icons/im";
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
   const [inputValue, setInputValue] = useState("");
 
   // search set up  
@@ -62,7 +61,6 @@ const ProductsPage = () => {
     getProducts();
   }, [getProducts]);
 
-
   return (
     <>
       <div className="mb-4 max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
@@ -105,8 +103,6 @@ const ProductsPage = () => {
           </div>
         </div>
 
-
-
         <div className="grid grid-cols-1  gap-6 ">
           <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300  dark:border-zinc-600 shadow-lg">
             <h3 className="font-bold text-gray-700 dark:text-zinc-200 my-4">Product List</h3>
@@ -142,8 +138,6 @@ const ProductsPage = () => {
                 </button>
               )}
             </div>
-
-
 
             {/* Table */}
             {loading ? (
@@ -214,7 +208,6 @@ const ProductsPage = () => {
                               </span>
                             )}
                           </td>
-
                           {/* Deleted */}
                           <td className="px-4 py-4">
                             {product.is_deleted ? (
@@ -241,10 +234,8 @@ const ProductsPage = () => {
                                   <FaEye size={22} />
                                 </button>
                               </Link>
-
                             </div>
                           </td>
-
                         </tr>
                       ))}
                     </tbody>
@@ -269,7 +260,6 @@ const ProductsPage = () => {
                 >
                   Clear Filters
                 </button>
-
               </div>
             )}
 
@@ -282,17 +272,10 @@ const ProductsPage = () => {
               onPageChange={(page) => setCurrentPage(page)}
             />
 
-
-
-
-
           </div>
         </div>
-
       </div>
-
     </>
-
   );
 };
 

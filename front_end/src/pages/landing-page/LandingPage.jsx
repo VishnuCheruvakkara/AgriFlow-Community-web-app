@@ -137,17 +137,12 @@ function LandingPage() {
                                         </Link>
                                     </div>
                                 </div>
-
-                               
-
                                 {/* Theme Toggle */}
                                 <ThemeToggle />
                             </div>
                         </div>
                     </div>
                 </motion.nav>
-
-
                 {/* Hero Section */}
                 <motion.div
                     initial={{ opacity: 0 }}

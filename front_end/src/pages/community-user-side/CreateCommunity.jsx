@@ -1,26 +1,18 @@
 import React, { useState, useRef } from 'react'
 import { FaInfoCircle, FaGlobe, FaLock } from 'react-icons/fa';
 import { IoMdAddCircle } from "react-icons/io";
-//import image selector for community image upload 
 import ProfileImageSelector from '../../components/user-dash-board/ProfileImageSelector';
-//import Yup for front-end validation
 import { CommunitySchema } from '../../components/Community/CommunitySchema';
 import { showToast } from '../../components/toast-notification/CustomToast';
-//import the axios instace for send request to the end point 
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
-//import for navigate after success full community creation
 import { useNavigate } from 'react-router-dom';
-//implementaion of the loader while submit data in a form 
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
-// Import the new modal component
 import SelectMembersModal from '../../components/Community/CommunityModal/SelectMembersModal';
 
 function CreateCommunity() {
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    //debouncer state setup
     const [tagInput, setTagInput] = useState('');
     const [errors, setErrors] = useState({});
 
@@ -43,7 +35,6 @@ function CreateCommunity() {
     // creating state for the initalformData
     const [formData, setFormData] = useState(initialFormData);
 
-    //======================= Function const handleCloseModal = (shouldClearSearch = true) => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setErrors("");
@@ -54,7 +45,6 @@ function CreateCommunity() {
         setTimeout(() => setResetImage(false), 100);
     };
 
-    //================== Tag section setup 
     const handleAddTag = () => {
         const trimmedTag = tagInput.trim();
         const tagRegex = /^[A-Za-z]+$/;
@@ -92,9 +82,7 @@ function CreateCommunity() {
         }
     };
 
-    //***************Tag section ends
-
-    //============== Add community image/Icon in to the state 
+    // Add community image/Icon in to the state 
     const handleImageSelect = (imageFile) => {
         setFormData((prevData) => ({
             ...prevData,
@@ -102,10 +90,9 @@ function CreateCommunity() {
         }));
     };
 
-    //*************** */ add community image section ends
 
-    //===================  handle submit to open the modal
-    //Note: handle submit is not the actual submit : is just for open modal
+    // handle submit to open the modal
+    // Note: handle submit is not the actual submit : is just for open modal
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -115,7 +102,6 @@ function CreateCommunity() {
             showToast("Some details are not correct. Please check and submit again.", "error")
             return;
         }
-
         // Open the modal to select members
         setIsModalOpen(true);
     };
@@ -150,7 +136,6 @@ function CreateCommunity() {
             if (fullFormData.communityImage) {
                 submitData.append('communityImage', fullFormData.communityImage);
             }
-          
 
             const response = await AuthenticatedAxiosInstance.post(
                 '/community/create-community/',
@@ -184,7 +169,7 @@ function CreateCommunity() {
         }
     };
 
-    //===================  handle the validation with Yup 
+    // handle the validation with Yup 
     const handleValidation = async () => {
         try {
             await CommunitySchema.validate(formData, { abortEarly: false });
@@ -201,13 +186,10 @@ function CreateCommunity() {
                 // For single field validation error
                 formErrors[err.path] = err.message;
             }
-
             setErrors(formErrors);
             return false;
         }
     };
-
-    //********************* end of Yup based validation */
 
     return (
         <>
@@ -327,8 +309,6 @@ function CreateCommunity() {
                         {errors.tags && (
                             <p className="text-red-500 dark:text-red-400 text-sm mt-2">{errors.tags}</p>
                         )}
-
-
                         <div className="flex flex-wrap gap-2 mt-3">
                             {formData.tags.map((tag, index) => (
                                 <span onClick={() => handleRemoveTag(tag)} key={index} className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm px-3 py-1 rounded-full flex items-center cursor-pointer hover:bg-green-200 dark:hover:bg-green-800 transition-colors">
@@ -338,8 +318,6 @@ function CreateCommunity() {
                             ))}
                         </div>
                     </div>
-
-
                     {/* Submit button */}
                     <div className="pt-4">
                         <button
@@ -350,7 +328,6 @@ function CreateCommunity() {
                         </button>
                     </div>
                 </form>
-
                 {/* Use the SelectMembersModal component here */}
                 <SelectMembersModal
                     isOpen={isModalOpen}

@@ -39,7 +39,6 @@ function PostDetailsPage() {
         fetchSinglePostData();
     }, [postId])
 
-
     // toggle delete post status 
     const toggleDeleteStatus = async (postId, currentStatus) => {
         const newStatus = !currentStatus;
@@ -112,8 +111,6 @@ function PostDetailsPage() {
                         <IoClose className="w-5 h-5" />
                     </button>
                 </div>
-
-
 
                 {loading || !post ? (
                     <div className="flex flex-col items-center justify-center h-[510px] space-y-3">
@@ -303,25 +300,13 @@ function PostDetailsPage() {
                                                     </div>
                                                 </div>
                                             </div>
-
-
                                         </div>
-
-
                                     </div>
-
-
-
-
                                     {/* Recent Comments Section */}
-
                                     <AllPostCommentsPostDetailsPage comments={post?.all_comments || []} />
-
                                 </div>
                             </div>
                         </div>
-
-
 
                         {/* Action Buttons */}
                         <div className="mt-6 py-4 border-t border-gray-200 dark:border-zinc-600">

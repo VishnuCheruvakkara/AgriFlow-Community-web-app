@@ -3,10 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 import { showToast } from '../../components/toast-notification/CustomToast';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png';
-//import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
-//import for redux authSlice access after password reset enusere that user JWT credentials are deleted or not!
 import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/slices/AuthSlice'
 import ThemeToggle from '../../components/ThemeController/ThemeToggle';
@@ -57,9 +55,7 @@ const SetNewPassword = () => {
             });
 
             dispatch(logout());
-
             showToast("Password reset successful!,Sign in with new password", "success");
-
             // Navigate to login page
             navigate("/login");
         } catch (error) {
@@ -188,7 +184,6 @@ const SetNewPassword = () => {
                 </div>
             </div>
         </div>
-
     );
 };
 

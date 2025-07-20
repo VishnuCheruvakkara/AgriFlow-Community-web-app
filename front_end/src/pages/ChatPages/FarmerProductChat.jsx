@@ -12,7 +12,6 @@ import { BsEmojiSmile } from 'react-icons/bs'
 import { IoMdSend } from "react-icons/io";
 import { Link } from 'react-router-dom'
 
-
 function FarmerProductChat() {
     const navigate = useNavigate()
     const location = useLocation()
@@ -43,7 +42,6 @@ function FarmerProductChat() {
     const minId = Math.min(userId, receiverId);
     const maxId = Math.max(userId, receiverId);
     const roomName = `productchat_${minId}_${maxId}_${productId}`;
-
 
     useEffect(() => {
         if (!productId || !token || !userId || !receiverId) return;
@@ -203,8 +201,6 @@ function FarmerProductChat() {
                 </button>
             </header>
 
-
-
             {/* Messages List */}
             <div className="relative flex-1 overflow-hidden bg-zinc-100 dark:bg-zinc-900">
 
@@ -358,7 +354,6 @@ function FarmerProductChat() {
                         />
                     </div>
 
-
                     <button
                         type="button"
                         onClick={sendMessage}
@@ -370,7 +365,6 @@ function FarmerProductChat() {
                     >
                         <IoMdSend className="text-2xl " />
                     </button>
-
                 </form>
             </footer>
         </div>

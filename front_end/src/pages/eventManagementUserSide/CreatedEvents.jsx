@@ -13,8 +13,7 @@ import { useCallback } from 'react';
 import EventDetailsPage from '../../components/event-management-user-side/EventDetailsPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import EventPageShimmer from '../../components/shimmer-ui-component/EventPageShimmer';
-import SearchNotFound from "../../assets/images/no_result_search.png"
-
+import SearchNotFound from "../../assets/images/no_result_search.png";
 
 function CreatedEvents() {
     const [events, setEvents] = useState([]);
@@ -83,7 +82,6 @@ function CreatedEvents() {
             debouncedFetchUserEvents.cancel(); // cancel previous debounce on unmount or change
         };
     }, [currentPage, searchTerm, debouncedFetchUserEvents]);
-
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -188,7 +186,6 @@ function CreatedEvents() {
                                                 </div>
                                             </div>
 
-
                                             <div className="flex-1">
                                                 <div className=" group">
                                                     <img
@@ -227,7 +224,6 @@ function CreatedEvents() {
 
                         {/* Pagination Component */}
                         {!loading && totalPages > 1 && (
-                            
                                 <Pagination
                                     currentPage={currentPage}
                                     totalPages={totalPages}

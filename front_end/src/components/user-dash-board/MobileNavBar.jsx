@@ -4,7 +4,6 @@ import { FaHome, FaCalendarAlt, FaUsers, FaStore, FaCloudSun, FaUser } from 'rea
 
 function MobileNavBar() {
     const location = useLocation();
-
     return (
         <div className="lg:hidden fixed bottom-0 w-full bg-white dark:bg-zinc-900 shadow-lg border-t border-gray-200 dark:border-green-400 z-50">
             <div className="flex justify-around py-3">
@@ -64,10 +63,6 @@ function MobileNavBar() {
                     <FaStore className="text-xl" />
                     <span className="text-xs mt-1">Products</span>
                 </Link>
-
-
-
-
             </div>
         </div>
     );

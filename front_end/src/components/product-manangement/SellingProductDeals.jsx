@@ -130,9 +130,6 @@ function SellingProductDeals() {
                             </span>
                           </div>
                         </div>
-
-
-
                       </div>
                     ))}
                     {product.buyers.length === 0 && (

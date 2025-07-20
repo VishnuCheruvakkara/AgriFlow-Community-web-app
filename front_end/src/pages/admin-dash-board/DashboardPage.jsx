@@ -2,19 +2,14 @@ import React, { useState, useEffect } from "react";
 import { FaUsers, FaPeopleCarry, FaShoppingBag, FaCalendarAlt } from "react-icons/fa";
 import { BsPostcardHeartFill } from "react-icons/bs";
 import AdminAuthenticatedAxiosInstance from '../../axios-center/AdminAuthenticatedAxiosInstance';
-//user radial chart 
 import UserRadialChart from "../../components/admin-dash-board/UserRadialChart";
-//product metric chart 
 import ProductMetricsChart from "../../components/admin-dash-board/ProductMetricsChart";
-//Community line chart 
 import CommunityLineChart from "../../components/admin-dash-board/CommunityLineChart";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import DefautlCommunityImage from "../../assets/images/banner_default_user_profile.png"
-// event horizontal chart 
 import EventDetailsHorizontalBar from "../../components/admin-dash-board/EventDetailsHorizontalBar";
 import { Link } from "react-router-dom";
-//post area chart 
 import PostEngagementAreaChart from "../../components/admin-dash-board/PostEngagementAreaChart";
 
 // for commuinity date based filtering 
@@ -134,7 +129,6 @@ const DashboardPage = () => {
               </div>
             </div>
           </Link>
-
         </div>
       </div>
 
@@ -149,8 +143,6 @@ const DashboardPage = () => {
           </div>
 
           <div className="px-4 pb-4">
-
-
             <UserRadialChart
               data={{
                 total_users: data?.user_details?.total_users || 0,
@@ -173,16 +165,9 @@ const DashboardPage = () => {
           </div>
           <div className="px-4 pb-4">
             <ProductMetricsChart data={data?.product_metrics} />
-
-
           </div>
         </div>
-
       </div>
-
-
-
-
       {/* for community data  */}
       <div className="my-4 grid grid-cols-1 gap-4">
         <div className="bg-white dark:bg-zinc-900 rounded-lg">
@@ -207,11 +192,8 @@ const DashboardPage = () => {
                   classNamePrefix="react-select"
                 />
               </div>
-
               <CommunityLineChart data={data?.community_graph} />
             </div>
-
-
             {/* Right Side */}
             <div className="p-4 rounded">
               <div className="space-y-6">
@@ -332,9 +314,7 @@ const DashboardPage = () => {
             <PostEngagementAreaChart data={data?.post_engagement} />
           </div>
         </div>
-
       </div>
-
     </>
   );
 };

@@ -1,17 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { FaBell, FaEnvelope, FaSearch, FaCloudSun, FaRegUserCircle } from 'react-icons/fa';
 import { IoMdLogOut } from "react-icons/io";
-// for lgout section 
 import { useNavigate, Link } from 'react-router-dom';
-//importing base axios instance for axios set up through the AxiosInterceptors
 import PublicAxiosInstance from '../../axios-center/PublicAxiosInstance'
-//import from react-redux 
 import { useDispatch, useSelector } from 'react-redux';
-//import from redux-auth-slice 
 import { logout } from '../../redux/slices/AuthSlice'
-// persitor imported from the redux store to purge the data in the local storage
 import { persistor } from '../../redux/Store';
-
 import { showToast } from '../toast-notification/CustomToast';
 import defaultUserImage from '../../assets/images/user-default.png'
 import { FaSignOutAlt, FaCog } from 'react-icons/fa';
@@ -19,8 +13,6 @@ import agriFlowLogo from '../../assets/images/agriflowwhite.png'
 import ThemeToggle from '../ThemeController/ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AiOutlineClose } from 'react-icons/ai';
-
-
 import NoSearchFound from '../../assets/images/no_messages_1.png'
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance"
 import { addMessageNotification, deleteMessageNotification } from '../../redux/slices/messageNotificationSlice';
@@ -81,12 +73,8 @@ function NavBar() {
         };
     }, []);
 
-
-
     const handleLogout = async () => {
         try {
-
-
             await PublicAxiosInstance.post("/users/logout/");
             //clear userdata and accesstoken details from the localstorage through the redux-persistor
 
@@ -101,7 +89,6 @@ function NavBar() {
         } catch (error) {
             // console.log("logout failed:", error);
             showToast(`logout failed`, "error")
-
         }
     }
 
@@ -136,7 +123,6 @@ function NavBar() {
             // console.error("Failed to fetch general notifications:", error);
         }
     };
-
 
     const goToChatPage = async (message) => {
         closeSidebar();
@@ -246,9 +232,6 @@ function NavBar() {
             // console.error("Error deleting notification:", error);
         }
     };
-
-
-
 
     return (
         <nav className="bg-green-700 text-white fixed top-0 w-full z-30 shadow-md">
@@ -377,10 +360,7 @@ function NavBar() {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-
                                 </div>
-
-
 
                                 {/* Theme toggle button here */}
                                 <ThemeToggle />
@@ -397,8 +377,6 @@ function NavBar() {
                                 </div>
 
                                 <ThemeToggle />
-
-
                             </>
                         )}
                     </div>
@@ -446,8 +424,6 @@ function NavBar() {
                                     {unreadCount || "0"} Unread messages
                                 </div>
                             )}
-
-
 
                             {/* Content */}
                             <div className="  overflow-y-auto max-h-[100vh]">
@@ -668,10 +644,7 @@ function NavBar() {
                                                                         <span onClick={() => deleteNotificationByType(message.id, message.notification_type)} className="p-1 mt-2 cursor-pointer border border-gray-500 rounded-full tooltip tooltip-left hover:border-red-500 group" data-tip="Delete">
                                                                             <AiFillDelete className='text-lg group-hover:text-red-500' />
                                                                         </span>
-
-
                                                                     </div>
-
                                                                 </div>
                                                             );
                                                         })}
@@ -679,15 +652,12 @@ function NavBar() {
                                             </>
                                         )}
                                     </>
-
-
                                 )}
                             </div>
                         </motion.div>
                     </>
                 )}
             </AnimatePresence>
-
         </nav>
 
     )

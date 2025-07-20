@@ -35,7 +35,6 @@ function MyProducts() {
         setCurrentPage(1);     // Optional: Reset to page 1 if needed
     };
 
-
     //fetch all the products created bu the current user 
     const fetchProducts = async (query = ' ', page = 1) => {
         try {
@@ -76,7 +75,6 @@ function MyProducts() {
     const handleOpenProductDetails = (productId) => {
         navigate(`/user-dash-board/products/product-details-page/${productId}`)
     }
-
 
     return (
         <div>
@@ -205,7 +203,6 @@ function MyProducts() {
                         )}
             </div>
 
-
             {/* Pagination Placeholder */}
             {!loading && totalPages >= 1 &&
                 <Pagination
@@ -217,14 +214,12 @@ function MyProducts() {
                 />
             }
 
-
             {/* Add Product Modal */}
             <AddProductModal
                 isOpen={showAddProductModal}
                 onClose={() => setShowAddProductModal(false)}
                 onSave={handleProductSave}
             />
-
         </div>
     );
 }

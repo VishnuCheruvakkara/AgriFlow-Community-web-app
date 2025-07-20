@@ -13,7 +13,6 @@ import { MdOutlineLocationCity } from "react-icons/md";
 import { RiVideoOnAiLine } from 'react-icons/ri';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
-
 import JoinMeetingButton from '../zego-cloud-video-call/JoinMeetingButton';
 
 function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideConfirmBtn = false, cancelBtnLabel = "Cancel" }) {
@@ -41,7 +40,6 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                     <FaExclamationTriangle className="text-red-600 text-3xl" />
                 </div>
             )
-
         });
 
         if (result) {
@@ -57,7 +55,6 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
             }
         }
     };
-
 
     return (
         <div className="fixed inset-0 z-[999]">
@@ -171,14 +168,12 @@ function JoinEventModal({ event, onClose, title = "Enroll to the Event", hideCon
                         ) : (
                             hideConfirmBtn && (
                               
-
                                 <JoinMeetingButton
                                     roomId={event?.id}
                                     userId={user?.id}
                                     userName={user?.username}
                                     startTime={event?.start_datetime}
                                 />
-
 
                             )
                         )}

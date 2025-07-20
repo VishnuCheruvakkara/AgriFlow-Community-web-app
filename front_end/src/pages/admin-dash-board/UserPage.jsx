@@ -3,21 +3,17 @@ import { FaEdit, FaTrash, FaEye, FaCheckCircle, FaTimesCircle } from "react-icon
 import AdminAuthenticatedAxiosInstance from "../../axios-center/AdminAuthenticatedAxiosInstance";
 import defaultUserImage from '../../assets/images/user-default.png'
 import { RiSearchLine } from "react-icons/ri";
-// sweet alert import
 import { showConfirmationAlert } from "../../components/SweetAlert/showConfirmationAlert";
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { Link } from "react-router-dom";
 import { PulseLoader } from 'react-spinners';
 import AdminSidePagination from "../../components/Common-Pagination/AdminSidePagination";
-//debounce in search 
 import debounce from "lodash/debounce";
 import UsersNotFound from "../../assets/images/connection_no_search_found.png"
 import { ImCancelCircle } from "react-icons/im";
 
 const UsersPage = () => {
-
   const [loading, setLoading] = useState(false);
-
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [totalPages, setTotalPages] = useState(1); // Track total pages
@@ -27,14 +23,11 @@ const UsersPage = () => {
 
   useEffect(() => {
     setLoading(true);
-
     // Debounced fetch function
     const debouncedFetch = debounce(() => {
       fetchUsers(currentPage, filter, searchQuery);
     }, 500); // 500ms debounce
-
     debouncedFetch();
-
     // cancel debounce if component unmounts or dependencies change
     return () => {
       debouncedFetch.cancel();
@@ -46,7 +39,6 @@ const UsersPage = () => {
       const response = await AdminAuthenticatedAxiosInstance.get(`/users/admin/get-all-users-data/`, {
         params: { page: page, page_size: pageSize, filter: filter || undefined, search: search.trim() || undefined }
       });
-
       setUsers(response.data.results);
       setTotalPages(Math.ceil(response.data.count / pageSize));
     } catch (error) {
@@ -73,7 +65,6 @@ const UsersPage = () => {
     setCurrentPage(1); // Reset to page 1 when filter changes
   };
 
-
   const handleStatusToggle = async (userId, currentStatus) => {
     const newStatus = !currentStatus;
     const result = await showConfirmationAlert({
@@ -81,7 +72,6 @@ const UsersPage = () => {
       text: "This action will update the user's status. Please confirm to proceed.",
       confirmButtonText: "Yes, change status",
     });
-
 
     if (result) {
       try {
@@ -110,7 +100,6 @@ const UsersPage = () => {
 
   return (
     <>
-
       <div className=" mb-4  max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
         <div className="bg-gradient-to-r from-green-700 to-green-400 p-4 text-white">
           <h1 className="text-xl font-bold">Farmers Management</h1>
@@ -154,7 +143,6 @@ const UsersPage = () => {
           </div>
         </div>
 
-
         {/* Filters */}
         <div className="grid grid-cols-1  gap-6 ">
           <div className="pb-4 bg-white dark:bg-zinc-800 px-4 py-2 border-t border-zinc-300  dark:border-zinc-600 shadow-lg">
@@ -189,7 +177,6 @@ const UsersPage = () => {
               )}
             </div>
 
-
             {/* Parent Container is Required for Ternary */}
             {loading ? (
               <div className="flex justify-center items-center py-28">
@@ -198,8 +185,6 @@ const UsersPage = () => {
 
             ) : users.length > 0 ? (
               <>
-
-
                 {/* User Table */}
                 <div className="overflow-x-auto border border-gray-300 dark:border-zinc-600 rounded-lg">
                   <table className="w-full bg-white dark:bg-zinc-800 shadow-md">
@@ -290,7 +275,6 @@ const UsersPage = () => {
                             </span>
                           </td>
 
-
                           {/* View Button */}
                           <td className="px-4 py-4 text-center">
                             <Link to={`/admin/users-management/user-details/${user.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition">
@@ -304,7 +288,6 @@ const UsersPage = () => {
                     </tbody>
                   </table>
                 </div>
-
                 {/* Pagination Controls */}
                 <AdminSidePagination
                   currentPage={currentPage}
@@ -331,14 +314,9 @@ const UsersPage = () => {
                   Clear Filters
                 </button>
               </div>
-
-
             )}
           </div>
         </div>
-
-
-
       </div >
     </>
   );

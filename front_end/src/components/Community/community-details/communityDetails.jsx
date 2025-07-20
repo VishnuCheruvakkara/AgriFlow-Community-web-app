@@ -18,7 +18,6 @@ import { Link } from 'react-router-dom';
 
 const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
-
     if (!isOpen) return null; // safety check
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -246,7 +245,6 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
             }
         }
     };
-
 
     return (
         <motion.div

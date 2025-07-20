@@ -1,4 +1,3 @@
-// src/components/ShareButton.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { FiShare2, FiCopy } from 'react-icons/fi';
 import { FaFacebookF, FaTwitter, FaWhatsapp } from 'react-icons/fa';

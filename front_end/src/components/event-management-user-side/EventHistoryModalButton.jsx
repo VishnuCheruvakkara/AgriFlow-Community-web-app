@@ -20,7 +20,6 @@ const EventHistoryModalButton = () => {
     // for event history search 
     const [searchQuery, setSearchQuery] = useState("");
 
-
     const eventStatusOptions = [
         { value: "all", label: "All" },
         { value: "upcoming", label: "Upcoming" },

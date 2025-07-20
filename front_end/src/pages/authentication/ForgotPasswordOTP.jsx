@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import PublicAxiosInstance from "../../axios-center/PublicAxiosInstance";
 import { showToast } from '../../components/toast-notification/CustomToast';
 import agriFlowLogo from '../../assets/images/agriflowlogo.png'
-//import the common button loader and redux reducers
 import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader';
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 import { useDispatch } from 'react-redux';
@@ -110,7 +109,6 @@ const ForgotPasswordOTP = () => {
         setIsResendDisabled(true);
     };
 
-
     // Function to format the email
     const formatEmail = (email) => {
         if (!email) return "";
@@ -164,10 +162,8 @@ const ForgotPasswordOTP = () => {
         inputRefs[nextIndex]?.current.focus();
     };
 
-
     const handleResendOTP = async () => {
         try {
-           
             // Make an API call to resend OTP
             const response = await PublicAxiosInstance.post("/users/resend-otp/", {
                 email: email,  // Replace with the actual email from state/context
@@ -301,7 +297,6 @@ const ForgotPasswordOTP = () => {
                 </div>
             </div>
         </div>
-
     );
 };
 

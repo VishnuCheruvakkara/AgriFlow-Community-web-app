@@ -1,4 +1,3 @@
-// components/CommunityLineChart.js
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 

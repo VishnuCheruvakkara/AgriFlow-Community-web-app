@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { RiVideoOnAiLine } from "react-icons/ri";
 
-const JoinMeetingButton = ({ roomId, userId, userName,startTime }) => {
+const JoinMeetingButton = ({ roomId, userId, userName, startTime }) => {
     const [showCallUI, setShowCallUI] = useState(false);
     const containerRef = useRef(null);
-    const zpRef = useRef(null);           // store the zp instance
+    const zpRef = useRef(null);       
     const hasJoinedRef = useRef(false);
 
     useEffect(() => {
@@ -71,7 +71,6 @@ const JoinMeetingButton = ({ roomId, userId, userName,startTime }) => {
             </>
         );
     }
-
 
     return (
         <button

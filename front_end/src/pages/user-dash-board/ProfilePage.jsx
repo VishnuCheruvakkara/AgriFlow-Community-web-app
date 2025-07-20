@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { FaUser, FaHome, FaEnvelope, FaTractor, FaSeedling, FaMapMarkerAlt, FaIdCard } from "react-icons/fa";
-//import the addhar submission component for submit adhar if any deffect found by admin 
 import AadharImageUploads from "../../components/user-dash-board/AadharImageUploads";
 import ProfileImageSelector from "../../components/user-dash-board/ProfileImageSelector";
 import "react-datepicker/dist/react-datepicker.css";
@@ -15,17 +14,13 @@ import { TbInfoTriangleFilled } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
 import { loginSuccess } from "../../redux/slices/AuthSlice";
 import { useNavigate } from 'react-router-dom'
-//import the common button loader and redux reducers 
 import ButtonLoader from "../../components/LoaderSpinner/ButtonLoader";
 import { showButtonLoader, hideButtonLoader } from "../../redux/slices/LoaderSpinnerSlice";
-//import the refresh button from react icons 
 import { IoMdRefreshCircle } from "react-icons/io";
 import { setUserDetails } from "../../redux/slices/userSlice";
 
-
-
-////////////////////////////////  This page is no thte actual  profile page is For collect the user correct data if they want to use the applicaiton |||| 
-/////////////////////////////// the correct user page where user can see thire data add post is set here =====>>>( UserProfileviewPage )
+// This page is no thte actual  profile page is For collect the user correct data if they want to use the applicaiton |||| 
+// the correct user page where user can see thire data add post is set here =====>>>( UserProfileviewPage )
 function ProfilePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -160,9 +155,8 @@ function ProfilePage() {
       dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
     }
   };
-  
-  /////////  Set up for the all conditional statement to show the ui part (For debug friendly approach...) ////////////////////
 
+  // Set up for the all conditional statement to show the ui part (For debug friendly approach...) 
   let content;
 
   if (!user?.profile_completed) {
@@ -346,16 +340,12 @@ function ProfilePage() {
                 </p>
               </div>
 
-
               {/* Aadhaar/ID Upload */}
-
               <div className="flex flex-col items-center justify-center py-10">
                 <AadharImageUploads onImageSelect={handleAadhaarImageSelect} purpose="form" />
                 {errors.aadhaarImage && <p className="text-red-500 text-sm mt-2">{errors.aadhaarImage}</p>}
               </div>
-
             </section>
-
             {/* Farming Details Section */}
             <section>
               <h2 className="text-md font-bold dark:text-green-500 text-green-700 mb-6 border-b pb-2 dark:border-zinc-600">Farming Information</h2>
@@ -401,11 +391,7 @@ function ProfilePage() {
                     className={`bg-white text-black w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${errors.farming_type ? " focus:ring-red-500" : "focus:ring-green-500"
                       } transition duration-500 ease-in-out dark:bg-zinc-900 dark:text-white dark:border-zinc-600`}
                   >
-
-
-                    <option value="" disabled>
-                      Select farming type
-                    </option>
+                    <option value="" disabled>Select farming type</option>
                     <option value="poultry">Poultry Farming</option>
                     <option value="dairy">Dairy Farming</option>
                     <option value="organic">Organic Farming</option>
@@ -466,7 +452,6 @@ function ProfilePage() {
     content = (
       <>
         {/*  Aadhaar verification in progress UI */}
-
         <div className="bg-white shadow-lg rounded-lg p-8 text-center dark:bg-zinc-800">
           <div className="flex flex-col items-center justify-center py-10">
             <div className="mb-6 text-yellow-500">

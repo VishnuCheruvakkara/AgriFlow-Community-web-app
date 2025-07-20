@@ -17,7 +17,6 @@ import EventPageShimmer from '../../components/shimmer-ui-component/EventPageShi
 import SearchNotFound from "../../assets/images/no_result_search.png"
 import { AnimatePresence } from "framer-motion";
 
-
 function AllEvents() {
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState([]);
@@ -30,8 +29,6 @@ function AllEvents() {
   const [pagination, setPagination] = useState({ totalPages: 1, hasNext: false, hasPrev: false });
   // to shwo the event details 
   const [modalEvent, setModalEvent] = useState(null);
-
-
 
   // Fetch events with pagination
   const fetchEvents = async (page = 1, searchTerm = '') => {
@@ -69,7 +66,6 @@ function AllEvents() {
       debouncedFetch(searchTerm, currentPage);
     }
   }, [searchTerm, currentPage, debouncedFetch]);
-
 
   // Open modal to show event banner image
   const handleOpenModal = (imageUrl) => {
@@ -122,8 +118,6 @@ function AllEvents() {
           </button>
         )}
       </div>
-
-
 
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -203,8 +197,6 @@ function AllEvents() {
         )}
       </ AnimatePresence>
       {/* Modal */}
-
-
       {/* Pagination */}
       {!loading && pagination.totalPages >= 1 && (
         <Pagination className="dark:bg-zinc-900 dark:text-zinc-200"

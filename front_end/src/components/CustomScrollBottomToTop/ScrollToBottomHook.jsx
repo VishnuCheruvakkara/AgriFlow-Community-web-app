@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { IoMdArrowDown } from 'react-icons/io';
 
-/**
- * ScrollToBottomComponent - Combined hook and button functionality
- * @param {React.RefObject} containerRef - Reference to the scrollable container
- * @param {number} threshold - Distance from bottom to hide button (default: 100px)
- * @param {Function} onNewMessage - Optional callback when new messages arrive while scrolled up
- */
+
 const ScrollToBottomComponent = ({ 
   containerRef, 
   threshold = 100,

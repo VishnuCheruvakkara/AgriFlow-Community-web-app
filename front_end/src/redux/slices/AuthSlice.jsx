@@ -1,6 +1,3 @@
-
-// Slice for store the registerd / login users data
-
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {

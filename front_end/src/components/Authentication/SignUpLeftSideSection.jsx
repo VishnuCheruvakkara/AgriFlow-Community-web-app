@@ -9,7 +9,7 @@ function SignUpLeftSideSection() {
                 className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12 fixed h-screen top-0 left-0 bg-cover bg-center"
                 style={{ backgroundImage: "url('/images/admin-login-background.jpg')" }}
             >
-                {/* Netflix-style gradient overlay */}
+                {/* gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
                 {/* Content inside */}

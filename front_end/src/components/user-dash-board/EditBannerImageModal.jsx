@@ -93,7 +93,6 @@ const EditBannerImageModal = ({ currentBanner, onSuccess }) => {
                         className="hidden"
                     />
 
-
                     <button
                         onClick={() => fileInputRef.current.click()}
                         className="bg-green-500 mt-5 rounded-full text-white px-1 py-1 flex items-center space-x-2 hover:bg-green-600 transition-colors duration-200 shadow-lg dark:bg-green-600 dark:hover:bg-green-700"

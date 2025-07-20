@@ -20,12 +20,10 @@ import AdminSidePagination from "../../components/Common-Pagination/AdminSidePag
 import NoPostFound from "../../assets/images/no-product-user-profile.png"
 import Select from "react-select";
 
-
 function PostPage() {
   
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [inputValue, setInputValue] = useState("");
 
   // search set up  
@@ -82,8 +80,6 @@ function PostPage() {
     getAllPosts();
   }, [getAllPosts]);
 
-
-
   return (
     <div className="mb-4 max-w-full bg-white dark:bg-zinc-800 shadow-xl rounded-lg overflow-hidden">
       {/* Header */}
@@ -103,7 +99,6 @@ function PostPage() {
             All Posts
           </button>
 
-
           <button
             className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filterStatus === "active" ? "bg-green-600" : "bg-green-400"
               } text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
@@ -112,7 +107,6 @@ function PostPage() {
             Active
           </button>
 
-
           <button
             className={`flex-1 py-2 sm:py-3 px-1 sm:px-2 text-center font-medium text-xs sm:text-sm md:text-base ${filterStatus === "deleted" ? "bg-green-600" : "bg-green-400"
               } text-white hover:bg-green-600 hover:brightness-110 transition duration-300 ease-in-out`}
@@ -120,7 +114,6 @@ function PostPage() {
           >
             Deleted
           </button>
-
         </div>
       </div>
 
@@ -183,8 +176,6 @@ function PostPage() {
             </div>
           </div>
 
-
-
           {/* Table */}
           {loading ? (
             <div className="flex justify-center items-center py-28">
@@ -208,8 +199,6 @@ function PostPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-zinc-600">
                   {/* Sample Row */}
-
-
                   {posts.map((post, index) => (
                     <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-zinc-900 transition">
                       {/* Row number */}
@@ -233,12 +222,10 @@ function PostPage() {
                           </div>
                         </Link>
                       </td>
-
                       {/* Post Content */}
                       <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300 max-w-xs truncate">
                         {post.content || "--------"}
                       </td>
-
                       {/* Media */}
                       <td className="px-4 py-4">
                         {post.image_url ? (
@@ -262,7 +249,6 @@ function PostPage() {
                           <span className="text-xs text-gray-500 italic">No Media</span>
                         )}
                       </td>
-
                       {/* Like Count */}
                       <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                         <div className="flex items-center gap-1">
@@ -270,7 +256,6 @@ function PostPage() {
                           {post.like_count ?? "0"}
                         </div>
                       </td>
-
                       {/* Comment Count */}
                       <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                         <div className="flex items-center gap-1">
@@ -278,7 +263,6 @@ function PostPage() {
                           {post.comment_count ?? "0"}
                         </div>
                       </td>
-
                       {/* Active Status */}
                       <td className="px-4 py-4">
                         <span
@@ -297,15 +281,12 @@ function PostPage() {
                           {post.is_deleted ? "Deleted" : "Active"}
                         </span>
                       </td>
-
                       {/* Created Date */}
                       <td className="px-4 py-4 text-sm text-gray-700 dark:text-zinc-300">
                         <div className="font-medium">
                           <FormattedDateTime date={post.created_at} />
                         </div>
-
                       </td>
-
                       {/* Actions */}
                       <td className="px-4 py-4 text-center whitespace-nowrap">
                         <div className="flex justify-center gap-2">
@@ -319,7 +300,6 @@ function PostPage() {
                         </div>
                       </td>
                     </tr>
-
                   ))}
                 </tbody>
               </table>
@@ -335,7 +315,6 @@ function PostPage() {
               <p className="text-xs text-gray-500 dark:text-zinc-400">
                 Try adjusting your search or filter criteria.
               </p>
-
               <button
                 onClick={() => {
                   setSearchPost("");
@@ -346,10 +325,8 @@ function PostPage() {
               >
                 Clear Filters
               </button>
-
             </div>
           )}
-
           {/* Pagination  */}
           <AdminSidePagination
             currentPage={currentPage}
@@ -358,9 +335,6 @@ function PostPage() {
             hasNext={currentPage < totalPages}
             onPageChange={(page) => setCurrentPage(page)}
           />
-
-
-
         </div>
       </div>
     </div>

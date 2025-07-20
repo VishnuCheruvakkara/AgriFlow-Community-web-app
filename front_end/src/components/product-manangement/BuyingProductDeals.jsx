@@ -10,7 +10,6 @@ function BuyingProductDeals() {
   const [deals, setDeals] = useState([]);
   const navigate = useNavigate();
 
-
   const fetchBuyingDeals = async () => {
     try {
       const response = await AuthenticatedAxiosInstance.get('/products/buying-product-deals/');
@@ -155,9 +154,7 @@ function BuyingProductDeals() {
                   );
                 })
               )}
-
             </div>
-
           </div>
         </div>
       </div>

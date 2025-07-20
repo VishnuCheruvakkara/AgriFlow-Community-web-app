@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Camera } from 'lucide-react';
-//theme changin sound set up 
+//theme chaning sound set up 
 import useSound from 'use-sound'
 import notificationSound from "../../sounds/mixkit-hard-typewriter-click-1119.wav"
-
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useState('light');
@@ -81,8 +80,6 @@ const ThemeToggle = () => {
           )}
         </div>
       </button>
-      
-      
     </div>
   );
 };

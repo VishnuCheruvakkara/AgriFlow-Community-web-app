@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 const AllPostCommentsPostDetailsPage = ({ comments = [] }) => {
   const [inputValue, setInputValue] = useState("");
 
-
   // Filter comments based on search input
   const filteredComments = useMemo(() => {
     const query = inputValue.toLowerCase();
@@ -95,10 +94,10 @@ const AllPostCommentsPostDetailsPage = ({ comments = [] }) => {
         ) : (
           <div className=" text-center border-2 border-dashed border-gray-300 text-gray-600 py-8 px-4 bg-gray-100 rounded-md dark:bg-zinc-800 dark:border-zinc-700">
             <img
-  src={NoCommentsFoundImage}
-  alt="No Comments"
-  className="max-w-[150px] h-auto mx-auto mb-3 opacity-80"
-/>
+              src={NoCommentsFoundImage}
+              alt="No Comments"
+              className="max-w-[150px] h-auto mx-auto mb-3 opacity-80"
+            />
             <p className="text-sm font-semibold dark:text-zinc-300 mb-1">
               No Comments Found
             </p>

@@ -20,7 +20,6 @@ import FormattedDateTime from '../../components/common-date-time/FormattedDateTi
 import { MdUpdate } from 'react-icons/md';
 import { MdAccessTime } from 'react-icons/md';
 
-
 function UserPageDetailView() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -31,7 +30,6 @@ function UserPageDetailView() {
     const [resubmissionMessage, setResubmissionMessage] = useState('');
     const [messageError, setMessageError] = useState("");
     const [loading, setLoading] = useState(true);
-
 
     const dragControls = useDragControls();
 
@@ -81,7 +79,6 @@ function UserPageDetailView() {
         if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
             age--;
         }
-
         return age;
     };
 
@@ -92,8 +89,6 @@ function UserPageDetailView() {
 
     // Calculate Age
     const age = user && user.date_of_birth ? calculateAge(user.date_of_birth) : null;
-
-
 
     // Open Aadhar modal
     const openAadharModal = () => {
@@ -117,9 +112,7 @@ function UserPageDetailView() {
                 setLoading(false);
             }
         };
-
         fetchUserDetails();
-
     }, [userId]);
 
     const handleVerifyAadhaar = async (userId) => {
@@ -155,8 +148,6 @@ function UserPageDetailView() {
             dispatch(hideButtonLoader(buttonId));
         }
     }
-
-
 
     return (
         <>
@@ -276,11 +267,6 @@ function UserPageDetailView() {
                         </div>
                     </div>
                 )}
-
-
-
-
-
             </div>
 
             {/* Aadhaar Modal */}

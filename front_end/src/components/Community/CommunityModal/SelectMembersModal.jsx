@@ -4,7 +4,6 @@ import { AiOutlineCheck } from 'react-icons/ai';
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImCancelCircle } from "react-icons/im";
 import { PulseLoader } from 'react-spinners';
-import { showConfirmationAlert } from '../../SweetAlert/showConfirmationAlert';
 import ButtonLoader from '../../LoaderSpinner/ButtonLoader';
 import DefaultUserImage from "../../../assets/images/user-default.png";
 import AuthenticatedAxiosInstance from '../../../axios-center/AuthenticatedAxiosInstance';

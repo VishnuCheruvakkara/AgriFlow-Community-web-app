@@ -88,7 +88,6 @@ const CommunityDetailsPage = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen w-full mb-4">
       {/* Breadcrumb */}
@@ -203,8 +202,6 @@ const CommunityDetailsPage = () => {
                           </span>
                         )}
                       </div>
-
-
                     </div>
                   </div>
 

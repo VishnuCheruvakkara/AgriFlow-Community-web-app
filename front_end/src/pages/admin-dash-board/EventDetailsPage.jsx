@@ -19,11 +19,8 @@ import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmat
 import { showToast } from "../../components/toast-notification/CustomToast";
 import { PulseLoader } from 'react-spinners';
 
-
 const EventDetailsPage = () => {
-
   const [searchTerm, setSearchTerm] = useState("");
-
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
@@ -52,9 +49,6 @@ const EventDetailsPage = () => {
     getEventDetails();
   }, [eventId]);
 
- 
-
-
   // toggle delete event status 
   const toggleDeleteStatus = async (eventId, currentStatus) => {
     const newStatus = !currentStatus;
@@ -72,7 +66,6 @@ const EventDetailsPage = () => {
           `/events/admin/toggle-delete-status/${eventId}/`,
           { is_deleted: !currentStatus }
         );
-
 
         // Update local state immediately
         setEvent((prev) => ({
@@ -125,8 +118,6 @@ const EventDetailsPage = () => {
             <IoClose className="w-5 h-5" />
           </button>
         </div>
-
-
 
         {loading  || !event ? (
           <div className="flex flex-col items-center justify-center h-[510px] space-y-3">
@@ -237,8 +228,6 @@ const EventDetailsPage = () => {
                             event.event_type.slice(1)}
                         </span>
                       </div>
-
-
                       <div
                         className={`flex items-center justify-between p-3 border rounded-lg
                        ${event.is_deleted ? 'border-red-400' : 'border-green-400'}`}
@@ -261,7 +250,6 @@ const EventDetailsPage = () => {
                         </span>
                       </div>
 
-
                       <div className="flex items-center justify-between p-3 border border-orange-400 rounded-lg">
                         <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">
                           Capacity:
@@ -271,8 +259,6 @@ const EventDetailsPage = () => {
                           {event.participations.length}/{event.max_participants}
                         </span>
                       </div>
-
-
                     </div>
                   </div>
 
@@ -316,10 +302,6 @@ const EventDetailsPage = () => {
                           Location Details
                         </h3>
                       </div>
-
-
-
-
                       {event?.event_location ? (
                         // Show location info
                         <div className="p-3 space-y-3">
@@ -379,8 +361,6 @@ const EventDetailsPage = () => {
                           </p>
                         </div>
                       )}
-
-
                     </div>
                   </div>
 
@@ -394,7 +374,6 @@ const EventDetailsPage = () => {
                         Community & Creator
                       </h3>
                     </div>
-
                     <div className="p-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         {/* Community Info */}
@@ -402,18 +381,12 @@ const EventDetailsPage = () => {
                           <h4 className="text-sm font-medium text-gray-700 dark:text-zinc-200 mb-2">
                             Host Community
                           </h4>
-
-
                           <Link to={`/admin/community-management/community-details/${event.community.id}`} className="flex items-center space-x-5 ">
-
-
                             <img
                               src={event?.community?.community_logo_url}
                               alt={event.created_by.full_name}
                               className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
                             />
-
-
                             <div>
                               <h4 className="text-sm font-semibold text-gray-800 dark:text-zinc-200">
                                 {event.community.name}
@@ -426,8 +399,6 @@ const EventDetailsPage = () => {
                               </p>
                             </div>
                           </Link>
-
-
                         </div>
 
                         {/* Creator Info */}
@@ -480,10 +451,6 @@ const EventDetailsPage = () => {
                       </div>
                     </div>
                   </div>
-
-
-
-
 
                   {/* Participants Section */}
                   <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg shadow-sm border border-green-400">
@@ -574,11 +541,6 @@ const EventDetailsPage = () => {
                       )}
                     </div>
                   </div>
-
-
-
-
-
                 </div>
               </div>
             </div>
@@ -610,7 +572,6 @@ const EventDetailsPage = () => {
                 )}
               </div>
             </div>
-
 
             {/* Footer Timestamps */}
             <div className="pt-4 border-t border-gray-200 dark:border-zinc-600">

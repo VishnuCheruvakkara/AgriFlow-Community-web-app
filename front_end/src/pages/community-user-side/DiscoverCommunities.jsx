@@ -8,12 +8,9 @@ import { PulseLoader } from 'react-spinners';
 import Pagination from '../../components/Common-Pagination/UserSidePagination';
 import { AiOutlineClose } from 'react-icons/ai';
 import { ImCancelCircle } from 'react-icons/im'
-// importing framer motion for animation
 import { motion, AnimatePresence } from 'framer-motion';
-
 import { FaInfoCircle } from 'react-icons/fa';
 import { showToast } from '../../components/toast-notification/CustomToast';
-
 import CommunityShimmer from '../../components/shimmer-ui-component/CommunityShimmer';
 import CommunityDataNotFoundImage from "../../assets/images/no-community-imagef-found.png"
 
@@ -27,12 +24,10 @@ function DiscoverCommunities() {
   const [totalPages, setTotalPages] = useState(1);
   //local loading set up join community
   const [joinCommunityLoading, setJoinCommunityLoading] = useState(false);
-
   // Modal data setup
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   // Modal setup
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   // Debounced function for search
   const debouncedSearch = debounce(async (query) => {
     try {
@@ -124,7 +119,6 @@ function DiscoverCommunities() {
     }
   };
 
-
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       <h2 className="text-lg font-medium text-gray-800 mb-3 dark:text-zinc-200 ">Discover Communities</h2>
@@ -141,7 +135,6 @@ function DiscoverCommunities() {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
@@ -151,7 +144,6 @@ function DiscoverCommunities() {
           </button>
         )}
       </div>
-
       {loading ? (
         <CommunityShimmer />
       ) : communities.length === 0 ? (
@@ -218,7 +210,6 @@ function DiscoverCommunities() {
           ))}
         </div>
       )}
-
       <AnimatePresence>
         {isModalOpen && selectedCommunity && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -359,9 +350,7 @@ function DiscoverCommunities() {
           </div>
         )}
       </AnimatePresence>
-
       
-
       { !loading && totalPages >= 1 && (
         <Pagination
           currentPage={currentPage}

@@ -33,8 +33,6 @@ const AdminProductDetailsPage = () => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   //handle modal for shwo the image
   const [selectedImage, setSelectedImage] = useState(null);
-
-
   // Get the single product details based on the product id 
   const getProduct = async () => {
     setLoading(true);
@@ -54,7 +52,6 @@ const AdminProductDetailsPage = () => {
     getProduct();
   }, [productId]);
 
-
   // toggle delete product status 
   const toggleDeleteStatus = async (productId, currentStatus) => {
     const newStatus = !currentStatus;
@@ -72,7 +69,6 @@ const AdminProductDetailsPage = () => {
           `/products/admin/toggle-delete-status/${productId}/`,
           { is_deleted: !currentStatus }
         );
-
 
         // Update local state immediately
         setProduct((prev) => ({
@@ -93,7 +89,6 @@ const AdminProductDetailsPage = () => {
       }
     }
   };
-
 
   return (
     <div className="min-h-screen w-full mb-4">
@@ -129,7 +124,6 @@ const AdminProductDetailsPage = () => {
             <IoClose className="w-5 h-5" />
           </button>
         </div>
-
 
         {loading || !product ? (
           <div className="flex flex-col items-center justify-center h-[510px] space-y-3">
@@ -184,7 +178,6 @@ const AdminProductDetailsPage = () => {
                   </div>
                 </div>
               </div>
-
               {/* Product Information */}
               <div className="lg:col-span-2">
                 <div className="space-y-4">
@@ -310,9 +303,7 @@ const AdminProductDetailsPage = () => {
                           <span className="text-xs pr-6 pl-2">View on Map</span>
                         </button>
 
-
                         <div className="flex justify-between text-xs text-gray-500 dark:text-zinc-300 space-x-4">
-
                           <span>
                             <strong>Lat:</strong> {product.location.latitude}
                           </span>
@@ -320,7 +311,6 @@ const AdminProductDetailsPage = () => {
                             <strong>Lng:</strong> {product.location.longitude}
                           </span>
                         </div>
-
                       </div>
                     </div>
                   </div>
@@ -409,7 +399,6 @@ const AdminProductDetailsPage = () => {
               </div>
             </div>
 
-
             {/* Footer Timestamps */}
             <div className="pt-4 border-t border-gray-200 dark:border-zinc-600">
               <div className="flex flex-col sm:flex-row sm:justify-between text-xs text-gray-500 dark:text-zinc-100">
@@ -449,7 +438,6 @@ const AdminProductDetailsPage = () => {
           onClose={() => setSelectedImage(null)}
         />
       )}
-
 
     </div>
   );

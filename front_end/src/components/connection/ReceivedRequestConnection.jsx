@@ -61,8 +61,6 @@ function ReceivedRequestsSection() {
         }
     };
 
-
-
     return (
         <div className="mb-6 rounded-lg shadow-lg">
             {/* Header */}
