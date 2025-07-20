@@ -16,9 +16,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from apps.notifications.utils import create_and_send_notification
 
-##############  Get community in the event creation section (only get the community where user is admin ) #################
-
-
+# Get community in the event creation section (only get the community where user is admin ) 
 class GetCommunityForCreateEvent(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -37,9 +35,7 @@ class GetCommunityForCreateEvent(APIView):
         serializer = CommunitySerializer(communities, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-################  Admin User can Create Event -- View ##################
-
-
+# Admin User can Create Event View 
 class CommunityEventCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -62,7 +58,6 @@ class CommunityEventCreateAPIView(APIView):
         if CommunityEvent.objects.filter(community_id=community_id, title=event_title).exists():
             return Response({"error": "An event with this title already exists for the selected community."}, status=status.HTTP_400_BAD_REQUEST)
 
-        print("Incoming request data:", request.data)
         serializer = CommunityEventSerializer(
             data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -70,9 +65,7 @@ class CommunityEventCreateAPIView(APIView):
             return Response({"message": "Event created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-################### Get all community events #################
-
+# Get all community events
 class GetAllCommunityEventsView(APIView):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomEventPagination  # Set custom pagination class
@@ -82,7 +75,6 @@ class GetAllCommunityEventsView(APIView):
             # Get the search term from query params, if any
             search_term = request.query_params.get('search', '').strip()
             user = request.user
-            print("user is ::", user.id)
             # Get events the user is already participating in
             participated_event_ids = EventParticipation.objects.filter(
                 user=user
@@ -93,8 +85,6 @@ class GetAllCommunityEventsView(APIView):
                 is_deleted=False,
                 community__is_deleted=False
             ).exclude(created_by=user).exclude(id__in=participated_event_ids)
-
-            print("user event :: ", events)
 
             if search_term:
                 events = events.filter(
@@ -117,9 +107,7 @@ class GetAllCommunityEventsView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-########################## Get Events created by the logged in user ##################
-
-
+# Get Events created by the logged in user
 class UserCreatedEventsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -147,9 +135,7 @@ class UserCreatedEventsView(APIView):
 
         return paginator.get_paginated_response(serializer.data)
 
-################### Edit the commmunity event #########################
-
-
+# Edit the commmunity event
 class CommunityEventUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -164,9 +150,7 @@ class CommunityEventUpdateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-####################### Soft delete the community event  ##############
-
-
+# Soft delete the community event
 class DeleteCommunityEventView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -208,9 +192,7 @@ class DeleteCommunityEventView(APIView):
 
         return Response({'message': 'Event deleted successfully.'}, status=status.HTTP_200_OK)
 
-############# Join to a community event #################
-
-
+# Join to a community event 
 class JoinEventAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -222,9 +204,7 @@ class JoinEventAPIView(APIView):
             return Response({"message": "Successfully enrolled in the event."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-######################  (Enrolled Events section in the Event pages of the user side) all events where the current user is a pariticipant  ####################
-
-
+# (Enrolled Events section in the Event pages of the user side) all events where the current user is a pariticipant 
 class EnrolledEventsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -243,7 +223,7 @@ class EnrolledEventsView(APIView):
         # Convert list to queryset for pagination and search
         from django.db.models import QuerySet
         if not isinstance(events, QuerySet):
-            from .models import CommunityEvent  # Make sure CommunityEvent is imported
+            from .models import CommunityEvent 
             event_ids = [e.id for e in events]
             events = CommunityEvent.objects.filter(id__in=event_ids)
 
@@ -262,9 +242,7 @@ class EnrolledEventsView(APIView):
             paginated_events, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
-############################# Get the enrolled event history for a user ########################################
-
-
+# Get the enrolled event history for a user 
 class EventEnrollmentHistoryAPIView(APIView):
     """
     API view to return event participation history for the current authenticated user.
@@ -282,8 +260,7 @@ class EventEnrollmentHistoryAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-################## mark evnent as completed by the creator of the event #######################
-
+# mark evnent as completed by the creator of the event 
 class MarkEventAsCompletedView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -317,9 +294,7 @@ class MarkEventAsCompletedView(APIView):
         except CommunityEvent.DoesNotExist:
             return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
 
-########################### mark event as cancelled  ############################
-
-
+# mark event as cancelled  
 class MarkEventAsCancelledView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -353,9 +328,8 @@ class MarkEventAsCancelledView(APIView):
         except CommunityEvent.DoesNotExist:
             return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
 
-#########################  Admin side Event handling #################################
-
-#======================= Get all events in the admin page =============================# 
+#  Admin side Event handling 
+# Get all events in the admin page
 class AdminEventListAPIView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -387,7 +361,7 @@ class AdminEventListAPIView(APIView):
         serializer = CommunityEventAdminSideListSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-#=========================== Event details amdin side ============================#
+# Event details amdin side
 
 class CommunityEventDetailView(APIView):
     """
@@ -410,8 +384,7 @@ class CommunityEventDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-#========================  Event delete status toggling view ===========================# 
-
+# Event delete status toggling view 
 class ToggleEventDeleteStatusView(APIView):
     """
     Toggle the is_deleted status of a Event.

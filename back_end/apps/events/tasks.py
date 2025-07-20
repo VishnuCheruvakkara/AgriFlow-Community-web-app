@@ -7,11 +7,6 @@ from events.models import CommunityEvent, EventParticipation
 from pytz import timezone as pytz_timezone
 from apps.common.cloudinary_utils import generate_secure_image_url
 
-
-# import logging
-
-# logger = logging.getLogger(__name__)
-
 @shared_task
 def send_event_notification(event_title, event_start_time, recipient_id, sender_id=None,image_public_id=None):
     """
@@ -36,13 +31,10 @@ def send_event_notification(event_title, event_start_time, recipient_id, sender_
         date_label = ist_dt.strftime("%d-%m-%Y")
         time_label = ist_dt.strftime("%I:%M %p")
 
-
         message = f"The event '{event_title}' starts today ({date_label}) at {time_label}. Get ready!"
 
         # Generate signed URL for the image if provided
         secure_image_url = generate_secure_image_url(image_public_id) if image_public_id else None
-        
-
 
         # create and send notification
         create_and_send_notification(
@@ -53,25 +45,15 @@ def send_event_notification(event_title, event_start_time, recipient_id, sender_
             image_url=secure_image_url
         )
 
-        print(f"Notification sent to {recipient.username}")
-
     except Exception as e:
-        print(f"Error sending event notification: {e}")
+      return None
 
-###################### function for the crone job ##################################
-
-
-
+# function for the crone job 
 @shared_task
 def scan_and_send_event_notifications():
     now = timezone.now()
     notification_time_start = now + timedelta(minutes=10)
     notification_time_end = now + timedelta(minutes=15)
-
-    print(
-        f"[DEBUG] scan_and_send_event_notifications started at {now.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(
-        f"[DEBUG] Looking for events starting between {notification_time_start} and {notification_time_end}")
 
     events = CommunityEvent.objects.filter(
         start_datetime__gte=notification_time_start,
@@ -79,21 +61,14 @@ def scan_and_send_event_notifications():
         is_deleted=False
     )
 
-    print(
-        f"[DEBUG] Found {events.count()} event(s) scheduled in the next window")
-
     for event in events:
         participations = EventParticipation.objects.filter(
             event=event, notification_sent=False)
-        print(
-            f"[DEBUG] Processing event '{event.title}' ({event.id}) with {participations.count()} participant(s)")
+    
 
         for participation in participations:
             recipient = participation.user
             sender = event.created_by if hasattr(event, "created_by") else None
-
-            print(
-                f"[DEBUG] Scheduling notification to user '{recipient.username}' (ID {recipient.id})")
 
             send_event_notification.delay(
                 event_title=event.title,
@@ -105,7 +80,5 @@ def scan_and_send_event_notifications():
 
             participation.notification_sent = True
             participation.save()
-            print(
-                f"[DEBUG] Marked notification_sent=True for participation ID {participation.id}")
-
+           
 

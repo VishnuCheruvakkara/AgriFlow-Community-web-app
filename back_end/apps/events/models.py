@@ -1,12 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-# Assuming your community app is named `community`
 from community.models import Community
 
 CustomUser = get_user_model()
-
-# Create a separate model to handle location details for offline events
-
 
 class EventLocation(models.Model):
     place_id = models.CharField(max_length=255, blank=True, null=True)
@@ -18,7 +14,6 @@ class EventLocation(models.Model):
 
     def __str__(self):
         return f"{self.location_name}"
-
 
 class CommunityEvent(models.Model):
     EVENT_TYPE_CHOICES = [
@@ -45,8 +40,6 @@ class CommunityEvent(models.Model):
     community = models.ForeignKey(
         Community, on_delete=models.CASCADE, related_name='events')
     event_type = models.CharField(max_length=10, choices=EVENT_TYPE_CHOICES)
-
-    # For offline events, location details are stored in a related model
     event_location = models.ForeignKey(EventLocation, null=True, blank=True,
                                        on_delete=models.CASCADE, related_name="events", help_text="Only for offline events")
     address = models.TextField(
@@ -66,9 +59,7 @@ class CommunityEvent(models.Model):
     def __str__(self):
         return f"{self.title} - {self.community.name}"
 
-# RSVP part where users can participate in events
-
-
+# RSVP part where users can participate in event
 class EventParticipation(models.Model):
     event = models.ForeignKey(
         CommunityEvent, on_delete=models.CASCADE, related_name='participations')
@@ -80,7 +71,6 @@ class EventParticipation(models.Model):
     notification_sent = models.BooleanField(default=False)
 
     class Meta:
-        # Prevent multiple RSVPs by the same user
         unique_together = ('event', 'user')
         ordering = ['-joined_at']
 

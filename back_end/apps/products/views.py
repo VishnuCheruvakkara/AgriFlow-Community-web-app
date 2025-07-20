@@ -15,9 +15,7 @@ from django.contrib.auth import get_user_model
 from apps.notifications.utils import create_and_send_notification
 User = get_user_model()
 
-##############################  Create Products #####################
-
-
+# Create Products
 class CreateProductToSell(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [permissions.IsAuthenticated]
@@ -37,7 +35,6 @@ class CreateProductToSell(APIView):
             # Create or get ProductLocation
             location, _ = ProductLocation.objects.get_or_create(
                 **location_data)
-            print("Early debugger ::", request.data.get('is_available'))
             # Create the product
             product = Product.objects.create(
                 seller=request.user,
@@ -52,16 +49,13 @@ class CreateProductToSell(APIView):
                 image3=image3_url,
                 closing_date=request.data.get('closingTime'),
             )
-            print("Debugger ::", product.is_available)
+          
             return Response(ProductSerializer(product).data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            print("Error creating product:", e)
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-################################## Get al products ########################
-
-
+# Get al products
 class GetAllProductsAddedByCurrentUser(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -82,8 +76,7 @@ class GetAllProductsAddedByCurrentUser(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-# 3 Update the product by the user who create the product ####################3
-
+# Update the product by the user who create the product
 class UpdateProductAPIView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [permissions.IsAuthenticated]
@@ -127,12 +120,9 @@ class UpdateProductAPIView(APIView):
             return Response({'error': 'Product not found or unauthorized'}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
-            print("Error updating product:", e)
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-################################ Soft Delete prodcut view ###############################
-
-
+# Soft Delete prodcut view 
 class SoftDeleteProductView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -169,9 +159,7 @@ class SoftDeleteProductView(APIView):
 
         return Response({'message': 'Product soft deleted successfylly and notification sent!'}, status=status.HTTP_200_OK)
 
-############################## Get all the available products #############################################
-
-
+# Get all the available products 
 class GetAllAvailableProducts(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -192,9 +180,7 @@ class GetAllAvailableProducts(APIView):
         serializer = ProductSerializer(paginated_products, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-##########################  Get saved product messages by seller and buyyer ############################
-
-
+# Get saved product messages by seller and buyyer 
 class ProductDealMessageListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -219,9 +205,7 @@ class ProductDealMessageListView(APIView):
         serializer = ProductChatMessageSerializer(messages, many=True)
         return Response(serializer.data)
 
-# Get the selected product details  ########################3
-
-
+# Get the selected product details
 class GetSingleProductDetailsView(APIView):
     def get(self, request, product_id):
         try:
@@ -233,8 +217,7 @@ class GetSingleProductDetailsView(APIView):
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
-#################################### Get the Selling product deals view by the current user ########################
-
+# Get the Selling product deals view by the current user
 class SellingProductDealsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -245,9 +228,7 @@ class SellingProductDealsAPIView(APIView):
             user_products, many=True, context={'request': request})
         return Response(serializer.data)
 
-
-################################  Get the Buying product deals view by the current/logged in user #######################
-
+# Get the Buying product deals view by the current/logged in user 
 class BuyingDealsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -267,9 +248,7 @@ class BuyingDealsView(APIView):
             latest_messages, many=True, context={'request': request})
         return Response(serializer.data)
 
-############################ Toggle the product status view #######################
-
-
+# Toggle the product status view
 class ToggleProductAvailabilityView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -299,11 +278,8 @@ class ToggleProductAvailabilityView(APIView):
             status=status.HTTP_200_OK,
         )
 
-############################# Wish list ##################################
-
-# ========================== Toggle wishlist (Add or remove product fromt eh wish list ) =================================#
-
-
+# Wish list
+# Toggle wishlist (Add or remove product fromt eh wish list ) 
 class ToggleWishlistAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -334,9 +310,7 @@ class ToggleWishlistAPIView(APIView):
         else:
             return Response({"message": "Added to wishlist", "status": "added"}, status=status.HTTP_201_CREATED)
 
-# ============================ Fetch all active wishlist products of the user =============================#
-
-
+# Fetch all active wishlist products of the user 
 class WishlistListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -346,9 +320,7 @@ class WishlistListAPIView(APIView):
         serializer = WishlistSerializer(wishlist_items, many=True)
         return Response(serializer.data)
 
-# ============================== Get the prodcuts from the model ###########################
-
-
+# Get the prodcuts from the model 
 class GetMyWishlistProductsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -375,11 +347,8 @@ class GetMyWishlistProductsAPIView(APIView):
         serializer = WishlistSerializer(paginated_qs, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-########################### Admin side Product handling View #############################
-
-# ========================= Get all the products in the admin side =============================#
-
-
+# Admin side Product handling View 
+# Get all the products in the admin side 
 class GetAllProductsAdminSideView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
@@ -412,8 +381,7 @@ class GetAllProductsAdminSideView(APIView):
         serializer = ProductSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
     
-#======================= Get single product details admin side ========================# 
-
+# Get single product details admin side
 class GetSingleProductAdminSideView(APIView):
     permission_classes = [permissions.IsAdminUser] 
 
@@ -422,8 +390,7 @@ class GetSingleProductAdminSideView(APIView):
         serializer = ProductSerializer(product) 
         return Response(serializer.data,status = status.HTTP_200_OK)
 
-#========================  Product delete status toggling view ===========================# 
-
+# Product delete status toggling view
 class ToggleProductDeleteStatusView(APIView):
     """
     Toggle the is_deleted status of a Product.

@@ -1,8 +1,5 @@
-
 import cloudinary
 import os
-from celery import Celery
-from re import A
 import sys
 from pathlib import Path
 import environ
@@ -11,10 +8,6 @@ from celery.schedules import crontab
 
 env = environ.Env()
 environ.Env.read_env()
-
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,8 +31,6 @@ DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-# Application definition
-
 # path to all apps that are inside the common 'apps' folder.
 APPS_DIR = BASE_DIR / 'apps'
 sys.path.insert(0, str(APPS_DIR))
@@ -61,7 +52,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
-    #====== for cloudinary ======#
+    # for cloudinary 
     'cloudinary_storage',
     'cloudinary',
 
@@ -79,15 +70,11 @@ INSTALLED_APPS = [
     'connections',
     'products',
     'posts',
-    'dash_board',
-    # Django main page (Home) for initial load (optional).
-    'Home',
     #Custom app for handle websoket
     'websocket',
 
 ]
 
-#=============  Asgi set up ==================#
 
 #Set up for asgi for WebSocket
 ASGI_APPLICATION = 'agri_flow.asgi.application'
@@ -103,21 +90,18 @@ CHANNEL_LAYERS = {
     },
 }
 
-
 CORS_ALLOW_HEADERS = [
     'content-type',
     'authorization',
     'x-csrftoken',
-    'withcredentials',  # <-- Add this line
+    'withcredentials',  
 ]
-
 
 CORS_ALLOW_CREDENTIALS = True
 # Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "ws://localhost:8000",  # WebSocket URL
-
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -133,8 +117,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }                                                                                           
-
-#################### JWT Token custom setup. ############################
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
@@ -152,7 +134,6 @@ AUTH_COOKIE_SECURE = True
 AUTH_COOKIE_HTTP_ONLY = True  # Prevent JavaScript from accessing the cookie
 AUTH_COOKIE_SAMESITE = "None"  # Required for cross-site cookies
 
-###################  Middle ware setup #####################################
 MIDDLEWARE = [
     # Third party middleware added.
     'corsheaders.middleware.CorsMiddleware',
@@ -191,9 +172,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agri_flow.wsgi.application'
 
-
-# Database structure.
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -204,9 +182,6 @@ DATABASES = {
         'PORT': env('DB_PORT'),
     }
 }
-
-
-# Password validation.
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -227,7 +202,6 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -237,7 +211,6 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-
 STATIC_URL = 'static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -245,7 +218,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Setup of django cache for otp storage in temporary to avoid multi user login in single-time.
@@ -263,13 +235,12 @@ CACHES = {
 # redis set up for define the define Redis URL globally for custom Redis usage (e.g., in WebSocket consumers)
 REDIS_URL = "redis://127.0.0.1:6379/2"
 
-########################### Celery setup ############################ 
-
+#clery configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/3'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-########################### smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.  ###########################
+# smtp (Simple Mail Transfer Protocol) for send generated otp to the user entered email address.
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
@@ -277,8 +248,7 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
-############################## django jazzmin setup for better ui for django admin.  #########################
-
+# django jazzmin setup for better ui for django admin.
 JAZZMIN_SETTINGS = {
     "site_title": "AgriFlow Admin",
     "site_header": "AgriFlow Admin",
@@ -287,9 +257,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "AgriFlow © 2024",
 }
 
-
-#################### google authentication setup  ####################
-
+# google authentication setup 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Google OAuth backend
     'django.contrib.auth.backends.ModelBackend',  # Default auth backend
@@ -315,8 +283,7 @@ SOCIAL_AUTH_PIPELINE = (
 # Login redirect after successful authentication
 GOOGLE_REDIRECT_URI = 'http://127.0.0.1:8000/users/auth/callback/'
 
-################### Cloudinary configuration for meadia-files access  ##########################
-
+# Cloudinary configuration for meadia-files access 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': env('CLOUDINARY_API_KEY'),
@@ -326,13 +293,10 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 
-################## Location IQ set up for API key configuration #######################
-
-# Get the API key from the environment variable
+# Location IQ set up for API key configuration 
 LOCATIONIQ_API_KEY = env("LOCATIONIQ_API_KEY")
 
-#################### Celery Cron job setup ##################################
-
+# Celery Cron job setup 
 CELERY_BEAT_SCHEDULE = {
     'scan-and-send-event-notifications-every-minute': {
         'task': 'events.tasks.scan_and_send_event_notifications',

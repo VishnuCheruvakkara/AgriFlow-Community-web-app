@@ -106,8 +106,7 @@ class CustomUser(AbstractUser):
         )
         return url
 
-########################  model for save the user-to-user/private messages ########################
-
+# model for save the user-to-user/private messages 
 class PrivateMessage(models.Model):
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='sent_messages')
     receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='received_messages')

@@ -7,18 +7,12 @@ import re
 from django.core.cache import cache
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-# for inbuild password validation
 from django.contrib.auth.password_validation import validate_password
-# for inbuild email validation
 from django.core.validators import EmailValidator
-# To authenticate the user
 from django.contrib.auth import authenticate
-# import model from community
 from community.models import CommunityMembership
-# impot model from connection
 from connections.models import Connection
 from django.db.models import Q
-# get secure image url using id, get image from cloudinary
 from apps.common.cloudinary_utils import generate_secure_image_url
 from datetime import timedelta
 from django.utils import timezone
@@ -26,17 +20,13 @@ from users.models import PrivateMessage
 
 User = get_user_model()
 
-# User Login  ################################3
-
-
+# User Login
 class LoginSerializer(serializers.Serializer):
     """Serializer for user login"""
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, required=True)
 
-################################## User registration ####################################
-
-
+# User registration 
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(
         write_only=True, required=True, label="Confirm Password")
@@ -107,7 +97,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             if existing_user.is_verified:
                 raise serializers.ValidationError(
                     "Username already taken. Please choose another one.")
-            # else: allow reuse of username if not verified
 
         if len(value) < 4:
             raise serializers.ValidationError(
@@ -122,9 +111,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     # To override over the normaml serializer validation of email (For is_verified=False users)
     email = serializers.EmailField()
 
-####################################  Otp verification ########################################
-
-
+# Otp verification 
 class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
@@ -143,10 +130,9 @@ class VerifyOTPSerializer(serializers.Serializer):
 
         return data
 
-##################################  Forgot password section ###########################
+# Forgot password section
 
-# ================================ Forgot password email serializer =========================
-
+# Forgot password email serializer 
 
 class ForgotPasswordSerialzier(serializers.Serializer):
     email = serializers.EmailField()
@@ -160,9 +146,7 @@ class ForgotPasswordSerialzier(serializers.Serializer):
                 "No verified account found with this email.")
         return value
 
-
-# =============================== Forgot password email otp verification view =======================
-
+# Forgot password email otp verification view 
 class ForgotPasswordVerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6, min_length=6)
@@ -182,9 +166,7 @@ class ForgotPasswordVerifyOTPSerializer(serializers.Serializer):
                 {"otp": "Incorrect OTP. Please try again"})
         return data
 
-# =============================  Forgot passwort set new password after otp verification =================================
-
-
+# Forgot passwort set new password after otp verification
 class ForgotPasswordSetSerializer(serializers.Serializer):
     email = serializers.EmailField()
     new_password = serializers.CharField(write_only=True)
@@ -228,8 +210,7 @@ class ForgotPasswordSetSerializer(serializers.Serializer):
         return confirm_password
 
 
-# For admin related authentiation serializers  ##############################3
-
+# For admin related authentiation serializers 
 class AdminLoginSerializer(serializers.Serializer):
     """Serializer for admin login"""
     email = serializers.EmailField()
@@ -253,9 +234,8 @@ class AdminLoginSerializer(serializers.Serializer):
             "user": user  # Return the actual User instance
         }
 
-########################  User proile updation section serilizes #######################
-# =========================== User profile updation ========================#
-
+# User proile updation section serilizes 
+# User profile updation 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from users.models import Address
@@ -323,7 +303,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
         location_data = validated_data.pop('location', None)
         home_address = validated_data.pop('home_address', '')
-        print("location_data:", location_data)  # Debugging
 
         if location_data:
             # Create or update Address
@@ -395,13 +374,8 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-####################### User Management Admin Side ######################
-
-# ================================== get users data serializers ========================#
-
-from rest_framework import serializers
-
-
+# User Management Admin Side
+# get users data serializers 
 class UserDashboardSerializer(serializers.ModelSerializer):
     """Serializer for fetching user dashboard data."""
 
@@ -432,12 +406,11 @@ class UserDashboardSerializer(serializers.ModelSerializer):
                 "country": obj.address.country,
                 "home_address": obj.address.home_address,
             }
-        return None  # If no address is set
+        return None 
 
 
 
-# =======================  Get all the usrs data in the admin side =======================#
-
+# Get all the usrs data in the admin side 
 class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()  # Secure URL
     address_details = serializers.SerializerMethodField()  # Custom field for address
@@ -458,16 +431,15 @@ class GetAllUsersInAdminSideSerializer(serializers.ModelSerializer):
                 'country': obj.address.country,
                 'home_address': obj.address.home_address
             }
-        return None  # No address assigned
+        return None 
 
-# ======================= Change user status in admin side ===========================#
+# Change user status in admin side 
 class UserStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'is_active']
 
-# ===========================  User deatail view page serializer in the admin side for user management ========================#
-
+# User deatail view page serializer in the admin side for user management 
 class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
     """Serializer for fetching complete user details (for Admin use)."""
 
@@ -503,10 +475,9 @@ class AdminSideUserDetailPageSerializer(serializers.ModelSerializer):
                 "country": obj.address.country,
                 "home_address": obj.address.home_address,
             }
-        return None  # If no address is set
+        return None 
 
-# ==========================  Change Aadhar Verification status in the usertable Serializer ==============================#
-
+# Change Aadhar Verification status in the usertable Serializer 
 class AadhaarVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -518,9 +489,7 @@ class AadhaarVerificationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-# =========================== Adhar resubmission message end point for admin can notify to the user that any deffect in the submitted aadhar ===========================#
-
-
+# Adhar resubmission message end point for admin can notify to the user that any deffect in the submitted aadhar 
 class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -536,8 +505,7 @@ class AadharResubmissionMessageSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-# ========================  Adhar resubmission endpoint for uesr if admin notify any mistakes in the aadhar image ==========================#
-
+# Adhar resubmission endpoint for uesr if admin notify any mistakes in the aadhar image
 class AadhaarResubmissionSerializer(serializers.ModelSerializer):
     aadhaarImage = serializers.ImageField(write_only=True, required=False)
     class Meta:
@@ -567,8 +535,7 @@ class AadhaarResubmissionSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-##################### Get the user details on the profile page of user and other user can see each other profiles ########################
-
+# Get the user details on the profile page of user and other user can see each other profiles
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
@@ -655,8 +622,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return 'not_connected'
 
 
-######################################   Get all the saved messages from the table of private chat message #######################
-
+# Get all the saved messages from the table of private chat message
 class PrivateMessageSerializer(serializers.ModelSerializer):
     sender_id = serializers.IntegerField(source='sender.id')
     sender_name = serializers.SerializerMethodField()
@@ -673,8 +639,7 @@ class PrivateMessageSerializer(serializers.ModelSerializer):
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
 
-#################################### User Profile update serializer  ######################################3
-
+# User Profile update serializer
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

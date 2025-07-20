@@ -25,7 +25,6 @@ class Connection(models.Model):
     def __str__(self):
         return f"{self.sender} → {self.receiver} ({self.status})"
 
-
 class BlockedUser(models.Model):
     blocker = models.ForeignKey(User, related_name='blocked_users', on_delete=models.CASCADE)
     blocked = models.ForeignKey(User, related_name='blocked_by', on_delete=models.CASCADE)

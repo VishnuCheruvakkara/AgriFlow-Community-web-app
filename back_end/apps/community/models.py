@@ -24,6 +24,7 @@ class Community(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.id}"
+    
 # Comuunity members model for now different famres who are belong to the perticular group/community 
 class CommunityMembership(models.Model):
     STATUS_CHOICES = [
@@ -60,8 +61,7 @@ class Tag(models.Model):
         return self.name
 
 
-################################ community based chat model for save the messages for each community ########################
-
+# community based chat model for save the messages for each community 
 class CommunityMessage(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='messages')
     community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='messages')

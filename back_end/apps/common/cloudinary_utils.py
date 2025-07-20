@@ -2,9 +2,10 @@ import time
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
 import mimetypes
+from django.core.exceptions import ValidationError
+import cloudinary.uploader
 
-#####################  Common image uploading and retrieving functions  #####################
-
+# Common image uploading and retrieving functions 
 def upload_image_to_cloudinary(image_file, folder_name):
     """  
     Securely uploads an image to Cloudinary with authenticated access.
@@ -24,11 +25,9 @@ def upload_image_to_cloudinary(image_file, folder_name):
         )
         return result["public_id"]
     except Exception as e:
-        print("Cloudinary upload error:", e)
         return None
 
-########################### from public_id generate the secure URL  ############################
-
+#from public_id generate the secure URL  
 def generate_secure_image_url(public_id, expires_in=3600):
     """
     Generates a secure signed URL to access the private image.
@@ -46,12 +45,6 @@ def generate_secure_image_url(public_id, expires_in=3600):
         sign_valid_until=int(time.time()) + expires_in
     )
     return secure_url
-
-########################################################
-
-import mimetypes
-from django.core.exceptions import ValidationError
-import cloudinary.uploader
 
 def upload_to_cloudinary(file_obj, folder_name):
     """
@@ -87,17 +80,12 @@ def upload_to_cloudinary(file_obj, folder_name):
         return result.get("secure_url")
 
     except ValidationError as ve:
-        print("Validation error:", ve)
         return None
     except Exception as e:
-        print("Cloudinary upload error:", e)
         return None
 
 
-##########################  Upload the image and get the secure url ###########################################
-
-import cloudinary.uploader
-
+# Upload the image and get the secure url 
 def upload_image_and_get_url(image_file, folder_name):
     """
     Uploads an image to Cloudinary under a private folder, returns the secure URL.
@@ -116,5 +104,4 @@ def upload_image_and_get_url(image_file, folder_name):
         )
         return result.get("secure_url")
     except Exception as e:
-        print("Cloudinary upload error:", e)
         return None

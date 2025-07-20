@@ -10,14 +10,10 @@ from django.db.models import Q
 from notifications.utils import create_and_send_notification
 from common.cloudinary_utils import generate_secure_image_url
 from django.shortcuts import get_object_or_404
-#logger set up 
 import logging
 logger = logging.getLogger(__name__)
 
-
-
-########################## Create New post View  #######################
-
+# Create New post View
 class CreatNewPostAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -33,8 +29,7 @@ class CreatNewPostAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-#########################  Update or edit post view ########################
-
+# Update or edit post view
 class EditPostAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -55,9 +50,7 @@ class EditPostAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-######################### Get all the post in the front-end #######################
-
-
+# Get all the post in the front-end
 class GetAllThePosts(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -84,18 +77,14 @@ class GetAllThePosts(APIView):
         #  Order by newest first
         posts = posts.order_by('-created_at')
 
-        #  Paginate and serialize
         paginator = CustomPostPagination()
         paginated_posts = paginator.paginate_queryset(posts, request)
         serializer = PostSerializer(paginated_posts, many=True, context={'request': request})
 
         return paginator.get_paginated_response(serializer.data)
 
-############################## Hanle Like View ##################################
-
-# ================================= Toggle Likes ==============================#
-
-
+# Hanle Like View
+# Toggle Likes 
 class ToggleLikeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -107,9 +96,7 @@ class ToggleLikeAPIView(APIView):
             return Response(result, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ============================  Get all the liked post datas View ==============================#
-
-
+# Get all the liked post datas View 
 class LikedPostStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -137,10 +124,8 @@ class LikedPostStatusView(APIView):
         serializer.is_valid()  # No need to raise_exception
         return Response(serializer.data)
 
-########################## Handle the comments ####################
-
-# ====================== posts/add new comment for a perticular post ========================#
-
+# Handle the comments 
+# posts/add new comment for a perticular post
 class AddCommentAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -172,7 +157,6 @@ class AddCommentAPIView(APIView):
                     message=f"{request.user.username} commented on your post. See the post here...",
                     image_url=profile_image_url,
                     post=post,
-                    
                 )
 
             return Response({
@@ -185,8 +169,7 @@ class AddCommentAPIView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-#========================== Get all teh comment for each posts ==================================#
-
+# Get all teh comment for each posts
 class CommentListAPIView(APIView):
     permission_classes = [IsAuthenticated]  
 
@@ -199,10 +182,8 @@ class CommentListAPIView(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-########################### Hanle posts  in profile section page #################################
-
-#========================== Get post conditionally based on user id in the profile section ==============================#
-
+# Hanle posts  in profile section page 
+# Get post conditionally based on user id in the profile section
 class UserPostsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -236,8 +217,7 @@ class UserPostsAPIView(APIView):
 
         return paginator.get_paginated_response(serializer.data)
     
-#============================== Delete post view by the creator user =============================# 
-
+# Delete post view by the creator user 
 class DeletePostAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -257,8 +237,7 @@ class DeletePostAPIView(APIView):
         except Post.DoesNotExist:
             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
-######################## Get single post view (User full for the share section thorough the other platforms ) ###########################
-
+# Get single post view (User full for the share section thorough the other platforms )
 class GetSinglePostView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -277,10 +256,8 @@ class GetSinglePostView(APIView):
         serializer = PostDetailSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-######################## Admin side posts handling #############################
-
-#==================== Get all post data in the admin side api view ========================# 
-
+# Admin side posts handling
+# Get all post data in the admin side api view 
 class GetAllPostsAdminSide(APIView):
     permission_classes = [IsAdminUser]
 
@@ -321,8 +298,7 @@ class GetAllPostsAdminSide(APIView):
             logger.exception(f"Error fetching the data :{e}")
             return Response( {"success":False,"message":"Error fetching the post details","data":[]},status=status.HTTP_500_INTERNAL_SERVER_ERROR ) 
 
-#=============================== Get Single post details in the admin side =========================#
-
+# Get Single post details in the admin side 
 class GetSinglePostDetailsAdminSide(APIView):
     permission_classes = [IsAdminUser]
 
@@ -332,8 +308,7 @@ class GetSinglePostDetailsAdminSide(APIView):
         serializer = SinglePostDetailAdminSerializer(post,context={"request":request})
         return Response(serializer.data,status=status.HTTP_200_OK)
         
-#========================  post delete status toggling view ===========================# 
-
+# post delete status toggling view 
 class TogglePostDeleteStatusView(APIView):
     """
     Toggle the is_deleted status of a Post.

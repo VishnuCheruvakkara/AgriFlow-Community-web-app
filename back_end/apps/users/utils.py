@@ -3,7 +3,6 @@ from django.core.cache import cache
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 
-
 def generate_otp_and_send_email(email, email_type="registration"):
     """Generate OTP, store in cache, and send a customized email with a farm-friendly theme"""
 
@@ -64,5 +63,5 @@ def generate_otp_and_send_email(email, email_type="registration"):
         email_message.attach_alternative(html_message, "text/html")
         email_message.send()
     except Exception as e:
-        print(f"Email error: {e}")
+        return None
 

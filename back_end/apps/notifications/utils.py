@@ -4,9 +4,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.utils.timezone import now
 
-# Common function for handle the real-time private messages  and save that to the db table  #########################3
-
-
+# Common function for handle the real-time private messages  and save that to the db table
 def create_and_send_notification(recipient, sender, type, message=None, community=None, image_url=None, product=None,post=None,):
     # Save notification data into the table
     notification, created = Notification.objects.get_or_create(
@@ -26,7 +24,7 @@ def create_and_send_notification(recipient, sender, type, message=None, communit
     if not created:
         notification.message = message
         notification.image_url = image_url
-        notification.created_at = now()  # Manually update created_at
+        notification.created_at = now() 
         notification.is_read = False
         notification.is_deleted = False
         if product:

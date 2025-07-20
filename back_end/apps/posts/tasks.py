@@ -1,4 +1,3 @@
-# posts/tasks.py
 from celery import shared_task
 from posts.models import Post
 from common.cloudinary_utils import upload_to_cloudinary

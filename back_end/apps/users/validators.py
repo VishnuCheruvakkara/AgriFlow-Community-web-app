@@ -80,25 +80,22 @@ def validate_date_of_birth(value):
     return value
 
 def validate_text_field(value):
-  
 
-    # Step 1: Clean HTML
     cleaned_value = bleach.clean(value, tags=[], strip=True).strip()
 
     # This catches scripts that bleach might miss due to clever formatting
     if re.search(r'(?i)<\s*script.*?>.*?<\s*/\s*script\s*>', value, re.DOTALL):
         raise ValidationError("Script tags are not allowed.")
 
-    # Step 3: Allow only letters, numbers, and select punctuation
+    # Allow only letters, numbers, and select punctuation
     if not re.fullmatch(r"[A-Za-z0-9\s.,#()'’\"/-]+", cleaned_value):
         raise ValidationError("Invalid input: Use only letters, numbers, or common punctuation.")
 
-    # Step 4: Ensure it’s not empty or too short after cleaning
+    # Ensure it’s not empty or too short after cleaning
     if len(cleaned_value) < 10:
         raise ValidationError("Input too short. Please enter at least 10 characters.")
 
     return cleaned_value
-
 
 def validate_home_address(value):
     """

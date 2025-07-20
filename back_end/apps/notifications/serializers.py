@@ -1,4 +1,3 @@
-
 from rest_framework import serializers 
 from notifications.models import Notification 
 from django.contrib.auth import get_user_model
@@ -6,7 +5,7 @@ from apps.common.cloudinary_utils import generate_secure_image_url
 
 User = get_user_model()
 
-###########################  Serializers for get the connection datas ######################
+# Serializers for get the connection datas
 class UserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -20,13 +19,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 class NotificationSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)  
-
+    
     class Meta:
         model = Notification
         fields = ['id', 'message', 'notification_type', 'is_read', 'created_at', 'sender']
 
-############################## Serialziers for get the private messages  #######################
-
+# Serialziers for get the private messages 
 class GetPrivateMessageSerializer(serializers.ModelSerializer):
     sender = serializers.CharField(source = 'sender.username',read_only=True)
     sender_id = serializers.IntegerField(source = 'sender.id',read_only=True)
@@ -72,8 +70,7 @@ class GetPrivateMessageSerializer(serializers.ModelSerializer):
             return obj.product.is_deleted
         return None
 
-#################################  Get all the notifications from the Db #######################
-
+# Get all the notifications from the Db 
 class GeneralNotificationSerializer(serializers.ModelSerializer):
     sender = serializers.CharField(source='sender.username', read_only=True)
     sender_id = serializers.IntegerField(source='sender.id', read_only=True)

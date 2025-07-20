@@ -10,11 +10,9 @@ def get_user(token):
     try:
         User = get_user_model()
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        print("Middleware payload is:", payload)
         user = User.objects.get(id=payload['user_id'])
         return user
     except Exception as e:
-        print("Error in get_user:", e)
         return None
 
 class JwtAuthMiddleware(BaseMiddleware):

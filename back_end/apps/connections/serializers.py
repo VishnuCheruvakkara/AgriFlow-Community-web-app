@@ -6,8 +6,7 @@ from apps.common.cloudinary_utils import generate_secure_image_url
 
 User = get_user_model()
 
-###################### serializers for send connection request ####################
-
+# serializers for send connection request 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
@@ -30,16 +29,15 @@ class GetSuggestedFarmersSerializer(serializers.ModelSerializer):
         return generate_secure_image_url(obj.banner_image)
     
 
-##################  Pending request section ( Requests You Sent - front end section in the connection page  ) ################### 
-
-#============== serializer for send connection request  =====================#
+# Pending request section ( Requests You Sent - front end section in the connection page  ) 
+# serializer for send connection request 
 class ConnectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Connection
         fields = ['id', 'sender', 'receiver', 'status', 'created_at']
         read_only_fields = ['id', 'sender', 'status', 'created_at']
 
-#================== Get users in the Request you send section View  =======================#
+# Get users in the Request you send section View 
     
 class SentConnectionRequestSerializer(serializers.ModelSerializer):
     receiver_username = serializers.CharField(source='receiver.username', read_only=True)
@@ -57,10 +55,8 @@ class SentConnectionRequestSerializer(serializers.ModelSerializer):
             return generate_secure_image_url(public_id)
         return None
     
-##################  Pending request section ( Received Connection Requests - front end section in the connection page  ) ################### 
-
-#================ Get recieved connection requests Serializer =====================# 
-
+# Pending request section ( Received Connection Requests - front end section in the connection page  ) 
+# Get recieved connection requests Serializer 
 class ReceivedConnectionRequestsSerializer(serializers.ModelSerializer):
     sender_id = serializers.IntegerField(source='sender.id', read_only=True)
     sender_username = serializers.CharField(source='sender.username', read_only=True)
@@ -80,10 +76,7 @@ class ReceivedConnectionRequestsSerializer(serializers.ModelSerializer):
         public_id = obj.sender.profile_picture
         return generate_secure_image_url(public_id)
 
-############################### My Connection section ###########################################
-
-#============================ get all my connection serialzier ===========================# 
-
+# My Connection section - get all my connection serialzier
 class ConnectedUserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -107,8 +100,7 @@ class GetMyConnectionSerializer(serializers.ModelSerializer):
         other = obj.receiver if obj.sender == request_user else obj.sender
         return ConnectedUserSerializer(other).data
 
-########################## Block user serializer ######################### 
-
+# Block user serializer 
 class BlockUserSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
 
@@ -128,8 +120,7 @@ class BlockUserSerializer(serializers.Serializer):
 
         return value
 
-############################ Get blocked user serializer #####################33
-
+# Get blocked user serializer 
 class BlockedUserSerializer(serializers.ModelSerializer):
     blocked = ConnectedUserSerializer()
 

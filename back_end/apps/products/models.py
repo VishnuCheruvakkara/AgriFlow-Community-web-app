@@ -1,11 +1,9 @@
 
 from django.db import models
 from django.contrib.auth import get_user_model
-
 User = get_user_model()
 
-
-####################### product location #########################
+# product location 
 class ProductLocation(models.Model):
     place_id = models.CharField(max_length=255, blank=True, null=True)
     full_location = models.TextField(blank=True, null=True)
@@ -17,7 +15,7 @@ class ProductLocation(models.Model):
     def __str__(self):
         return f"{self.location_name or 'Unknown Location'}"
 
-#################### model for the product ##################
+# model for the product
 class Product(models.Model):
     UNIT_CHOICES = [
         ('kg', 'Kilogram'),
@@ -52,8 +50,7 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.title} by {self.seller.username}"
 
-##############  model for wish-list ##################
-
+# model for wish-list 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishlisted_by')
@@ -68,8 +65,7 @@ class Wishlist(models.Model):
         status = "Active" if self.is_active else "Removed"
         return f"{self.user.username} → {self.product.title} ({status})"
 
-######################  Save the product messages ###############################
-
+# Save the product messages 
 class ProductChatMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_messages_sent')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_messages_received')

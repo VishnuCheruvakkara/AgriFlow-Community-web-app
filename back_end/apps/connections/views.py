@@ -16,10 +16,8 @@ from notifications.utils import create_and_send_notification
 from apps.common.cloudinary_utils import generate_secure_image_url
 
 User = get_user_model()
-# Create your views here.
 
-########################  Get the all users for set suggesion to connect ##################### 
-
+# Get the all users for set suggesion to connect 
 class GetSuggestedFarmersView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -91,9 +89,8 @@ class GetSuggestedFarmersView(APIView):
         serializer = GetSuggestedFarmersSerializer(paginated_users, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-##################  Pending request section ( Requests You Sent - front end section in the connection page  ) ################### 
-#================== view for send connection request ====================#
-
+# Pending request section ( Requests You Sent - front end section in the connection page  ) 
+# view for send connection request
 class SendConnectionRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -167,8 +164,7 @@ class SendConnectionRequestView(APIView):
             return Response({"error": "Receiver not found."}, status=status.HTTP_404_NOT_FOUND)
 
         
-#==================== Get users in the Request you send section View  =========================#
-
+# Get users in the Request you send section View 
 class GetSentConnectionRequestsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -178,8 +174,7 @@ class GetSentConnectionRequestsView(APIView):
         serializer = SentConnectionRequestSerializer(sent_requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-#===================== Cancell connection request View ============================#
-
+# Cancell connection request View
 class CancelConnectionRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -196,9 +191,8 @@ class CancelConnectionRequestView(APIView):
         connection.save()
         return Response({'detail': 'Request cancelled successfully.'}, status=status.HTTP_200_OK)
     
-##################  Pending request section ( Received Connection Requests - front end section in the connection page  ) ################### 
-
-#================ Get recieved connection requests view =====================# 
+# Pending request section ( Received Connection Requests - front end section in the connection page  ) 
+# Get recieved connection requests view
 class ReceivedConnectionRequestsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -208,7 +202,7 @@ class ReceivedConnectionRequestsView(APIView):
         serializer = ReceivedConnectionRequestsSerializer(connections, many=True)
         return Response(serializer.data)
  
-#=================  accept the connection request View ============================# 
+# accept the connection request View 
 
 class AcceptConnectionRequestAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -239,8 +233,7 @@ class AcceptConnectionRequestAPIView(APIView):
 
         return Response({"detail": "Connection request accepted."}, status=status.HTTP_200_OK)
     
-#======================= reject connection request View ======================#
-
+# reject connection request View 
 class RejectConnectionRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -259,10 +252,8 @@ class RejectConnectionRequestView(APIView):
         return Response({"detail": "Connection request rejected successfully."}, status=status.HTTP_200_OK)
 
 
-############################### My Connection section ###########################################
-
-#============================ get all my connection serialzier ===========================# 
-
+# My Connection section
+# get all my connection serialzier 
 class GetMyConnectionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -308,8 +299,7 @@ class GetMyConnectionView(APIView):
 
 
 
-##################################### Block user View ############################
-
+# Block user View 
 class BlockUserView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -337,8 +327,7 @@ class BlockUserView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-################################  Get Blocked users View #############################
-
+# Get Blocked users View 
 class GetBlockedUsersView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -359,8 +348,7 @@ class GetBlockedUsersView(APIView):
 
         return paginator.get_paginated_response(serializer.data)
     
-################################ Unblock user View #############################
-
+# Unblock user View
 class UnblockUserView(APIView):
     permission_classes = [IsAuthenticated]
 

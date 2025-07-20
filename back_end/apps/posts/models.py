@@ -1,9 +1,7 @@
 from django.db import models
 from users.models import CustomUser
 
-#################### Post saving mode ####################
-
-
+# Post saving mode 
 class Post(models.Model):
     author = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name='posts')
@@ -23,9 +21,7 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.author} - {self.content or 'Untitled'}"
 
-################### Comment model ########################
-
-
+# Comment model 
 class Comment(models.Model):
     user = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name='comments')
@@ -38,8 +34,7 @@ class Comment(models.Model):
         return f"{self.user} commented on post {self.post.id}"
 
 
-################## Like tracking model ######################
-
+# Like tracking model 
 class Like(models.Model):
     user = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name='likes')

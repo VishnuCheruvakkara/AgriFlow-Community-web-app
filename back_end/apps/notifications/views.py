@@ -8,8 +8,8 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync 
 from django.db.models import Q
 
-############################ Notification View for connection set up ################################
-#========================== get connection accepted notifications =================================#
+# Notification View for connection set up 
+# get connection accepted notifications 
 class ConnectionAcceptedNotificationView(APIView):
     permission_classes=[IsAuthenticated]
     
@@ -23,7 +23,7 @@ class ConnectionAcceptedNotificationView(APIView):
         serializer = NotificationSerializer(notifications,many=True)
         return Response(serializer.data)
     
-#======================= clear connection accepted notifications ======================#
+# clear connection accepted notifications 
 class MarkNotificationReadView(APIView):
     def patch(self, request, pk):
         try:
@@ -34,8 +34,7 @@ class MarkNotificationReadView(APIView):
         except Notification.DoesNotExist:
             return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
     
-############################ Get messages for private user-to-user meessages  ####################3
-
+# Get messages for private user-to-user meessages
 class PrivateMessageNotificationView(APIView):
     permission_classes= [IsAuthenticated]
 
@@ -48,10 +47,8 @@ class PrivateMessageNotificationView(APIView):
         serializer = GetPrivateMessageSerializer(private_msgs,many=True)
 
         return Response(serializer.data)
-    
 
-############################ Mark notifications as read ##############################
-
+# Mark notifications as read 
 class MarkNotificationAsReadView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -64,8 +61,7 @@ class MarkNotificationAsReadView(APIView):
         except Notification.DoesNotExist:
             return Response({"success": False, "message": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
         
-###############################  Get all the notifications ##############################
-
+# Get all the notifications 
 class GeneralNotificationListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -78,8 +74,7 @@ class GeneralNotificationListView(APIView):
         serializer = GeneralNotificationSerializer(general_notifications, many=True)
         return Response(serializer.data)
     
-#########################  Soft delete the notifications ##################################
-
+# Soft delete the notifications
 class SoftDeleteNotificationView(APIView):
     permission_classes = [IsAuthenticated]
 

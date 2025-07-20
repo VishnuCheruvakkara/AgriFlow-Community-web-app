@@ -10,9 +10,7 @@ from apps.notifications.utils import create_and_send_notification
 
 User = get_user_model()
 
-##############  Get community in the event creation section (only get the community where user is admin ) #################
-
-
+# Get community in the event creation section (only get the community where user is admin ) 
 class CommunitySerializer(serializers.ModelSerializer):
     logo = serializers.SerializerMethodField()
     members_count = serializers.SerializerMethodField()
@@ -27,9 +25,7 @@ class CommunitySerializer(serializers.ModelSerializer):
     def get_members_count(self, obj):
         return obj.memberships.filter(status='approved').count()
 
-#################  Create Community Event Serizlier ####################
-
-
+# Create Community Event Serizlier
 class CommunityEventSerializer(serializers.ModelSerializer):
     # Handle nested location input as a dict (this is coming from React form)
     location = serializers.JSONField(
@@ -73,7 +69,6 @@ class CommunityEventSerializer(serializers.ModelSerializer):
             validated_data['event_location'] = location
         else:
             validated_data['event_location'] = None
-            # Optional: clear address for online events
             validated_data['address'] = None
 
         # Set the user
@@ -84,10 +79,8 @@ class CommunityEventSerializer(serializers.ModelSerializer):
         return CommunityEvent.objects.create(**validated_data)
 
 
-############################### Get all community events int the event section  #################
-############################### Events Created by the logged in user serializer  ######################
-
-
+# Get all community events int the event section 
+# Events Created by the logged in user serializer 
 class CommunityEventCombinedSerializer(serializers.ModelSerializer):
     community_name = serializers.CharField(
         source='community.name', read_only=True)
@@ -130,13 +123,9 @@ class CommunityEventCombinedSerializer(serializers.ModelSerializer):
             url = generate_secure_image_url(banner_id)
             return url
         except Exception as e:
-            print(
-                f"Error generating banner URL for event ID {obj.id}: {str(e)}")
             return None
 
-##############################  Edit event / Update event  ######################
-
-
+# Edit event / Update event 
 class CommunityEventEditSerializer(serializers.ModelSerializer):
     banner = serializers.FileField(required=False, write_only=True)
 
@@ -184,9 +173,7 @@ class CommunityEventEditSerializer(serializers.ModelSerializer):
             instance.save()
         return instance
 
-################### Join to a community event #################
-
-
+# Join to a community event
 class EventParticipationSerializer(serializers.ModelSerializer):
     event_id = serializers.IntegerField(write_only=True)
 
@@ -224,7 +211,6 @@ class EventParticipationSerializer(serializers.ModelSerializer):
             if event.participations.count() >= event.max_participants:
                 event.is_full = True
                 event.save()
-
       
         # Create a real time notification to the event creator/admin
         create_and_send_notification(
@@ -238,9 +224,7 @@ class EventParticipationSerializer(serializers.ModelSerializer):
 
         return participation
 
-################ Get events and the users who are the participant of that event ##################
-
-
+# Get events and the users who are the participant of that event
 class EventParticipantSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(
         source='address.location_name', read_only=True)
@@ -256,13 +240,9 @@ class EventParticipantSerializer(serializers.ModelSerializer):
         try:
             return generate_secure_image_url(user.profile_picture)
         except Exception as e:
-            print(
-                f"Error generating profile picture URL for user ID {user.id}: {str(e)}")
             return None
 
-########################## Get Events created by the logged in user ##################
-
-
+# Get Events created by the logged in user
 class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
     community_name = serializers.CharField(
         source='community.name', read_only=True)
@@ -299,23 +279,20 @@ class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
         ]
 
     def get_banner_url(self, obj):
-        banner_id = obj.banner  # assuming 'banner' stores Cloudinary public_id
+        banner_id = obj.banner  
         if not banner_id:
-            return None  # or return a default fallback URL
+            return None  
         try:
             url = generate_secure_image_url(banner_id)
             return url
         except Exception as e:
-            print(
-                f"Error generating banner URL for event ID {obj.id}: {str(e)}")
             return None
 
     def get_participants(self, obj):
         participations = obj.participations.select_related('user').all()
         return EventParticipantSerializer([p.user for p in participations], many=True).data
 
-############## Get the enrolled event history for a user ##########################
-
+# Get the enrolled event history for a user 
 class EventEnrollmentHistorySerializer(serializers.ModelSerializer):
     event_id = serializers.IntegerField(source="event.id")
     title = serializers.CharField(source="event.title")
@@ -356,7 +333,6 @@ class EventEnrollmentHistorySerializer(serializers.ModelSerializer):
         try:
             return generate_secure_image_url(banner_id)
         except Exception as e:
-            print(f"Error generating banner URL for event ID {obj.event.id}: {str(e)}")
             return None
 
     def get_location_name(self, obj):
@@ -366,14 +342,11 @@ class EventEnrollmentHistorySerializer(serializers.ModelSerializer):
         return getattr(obj.event.event_location, 'country', None)
 
 
-#########################  Admin side Event handling #################################
-
-#======================= Get all events in the admin page =============================# 
-
+# Admin side Event handling
+# Get all events in the admin page
 class CommunityEventAdminSideListSerializer(serializers.ModelSerializer):
     location_name = serializers.SerializerMethodField()
     participants_count = serializers.SerializerMethodField()
-    # Banner URL instead of raw string
     banner_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -393,7 +366,6 @@ class CommunityEventAdminSideListSerializer(serializers.ModelSerializer):
         ]
 
     def get_location_name(self, obj):
-        # Prefer event_location name if exists, fallback to address, else '-'
         if obj.event_location:
             return obj.event_location.location_name or "-"
         if obj.address:
@@ -410,11 +382,9 @@ class CommunityEventAdminSideListSerializer(serializers.ModelSerializer):
         try:
             return generate_secure_image_url(banner_id)
         except Exception as e:
-            print(f"Error generating banner URL for event ID {obj.event.id}: {str(e)}")
             return None
 
-#========================== Get the event data in the admin side =======================# 
-
+# Get the event data in the admin side 
 class EventLocationAdminSideSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventLocation
@@ -426,8 +396,6 @@ class EventLocationAdminSideSerializer(serializers.ModelSerializer):
             "location_name",
             "country",
         ]
-
-
 
 class CommunityAdminSideSerializer(serializers.ModelSerializer):
     community_logo_url = serializers.SerializerMethodField()
@@ -464,8 +432,7 @@ class CreatorAdminSideSerializer(serializers.ModelSerializer):
         if not obj.profile_picture:
             return None
         return generate_secure_image_url(obj.profile_picture)
-
-
+    
 class EventParticipationAdminSideSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source="user.id")
     username = serializers.CharField(source="user.username")
@@ -492,7 +459,6 @@ class EventParticipationAdminSideSerializer(serializers.ModelSerializer):
         if not obj.user.profile_picture:
             return None
         return generate_secure_image_url(obj.user.profile_picture)
-
 
 class CommunityEventDetailAdminSideSerializer(serializers.ModelSerializer):
     event_location = EventLocationAdminSideSerializer()

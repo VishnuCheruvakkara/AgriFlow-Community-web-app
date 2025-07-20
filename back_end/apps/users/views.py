@@ -1,68 +1,79 @@
-
-from apps.common.cloudinary_utils import upload_image_and_get_url, upload_image_to_cloudinary
-from .serializers import AadharResubmissionMessageSerializer
-from users.serializers import UserStatusSerializer
-from rest_framework import generics, filters
-from django.db.models import Q
-from rest_framework.pagination import PageNumberPagination
-from users.serializers import GetAllUsersInAdminSideSerializer
-from rest_framework.generics import RetrieveAPIView
-from .serializers import UserDashboardSerializer
-from users.serializers import ProfileUpdateSerializer
-from users.models import Address
-from django.contrib.auth import get_user_model
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework import permissions
-from django.core.cache import cache
+# Django core
 from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
-# import from rest_frameworks library
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-# import file from users folder
-from .serializers import AadhaarResubmissionSerializer, AadhaarVerificationSerializer, AdminSideUserDetailPageSerializer, LoginSerializer, RegisterSerializer, VerifyOTPSerializer, AdminLoginSerializer,PrivateMessageSerializer,UserProfileUpdateSerializer
-from .utils import generate_otp_and_send_email
-from .services import generate_tokens
-########## google authentication ############
-from google.auth.transport import requests as google_requests
-from google.oauth2 import id_token
-######### for refresh token view ##############
-from rest_framework.permissions import AllowAny
-######### for Forget password section #############
-from .serializers import ForgotPasswordSerialzier, ForgotPasswordVerifyOTPSerializer, ForgotPasswordSetSerializer,UserProfileSerializer
 from django.contrib.auth.hashers import make_password
-from django.utils.timezone import now
 from django.contrib.sessions.models import Session
-############ for User profile update ##################
-#============ while change user status by admin handle changes in other models ========================# 
-from events.models import CommunityEvent
-from posts.models import Post
-from products.models import Product
-from community.models import Community
-from connections.models import Connection
+from django.db.models import Count, Q
+from django.db.models.functions import TruncYear, TruncMonth, TruncWeek, TruncDay
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.utils.timezone import now
+from django.core.cache import cache
 
-# ============ for user location updated =============#
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-import requests
+# DRF imports
+from rest_framework import generics, filters, permissions, status
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
-from users.models import PrivateMessage
-
+# JWT
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
-from users.tasks import send_otp_email_task 
+# App utilities
+from apps.common.cloudinary_utils import generate_secure_image_url, upload_image_and_get_url, upload_image_to_cloudinary
+from apps.common.pagination import CustomUserPagination
 
-# from back_end.apps.users import serializers
+# Serializers
+from .serializers import (
+    AadharResubmissionMessageSerializer,
+    AadhaarResubmissionSerializer,
+    AadhaarVerificationSerializer,
+    AdminSideUserDetailPageSerializer,
+    ForgotPasswordSerialzier,
+    ForgotPasswordVerifyOTPSerializer,
+    ForgotPasswordSetSerializer,
+    LoginSerializer,
+    PrivateMessageSerializer,
+    RegisterSerializer,
+    UserDashboardSerializer,
+    UserProfileSerializer,
+    UserProfileUpdateSerializer,
+    VerifyOTPSerializer,
+    AdminLoginSerializer,
+)
+from users.serializers import (
+    GetAllUsersInAdminSideSerializer,
+    ProfileUpdateSerializer,
+    UserStatusSerializer,
+)
 
-# ========== for profile update =====================#
+# Models
+from users.models import Address, PrivateMessage
+from posts.models import Post, Like, Comment
+from products.models import Product, Wishlist, ProductChatMessage
+from community.models import Community, CommunityMembership, CommunityMessage
+from events.models import CommunityEvent
+from connections.models import Connection
 
+# Services & Tasks
+from .utils import generate_otp_and_send_email
+from .services import generate_tokens
+from users.tasks import send_otp_email_task
+
+# Google OAuth
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
+
+# Standard library
+import requests
+
+# User model
 User = get_user_model()
 
-################################## User Login  ##################################
-
-
+# User Login
 class LoginView(APIView):
     """JWT based login"""
 
@@ -132,8 +143,7 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-##################################  User Registration   ###################################
-
+# User Registration
 class RegisterView(APIView):
     """User Registration API with OTP Generation"""
     permission_classes = [AllowAny]
@@ -180,9 +190,7 @@ class RegisterView(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#####################################  Otp verification  #########################
-
-
+# Otp verification
 class VerifyOTPView(APIView):
     """OTP Verification API"""
 
@@ -244,9 +252,7 @@ class VerifyOTPView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-####################### Logout ##########################
-
-
+# Logout
 class LogoutView(APIView):
     """Logout API to remove refresh token and clear cookies"""
     permission_classes = [AllowAny]  # Allow all users to call logout
@@ -275,10 +281,7 @@ class LogoutView(APIView):
         except Exception:
             return Response({"message": "Logout failed"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-###################  Google authentication ####################
-
-
+# Google authentication 
 class GoogleAuthCallbackView(APIView):
     """Handles Google OAuth callback, verifies the token, and returns JWT access/refresh tokens."""
 
@@ -324,14 +327,11 @@ class GoogleAuthCallbackView(APIView):
             # Generate JWT tokens
             refresh_token, access_token = generate_tokens(user)
           
-
             try:
                 decoded_access = AccessToken(access_token)
                 decoded_refresh = RefreshToken(refresh_token)
-                print("Access Token:", decoded_access.payload)
-                print("Refresh Token:", decoded_refresh.payload)
             except Exception as e:
-                print("Invalid Token:", str(e))
+                return None
 
             # Prepare response
             response = Response(
@@ -360,9 +360,7 @@ class GoogleAuthCallbackView(APIView):
                 max_age=int(
                     settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
             )
-            print("Refresh Token Set:", refresh_token)
             refresh_token = request.COOKIES.get("refresh_token")
-            print("refreh____token  ::", refresh_token)
 
             return response
 
@@ -372,12 +370,11 @@ class GoogleAuthCallbackView(APIView):
             return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-############################ Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)  ###########################
-
-# ========================== Token creation for users only =======================================#
+# Token creation | working with AuthenticatedAxiosInstance (Axios interceptor)
+# Token creation for users only 
 class RefreshTokenView(APIView):
 
-    permission_classes = [AllowAny]  # required
+    permission_classes = [AllowAny] 
 
     def post(self, request):
 
@@ -409,24 +406,18 @@ class RefreshTokenView(APIView):
             )
 
 
-# ==============================   Token creation for Admin   =====================================#
+# Token creation for Admin 
 class AdminRefreshTokenView(APIView):
 
     # Allow unauthenticated requests to refresh
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        print("\n [DEBUG] Admin RefreshTokenView Called")
-        print(" [DEBUG] Request Headers:", request.headers)
-        print(" [DEBUG] Request Cookies:", request.COOKIES)
-
         # Admin refresh token from cookies
         admin_refresh_token = request.COOKIES.get('admin_refresh_token')
 
-        print("[DEBUG] Extracted Admin Refresh Token:", admin_refresh_token)
-
         if not admin_refresh_token:
-            print("[ERROR] Admin refresh token not found in cookies!")
+            
             return Response(
                 {'message': 'Admin refresh token not found!'},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -438,24 +429,18 @@ class AdminRefreshTokenView(APIView):
             # Generate new access token
             access_token = str(refresh.access_token)
 
-            print("[SUCCESS] New Admin Access Token Generated:", access_token)
-
             return Response(
                 {'access': access_token},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            print(
-                f" [ERROR] Invalid or expired admin refresh token! Exception: {str(e)}")
             return Response(
                 {'message': 'Invalid or expired admin refresh token!'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-
-##################################################  Forgot password section #####################################
-
-# =============================================== Forgot password email request view ============================
+# Forgot password section
+# Forgot password email request view
 class ForgotPasswordView(APIView):
 
     permission_classes = [AllowAny]
@@ -471,8 +456,7 @@ class ForgotPasswordView(APIView):
             return Response({"message": "OTP sent to you email"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ============================================= Forgot password OTP Verifcation View =====================================
-
+# Forgot password OTP Verifcation View 
 
 class ForgotPasswordOTPVerifyView(APIView):
 
@@ -484,8 +468,7 @@ class ForgotPasswordOTPVerifyView(APIView):
             return Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-# ===========================================  Set new password after OTP verifiction View ====================================
-
+# Set new password after OTP verifiction View
 
 class ForgotPasswordSetNewView(APIView):
     """API for resetting password and blacklisting old refresh tokens"""
@@ -535,9 +518,7 @@ class ForgotPasswordSetNewView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-###################################  Resend OTP set-up ##############################
-
+# Resend OTP set-up 
 class ResendOTPView(APIView):
     """Handles OTP resending for user authentication"""
     permission_classes = [AllowAny]
@@ -554,14 +535,7 @@ class ResendOTPView(APIView):
 
         return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
 
-
-################################################################
-"""" Admin side set up below..."""
-################################################################
-
-# Admin Login View for authentication  ###########################3
-
-
+# Admin Login View for authentication 
 class AdminLoginView(APIView):
     """JWT-based Admin Login"""
     permission_classes = [AllowAny]
@@ -605,9 +579,7 @@ class AdminLoginView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ====================  Admin logout view ======================
-
-
+# Admin logout view 
 class AdminLogoutView(APIView):
     """Admin Logout API to remove refresh token and clear cookies"""
     permission_classes = [AllowAny]  # Allow logout without authentication
@@ -632,11 +604,8 @@ class AdminLogoutView(APIView):
         except Exception:
             return Response({"message": "Admin logout failed"}, status=status.HTTP_400_BAD_REQUEST)
 
-#########################  User profile creation section by taking all the relevent data. ######################################
-
-# =============================  Location IQ view for take user location with logitude abnd latitude ================================#
-
-
+# User profile creation section by taking all the relevent data.
+# Location IQ view for take user location with logitude abnd latitude
 class LocationAutocompleteView(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -671,10 +640,7 @@ class LocationAutocompleteView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-# ==========================  User proflile update view  ===========================#
-
-
+# User proflile update view
 class ProfileUpdateView(APIView):
     """API endpoint for updating user profile using POST"""
     permission_classes = [
@@ -687,18 +653,15 @@ class ProfileUpdateView(APIView):
         user = request.user
         serializer = ProfileUpdateSerializer(
             user, data=request.data, partial=True)
-        print("Arived data:", request.data)
+      
         if serializer.is_valid():
-            print("Validated Data:", serializer.validated_data)
+        
             serializer.save()
             return Response({"message": "Profile updated successfully", "profile_completed": user.profile_completed}, status=200)
 
         return Response(serializer.errors, status=400)
 
-
-########################## Get user data view When user login ##########################
-
-
+# Get user data view When user login
 class GetUserDataView(RetrieveAPIView):
     """Fetch user data for dashboard."""
 
@@ -708,21 +671,8 @@ class GetUserDataView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         """Return authenticated user's details."""
         user = request.user  # Get logged-in user
-        print("Logged In user :", user)
         serializer = self.get_serializer(user)  # Serialize data
         return Response(serializer.data)  # Send response
-
-
-##################  Get all users data in the admin side #######################
-# =======================Pagination set up with get user data =======================#
-# Pagination part
-
-class CustomUserPagination(PageNumberPagination):
-    page_size = 5  # Deafault page size
-    page_size_query_param = 'page_size'
-    max_page_size = 50  # Limit max page size to avoid performance issues
-# Data fetching part
-
 
 class GetAllUsersInAdminSideView(generics.ListAPIView):
     """
@@ -744,7 +694,6 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
         if filter_type == 'profile_not_updated':
             queryset = queryset.filter(profile_completed=False)
         elif filter_type == 'aadhaar_not_verified':
-            print("This called")
             queryset = queryset.filter(
                 is_aadhar_verified=False, profile_completed=True)
         elif filter_type == "active":
@@ -761,9 +710,7 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
 
         return queryset
 
-# ================== View for handle status of the user shwowed in the admin side user management ===============================#
-
-
+# View for handle status of the user shwowed in the admin side user management 
 class UserStatusUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserStatusSerializer
@@ -797,9 +744,7 @@ class UserStatusUpdateView(generics.UpdateAPIView):
 
         return response
 
-# ======================= Admin side user detail page view set up ======================#
-
-
+# Admin side user detail page view set up
 class AdminSideUserDetailView(generics.RetrieveAPIView):
     """Fetch complete user details by ID (Admin Access Only)."""
     queryset = User.objects.filter(is_superuser=False)
@@ -807,9 +752,7 @@ class AdminSideUserDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     lookup_field = 'id'
 
-# ==========================  Change Aadhar Verification status in the usertable View ==============================#
-
-
+# Change Aadhar Verification status in the usertable View
 class VerifyAadhaarView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -829,9 +772,7 @@ class VerifyAadhaarView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ============================= Add Resubmission message according the user to the aadhar card in Admin side ====================================#
-
-
+# Add Resubmission message according the user to the aadhar card in Admin side
 class UpdateAadharResubmissionMessageView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
@@ -846,9 +787,7 @@ class UpdateAadharResubmissionMessageView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ==========================  Aadhar image resubmission view for user resubmission ==========================#
-
-
+# Aadhar image resubmission view for user resubmission 
 class AadhaarResubmissionUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -863,8 +802,7 @@ class AadhaarResubmissionUpdateView(APIView):
             return Response({"message": "Aadhaar resubmission image updated"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-##################### Get the user details on the profile page of user and other user can see each other profiles ########################
-
+# Get the user details on the profile page of user and other user can see each other profiles
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -876,9 +814,7 @@ class UserProfileView(APIView):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
         
-
-###################################  Get all the saved messages from the table of private chat message #######################
-
+# Get all the saved messages from the table of private chat message
 class PrivateChatMessagesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -892,10 +828,8 @@ class PrivateChatMessagesView(APIView):
         serializers = PrivateMessageSerializer(messages,many=True) 
         return Response(serializers.data,status=status.HTTP_200_OK)
     
-###############################  User Profile Edit section ##############################
-
-#====================== user side profile picture edit view =====================================# 
-
+# User Profile Edit section
+# user side profile picture edit view
 class UpdateUserProfilePictureView(APIView):
     permission_classes = [IsAuthenticated] 
 
@@ -914,8 +848,7 @@ class UpdateUserProfilePictureView(APIView):
 
         return Response({"message":"Prfoile picture updated successfully."},status=status.HTTP_200_OK)
     
-#=============================== user side edit banner image ==============================# 
-
+# user side edit banner image
 class UpdateUserBannerImageView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -935,8 +868,7 @@ class UpdateUserBannerImageView(APIView):
 
         return Response({"message": "Banner image updated successfully."}, status=status.HTTP_200_OK)
 
-#===================================== Update user profile datas ========================================# 
-
+# Update user profile datas
 class UserProfileUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -945,9 +877,227 @@ class UserProfileUpdateView(APIView):
         serializer = UserProfileUpdateSerializer(
             user,
             data=request.data,
-            partial=True  # Allow partial updates
+            partial=True
         )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Admin side get the data in the dash board 
+class GetDashBoardDataView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+
+        # Get the card datas
+        total_users = User.objects.count()
+        total_products = Product.objects.count()
+        total_communities = Community.objects.count()
+        total_events = CommunityEvent.objects.count()
+        total_posts = Post.objects.count()
+
+        # Get data for the user details chart
+        profile_completed = User.objects.filter(profile_completed=True).count()
+        aadhaar_verified = User.objects.filter(is_aadhar_verified=True).count()
+        email_verified = User.objects.filter(is_verified=True).count()
+        active_users = User.objects.filter(is_active=True).count()
+
+        # Get the data for the poduct metric
+        available_products = Product.objects.filter(
+            is_available=True, is_deleted=False).count()
+        wishlist_items = Wishlist.objects.filter(is_active=True).count()
+        chat_messages = ProductChatMessage.objects.count()
+        # Units counts
+        units_piece = Product.objects.filter(
+            unit="piece", is_deleted=False).count()
+        units_kg = Product.objects.filter(unit="kg", is_deleted=False).count()
+        units_litre = Product.objects.filter(
+            unit="litre", is_deleted=False).count()
+
+        # Get the community details to shwo them in the chart
+        group_by = request.query_params.get("group_by", "month").lower()
+
+        # Determine truncate function
+        if group_by == "year":
+            trunc_func = TruncYear
+        elif group_by == "week":
+            trunc_func = TruncWeek
+        elif group_by == "day":
+            trunc_func = TruncDay
+        else:
+            trunc_func = TruncMonth
+
+        # Time window (last 6 months for month/week/day, last 3 years if yearly)
+        today = timezone.now().date()
+        if group_by == "year":
+            since = today - timezone.timedelta(days=365 * 3)
+        elif group_by == "day":
+            since = today - timezone.timedelta(days=29)  # Last 30 days including today
+        else:
+            since = today - timezone.timedelta(days=180)
+            
+        # Commuinities created
+        community_created = (Community.objects.filter(created_at__gte=since).annotate(
+            period=trunc_func("created_at")).values("period").annotate(count=Count("id")).order_by("period"))
+        # Memberships joined
+        membership_joined = (CommunityMembership.objects.filter(joined_at__gte=since, status="approved").annotate(
+            period=trunc_func("joined_at")).values("period").annotate(count=Count("id")).order_by("period"))
+        # Messages_send
+        messages_send = (CommunityMessage.objects.filter(timestamp__gte=since).annotate(
+            period=trunc_func("timestamp")).values("period").annotate(count=Count("id")).order_by("period"))
+
+        # Helper to format output
+        def format_data(qs):
+            formatted = {}
+            for entry in qs:
+                period = entry["period"]
+                if group_by == "year":
+                    label = period.strftime("%Y")
+                elif group_by == "month":
+                    label = period.strftime("%B %Y")   # e.g., January 2024
+                elif group_by == "week":
+                    week_in_month = ((period.day - 1) // 7) + 1
+                    month = period.strftime("%B")
+                    year = period.strftime("%Y")
+                    label = f"Week {week_in_month} of {month} {year}"
+                else:
+                    label = period.strftime("%d/%m/%Y")
+                formatted[label] = entry["count"]
+            return formatted
+
+        # Get top engaged communities
+        top_engaged_communities_qs = (
+            Community.objects.annotate(
+                message_count=Count("messages")
+            )
+            .filter(message_count__gt=0)
+            .order_by("-message_count")[:5]
+        )
+
+        # Convert queryset to list of dicts with secure URLs
+        top_engaged_communities = [
+            {
+                "id": c.id,
+                "name": c.name,
+                "community_logo": generate_secure_image_url(c.community_logo),
+                "message_count": c.message_count,
+            }
+            for c in top_engaged_communities_qs
+        ]
+
+        # Get top participant communities
+        top_participant_communities_qs = (
+            Community.objects.annotate(
+                participant_count=Count(
+                    "memberships",
+                    filter=Q(memberships__status="approved")
+                )
+            )
+            .filter(participant_count__gt=0)
+            .order_by("-participant_count")[:5]
+        )
+
+        # Convert queryset to list of dicts with secure URLs
+        top_participant_communities = [
+            {
+                "id": c.id,
+                "name": c.name,
+                "community_logo": generate_secure_image_url(c.community_logo),
+                "participant_count": c.participant_count,
+            }
+            for c in top_participant_communities_qs
+        ]
+
+        # Event type counts (online/offline)
+        event_type_counts = (
+            CommunityEvent.objects
+            .values("event_type")
+            .annotate(count=Count("id"))
+        )
+
+        # Event status counts (upcoming/completed/cancelled)
+        event_status_counts = (
+            CommunityEvent.objects
+            .values("event_status")
+            .annotate(count=Count("id"))
+        )
+
+        # Posts created over time
+        posts_created = (
+            Post.objects
+            .filter(created_at__gte=since)
+            .annotate(period=trunc_func("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .order_by("period")
+        )
+
+        # Comments created over time
+        comments_created = (
+            Comment.objects
+            .filter(created_at__gte=since)
+            .annotate(period=trunc_func("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .order_by("period")
+        )
+
+        # Likes created over time
+        likes_created = (
+            Like.objects
+            .filter(created_at__gte=since)
+            .annotate(period=trunc_func("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+            .order_by("period")
+        )
+
+        # Format post engagement data
+        formatted_posts_created = format_data(posts_created)
+        formatted_comments_created = format_data(comments_created)
+        formatted_likes_created = format_data(likes_created)
+
+        return Response({
+            "cards":{
+                "total_users":total_users,
+                "total_products":total_products,
+                "total_communities":total_communities,
+                "total_events":total_events,
+                "total_posts":total_posts,
+            },
+            "user_details":{
+                "total_users":total_users,
+                "profile_completed":profile_completed,
+                "aadhaar_verified":aadhaar_verified,
+                "email_verified":email_verified,
+                "active_users":active_users,
+            },
+            "product_metrics": {
+                "total_products": total_products,
+                "available_products": available_products,
+                "wishlist_items": wishlist_items,
+                "chat_messages": chat_messages,
+                "units_piece": units_piece,
+                "units_kg": units_kg,
+                "units_litre": units_litre,
+            },
+            "community_graph": {
+                "created": format_data(community_created),
+                "joined": format_data(membership_joined),
+                "messages": format_data(messages_send),
+            },
+            "community_highlights": {
+                "most_engaged": list(top_engaged_communities),
+                "most_participants": list(top_participant_communities),
+            },
+            "event_details": {
+                "event_type": list(event_type_counts),
+                "event_status": list(event_status_counts),
+            },
+            "post_engagement": {
+                "posts": formatted_posts_created,
+                "comments": formatted_comments_created,
+                "likes": formatted_likes_created,
+            },
+        })

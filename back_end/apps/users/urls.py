@@ -1,80 +1,62 @@
 from django.urls import path
-from .views import RegisterView, VerifyOTPView, LogoutView, LoginView, AdminLoginView, AdminLogoutView
-from .views import GoogleAuthCallbackView, RefreshTokenView, ResendOTPView
-from .views import ForgotPasswordView, ForgotPasswordOTPVerifyView, ForgotPasswordSetNewView
-from .views import LocationAutocompleteView, ProfileUpdateView
-from .views import GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView, UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView, UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView, UserProfileView, PrivateChatMessagesView,UpdateUserProfilePictureView,UpdateUserBannerImageView, UserProfileUpdateView
-
+from .views import (
+    RegisterView, VerifyOTPView, LogoutView, LoginView,
+    AdminLoginView, AdminLogoutView, GoogleAuthCallbackView, RefreshTokenView,
+    ResendOTPView, ForgotPasswordView, ForgotPasswordOTPVerifyView,
+    ForgotPasswordSetNewView, LocationAutocompleteView, ProfileUpdateView,
+    GetUserDataView, GetAllUsersInAdminSideView, AdminRefreshTokenView,
+    UserStatusUpdateView, AdminSideUserDetailView, VerifyAadhaarView,
+    UpdateAadharResubmissionMessageView, AadhaarResubmissionUpdateView,
+    UserProfileView, PrivateChatMessagesView, UpdateUserProfilePictureView,
+    UpdateUserBannerImageView, UserProfileUpdateView,GetDashBoardDataView
+)
 
 urlpatterns = [
-    # Authentication urls
+    # User authentication
     path('register/', RegisterView.as_view(), name='register'),
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
-    path('logout/', LogoutView.as_view(), name='logout'),
-    path('login/', LoginView.as_view(), name='login'),
-    # ==============Admin Login ===============
-    path("admin/login/", AdminLoginView.as_view(), name="admin-login"),
-    # resend OTP
     path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'),
-    # =============admin logout ===================
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+
+    # Admin authentication
+    path("admin/login/", AdminLoginView.as_view(), name="admin-login"),
     path('admin/logout/', AdminLogoutView.as_view(), name='admin-logout'),
+    path('admin/token-refresh/', AdminRefreshTokenView.as_view(), name='admin_token_refresh'),
 
-    # forget password urls
+    # Forgot password flow
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot-password'),
-    path('forgot-password-otp-verification/', ForgotPasswordOTPVerifyView.as_view(),
-         name='forgot-password-otp-verification'),
-    path('forgot-password-set-new-password/',
-         ForgotPasswordSetNewView.as_view(), name='forgot-password-set-new'),
-    # Other urls
-    # for google based authentication : Google OAuth Login
+    path('forgot-password-otp-verification/', ForgotPasswordOTPVerifyView.as_view(), name='forgot-password-otp-verification'),
+    path('forgot-password-set-new-password/', ForgotPasswordSetNewView.as_view(), name='forgot-password-set-new'),
+
+    # OAuth and token handling
     path("auth/callback/", GoogleAuthCallbackView.as_view(), name="google_callback"),
-    # for refrsh and access token controlling with axios interceptors.
     path('token/refresh/', RefreshTokenView.as_view(), name='token_refresh'),
-    # for admin refresh token handling
-    path('admin/token-refresh/', AdminRefreshTokenView.as_view(),
-         name='admin_token_refresh'),
 
-    # =============== urls for usersprofile creation ================#
-    path("location-autocomplete/", LocationAutocompleteView.as_view(),
-         name="location_autocomplete"),
+    # Profile management
+    path("location-autocomplete/", LocationAutocompleteView.as_view(), name="location_autocomplete"),
     path('profile-update/', ProfileUpdateView.as_view(), name='profile_update'),
-
-    # ================== get user data =======================#
-    path("get-user-data/", GetUserDataView.as_view(), name="get-user-data"),
-    path('admin/get-all-users-data/',
-         GetAllUsersInAdminSideView.as_view(), name='get-all-users'),
-    # ================== Change user status (active or incative) ===================#
-    path('change-status/<int:pk>/', UserStatusUpdateView.as_view(),
-         name='user-status-update'),
-    # ================== User Deatailpage in admin side to fetch perticular user data ========================#
-    path('admin/get-user/<int:id>/', AdminSideUserDetailView.as_view(),
-         name='admin_get_user_details'),
-    # ============= Verify the user aadhar on admin side =======================#
-    path('verify-aadhaar/<int:user_id>/',
-         VerifyAadhaarView.as_view(), name='verify-aadhaar'),
-    # ==============  addhar resubmission message set up admin side ===============#
-    path('update-aadhar-resubmission-message/<int:user_id>/',
-         UpdateAadharResubmissionMessageView.as_view(), name='update-aadhar-message'),
-    # ===============  addhar resubmission option for uesr =========================#
-    path('aadhaar-resubmission/', AadhaarResubmissionUpdateView.as_view(),
-         name='aadhaar-resubmission'),
-
-    ###################### get the users details in the profile page for each user in users dasboard ##################33
-    path('get-user-profile-data/<int:user_id>/',
-         UserProfileView.as_view(), name='get_user_profile_data'),
-
-    ##################  Get all the saved messages from the table of private chat message ##########
-    path('get-private-chat-messages/<int:receiver_id>/', PrivateChatMessagesView.as_view(), name='get-private-messages'),
-
-    ################## Profile Edit urls ##########################
-
-    #==================== Profile picture edit urls ========================# 
-    path('update-profile-picture/',UpdateUserProfilePictureView.as_view(),name="update-profile-picture"),
-
-    #====================== Edit banner imag ein the suer profile ========================#
+    path("edit-profile-details/", UserProfileUpdateView.as_view(), name="edit-profile"),
+    path('update-profile-picture/', UpdateUserProfilePictureView.as_view(), name="update-profile-picture"),
     path("update-banner-image/", UpdateUserBannerImageView.as_view(), name="update-banner-image"),
 
-    #===================== Edit User profile datas partially ===============================# 
-    path("edit-profile-details/", UserProfileUpdateView.as_view(), name="edit-profile"),
-    
+    # User data
+    path("get-user-data/", GetUserDataView.as_view(), name="get-user-data"),
+    path('admin/get-all-users-data/', GetAllUsersInAdminSideView.as_view(), name='get-all-users'),
+    path('admin/get-user/<int:id>/', AdminSideUserDetailView.as_view(), name='admin_get_user_details'),
+    path('change-status/<int:pk>/', UserStatusUpdateView.as_view(), name='user-status-update'),
+
+    # Aadhaar verification
+    path('verify-aadhaar/<int:user_id>/', VerifyAadhaarView.as_view(), name='verify-aadhaar'),
+    path('update-aadhar-resubmission-message/<int:user_id>/', UpdateAadharResubmissionMessageView.as_view(), name='update-aadhar-message'),
+    path('aadhaar-resubmission/', AadhaarResubmissionUpdateView.as_view(), name='aadhaar-resubmission'),
+
+    # Profile view (public/user dashboard)
+    path('get-user-profile-data/<int:user_id>/', UserProfileView.as_view(), name='get_user_profile_data'),
+
+    # Private chat
+    path('get-private-chat-messages/<int:receiver_id>/', PrivateChatMessagesView.as_view(), name='get-private-messages'),
+
+    # Fetch admin dash-board datas 
+    path('get-dash-board-data/', GetDashBoardDataView.as_view(), name='get-dash-board-data'),
 ]

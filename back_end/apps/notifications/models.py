@@ -1,4 +1,3 @@
-
 from django.db import models
 from users.models import CustomUser
 from community.models import Community
@@ -7,14 +6,12 @@ from posts.models import Post
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
+
         #for community notifications
         ("community_join_request_received","Community Join Request Received"),
         ("community_joined","Community Joined"),
         ("community_request_approved_by_admin","Community Request Approved By Admin"),
-        #Re-usement
         ("community_invite", "Community Invite"),
-
-        #old
         ("community_update", "Community Update"),
         ("message", "Message"),
         ("alert", "Alert"),
@@ -22,7 +19,6 @@ class Notification(models.Model):
         #for connection notifications 
         ("connection_accepted", "Connection Accepted"), 
         ("connection_request","Connection Request"),
-        
         ("custom", "Custom"),
 
         #For message notification 
@@ -42,7 +38,6 @@ class Notification(models.Model):
         #For posts 
         ("post_liked","Post Liked"),
         ("post_commented","Post Commented"),
-
     ]
 
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
@@ -57,8 +52,6 @@ class Notification(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
     post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
     
-    
-
     class Meta:
         unique_together = ('recipient', 'sender', 'community', 'notification_type')
         ordering = ['-created_at']

@@ -2,18 +2,13 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from apps.common.cloudinary_utils import generate_secure_image_url
 from django.core.cache import cache
-# import the redis conifguration in a asynchronous way
 from redis.asyncio import Redis
 from django.conf import settings
-# To save the messages in teh database importing the community model
 from community.models import Community, CommunityMessage,CommunityMembership
 from channels.db import database_sync_to_async
-
 from notifications.utils import create_and_send_notification
 from asgiref.sync import sync_to_async
 from django.db.models import Prefetch
-
-
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -157,7 +152,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             Prefetch('memberships', queryset=CommunityMembership.objects.select_related('user'))
         ).get(id=community_id)
 
-    #Function to send the notifications to community members except sender 
+    # Function to send the notifications to community members except sender 
     async def notify_community_members(self, sender, community_id, message):
         community = await self.get_community_and_members(community_id)
         

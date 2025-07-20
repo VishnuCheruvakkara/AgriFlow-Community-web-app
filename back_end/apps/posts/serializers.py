@@ -7,9 +7,8 @@ from posts.tasks import upload_post_media_task
 from users.models import CustomUser
 from common.cloudinary_utils import generate_secure_image_url
 from notifications.utils import create_and_send_notification
-##################### post creation serializer ####################
 
-
+# post creation serializer
 class PostCreateSerializer(serializers.ModelSerializer):
     media = serializers.FileField(write_only=True, required=False)
 
@@ -32,8 +31,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
         return post
 
-# ============================ Edit/Update post serializer ===========================#
-
+# Edit/Update post serializer 
 class PostUpdateSerializer(serializers.ModelSerializer):
     media = serializers.FileField(write_only=True, required=False)
 
@@ -45,13 +43,13 @@ class PostUpdateSerializer(serializers.ModelSerializer):
         request = self.context['request']
         remove_media = request.data.get('remove_media', '').lower() == 'true'
 
-        # ========== 1. If user wants to remove media ==========
+        # If user wants to remove media
         if remove_media:
             instance.media = None
             instance.image_url = None
             instance.video_url = None
 
-        # ========== 2. If user uploads new media ==========
+        # If user uploads new media 
         new_media = validated_data.get('media', None)
         if new_media:
             content_type = new_media.content_type
@@ -73,14 +71,12 @@ class PostUpdateSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError("Unsupported media type.")
 
-        # ========== 3. Update content ==========
+        # Update content 
         instance.content = validated_data.get('content', instance.content)
         instance.save()
         return instance
 
-#################### Get all posts #############################
-
-
+# Get all posts
 class AuthorSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -106,11 +102,8 @@ class PostSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
 
-##########################  Handle likes ###################################
-
-# ================ Like toggling serialzier ================================#
-
-
+# Handle likes
+# Like toggling serialzier 
 class ToggleLikeSerializer(serializers.Serializer):
     post_id = serializers.IntegerField()
 
@@ -151,18 +144,15 @@ class ToggleLikeSerializer(serializers.Serializer):
             return {"liked": True, "message": "Post liked."}
 
 
-# ========================== Get liked post datas =============================#
-
+# Get liked post datas
 class LikedPostStatusSerializer(serializers.Serializer):
     post_id = serializers.IntegerField()
     liked_by_user = serializers.BooleanField()
     total_likes = serializers.IntegerField()
 
 
-########################## Handle the comments ####################
-
-# ====================== posts/add new comment for a perticular post ========================#
-
+# Handle the comments
+# posts/add new comment for a perticular post
 class CommentCreateSerializer(serializers.Serializer):
     post = serializers.IntegerField()
     content = serializers.CharField(max_length=1000)
@@ -173,9 +163,7 @@ class CommentCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("Post does not exist.")
         return value
 
-# ======================  get all the comments ================================#
-
-
+# get all the comments 
 class CustomUserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -186,7 +174,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.profile_picture)
 
-
 class CommentSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)  # Include user info
 
@@ -195,8 +182,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'post', 'content', 'created_at']
         read_only_fields = ['id', 'user', 'created_at']
 
-######################## Get single post Serializer (User full for the share section thorough the other platforms ) ###########################
-
+# Get single post Serializer (User full for the share section thorough the other platforms ) 
 class AuthorSerializer(serializers.ModelSerializer):
     profile_picture=serializers.SerializerMethodField()
 
@@ -241,10 +227,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
             Like.objects.filter(post=obj, user=user).exists()
         )
 
-############################ Handle post in the admin side ##################################
-
-#======================= get the post in the admin side serializer ==========================#
-
+# Handle post in the admin side 
+# get the post in the admin side serializer 
 class GetAllPostAdminSideSerialzier(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
     like_count = serializers.SerializerMethodField()
@@ -262,8 +246,7 @@ class GetAllPostAdminSideSerialzier(serializers.ModelSerializer):
     def get_comment_count(self,obj):
         return obj.comments.count()
     
-#=========================== get single post details serializers admin side =======================# 
-
+# get single post details serializers admin side 
 class CommentUserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -274,7 +257,6 @@ class CommentUserSerializer(serializers.ModelSerializer):
     def get_profile_picture(self,obj):
         return generate_secure_image_url(obj.profile_picture)
     
-
 class CommentSerializer(serializers.ModelSerializer):
     user = CommentUserSerializer(read_only=True)
 

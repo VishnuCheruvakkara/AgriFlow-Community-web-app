@@ -1,57 +1,39 @@
-
 from os import read
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 from django.contrib.auth import get_user_model
-
 from community.serializers import UserMinimalSerializer
 from rest_framework.response import Response
-# for pagination set up
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
-# create community
 from rest_framework import generics, permissions, status
 from community.serializers import CommunitySerializer, GetMyCommunitySerializer, CommunityInviteSerializer, CommunityInvitationResponseSerializer, GetCommunitySerializer, CommunityMembershipRequestSerializer, CommunityWithRequestsSerializer, CommunityMembershipStatusUpdateSerializer, CommunityDeatilsSerializer, CommunityEditSerializer,CommunityMessageSerializer, SimpleCommunityAdminSerializer,CommunityAdmiSideDetailsSerializer
 from community.serializers import GetMyCommunitySerializer
 from community.models import CommunityMembership,CommunityMessage
-# imports from the custom named app
 from apps.common.pagination import CustomCommunityPagination, CustomUserPagination,CustomAdminCommunityPagination
 from django.utils import timezone
-# import for the admin send request to user section
 from community.serializers import CommunityWithPendingUsersSerializer
 from community.models import Community
 from rest_framework.exceptions import NotFound
 from .serializers import CommunityMembershipSerializer
 from rest_framework.generics import UpdateAPIView
 from django.utils.timezone import now
-# import nodification model
 from notifications.models import Notification
-# import common image getter of cloudinary from common app
 from apps.common.cloudinary_utils import generate_secure_image_url,upload_to_cloudinary  
 from django.shortcuts import get_object_or_404
-# improt exceptions
 from django.core.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser
 from django.core.exceptions import ValidationError
 from apps.notifications.utils import create_and_send_notification
 
-############### get the Usermodel ##################
-
 User = get_user_model()
-
-# Community creation View part ##########################
-
-# ==================== get user data for community creation : To shwo in the modal ==========================#
-
 
 class ShowUsersWhileCreateCommunity(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         current_user = request.user
-        # To get hte search value from the query params
         search_query = request.GET.get("search", "")
-        # get communtiy id for show the members who are not in the selected community
         community_id = request.GET.get("community_id")
 
         users = User.objects.exclude(id=current_user.id).exclude(
@@ -80,26 +62,19 @@ class ShowUsersWhileCreateCommunity(APIView):
         serializer = UserMinimalSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-# ===============================  Create community View =====================================#
-
-
+# Create community View 
 class CreateCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        print("Arived data from front end ::: ", request.data)
         serializer = CommunitySerializer(
             data=request.data, context={'request': request})
-        print("Serializer data ::: ", serializer)
         if serializer.is_valid():
-            print("Valid data ::: ", serializer.validated_data)
             serializer.save()
             return Response({"message": "Community created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# ===============================  Get My community View =================================#
-
+# Get My community View 
 class GetMyCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -124,28 +99,19 @@ class GetMyCommunityView(APIView):
         serializer = GetMyCommunitySerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-
-#################################### (((Community Invitations for You -- in front end))) Pending request section (Community section part)  ########################
-
-######################## part - 1 (Community Invitation Section) ############################
-# ======================  Pending community invites to a specific users View ============================ #
+# Pending community invites to a specific users View 
 class PendingCommunityInvitesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        print(f"User: {user}")
         pending_invites = CommunityMembership.objects.filter(
             user=user, status='pending',community__is_deleted=False)
-        print(f"Pending count: {pending_invites.count()}")
-        for invite in pending_invites:
-            print(f"Invite: {invite.community.name}, Status: {invite.status}")
-
+        
         serializer = CommunityInviteSerializer(pending_invites, many=True)
         return Response(serializer.data) 
 
-# ================== Pending community response from user accept or ignore =============================#
-
+# Pending community response from user accept or ignore 
 class CommunityInvitationResponseView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -188,9 +154,7 @@ class CommunityInvitationResponseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-######################## (((Your Pending Admin Request -- frontend side)))  part - 2 ( Admin Approvals section ) ############################
-# ======================  View for admin can know how man users are not accept the request that send while community creation ============================#
-
+# View for admin can know how man users are not accept the request that send while community creation
 class PendingAdminJoinRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -203,7 +167,6 @@ class PendingAdminJoinRequestView(APIView):
         serializer = CommunityWithPendingUsersSerializer(
             communities, many=True)
         return Response(serializer.data)
-
 
 class CancelAdminJoinRequestView(UpdateAPIView):
     serializer_class = CommunityMembershipSerializer
@@ -242,10 +205,7 @@ class CancelAdminJoinRequestView(UpdateAPIView):
             status=status.HTTP_200_OK
         )
 
-
-######################## ((( Your Requests to Join Communities -- front end side ))) part - 3 ( user sended request section | Outgoing request to other community admin  ) ############################
-# ======================  View for user can know hwo many request done to all other community ============================#
-
+# View for user can know hwo many request done to all other community 
 class OutgoingRequestsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -279,8 +239,7 @@ class OutgoingRequestsView(APIView):
 
         return Response(data)
 
-# =========================  Cancel the request (user can cancell the request to join  a community ) ======================#
-
+# Cancel the request (user can cancell the request to join  a community )
 class CancelJoinRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -292,7 +251,7 @@ class CancelJoinRequestView(APIView):
             CommunityMembership,
             user=user,
             community__id=community_id,
-            status='requested'  # Only cancel if the status is "requested"
+            status='requested'  
         )
 
         # Update the status to "cancelled"
@@ -303,7 +262,7 @@ class CancelJoinRequestView(APIView):
         notifications = Notification.objects.filter(
             community=membership.community,
             recipient=user,
-            notification_type='request'  # Corrected field name
+            notification_type='request'  
         )
 
         for notification in notifications:
@@ -312,10 +271,8 @@ class CancelJoinRequestView(APIView):
             notification.save()
 
         return Response({"detail": "Join request cancelled and notification updated."}, status=status.HTTP_200_OK)
-
-########################### ((( Member Requests for Your Communities -- front end side  ))) part-4  user requested for admin aproval to join a community ######################
-# ======================= get the data to shwo the users who requested to join the community (admin can aprove or reject) ==========================#
-
+    
+# get the data to shwo the users who requested to join the community (admin can aprove or reject) 
 class IncomingMembershipRequestsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -333,8 +290,7 @@ class IncomingMembershipRequestsView(APIView):
         serializer = CommunityWithRequestsSerializer(communities, many=True)
         return Response(serializer.data)
 
-# ==================== accept or reject the request  | requested by the user to admin =========================#
-
+# accept or reject the request  | requested by the user to admin 
 class UpdateMembershipRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -382,9 +338,7 @@ class UpdateMembershipRequestView(APIView):
             return Response({'detail': f'Membership {serializer.data["status"]} successfully.'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-##################### Get all communities in the user side (Discover Community section ) #####################
-
+# Get all communities in the user side (Discover Community section ) 
 class GetCommunityListAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -415,8 +369,7 @@ class GetCommunityListAPIView(APIView):
             return Response({'error': 'Something went wrong', 'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#########################  request to join a community ######################
-
+# request to join a community
 class JoinCommunityView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -479,9 +432,7 @@ class JoinCommunityView(APIView):
         serializer = CommunityMembershipRequestSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK if existing_membership else status.HTTP_201_CREATED)
 
-#################### Get community details and users in the communitydetails section  ####################
-
-
+# Get community details and users in the communitydetails section  
 class GetCommunityDetailsWithUsers(APIView):
     """
     Custom API View to retrieve a community with its members.
@@ -495,22 +446,17 @@ class GetCommunityDetailsWithUsers(APIView):
         except Community.DoesNotExist:
             return Response({"detail": "Community not found ?"}, status=status.HTTP_404_NOT_FOUND)
 
-# Add new memebers to the communitiy by admin view  #######################3
-
-
+# Add new memebers to the communitiy by admin view  
 class AddMembersToCommunity(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print("Request data:", request.data)
-        # Get the community_id and member_ids from the request body
         community_id = request.data.get('community_id')
         member_ids = request.data.get('member_ids', [])
 
         if not community_id or not member_ids:
             return Response({"error": "Community ID and member IDs are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get the community using the community_id from the body
         community = get_object_or_404(Community, id=community_id)
 
         # Check if the current user is an admin of the community
@@ -558,9 +504,7 @@ class AddMembersToCommunity(APIView):
         )
 
 
-############################ Admin can remove the user from the community by making status from membership model into blocked  ##############################
-
-
+# Admin can remove the user from the community by making status from membership model into blocked  
 class RemoveMemberAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -608,9 +552,7 @@ class RemoveMemberAPIView(APIView):
         except CommunityMembership.DoesNotExist:
             return Response({"detail": "Membership not found."}, status=status.HTTP_404_NOT_FOUND)
 
-############################  Admin of a comunity can make other member as admin ########################
-
-
+# Admin of a comunity can make other member as admin 
 class MakeAdminAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -666,9 +608,7 @@ class MakeAdminAPIView(APIView):
         )
         return Response({'detail': 'User promoted to admin successfully.'}, status=status.HTTP_200_OK)
 
-############################ Admin can revoke the other user amdin previlage ####################
-
-
+# Admin can revoke the other user amdin previlage 
 class RevokeAdminAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -703,7 +643,6 @@ class RevokeAdminAPIView(APIView):
         if not target_membership.is_admin:
             return Response({'detail': 'User is not an admin.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        
         # Prevent revoking privileges from the community creator
         try:
             community = Community.objects.get(id=community_id)
@@ -733,9 +672,7 @@ class RevokeAdminAPIView(APIView):
         return Response({'detail': 'Admin privileges revoked successfully.'}, status=status.HTTP_200_OK)
 
 
-##############################  Admin can delete all the community and Notify all the other users  ########################
-# This is a soft delete : becuasa dont loss the actuall communtiy data from the data base ...
-
+# Admin can delete all the community and Notify all the other users  
 class SoftDeleteCommunityAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -789,11 +726,8 @@ class SoftDeleteCommunityAPIView(APIView):
 
         return Response({'detail': 'Community soft-deleted and members notified.'}, status=status.HTTP_200_OK)
 
-#################################  User and no-creator admin  can leave from a community (soft leaving mechanism) ##############################
-
-
+# User and non-creator admin  can leave from a community (soft leaving mechanism) 
 class UserLeaveCommunityView(APIView):
-    # Only authenticated users can perform this action
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
@@ -826,9 +760,7 @@ class UserLeaveCommunityView(APIView):
         return Response({'message': 'You have left the community successfully.'}, status=status.HTTP_200_OK)
 
 
-################### creator of a community can edit the name,description and community image View section ##################
-
-
+# creator of a community can edit the name,description and community image View section
 class EditCommunityDetailsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -850,12 +782,10 @@ class EditCommunityDetailsView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Combine data and files
         data = request.data.copy()
         if 'image' in request.FILES:
             data['community_logo'] = request.FILES['image']
 
-        # Pass request data to the serializer
         serializer = CommunityEditSerializer(community, data=data, partial=True)
         
         if serializer.is_valid():
@@ -864,8 +794,7 @@ class EditCommunityDetailsView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-############################ View for get the community messages from the table ############################### 
-
+# View for get the community messages from the table
 class CommunityMessageListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -879,8 +808,7 @@ class CommunityMessageListView(APIView):
         serializer = CommunityMessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
-##################### View for upload media file into cloudinary  ##############################
-
+# View for upload media file into cloudinary  
 class CloudinaryUploadView(APIView):
     parser_classes = [MultiPartParser]
 
@@ -903,10 +831,9 @@ class CloudinaryUploadView(APIView):
             return Response({'error': 'Something went wrong during upload.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
   
-#######################  Admin side community management view  ###############################
+# Admin side community management view 
 
-#====================== Get all communities in the admin side table view =========================# 
-
+#  Get all communities in the admin side table view 
 class GetAllCommunityAdminSide(APIView):
     permission_classes=[IsAdminUser]
 
@@ -937,8 +864,7 @@ class GetAllCommunityAdminSide(APIView):
         serializer = SimpleCommunityAdminSerializer(page,many=True)
         return paginator.get_paginated_response(serializer.data)
     
-#==========================  Community details admin side ==================================# 
-
+# Community details admin side
 class CommunityDetailsAdminAPIView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -950,8 +876,7 @@ class CommunityDetailsAdminAPIView(APIView):
         except Community.DoesNotExist:
             return Response({"detail": "Community not found"}, status=status.HTTP_404_NOT_FOUND)
         
-#============================ Toggle community delete status ===============================# 
-
+# Toggle community delete status 
 class ToggleProductDeleteStatusView(APIView):
     permission_classes= [IsAuthenticated]
 

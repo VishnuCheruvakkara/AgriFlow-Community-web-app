@@ -36,7 +36,7 @@ const DashboardPage = () => {
     setLoading(true);
     const FetchDashBoardData = async () => {
       try {
-        const response = await AdminAuthenticatedAxiosInstance.get(`/dash-board/get-dash-board-data/?group_by=${groupBy}`)
+        const response = await AdminAuthenticatedAxiosInstance.get(`/users/get-dash-board-data/?group_by=${groupBy}`)
         setData(response.data);
         console.log(response.data);
       } catch (error) {

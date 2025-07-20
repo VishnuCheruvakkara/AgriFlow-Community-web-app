@@ -4,9 +4,7 @@ from django.contrib.auth import get_user_model
 from apps.common.cloudinary_utils import generate_secure_image_url
 User = get_user_model()
 
-##########################  Add  or Create product in the table serializer ##########################
-
-
+# Add  or Create product in the table serializer 
 class SellerSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -17,12 +15,10 @@ class SellerSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.profile_picture)
 
-
 class ProductLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductLocation
         fields = '__all__'
-
 
 class ProductSerializer(serializers.ModelSerializer):
     location = ProductLocationSerializer()
@@ -33,9 +29,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['seller']
 
-########################### Get saved messages for the product chat serializer ######################################
-
-
+# Get saved messages for the product chat serializer
 class ProductChatMessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.CharField(source='sender.username')
     sender_id = serializers.IntegerField(source='sender.id')
@@ -64,9 +58,7 @@ class ProductChatMessageSerializer(serializers.ModelSerializer):
     def get_sender_image(self, obj):
         return generate_secure_image_url(obj.sender.profile_picture)
 
-################################ Serializer for get the product selling by the user ########################33
-
-
+# Serializer for get the product selling by the user 
 class BuyerMessageSerializer(serializers.ModelSerializer):
     sender = SellerSerializer(read_only=True)  # Reusing your existing one
     message = serializers.CharField()
@@ -75,7 +67,6 @@ class BuyerMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductChatMessage
         fields = ['id', 'sender', 'message', 'timestamp']
-
 
 class ProductWithBuyersSerializer(serializers.ModelSerializer):
     location = ProductLocationSerializer()
@@ -101,9 +92,7 @@ class ProductWithBuyersSerializer(serializers.ModelSerializer):
 
         return BuyerMessageSerializer(latest_messages.values(), many=True).data
 
-
-############################## Get the product deals where the current user is the buyer  ######################
-
+# Get the product deals where the current user is the buyer
 class BuyingDealSerializer(serializers.ModelSerializer):
     product_title = serializers.CharField(
         source='product.title', read_only=True)
@@ -145,9 +134,7 @@ class BuyingDealSerializer(serializers.ModelSerializer):
             return generate_secure_image_url(obj.receiver.profile_picture)
         return None
 
-
-##############################  Toggle wishlist (Add or remove product fromt eh wish list ) Serializer ##############################
-
+# Toggle wishlist (Add or remove product fromt eh wish list ) Serializer
 class ToggleWishlistSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
 
@@ -157,8 +144,7 @@ class ToggleWishlistSerializer(serializers.Serializer):
                 "This product does not exist.")
         return value
 
-#============================== Get the prodcuts from the model  ===================================#
-
+# Get the prodcuts from the model
 class WishlistSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source='product.id', read_only=True)
     title = serializers.CharField(source='product.title', read_only=True)

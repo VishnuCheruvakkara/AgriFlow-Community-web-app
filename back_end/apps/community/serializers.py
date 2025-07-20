@@ -6,22 +6,16 @@ from apps.common.cloudinary_utils import upload_image_to_cloudinary, generate_se
 # import the notificaiton set model from notifications named app
 from notifications.models import Notification
 from django.utils import timezone
-# =========== for websocket sset up ==================#
+# for websocket sset up 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from apps.notifications.utils import create_and_send_notification
-
-#########################################
-# ================= Get the User model ================#
 User = get_user_model()
-# ================= Get the Channel layers ==============#
 channel_layer = get_channel_layer()
 
-########################  Commuity creation realted serializers ##############################
+# Commuity creation related serializers 
 
-# =========================  Serializer for to get minimum user data ============================#
-
-
+# Serializer for to get minimum user data 
 class UserMinimalSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
@@ -41,9 +35,7 @@ class UserMinimalSerializer(serializers.ModelSerializer):
             }
         return None
 
-# ==========================  Community creation serializer ===========================#
-
-
+# Community creation serializer 
 class CommunitySerializer(serializers.ModelSerializer):
     tags = serializers.ListField(
         child=serializers.CharField(), write_only=True)
@@ -62,12 +54,11 @@ class CommunitySerializer(serializers.ModelSerializer):
         member_ids = validated_data.pop('members', [])
         image = validated_data.pop('communityImage', None)
         user = self.context['request'].user
-        # Create community
+        
         community = Community.objects.create(created_by=user, **validated_data)
         message = validated_data.pop(
             'message', f"{user.username} invited you to join the community '{community.name}'.")
 
-        # Upload image to Cloudinary if provided
         if image:
             public_id = upload_image_to_cloudinary(
                 image, folder_name="community_logos")
@@ -116,9 +107,7 @@ class CommunitySerializer(serializers.ModelSerializer):
 
         return community
 
-# ==========================  Serializer for get the My-community ===========================#
-
-
+# Serializer for get the My-community 
 class GetMyCommunitySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='community.id')
     name = serializers.CharField(source='community.name')
@@ -137,14 +126,11 @@ class GetMyCommunitySerializer(serializers.ModelSerializer):
         public_id = obj.community.community_logo
         return generate_secure_image_url(public_id)
 
-
-########################  community pending request section serializer set up ###################################
-#########################  part-1 serialzer #############################
-# ======================= Communty pending request to the useres serializer ==============================#
-
+# community pending request section serializer set up
+  
+# Communty pending request to the useres serializer
 class CommunityInviteSerializer(serializers.ModelSerializer):
-    community_name = serializers.CharField(
-        source='community.name', read_only=True)
+    community_name = serializers.CharField(source='community.name', read_only=True)
     community_logo = serializers.SerializerMethodField()
     invited_by = serializers.SerializerMethodField()
     invited_on = serializers.SerializerMethodField()
@@ -187,9 +173,7 @@ class CommunityInviteSerializer(serializers.ModelSerializer):
         public_id = obj.community.community_logo
         return generate_secure_image_url(public_id) if public_id else ""
 
-# ======================= Communty pending request accept or regect ==============================#
-
-
+# Communty pending request accept or regect
 class CommunityInvitationResponseSerializer(serializers.Serializer):
     community_id = serializers.IntegerField()
     action = serializers.ChoiceField(choices=["accept", "ignore"])
@@ -207,11 +191,7 @@ class CommunityInvitationResponseSerializer(serializers.Serializer):
         attrs['membership'] = membership
         return attrs
 
-####################################  part - 2  serializer ###############################################
-
-# ====================== get all request that send by admin while creating the community ==========================#
-
-
+# get all request that send by admin while creating the community 
 class CommunityWithPendingUsersSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -244,9 +224,7 @@ class CommunityWithPendingUsersSerializer(serializers.ModelSerializer):
 
         return result
 
-# =================== cancell the request send by admin to user while community creation =====================#
-
-
+# cancell the request send by admin to user while community creation
 class CommunityMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
@@ -258,17 +236,7 @@ class CommunityMembershipSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
-####################################  part - 3  serializer ###############################################
-
-# ====================== get pening reqest waiting for admin aproval ==========================#
-# No serializer for get data and cancell |  refer the View logic
-
-
-####################################  part - 4 serializer ###############################################
-
-# ====================== show the request in the group admin ( get the data ) ==========================#
-
+# show the request in the group admin ( get the data )  
 class RequestedUserSerializer(serializers.ModelSerializer):
     requested_at = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
@@ -287,7 +255,6 @@ class RequestedUserSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         return generate_secure_image_url(obj.user.profile_picture)
 
-
 class CommunityWithRequestsSerializer(serializers.ModelSerializer):
     community_logo = serializers.SerializerMethodField()
     requested_users = serializers.SerializerMethodField()
@@ -304,9 +271,7 @@ class CommunityWithRequestsSerializer(serializers.ModelSerializer):
             status='requested').select_related('user')
         return RequestedUserSerializer(memberships, many=True).data
 
-# ========================== Change status : aprove or rejected ========================#
-
-
+# Change status : aprove or rejected 
 class CommunityMembershipStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
@@ -319,8 +284,7 @@ class CommunityMembershipStatusUpdateSerializer(serializers.ModelSerializer):
         return value
 
 
-##########################  Get communities in the user side #######################
-
+# Get communities in the user side 
 class CommunityMemberPreviewSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
 
@@ -330,7 +294,6 @@ class CommunityMemberPreviewSerializer(serializers.ModelSerializer):
 
     def get_profile_picture(self, obj):
         return obj.get_secure_profile_picture_url()
-
 
 class GetCommunitySerializer(serializers.ModelSerializer):
     members_count = serializers.SerializerMethodField()
@@ -355,18 +318,14 @@ class GetCommunitySerializer(serializers.ModelSerializer):
         users = [membership.user for membership in approved_memberships]
         return CommunityMemberPreviewSerializer(users, many=True).data
 
-# request to join a community ##################3
-
-
+# request to join a community 
 class CommunityMembershipRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
         fields = ['id', 'community', 'user', 'status', 'joined_at', 'is_admin']
         read_only_fields = ['id', 'joined_at', 'is_admin']
 
-###################  get community and the members who belong to the community in the community details section #################
-
-
+# get community and the members who belong to the community in the community details section
 class CommunityMemberSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='user.id')
     username = serializers.CharField(source='user.username')
@@ -386,7 +345,6 @@ class CommunityMemberSerializer(serializers.ModelSerializer):
         if user.profile_picture:
             return generate_secure_image_url(user.profile_picture)
         return None
-
 
 class CommunityDeatilsSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField()
@@ -412,10 +370,7 @@ class CommunityDeatilsSerializer(serializers.ModelSerializer):
             return generate_secure_image_url(obj.community_logo)
         return None
 
-####################  Admin of a group can add new members to the community (send request) Serializer  ######################
-
-
-class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
+# Admin of a group can add new members to the community (send request) Serializer  class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
         fields = ['user', 'community', 'status', 'is_admin']
@@ -439,9 +394,7 @@ class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
 
         return data
 
-################### creator of a community can edit the name,description and community image Serializer ##################
-
-
+# creator of a community can edit the name,description and community image Serializer 
 class CommunityEditSerializer(serializers.ModelSerializer):
     community_logo = serializers.ImageField(
         required=False, write_only=True)  # Accept image file, not string
@@ -466,9 +419,7 @@ class CommunityEditSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-############################ Serializer for get the community messages from the table ###############################
-
-
+# Serializer for get the community messages from the table 
 class CommunityMessageSerializer(serializers.ModelSerializer):
     message = serializers.CharField(source='content')
     user_id = serializers.IntegerField(source='user.id')
@@ -486,10 +437,7 @@ class CommunityMessageSerializer(serializers.ModelSerializer):
         return generate_secure_image_url(obj.user.profile_picture)
 
 
-#######################  Admin side community management serializer  ###############################
-
-# =================== Get aommunity data in the admin side table serializer =====================#
-
+# Admin side community management serializer : Get aommunity data in the admin side table serializer
 class SimpleCommunityAdminSerializer(serializers.ModelSerializer):
     members_count = serializers.SerializerMethodField()
     created_by_username = serializers.CharField(source="created_by.username")
@@ -526,13 +474,11 @@ class SimpleCommunityAdminSerializer(serializers.ModelSerializer):
             return generate_secure_image_url(obj.created_by.profile_picture)
         return None
 
-# ==============================  Get the community details in the admin side serializer ========================================#
-
-
+# Get the community details in the admin side serializer 
 class CommunityCreatorSerializer(serializers.ModelSerializer):
     username = serializers.CharField()
     email = serializers.EmailField()
-    phone = serializers.CharField(source='phone_number')  # ✅ Corrected field name
+    phone = serializers.CharField(source='phone_number')  
     profile_image = serializers.SerializerMethodField()
     is_verified = serializers.BooleanField()
 
@@ -544,7 +490,6 @@ class CommunityCreatorSerializer(serializers.ModelSerializer):
         if obj.profile_picture:
             return generate_secure_image_url(obj.profile_picture)
         return None
-
 
 class CommunityAdmiSideDetailsSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField()
@@ -574,7 +519,6 @@ class CommunityAdmiSideDetailsSerializer(serializers.ModelSerializer):
             'message_stats',
            
         ]
-
   
     def get_type(self, obj):
         return "Private" if obj.is_private else "Public"
