@@ -47,10 +47,8 @@ function AvailableProducts() {
       } else {
         showToast("Product added to wishlist", "success");
       }
-
-      console.log(response.data.message);
     } catch (error) {
-      console.error("Error toggling wishlist:", error);
+      // console.error("Error toggling wishlist:", error);
       showToast("Error toggling wishlist ", "error");
     } finally {
       setWishlistLoadingId(null); // End loading
@@ -65,7 +63,7 @@ function AvailableProducts() {
       const wishlistProductIds = response.data.map(item => item.product_id);
       setWishlist(wishlistProductIds);
     } catch (error) {
-      console.error("Error fetching wishlist:", error);
+      // console.error("Error fetching wishlist:", error);
     }
   };
 
@@ -83,9 +81,6 @@ function AvailableProducts() {
         `/products/get-all-available-products/?search=${query}&page=${page}`
       );
 
-      // Log the entire response data
-      console.log("Fetched products response:", response.data);
-
       // Fix the filter to correctly exclude deleted products
       const availableOnly = response.data.results
 
@@ -93,7 +88,7 @@ function AvailableProducts() {
       setTotalPages(Math.ceil(response.data.count / 6));
       setCurrentPage(page);
     } catch (error) {
-      console.error("Error fetching available products:", error);
+      // console.error("Error fetching available products:", error);
     } finally {
       setLoading(false);
     }

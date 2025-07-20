@@ -16,7 +16,6 @@ const WeatherPage = () => {
     const user = useSelector((state) => state.user.user);
     const latitude = user?.address?.latitude;
     const longitude = user?.address?.longitude;
-    console.log("lat::", latitude, "long:::", longitude)
 
     const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 
@@ -34,7 +33,7 @@ const WeatherPage = () => {
 
                 setWeatherData(res.data);
             } catch (err) {
-                console.error("Weather fetch failed:", err.response?.data || err.message);
+                // console.error("Weather fetch failed:", err.response?.data || err.message);
             } finally {
                 setLoading(false);
             }

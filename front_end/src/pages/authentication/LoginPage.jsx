@@ -52,7 +52,7 @@ const Login = () => {
             }
 
         } catch (error) {
-            console.error("Login failed:", error.response?.data || error.message);
+            // console.error("Login failed:", error.response?.data || error.message);
             showToast(error.response?.data?.error || "Incorrect Email or Password, Try again.", "error");
         }
         finally {

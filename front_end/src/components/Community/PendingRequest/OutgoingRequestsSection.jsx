@@ -16,10 +16,9 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
         const fetchRequests = async () => {
             try {
                 const response = await AuthenticatedAxiosInstance.get('community/requested-join-community/');
-                console.log("requested to join community ::: ", response.data)
                 setRequests(response.data);
             } catch (error) {
-                console.error("Error fetching outgoing requests:", error);
+                // console.error("Error fetching outgoing requests:", error);
             }
         };
 
@@ -41,7 +40,7 @@ function OutgoingRequestsSection({ expanded, toggleSection }) {
                 showToast(`Request to join the community "${communityName}" cancelled successfully`, "success")
             } catch (error) {
                 showToast("Error happen try again", "error")
-                console.error("Error cancelling request:", error);
+                // console.error("Error cancelling request:", error);
             }
         }
     };

@@ -58,8 +58,6 @@ const FarmerCommunityChat = () => {
   const token = useSelector((state) => state.auth.token)
   const userId = useSelector((state) => state.user.user?.id)
 
-  console.log("userId chat:", userId)
-
   //useRef for proper socket connection nor re-renders
   const socketRef = useRef(null);
 
@@ -105,11 +103,10 @@ const FarmerCommunityChat = () => {
       try {
 
         const response = await AuthenticatedAxiosInstance.get(`community/get-communities/${communityId}`)
-        console.log("CommunityData is ???:::::", response.data)
         setCommunityData(response.data);
 
       } catch (error) {
-        console.error("Error fetching community :", error);
+        // console.error("Error fetching community :", error);
       }
     }
     fetchCommunities();
@@ -131,16 +128,14 @@ const FarmerCommunityChat = () => {
     socketRef.current = new WebSocket(wsUrl);
 
     socketRef.current.onopen = () => {
-      console.log("WebSocket handshake successful");
+      // console.log("WebSocket handshake successful");
     };
     // handle message from the backend to show that here in the front end
     // handled the online user count with the reddis cache mechanism
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received from WebSocket:", data);
 
       if (data.type === "user_count") {
-        console.log("Online Users:", data.count);
         // Optionally store in state:
         setOnlineCount(data.count);
       } else if (data.type === "typing") {
@@ -160,11 +155,11 @@ const FarmerCommunityChat = () => {
     };
 
     socketRef.current.onclose = (event) => {
-      console.log(" WebSocket closed:", event.code, event.reason);
+      // console.log(" WebSocket closed:", event.code, event.reason);
     };
 
     socketRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      // console.error("WebSocket error:", error);
     };
     // clean up to avoid the extra load 
     return () => {
@@ -225,7 +220,7 @@ const FarmerCommunityChat = () => {
         setSelectedFile(null); // clear the file after upload
         setShowEmojiPicker(false)
       } catch (error) {
-        console.error("Upload failed:", error);
+        // console.error("Upload failed:", error);
         showToast("File upload failed, Try again", "error");
         setIsUploading(false);
         setShowEmojiPicker(false)
@@ -269,9 +264,8 @@ const FarmerCommunityChat = () => {
       try {
         const response = await AuthenticatedAxiosInstance.get(`/community/get-community-messages/${communityId}/`);
         setMessages(response.data);
-        console.log("message from db ::: ", response.data)
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        // console.error('Error fetching messages:', error);
       }
     };
 
@@ -280,7 +274,6 @@ const FarmerCommunityChat = () => {
 
   const handleEmojiClick = (emojiData) => {
     setNewMessage(prev => prev + emojiData.emoji);
-    console.log(emojiData.imageUrl)
     textareaRef.current.focus();  // Optional: keep focus on input
   };
 

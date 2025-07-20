@@ -48,7 +48,7 @@ const AdminLogin = () => {
             showToast(`Welcome ${user.name}! Login successful`, "success");
             navigate("/admin");
         } catch (error) {
-            console.error("Admin login failed:", error.response?.data || error.message);
+            // console.error("Admin login failed:", error.response?.data || error.message);
             showToast("Admin login failed. Please check your credentials.", "error");
         } finally {
             dispatch(hideButtonLoader(buttonId));

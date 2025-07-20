@@ -39,12 +39,11 @@ const SinglePostPage = () => {
         setLoading(true);
         const res = await AuthenticatedAxiosInstance.get(`/posts/get-single-post/${postId}/`);
         setPost(res.data);
-        console.log("Liked data :::", res.data)
         setIsLiked(res.data.is_liked);
         setLikeCount(res.data.like_count);
 
       } catch (error) {
-        console.error("Error fetching post:", error);
+        // console.error("Error fetching post:", error);
         setPost(null);
       } finally {
         setLoading(false);
@@ -76,7 +75,7 @@ const SinglePostPage = () => {
       // Send like/unlike request
       await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
     } catch (error) {
-      console.error("Error toggling like:", error);
+      // console.error("Error toggling like:", error);
     }
   };
 
@@ -89,7 +88,7 @@ const SinglePostPage = () => {
       const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
       setComments(res.data);
     } catch (err) {
-      console.error("Failed to fetch comments:", err);
+      // console.error("Failed to fetch comments:", err);
     } finally {
       setLoadingComments(false);
     }
@@ -116,7 +115,7 @@ const SinglePostPage = () => {
       setCommentInput("");
       fetchComments();
     } catch (err) {
-      console.error("Failed to post comment:", err);
+      // console.error("Failed to post comment:", err);
     }
   };
 

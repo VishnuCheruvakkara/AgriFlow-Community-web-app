@@ -29,7 +29,6 @@ const SetNewPassword = () => {
     useEffect(() => {
         if (location.state?.email) {
             setEmail(location.state.email);
-            console.log("Email set:", location.state.email);
         }
     }, [location.state])
 
@@ -64,7 +63,7 @@ const SetNewPassword = () => {
             // Navigate to login page
             navigate("/login");
         } catch (error) {
-            console.error("Failed to reset password:", error.response?.data?.non_field_errors);
+            // console.error("Failed to reset password:", error.response?.data?.non_field_errors);
             showToast("Failed to reset password", "error");
             setErrors(error.response?.data)
         } finally {

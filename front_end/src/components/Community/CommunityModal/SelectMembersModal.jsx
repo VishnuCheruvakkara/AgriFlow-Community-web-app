@@ -29,7 +29,6 @@ function SelectMembersModal({
     const [searchQuery, setSearchQuery] = useState("");
     const debounceTimeout = useRef(null);
     const listContainerRef = useRef(null); // Added reference for the scroll container
-    console.log("The  communty Id is :::::::: ", communityId)
     // Handle close modal with confirmation
     const handleCloseModal = () => {
         onClose();             // Simply close the modal
@@ -69,8 +68,6 @@ function SelectMembersModal({
             const response = await AuthenticatedAxiosInstance.get(url);
 
             const newMembers = response.data.results;
-            console.log(`Fetched page ${pageNum}, got ${newMembers.length} results`);
-            console.log(`Next page: ${response.data.next}`);
 
             if (pageNum === 1) {
                 setMembers(newMembers); // First page: reset list
@@ -81,7 +78,7 @@ function SelectMembersModal({
             // Check if there are more pages
             setHasMore(response.data.next !== null);
         } catch (error) {
-            console.error("Error fetching members:", error);
+            // console.error("Error fetching members:", error);
         } finally {
             setLoading(false);
         }
@@ -95,7 +92,6 @@ function SelectMembersModal({
 
         // Detect when user has scrolled to bottom (with a small buffer)
         if (scrollHeight - scrollTop <= clientHeight + 20) {
-            console.log("Reached bottom, loading more...");
             setPage(prevPage => prevPage + 1);
         }
     };

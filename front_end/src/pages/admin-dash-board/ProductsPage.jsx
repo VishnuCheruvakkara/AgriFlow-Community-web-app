@@ -32,11 +32,6 @@ const ProductsPage = () => {
 
   const getProducts = useCallback(async () => {
     setLoading(true);
-    console.log("Fetching products with:", {
-      page: currentPage,
-      search: searchProduct,
-      status: filterStatus,
-    });
     try {
       const response = await AdminAuthenticatedAxiosInstance.get("/products/admin/get-all-product/", {
         params: {
@@ -48,9 +43,8 @@ const ProductsPage = () => {
 
       setProducts(response.data.results);
       setTotalPages(Math.ceil(response.data.count / 5));
-      console.log("Admin products with pagination:", response.data);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }

@@ -41,13 +41,12 @@ function MyProducts() {
         try {
             setLoading(true);
             const response = await AuthenticatedAxiosInstance.get(`/products/get-all-products/?search=${query}&page=${page}`);
-            console.log("Arrived all products:::", response.data)
             setProducts(response.data.results)
             setTotalPages(Math.ceil(response.data.count / 6))
             setCurrentPage(page);
 
         } catch (error) {
-            console.error("Error while fetching the data : ", error);
+            // console.error("Error while fetching the data : ", error);
         } finally {
             setLoading(false);
         }

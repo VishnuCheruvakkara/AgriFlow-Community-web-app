@@ -135,9 +135,8 @@ function UserProfileViewPage() {
         try {
             const response = await AuthenticatedAxiosInstance.get(`/users/get-user-profile-data/${userId}/`);
             setUser(response.data);
-            console.log("user data :: ", response.data);
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            // console.error("Error fetching user data:", error);
         } finally {
             setLoading(false);
         }
@@ -172,7 +171,7 @@ function UserProfileViewPage() {
                 setPosts(prev => page === 1 ? res.data.results : [...prev, ...res.data.results]);
             }
         } catch (err) {
-            console.error('Error fetching posts:', err);
+            // console.error('Error fetching posts:', err);
             if (err.response?.status === 404) {
                 setHasMore(false);
             }
@@ -231,7 +230,7 @@ function UserProfileViewPage() {
         try {
             await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
         } catch (error) {
-            console.error("Error toggling like:", error);
+            // console.error("Error toggling like:", error);
 
             // Revert UI if API fails
             setLikedPosts(prev => ({
@@ -263,13 +262,12 @@ function UserProfileViewPage() {
 
             try {
                 const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
-                console.log("Arrived comments ::", res.data);
                 setCommentsByPost(prev => ({
                     ...prev,
                     [postId]: res.data
                 }));
             } catch (err) {
-                console.error("Failed to fetch comments:", err);
+                // console.error("Failed to fetch comments:", err);
             } finally {
                 // Unset loading no matter what
                 setLoadingComments(prev => ({
@@ -300,7 +298,6 @@ function UserProfileViewPage() {
 
             // Re-fetch all comments for this post
             const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
-            console.log("Arrived comments after posting:", res.data);
 
             setCommentsByPost(prev => ({
                 ...prev,
@@ -313,7 +310,7 @@ function UserProfileViewPage() {
                 [postId]: ""
             }));
         } catch (err) {
-            console.error("Failed to post comment:", err);
+            // console.error("Failed to post comment:", err);
         }
     };
 
@@ -328,7 +325,7 @@ function UserProfileViewPage() {
             // Refresh profile page 
             await fetchUserData();
         } catch (error) {
-            console.error("Error sending connection request:", error);
+            // console.error("Error sending connection request:", error);
             // Try to extract specific error message from response
             if (error.response && error.response.data && error.response.data.error) {
                 // Show the error message returned from the backend
@@ -365,7 +362,6 @@ function UserProfileViewPage() {
     }, [userId]);
 
     useEffect(() => {
-        console.log("Fetching page:", page);
         fetchPosts();
     }, [page]);
 
@@ -374,7 +370,6 @@ function UserProfileViewPage() {
         const fetchLikeStatus = async () => {
             try {
                 const res = await AuthenticatedAxiosInstance.get("/posts/like-status/");
-                console.log("Liked data ::::", res.data)
                 const likeStatus = {};
                 const likeCounts = {};
 
@@ -387,7 +382,7 @@ function UserProfileViewPage() {
                 setLikeCounts(likeCounts);
 
             } catch (error) {
-                console.error("Failed to fetch like status", error);
+                // console.error("Failed to fetch like status", error);
             }
         };
 
@@ -407,12 +402,11 @@ function UserProfileViewPage() {
         if (result) {
             try {
                 const res = await AuthenticatedAxiosInstance.delete(`/posts/delete-post/${postId}/`);
-                console.log("Post deleted:", res.data);
                 showToast("Post deleted successfully.", "success")
                 // Optionally remove the deleted post from the list
                 setPosts(prev => prev.filter(post => post.id !== postId));
             } catch (err) {
-                console.error("Error deleting post:", err);
+                // console.error("Error deleting post:", err);
                 showToast("Error happen while deleting the post.", "error");
             }
         }

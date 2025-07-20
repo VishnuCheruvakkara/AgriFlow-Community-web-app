@@ -43,7 +43,7 @@ function BlockedUsers() {
             setTotalCount(response.data.count);
             setError('');
         } catch (err) {
-            console.error('Error fetching blocked users:', err);
+            // console.error('Error fetching blocked users:', err);
             setError('Failed to load blocked users.');
         } finally {
             setLoading(false);
@@ -97,12 +97,11 @@ function BlockedUsers() {
                 const response = await AuthenticatedAxiosInstance.post('/connections/unblock-user/', {
                     user_id: userId,
                 });
-                console.log(response.data.message);
                 showToast("Unblocked the user successfully.", "success")
                 // Optionally refetch the blocked user list
                 fetchBlockedUsers(currentPage, debouncedSearchTerm);
             } catch (error) {
-                console.error("Error unblocking user:", error.response?.data || error.message);
+                // console.error("Error unblocking user:", error.response?.data || error.message);
                 showToast("Failed to unblock user, Try again.", "error")
             }
         }

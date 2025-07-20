@@ -91,7 +91,6 @@ function Home() {
       }
 
       const res = await AuthenticatedAxiosInstance.get(url);
-      console.log("Post data in Home :::", res.data.results)
       if (res.data.results.length === 0) {
         setHasMore(false);
       } else {
@@ -100,7 +99,7 @@ function Home() {
         );
       }
     } catch (err) {
-      console.error('Error fetching posts:', err);
+      // console.error('Error fetching posts:', err);
       if (err.response?.status === 404) {
         setHasMore(false);
       }
@@ -118,7 +117,6 @@ function Home() {
   }, [searchQuery, filterType]);
 
   useEffect(() => {
-    console.log("Fetching page:", page);
     fetchPosts();
   }, [page]);
 
@@ -158,7 +156,7 @@ function Home() {
     try {
       await AuthenticatedAxiosInstance.post("/posts/toggle-like/", { post_id: postId });
     } catch (error) {
-      console.error("Error toggling like:", error);
+      // console.error("Error toggling like:", error);
 
       // Revert UI if API fails
       setLikedPosts(prev => ({
@@ -178,7 +176,6 @@ function Home() {
     const fetchLikeStatus = async () => {
       try {
         const res = await AuthenticatedAxiosInstance.get("/posts/like-status/");
-        console.log("Liked data ::::", res.data)
         const likeStatus = {};
         const likeCounts = {};
 
@@ -191,7 +188,7 @@ function Home() {
         setLikeCounts(likeCounts);
 
       } catch (error) {
-        console.error("Failed to fetch like status", error);
+        // console.error("Failed to fetch like status", error);
       }
     };
 
@@ -215,13 +212,12 @@ function Home() {
 
       try {
         const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
-        console.log("Arrived comments ::", res.data);
         setCommentsByPost(prev => ({
           ...prev,
           [postId]: res.data
         }));
       } catch (err) {
-        console.error("Failed to fetch comments:", err);
+        // console.error("Failed to fetch comments:", err);
       } finally {
         // Unset loading no matter what
         setLoadingComments(prev => ({
@@ -253,7 +249,6 @@ function Home() {
 
       // Re-fetch all comments for this post
       const res = await AuthenticatedAxiosInstance.get(`/posts/get-all-comment/?post=${postId}`);
-      console.log("Arrived comments after posting:", res.data);
 
       setCommentsByPost(prev => ({
         ...prev,
@@ -266,7 +261,7 @@ function Home() {
         [postId]: ""
       }));
     } catch (err) {
-      console.error("Failed to post comment:", err);
+      // console.error("Failed to post comment:", err);
     }
   };
 
@@ -283,7 +278,7 @@ function Home() {
         );
         setWeather(res.data);
       } catch (err) {
-        console.error("Failed to fetch weather", err);
+        // console.error("Failed to fetch weather", err);
       } finally {
         setWeatherLoading(false);
         setHasTriedFetchingWeather(true);

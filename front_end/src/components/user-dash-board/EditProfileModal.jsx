@@ -80,7 +80,7 @@ const EditProfileModal = ({ user, onSuccess }) => {
               await onSuccess();
               closeModal();
             } catch (error) {
-              console.error(error);
+              // console.error(error);
               showToast("Failed to update profile", "error");
             } finally {
               setSubmitting(false);

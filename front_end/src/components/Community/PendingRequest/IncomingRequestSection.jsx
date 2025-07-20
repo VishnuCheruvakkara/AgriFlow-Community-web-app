@@ -25,10 +25,9 @@ function IncomingRequestsSection() {
         try {
             setLoading(true);
             const response = await AuthenticatedAxiosInstance.get('/community/incoming-requests/');
-            console.log("incomming data ::::", response.data)
             setRequestsData(response.data);
         } catch (error) {
-            console.error('Error fetching incoming requests:', error);
+            // console.error('Error fetching incoming requests:', error);
         } finally {
             setLoading(false);
         }
@@ -52,7 +51,6 @@ function IncomingRequestsSection() {
                     `/community/update-community/${communityId}/membership/${username}/update/`,
                     { status: action }
                 );
-                console.log('Status updated:', response.data);
                 showToast(
                     `Member ${isApproval ? 'approved' : 'rejected'} successfully`,
                     'success'
@@ -60,7 +58,7 @@ function IncomingRequestsSection() {
                 fetchIncomingRequests(); // Refresh the list
             } catch (error) {
 
-                console.error('Error updating membership status:', error);
+                // console.error('Error updating membership status:', error);
                 showToast(
                     `Failed to ${isApproval ? 'approve' : 'reject'} member request`,
                     'error'

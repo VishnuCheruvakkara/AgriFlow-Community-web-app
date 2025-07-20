@@ -43,9 +43,6 @@ function CreateCommunity() {
     // creating state for the initalformData
     const [formData, setFormData] = useState(initialFormData);
 
-    console.log("Current formData ::::", formData)
-    console.log("Errors :::", errors)
-
     //======================= Function const handleCloseModal = (shouldClearSearch = true) => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
@@ -136,8 +133,6 @@ function CreateCommunity() {
             members: selectedMembers,
         };
 
-        console.log("Final Submission:", fullFormData);
-
         //set up for the button loader 
         const buttonId = "CommunityCreation"
         dispatch(showButtonLoader(buttonId));
@@ -155,10 +150,7 @@ function CreateCommunity() {
             if (fullFormData.communityImage) {
                 submitData.append('communityImage', fullFormData.communityImage);
             }
-            // Debugger for the sumbitData
-            for (let [key, value] of submitData.entries()) {
-                console.log(`${key}:`, value);
-            }
+          
 
             const response = await AuthenticatedAxiosInstance.post(
                 '/community/create-community/',
@@ -184,7 +176,7 @@ function CreateCommunity() {
             }, 500);
 
         } catch (error) {
-            console.error("Error submitting community:", error);
+            // console.error("Error submitting community:", error);
 
             showToast(`Something went wrong, ${error?.response?.data?.name[0]}...`, "error");
         } finally {

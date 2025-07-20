@@ -25,13 +25,12 @@ function MyConnections() {
         try {
             setLoading(true);
             const response = await AuthenticatedAxiosInstance.get(`/connections/get-my-connections/?page=${page}&search=${search}`);
-            console.log("my connection :: ", response.data.results)
             setConnections(response.data.results);
             setCurrentPage(page);
             setTotalPages(Math.ceil(response.data.count / 6));
 
         } catch (error) {
-            console.error("Failed to fetch connections:", error);
+            // console.error("Failed to fetch connections:", error);
         } finally {
             setLoading(false);
         }
@@ -83,10 +82,9 @@ function MyConnections() {
                     user_id: userId
                 });
                 showToast(`Blocked farmer : '${userName}'`, "success")
-                console.log(response.data.message);
                 fetchConnections(currentPage, searchTerm);
             } catch (error) {
-                console.error("Error blocking user:", error.response?.data);
+                // console.error("Error blocking user:", error.response?.data);
                 const errorMessage = error.response?.data?.user_id?.[0] || "Failed to block user.";
                 showToast(errorMessage, "error");
             }

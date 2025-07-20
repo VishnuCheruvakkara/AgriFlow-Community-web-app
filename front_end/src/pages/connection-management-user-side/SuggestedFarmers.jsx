@@ -30,11 +30,10 @@ const SuggestedFarmers = () => {
                     search: search
                 }
             });
-            console.log("suggested farmers ::",response.data.results)
             setFarmers(response.data.results);
             setTotalPages(Math.ceil(response.data.count / 6)); // Match backend pagination page_size
         } catch (error) {
-            console.error("Error fetching suggested farmers:", error);
+            // console.error("Error fetching suggested farmers:", error);
         } finally {
             setLoading(false);
         }
@@ -63,7 +62,7 @@ const SuggestedFarmers = () => {
             showToast(`Connection request send to ${receiverUsername}.`, "success")
             fetchSuggestedFarmers(); // refresh suggestions
         } catch (error) {
-            console.error("Error sending connection request:", error);
+            // console.error("Error sending connection request:", error);
             // Try to extract specific error message from response
             if (error.response && error.response.data && error.response.data.error) {
                 // Show the error message returned from the backend
@@ -81,9 +80,8 @@ const SuggestedFarmers = () => {
             try {
                 const response = await AuthenticatedAxiosInstance.get('/notifications/get-connection-accpeted/');
                 setNotifications(response.data);
-                console.log("Notification accpeted ::", response.data)
             } catch (error) {
-                console.error('Error fetching notifications:', error);
+                // console.error('Error fetching notifications:', error);
 
             }
         };
@@ -99,7 +97,7 @@ const SuggestedFarmers = () => {
                 prev.filter((notif) => notif.id !== notificationId)
             );
         } catch (error) {
-            console.error("Failed to mark notification as read:", error);
+            // console.error("Failed to mark notification as read:", error);
         }
     };
 

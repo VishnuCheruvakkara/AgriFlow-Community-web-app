@@ -47,7 +47,7 @@ const EditBannerImageModal = ({ currentBanner, onSuccess }) => {
             closeModal();
             onSuccess?.();
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             showToast("Failed to update banner image", "error");
         } finally {
             dispatch(hideButtonLoader("updateBannerImage"));

@@ -49,7 +49,7 @@ const EditProfilePictureModal = ({ currentImage, userId, onSuccess }) => {
             closeModal();
             onSuccess?.();
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             showToast("Failed to update profile picture", "error");
         } finally {
             dispatch(hideButtonLoader("updateProfilePicture"));

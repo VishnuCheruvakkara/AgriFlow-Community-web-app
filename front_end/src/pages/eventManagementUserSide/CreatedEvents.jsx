@@ -47,7 +47,7 @@ function CreatedEvents() {
             );
             closeModal();
         } catch (error) {
-            console.error('Failed to update event:', error);
+            // console.error('Failed to update event:', error);
         }
     };
 
@@ -61,10 +61,9 @@ function CreatedEvents() {
                 }
             });
             setEvents(response.data.results);
-            console.log("Data of the events ::::", response.data.results)
             setTotalPages(Math.ceil(response.data.count / 6)); // 6 is your page_size
         } catch (error) {
-            console.error('Error fetching events:', error);
+            // console.error('Error fetching events:', error);
         } finally {
             setLoading(false);
         }

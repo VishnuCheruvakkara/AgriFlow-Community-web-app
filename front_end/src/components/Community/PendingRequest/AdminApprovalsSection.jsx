@@ -15,10 +15,9 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
     const fetchRequest = async () => {
         try {
             const response = await AuthenticatedAxiosInstance.get('community/pending-admin-join-request/');
-            console.log("upcomming admin invited data :::::", response.data)
             setJoinRequest(response.data);
         } catch (error) {
-            console.log("Error fetching data:", error);
+            // console.error("Error fetching data:", error);
         }
     };
 
@@ -38,7 +37,8 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                 showToast("Cancelled the request successfully")
                 fetchRequest(); // Refresh the list after cancel
             } catch (error) {
-                console.error("Error cancelling request:", error);
+                
+                .error("Error cancelling request:", error);
                 showToast("Error happened, Try agian", "error")
             }
         }

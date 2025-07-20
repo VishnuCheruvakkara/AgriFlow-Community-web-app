@@ -41,10 +41,9 @@ const EventDetailsPage = () => {
         const response = await AdminAuthenticatedAxiosInstance.get(
           `/events/admin/get-event-details/${eventId}`
         );
-        console.log("Arrived event details :::", response.data);
         setEvent(response.data);
       } catch (error) {
-        console.log("Error fetching events :", error);
+        // console.error("Error fetching events :", error);
       }finally{
         setLoading(false);
       }
@@ -74,7 +73,6 @@ const EventDetailsPage = () => {
           { is_deleted: !currentStatus }
         );
 
-        console.log("Delete Status updated", response.data);
 
         // Update local state immediately
         setEvent((prev) => ({
@@ -90,7 +88,7 @@ const EventDetailsPage = () => {
 
         showToast(message, "success");
       } catch (error) {
-        console.error("Failed to toggle delete status", error);
+        // console.error("Failed to toggle delete status", error);
         showToast("Failed to update event status.", "error");
       }
     }

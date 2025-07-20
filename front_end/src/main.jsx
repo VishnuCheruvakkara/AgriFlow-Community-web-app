@@ -9,7 +9,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 //PersistGate ensures Redux loads stored state before rendering the app
 import store, { persistor } from "./redux/Store.jsx";
 
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>

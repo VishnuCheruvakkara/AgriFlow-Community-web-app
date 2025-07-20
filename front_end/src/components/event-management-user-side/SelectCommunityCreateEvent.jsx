@@ -20,11 +20,10 @@ function SelectCommunityCreateEvent({ onCommunitySelect }) {
         const fetchCommunities = async () => {
             try {
                 const response = await AuthenticatedAxiosInstance.get('events/get-community-create-event/');
-                console.log("Admin Community ::::::34343::::", response.data);
                 setCommunities(response.data);
                 setFilteredCommunities(response.data);
             } catch (error) {
-                console.error('Error fetching communities:', error);
+                // console.error('Error fetching communities:', error);
             } finally {
                 setLoading(false);
             }

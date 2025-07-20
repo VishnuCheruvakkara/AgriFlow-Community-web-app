@@ -29,7 +29,7 @@ function MyCommunities() {
             const response = await AuthenticatedAxiosInstance.get(
                 `/community/get-my-communities/?page=${currentPage}&search=${searchTerm}`
             );
-            console.log("Debugging the upcomming data ::::: ", response.data?.results)
+
             if (reset) {
                 setCommunities(response.data.results);
                 setPage(2);
@@ -46,8 +46,7 @@ function MyCommunities() {
 
             setHasMore(!!response.data.next);
         } catch (error) {
-            console.error("Error fetching communities:", error);
-
+            // console.error("Error fetching communities:", error);
             setHasMore(false); // Important: stop pagination on error
         } finally {
             setLoading(false);

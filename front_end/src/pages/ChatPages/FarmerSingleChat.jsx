@@ -34,8 +34,6 @@ const FarmerSingleChat = () => {
     // receiver id from previous page 
     const { receiverId, username, profile_picture } = location.state || {};
 
-    console.log("receiverId ::", receiverId, ":::", "userId:::", userId)
-
     //  Websocket Mesaging set up
     const minId = Math.min(userId, receiverId)
     const maxId = Math.max(userId, receiverId)
@@ -50,7 +48,6 @@ const FarmerSingleChat = () => {
         socketRef.current.onmessage = (e) => {
             try {
                 const data = JSON.parse(e.data);
-                console.log("data from socket :::", data)
 
                 if (data.type === "online_status") {
                     // data.online_users is an array of user IDs currently online
@@ -61,24 +58,24 @@ const FarmerSingleChat = () => {
                     setMessages((prev) => [...prev, data]);
                 }
             } catch (error) {
-                console.error("Invalid JSON from socket", error);
+                // console.error("Invalid JSON from socket", error);
             }
         };
 
 
         // Check conection open  
         socketRef.current.onopen = () => {
-            console.log("Websocket Connected")
+            // console.log("Websocket Connected")
         };
 
         // Check error 
         socketRef.current.onerror = (error) => {
-            console.error("Websocket error", error)
+            // console.error("Websocket error", error)
         }
 
         // Close socket connection 
         socketRef.current.onclose = () => {
-            console.log("WebSocket closed")
+            // console.log("WebSocket closed")
         }
 
         //Clean Up on unmount 
@@ -102,9 +99,8 @@ const FarmerSingleChat = () => {
             try {
                 const response = await AuthenticatedAxiosInstance.get(`/users/get-private-chat-messages/${receiverId}`);
                 setMessages(response.data);
-                console.log("Message from db :::", response.data)
             } catch (error) {
-                console.log("Error fetching messages from Db:::", error);
+                // console.log("Error fetching messages from Db:::", error);
             }
         }
         fetchMessages();

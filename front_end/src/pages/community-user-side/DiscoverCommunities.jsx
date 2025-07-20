@@ -38,14 +38,13 @@ function DiscoverCommunities() {
     try {
       setLoading(true);
       const response = await AuthenticatedAxiosInstance.get(`/community/get-communities?page=${currentPage}&search=${query}`);
-      console.log("Get data::::", response.data);  // Fixed typo here
       const data = response.data;
       setCommunities(data.results || []);
       setNextPageUrl(data.next);
       setPrevPageUrl(data.previous);
       setTotalPages(Math.ceil(data.count / 5));  // Calculate total pages from count and page_size (5 in this case)
     } catch (error) {
-      console.error("Failed to fetch communities", error);
+      // console.error("Failed to fetch communities", error);
     } finally {
       setLoading(false);
     }
@@ -81,7 +80,7 @@ function DiscoverCommunities() {
       setPrevPageUrl(data.previous);
       setTotalPages(Math.ceil(data.count / 5));
     } catch (error) {
-      console.error("Failed to fetch communities", error);
+      // console.error("Failed to fetch communities", error);
     } finally {
       setLoading(false);
     }
@@ -118,7 +117,7 @@ function DiscoverCommunities() {
 
       handleCloseModal();
     } catch (error) {
-      console.error("Join error", error);
+      // console.error("Join error", error);
       showToast(error.response?.data?.detail || "Failed to join community.", "error");
     } finally {
       setJoinCommunityLoading(false);

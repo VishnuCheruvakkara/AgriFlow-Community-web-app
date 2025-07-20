@@ -26,7 +26,7 @@ const UserLocation = ({ formData, setFormData, errors, fieldErrors,defaultQuery 
             setSuggestions(response.data);
             setNoDataFound(response.data.length === 0);
         } catch (error) {
-            console.error("Error fetching locations:", error);
+            // console.error("Error fetching locations:", error);
             setNoDataFound(true);
         }
         setLoading(false);

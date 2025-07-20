@@ -21,10 +21,7 @@ const GoogleAuthButton = () => {
                 token: credential,
             });
 
-            console.log("Backend Response:", response.data); // Debugging
-
             const { user, access_token } = response.data; // Extract user & token
-            console.log(user)
 
             // Dispatch Redux action to store user data
             dispatch(loginSuccess({ user, token: access_token }));
@@ -39,7 +36,7 @@ const GoogleAuthButton = () => {
             
 
         }catch (error) {
-            console.error("Google Auth Failed", error);
+            // console.error("Google Auth Failed", error);
     
             if (error.response && error.response.status === 403) {
                 // If the user is blocked
@@ -51,7 +48,7 @@ const GoogleAuthButton = () => {
     };
 
     const handleFailure = () => {
-        console.error("Google Login Failed");
+        // console.error("Google Login Failed");
         showToast("Google Login Failed!", "warn");
     };
 

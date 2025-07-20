@@ -14,9 +14,8 @@ function SellingProductDeals() {
     try {
       const response = await AuthenticatedAxiosInstance.get('/products/get-selling-product-deals/');
       setDeals(response.data);
-      console.log('Product Selling deals:', response.data);
     } catch (error) {
-      console.error('Error fetching product deals:', error);
+      // console.error('Error fetching product deals:', error);
     }
   };
 

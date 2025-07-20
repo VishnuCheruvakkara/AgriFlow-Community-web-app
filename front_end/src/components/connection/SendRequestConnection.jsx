@@ -18,9 +18,8 @@ function SentRequestsSection() {
             try {
                 const response = await AuthenticatedAxiosInstance.get('connections/get-sent-requests/');
                 setSentRequests(response.data);
-                console.log("Request you sent :: ", response.data);
             } catch (error) {
-                console.error('Error fetching sent requests:', error);
+                // console.error('Error fetching sent requests:', error);
             }
         };
         fetchSendRequest();
@@ -47,7 +46,7 @@ function SentRequestsSection() {
                 setSentRequests(prev => prev.filter(req => req.id !== requestId));
                 showToast("request cancelled successfully.", "success")
             } catch (error) {
-                console.error('Error cancelling request:', error);
+                // console.error('Error cancelling request:', error);
                 showToast("Failed to cancel the request. Try again", "error")
             }
         }

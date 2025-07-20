@@ -18,8 +18,6 @@ import ThemeToggle from '../../components/ThemeController/ThemeToggle';
 import { Formik, useFormik } from 'formik';
 import * as Yup from 'yup';
 
-
-
 const SignupSchema = Yup.object().shape({
     username: Yup.string()
         .min(4, 'Name must be at least 4 characters')

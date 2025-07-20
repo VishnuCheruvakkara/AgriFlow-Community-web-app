@@ -29,7 +29,7 @@ AdminAuthenticatedAxiosInstance.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
-            console.log("🔄 Admin token expired. Attempting to refresh...");
+          
 
             originalRequest._retry = true; // Prevent infinite loops
 
@@ -41,7 +41,6 @@ AdminAuthenticatedAxiosInstance.interceptors.response.use(
                 );
 
                 if (data.access) {
-                    console.log("✅ New admin access token:", data.access);
 
                     // Store the new token in Redux
                     store.dispatch(adminLoginSuccess({ token: data.access }));
@@ -53,7 +52,7 @@ AdminAuthenticatedAxiosInstance.interceptors.response.use(
                     return axios(originalRequest);
                 }
             } catch (refreshError) {
-                console.error("❌ Admin token refresh failed:", refreshError.response?.data);
+                // console.error("Admin token refresh failed:", refreshError.response?.data);
 
                 // Logout admin if token refresh fails
                 store.dispatch(adminLogout());

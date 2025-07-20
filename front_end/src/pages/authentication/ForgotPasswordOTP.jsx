@@ -167,16 +167,13 @@ const ForgotPasswordOTP = () => {
 
     const handleResendOTP = async () => {
         try {
-            console.log("Resending OTP...");
-
+           
             // Make an API call to resend OTP
             const response = await PublicAxiosInstance.post("/users/resend-otp/", {
                 email: email,  // Replace with the actual email from state/context
                 email_type: "forgot_password",  // Pass email_type explicitly
             });
             setOtpError(false);
-            // Show success message
-            console.log(response.data.message);
 
             showToast("OTP has been resent to your entered email.", "success");
 
@@ -190,7 +187,7 @@ const ForgotPasswordOTP = () => {
             startNewTimer();
 
         } catch (error) {
-            console.error("Error resending OTP:", error.response?.data || error.message);
+            // console.error("Error resending OTP:", error.response?.data || error.message);
             showToast(error.response?.data?.message || "Failed to resend OTP", "error");
         }
     };
@@ -223,7 +220,7 @@ const ForgotPasswordOTP = () => {
             // Navigate to reset password page with email and OTP
             navigate('/forgot-password-new', { state: { email } });
         } catch (error) {
-            console.error("OTP verification failed:", error.response?.data || error.message);
+            // console.error("OTP verification failed:", error.response?.data || error.message);
             showToast(error.response?.data?.otp[0] || "OTP expired or invalid. Request a new one.", "error");
             setOtpError(true);
         }

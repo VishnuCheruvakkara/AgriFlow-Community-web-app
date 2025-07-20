@@ -15,7 +15,6 @@ import { showToast } from '../toast-notification/CustomToast';
 import AuthenticatedAxiosInstance from '../../axios-center/AuthenticatedAxiosInstance';
 
 const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
-    console.log("Event data while click ::::: ", eventData)
     if (!isOpen || !eventData) return null;
 
     const initialValues = {
@@ -45,13 +44,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
                 formData.append('banner', values.banner);
             }
 
-            // DEBUG: Print all FormData entries
-            for (let pair of formData.entries()) {
-                console.log(`${pair[0]}:`, pair[1]);
-            }
-
             const response = await AuthenticatedAxiosInstance.patch(`/events/edit-event/${eventData.id}/`, formData);
-            console.log('Event updated 234234234:', response.data);
             onSave({
                 ...eventData,
                 ...values,
@@ -64,7 +57,7 @@ const EditEventModal = ({ isOpen, onClose, eventData, onSave }) => {
             onClose();
             showToast("Event updated successfully", "success")
         } catch (error) {
-            console.error('Error updating event:', error);
+            // console.error('Error updating event:', error);
             if (error.response?.status === 400 && error.response.data) {
                 setErrors(error.response.data);
             }

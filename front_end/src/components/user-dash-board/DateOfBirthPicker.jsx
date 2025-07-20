@@ -9,7 +9,6 @@ const DateOfBirthPicker = ({ formData, setFormData, errors }) => {
         if (date) {
             // Convert to yyyy-mm-dd for storage
             const formattedStorageDate = format(date, "yyyy-MM-dd");
-            console.log("Stored Date:", formattedStorageDate);
             // Update parent form state
             setFormData({ ...formData, date_of_birth: formattedStorageDate })
         }

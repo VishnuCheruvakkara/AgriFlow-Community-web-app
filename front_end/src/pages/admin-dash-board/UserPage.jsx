@@ -50,7 +50,7 @@ const UsersPage = () => {
       setUsers(response.data.results);
       setTotalPages(Math.ceil(response.data.count / pageSize));
     } catch (error) {
-      console.error("Error while fetching users:", error);
+      // console.error("Error while fetching users:", error);
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ const UsersPage = () => {
           showToast("User status was not changed..", "error");
         }
       } catch (error) {
-        console.error("Error updating status:", error);
+        // console.error("Error updating status:", error);
         showToast("Something went wrong.", "error");
       }
     }

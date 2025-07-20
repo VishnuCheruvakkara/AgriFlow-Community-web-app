@@ -107,7 +107,7 @@ const EditCommunityModal = ({ isOpen, onClose, community, onSave }) => {
                 onSave(updatedFields);
                 onClose();
             } catch (error) {
-                console.error("Error updating community:", error);
+                // console.error("Error updating community:", error);
                 showToast("Something went wrong while updating the community", "error");
             } finally {
                 setLoading(false); // Stop loader

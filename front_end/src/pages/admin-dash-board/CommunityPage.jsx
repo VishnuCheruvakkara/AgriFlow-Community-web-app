@@ -55,9 +55,8 @@ function CommunityPage() {
 
       setCommunities(response.data.results);
       setTotalPages(Math.ceil(response.data.count / 5));
-      console.log("Community data admin side:", response.data);
     } catch (error) {
-      console.error("Get community error:", error);
+      // console.error("Get community error:", error);
     } finally {
       setLoading(false);
     }

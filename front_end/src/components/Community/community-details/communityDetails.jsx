@@ -92,7 +92,6 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
 
     // handle after submit by selecting members from teh resuable modal 
     const handleModalSubmit = async (selectedMembers) => {
-        console.log("The selected members ::::::: ", selectedMembers)
         if (selectedMembers.length === 0) {
             showToast("Please select at least one member", "error");
             return;
@@ -103,12 +102,11 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 member_ids: selectedMembers,
             });
 
-            console.log('Members added successfully:', response.data);
             showToast("Request send to the selected users...", "success")
             setIsModalOpen(false); // close modal after successful submission
             // Optionally, you can refresh or update the members list here if you want
         } catch (error) {
-            console.error('Error adding members:', error.response?.data || error.message);
+            // console.error('Error adding members:', error.response?.data || error.message);
             showToast("Error happened while adding members,please try again...", "error")
         }
     };
@@ -130,7 +128,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 // remove from frontend list
                 setMembers(prev => prev.filter(m => m.id !== member.id));
             } catch (error) {
-                console.error('Remove member error:', error);
+                // console.error('Remove member error:', error);
                 showToast(`Failed to remove ${member.username}. Please try again.`, "error");
             }
         }
@@ -161,7 +159,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     )
                 );
             } catch (error) {
-                console.error('Make admin error:', error);
+                // console.error('Make admin error:', error);
                 showToast(`Failed to promote ${member.username} as admin. Please try again.`, "error");
             }
         }
@@ -192,7 +190,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     )
                 );
             } catch (error) {
-                console.error('Revoke admin error:', error);
+                // console.error('Revoke admin error:', error);
                 showToast(`Failed to revoke admin privileges from ${member.username}. Please try again.`, "error");
             }
         }
@@ -219,7 +217,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 navigate('/user-dash-board/farmer-community/my-communities');
 
             } catch (error) {
-                console.error('Soft delete error:', error);
+                // console.error('Soft delete error:', error);
                 showToast('Failed to delete community. Please try again.', "error");
             }
         }
@@ -243,7 +241,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                 showToast(`You have left the community '${communityData?.name}' successfully.`, 'success');
                 navigate('/user-dash-board/farmer-community/my-communities');
             } catch (error) {
-                console.error('Error while leaving the community:', error);
+                // console.error('Error while leaving the community:', error);
                 showToast('Something went wrong', 'error');
             }
         }

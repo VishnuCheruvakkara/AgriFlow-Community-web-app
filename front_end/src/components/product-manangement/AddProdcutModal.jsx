@@ -82,9 +82,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
         dispatch(showButtonLoader(buttonId)); //show-loader
 
         try {
-            // Log form values before preparing FormData
-            console.log('Form Values add products :', values);
-
+           
             // Create FormData for file upload
             const formData = new FormData();
             formData.append('title', values.title);
@@ -106,7 +104,6 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                 },
             });
             
-            console.log('Product created:', response.data);
 
             if (onSave) {
                 onSave(response.data);
@@ -117,7 +114,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
             onClose();
             showToast("Product added successfully", "success");
         } catch (error) {
-            console.error('Error creating product:', error);
+            // console.error('Error creating product:', error);
             if (error.response?.status === 400 && error.response.data) {
                 setErrors(error.response.data);
             }

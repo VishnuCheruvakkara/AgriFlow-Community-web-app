@@ -34,10 +34,9 @@ const EventHistoryModalButton = () => {
             const response = await AuthenticatedAxiosInstance.get(
                 "/events/get-event-enrollment-history/"
             );
-            console.log("Arrived event history :: ", response.data);
             setEventHistory(response.data);
         } catch (error) {
-            console.error("Error getting the event history:", error);
+            // console.error("Error getting the event history:", error);
         } finally {
             setLoading(false);
         }

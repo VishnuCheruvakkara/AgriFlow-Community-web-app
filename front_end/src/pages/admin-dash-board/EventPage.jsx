@@ -55,9 +55,8 @@ function EventManagementPage() {
       })
       setEvents(response.data.results);
       setTotalPages(Math.ceil(response.data.count / 5));
-      console.log("Arrived all events admin side :::: ", response.data)
     } catch (error) {
-      console.error("Error fetching events", error)
+      // console.error("Error fetching events", error)
     } finally {
       setLoading(false);
     }

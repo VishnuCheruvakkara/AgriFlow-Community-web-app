@@ -38,9 +38,8 @@ const DashboardPage = () => {
       try {
         const response = await AdminAuthenticatedAxiosInstance.get(`/users/get-dash-board-data/?group_by=${groupBy}`)
         setData(response.data);
-        console.log(response.data);
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       } finally {
         setLoading(false);
       }

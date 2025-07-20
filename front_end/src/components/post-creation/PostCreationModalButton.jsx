@@ -18,7 +18,7 @@ function PostCreationModalButton({ user }) {
 
     const dispatch = useDispatch();
 
-    console.log("DATA for post creation :::", postText, mediaFile)
+    // console.log("DATA for post creation :::", postText, mediaFile)
 
     const handleAddPost = async () => {
         if (!postText.trim() && !mediaFile) {
@@ -45,7 +45,7 @@ function PostCreationModalButton({ user }) {
             setPreviewURL(null); 
             closeModal();
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             showToast("Failed to create post", "error");
         } finally {
             dispatch(hideButtonLoader(buttonId));

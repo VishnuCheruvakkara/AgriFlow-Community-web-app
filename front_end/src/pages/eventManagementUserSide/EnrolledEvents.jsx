@@ -34,12 +34,11 @@ function EnrolledEvents() {
           search: search
         }
       });
-      console.log("Enrolled events ::: ", response.data);
       setEvents(response.data.results);
       setTotalPages(Math.ceil(response.data.count / 6)); // page_size = 6
       setCurrentPage(page);
     } catch (error) {
-      console.error('Error fetching enrolled events:', error);
+      // console.error('Error fetching enrolled events:', error);
     } finally {
       setLoading(false);
     }

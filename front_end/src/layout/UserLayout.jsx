@@ -34,7 +34,6 @@ const UserLayout = () => {
         volume: 0.4 //40% volume
     })
 
-    console.log("userId::", userId)
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -42,15 +41,13 @@ const UserLayout = () => {
                 const response = await AuthenticatedAxiosInstance.get("/users/get-user-data/", {
                 });
 
-                console.log(response.data)
                 dispatch(setUserDetails(response.data)); // Store in Redux
-                console.log("My debugger :::::", response.data)
                 dispatch(loginSuccess({
                     aadhar_verification: response?.data?.is_aadhar_verified// Updates only profile_completed
                 }));
 
             } catch (error) {
-                console.error("Error fetching user data:", error);
+                // console.error("Error fetching user data:", error);
             }
         };
 
@@ -66,12 +63,12 @@ const UserLayout = () => {
         socketRef.current = new WebSocket(`ws://localhost:8000/ws/notification/${userId}/?token=${token}`);
 
         socketRef.current.onopen = () => {
-            console.log("WebSocket notification connection established");
+            // console.log("WebSocket notification connection established");
         };
 
         socketRef.current.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            console.log("Notification received:", data);
+            // console.log("Notification received:", data);
 
             // Decide which slice to dispatch to
             if (["community_message", "private_message","product_message"].includes(data.data.notification_type)) {
@@ -86,11 +83,11 @@ const UserLayout = () => {
         }
 
         socketRef.current.onclose = (event) => {
-            console.log("Websocket closed:", event.code, event.reason);
+            // console.log("Websocket closed:", event.code, event.reason);
         }
 
         socketRef.current.onerror = (error) => {
-            console.log("Websocket error:", error);
+            // console.log("Websocket error:", error);
         }
 
         //Clean up set up or unmount or userId/tocken change 
@@ -99,9 +96,6 @@ const UserLayout = () => {
         };
 
     }, [userId, token]);
-
-
-
 
     return (
         <div className="bg-gray-100 min-h-screen dark:bg-zinc-950">

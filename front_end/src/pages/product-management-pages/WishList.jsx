@@ -28,11 +28,10 @@ function WishList() {
         }
       );
       const results = response.data.results || [];
-      console.log("Wishlist :::", results);
       setProducts(results);
       setWishlist(results.map(item => item.product_id));
     } catch (error) {
-      console.error("Error fetching wishlist:", error);
+      // console.error("Error fetching wishlist:", error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +70,7 @@ function WishList() {
 
       showToast(isInWishlist ? "Removed from wishlist" : "Added to wishlist", isInWishlist ? "info" : "success");
     } catch (error) {
-      console.error("Error toggling wishlist:", error);
+      // console.error("Error toggling wishlist:", error);
       showToast("Error toggling wishlist", "error");
     } finally {
       setWishlistLoadingId(null);

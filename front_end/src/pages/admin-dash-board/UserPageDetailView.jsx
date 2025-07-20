@@ -54,12 +54,11 @@ function UserPageDetailView() {
 
         try {
             const response = await AdminAuthenticatedAxiosInstance.patch(`/users/update-aadhar-resubmission-message/${userId}/`, { aadhar_resubmission_message: resubmissionMessage });
-            console.log('Resubmission request sent successfully:', response.data);
             showToast("Resubmission request sent successfully...", "success")
             cancelRequest();
             setMessageError("");
         } catch (error) {
-            console.error('Error sending resubmission message:', error.response?.data || error.message);
+            // console.error('Error sending resubmission message:', error.response?.data || error.message);
             showToast("Error happend while sending the message...", "error")
             setMessageError(error.response?.data);
         }
@@ -113,7 +112,7 @@ function UserPageDetailView() {
                 const response = await AdminAuthenticatedAxiosInstance.get(`/users/admin/get-user/${userId}/`);
                 setUser(response.data);
             } catch (error) {
-                console.log("Error fetching user details : ", error);
+                // console.error("Error fetching user details : ", error);
             } finally {
                 setLoading(false);
             }
@@ -149,7 +148,7 @@ function UserPageDetailView() {
             }))
             setShowAadharModal(false);
         } catch (error) {
-            console.log("Error verifying Aadhar : ", error)
+            // console.error("Error verifying Aadhar : ", error)
             showToast("Failed to verify Aadhaar.")
             setShowAadharModal(false);
         } finally {

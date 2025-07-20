@@ -37,9 +37,9 @@ const CommunityDetailsPage = () => {
       try {
         const response = await AdminAuthenticatedAxiosInstance.get(`/community/admin/get-community-details/${communityId}`);
         setCommunity(response.data);
-        console.log("Community data ::", response.data)
+        // console.log("Community data ::", response.data)
       } catch (error) {
-        console.error("Error fetching community:", error);
+        // console.error("Error fetching community:", error);
       } finally {
         setLoading(false);
       }
@@ -66,7 +66,7 @@ const CommunityDetailsPage = () => {
           { is_deleted: !currentStatus }
         );
 
-        console.log("Delete Status updated", response.data);
+        // console.log("Delete Status updated", response.data);
 
         // Update local state immediately
         setCommunity((prev) => ({
@@ -82,7 +82,7 @@ const CommunityDetailsPage = () => {
 
         showToast(message, "success");
       } catch (error) {
-        console.error("Failed to toggle delete status", error);
+        // console.error("Failed to toggle delete status", error);
         showToast("Failed to update community status.", "error");
       }
     }

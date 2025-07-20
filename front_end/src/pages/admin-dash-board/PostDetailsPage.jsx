@@ -17,7 +17,6 @@ import { showToast } from '../../components/toast-notification/CustomToast';
 import { showConfirmationAlert } from '../../components/SweetAlert/showConfirmationAlert';
 import { PulseLoader } from 'react-spinners';
 
-
 function PostDetailsPage() {
     const { postId } = useParams();
     const navigate = useNavigate();
@@ -28,10 +27,9 @@ function PostDetailsPage() {
         setLoading(true);
         try {
             const response = await AdminAuthenticatedAxiosInstance.get(`/posts/admin/get-single-post-data/${postId}`)
-            console.log("Arrived single post:", response.data)
             setPost(response.data);
         } catch (error) {
-            console.error("Error fetching data :", error)
+            // console.error("Error fetching data :", error)
         } finally {
             setLoading(false);
         }
@@ -60,8 +58,6 @@ function PostDetailsPage() {
                     { is_deleted: !currentStatus }
                 );
 
-                console.log("Delete Status updated", response.data);
-
                 // Update local state immediately
                 setPost((prev) => ({
                     ...prev,
@@ -76,7 +72,7 @@ function PostDetailsPage() {
 
                 showToast(message, "success");
             } catch (error) {
-                console.error("Failed to toggle delete status", error);
+                // console.error("Failed to toggle delete status", error);
                 showToast("Failed to update post status.", "error");
             }
         }

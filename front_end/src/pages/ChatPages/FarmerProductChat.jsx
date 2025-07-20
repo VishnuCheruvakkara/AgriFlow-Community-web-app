@@ -40,13 +40,6 @@ function FarmerProductChat() {
         productImage,
     } = location.state || {};
 
-    console.log("receiverId 09090:::", receiverId,
-        username,
-        profilePicture,
-        productId,
-        productName,
-        productImage,)
-
     const minId = Math.min(userId, receiverId);
     const maxId = Math.max(userId, receiverId);
     const roomName = `productchat_${minId}_${maxId}_${productId}`;
@@ -59,7 +52,7 @@ function FarmerProductChat() {
         socketRef.current = new WebSocket(`ws://localhost:8000/ws/product-chat/${roomName}/?token=${token}`);
 
         socketRef.current.onopen = () => {
-            console.log(" WebSocket connected for product chat");
+            // console.log(" WebSocket connected for product chat");
         };
 
         socketRef.current.onmessage = (e) => {
@@ -73,16 +66,16 @@ function FarmerProductChat() {
                     setMessages(prev => [...prev, data]);
                 }
             } catch (error) {
-                console.error("WebSocket JSON parse error", error);
+                // console.error("WebSocket JSON parse error", error);
             }
         };
 
         socketRef.current.onerror = (e) => {
-            console.error("WebSocket error", e);
+            // console.error("WebSocket error", e);
         };
 
         socketRef.current.onclose = () => {
-            console.log("WebSocket closed");
+            // console.log("WebSocket closed");
         };
 
         return () => {
@@ -114,9 +107,8 @@ function FarmerProductChat() {
                     },
                 });
                 setMessages(response.data);
-                console.log("Message prodcut 9898 from db :::", response.data);
             } catch (error) {
-                console.log("Error fetching messages from Db:::", error);
+                // console.log("Error fetching messages from Db:::", error);
             }
         };
         if (productId && receiverId) {

@@ -43,9 +43,8 @@ const AdminProductDetailsPage = () => {
         `/products/admin/get-single-product/${productId}/`
       );
       setProduct(response.data);
-      console.log("Fetched product:", response.data);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }
@@ -74,7 +73,6 @@ const AdminProductDetailsPage = () => {
           { is_deleted: !currentStatus }
         );
 
-        console.log("Delete Status updated", response.data);
 
         // Update local state immediately
         setProduct((prev) => ({
@@ -90,7 +88,7 @@ const AdminProductDetailsPage = () => {
 
         showToast(message, "success");
       } catch (error) {
-        console.error("Failed to toggle delete status", error);
+        // console.error("Failed to toggle delete status", error);
         showToast("Failed to update product status.", "error");
       }
     }

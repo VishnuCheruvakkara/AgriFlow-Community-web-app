@@ -13,9 +13,8 @@ function ReceivedRequestsSection() {
         try {
             const response = await AuthenticatedAxiosInstance.get('/connections/received-connection-request/');
             setRequests(response.data);
-            console.log("received connection request::", response.data);
         } catch (error) {
-            console.error('Error fetching requests:', error);
+            // console.error('Error fetching requests:', error);
         }
     };
 
@@ -27,12 +26,11 @@ function ReceivedRequestsSection() {
     const acceptRequest = async (requestId) => {
         try {
             const response = await AuthenticatedAxiosInstance.patch(`/connections/accept-connection-request/${requestId}/`);
-            console.log("Connection request accepted:", response.data);
             showToast("Connection request accepted", "success")
             // update UI
             setRequests(prev => prev.filter(req => req.id !== requestId));
         } catch (error) {
-            console.error("Error accepting connection request:", error);
+            // console.error("Error accepting connection request:", error);
             showToast("Error accepting connection request. Try again", "error")
         }
     };
@@ -53,12 +51,11 @@ function ReceivedRequestsSection() {
         if (result) {
             try {
                 const response = await AuthenticatedAxiosInstance.patch(`/connections/reject-connection-request/${requestId}/`);
-                console.log("Connection request rejected:", response.data);
                 showToast("Connection request rejected", "success");
                 // Update UI by removing rejected request
                 setRequests(prev => prev.filter(req => req.id !== requestId));
             } catch (error) {
-                console.error("Error rejecting connection request:", error);
+                // console.error("Error rejecting connection request:", error);
                 showToast("Error rejecting connection request. Try again", "error");
             }
         }

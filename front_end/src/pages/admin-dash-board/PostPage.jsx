@@ -61,11 +61,10 @@ function PostPage() {
           type: typeFilter !== "all" ? typeFilter : undefined,
         },
       })
-      console.log("Full response object:", response.data);
       setPosts(response.data.results);
       setTotalPages(Math.ceil(response.data.count / 5));
     } catch (error) {
-      console.error("Error fetching post : ", error);
+      // console.error("Error fetching post : ", error);
     } finally {
       setLoading(false);
     }

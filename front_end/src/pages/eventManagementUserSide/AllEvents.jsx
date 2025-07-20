@@ -46,7 +46,7 @@ function AllEvents() {
         hasPrev: response.data.previous !== null,
       });
     } catch (error) {
-      console.error("Failed to fetch events", error);
+      // console.error("Failed to fetch events", error);
     } finally {
       setLoading(false);
     }

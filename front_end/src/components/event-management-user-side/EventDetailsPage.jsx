@@ -39,12 +39,11 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
   };
 
   const handleSave = async (updatedEvent) => {
-    console.log("Events after update ::444::", updatedEvent)
     try {
       setCurrentEvent(updatedEvent);
       setIsEditModalOpen(false);
     } catch (error) {
-      console.error("Error saving event:", error);
+      // console.error("Error saving event:", error);
     }
   };
 
@@ -85,12 +84,11 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
     if (result) {
       try {
         const response = await AuthenticatedAxiosInstance.patch(`/events/delete-event/${currentEvent.id}/`);
-        console.log(response.data);
         showToast("Event deleted successfully", "success")
         onDelete(currentEvent.id);
         onClose(); // Close the page
       } catch (error) {
-        console.error("Error deleting event:", error);
+        // console.error("Error deleting event:", error);
         showToast("Failed to delete the event.", "error")
       }
     }
@@ -111,7 +109,6 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
         const response = await AuthenticatedAxiosInstance.patch(
           `/events/mark-as-completed/${currentEvent.id}/`
         );
-        console.log(response.data);
         showToast("Event marked as completed.", "success");
         const updatedEvent = {
           ...currentEvent,
@@ -122,7 +119,7 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
         //changes in parent event status
         if (onEventStatusUpdate) onEventStatusUpdate(updatedEvent);
       } catch (error) {
-        console.error("Error marking event as completed:", error);
+        // console.error("Error marking event as completed:", error);
         const errorMessage =
           error?.response?.data?.detail ||
           "Failed to mark the event as completed.";
@@ -142,7 +139,6 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
     if (result) {
       try {
         const response = await AuthenticatedAxiosInstance.patch(`/events/mark-as-cancelled/${currentEvent.id}/`);
-        console.log(response.data);
         showToast("Event has been cancelled.", "success");
         const updatedEvent = {
           ...currentEvent,
@@ -154,7 +150,7 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
         //changes in parent event status
         if (onEventStatusUpdate) onEventStatusUpdate(updatedEvent);
       } catch (error) {
-        console.error("Error cancelling event:", error);
+        // console.error("Error cancelling event:", error);
         const errorMessage = error?.response?.data?.detail || "Failed to cancel the event.";
         showToast(errorMessage, "error");
       }

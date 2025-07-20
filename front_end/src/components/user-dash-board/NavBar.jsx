@@ -99,13 +99,12 @@ function NavBar() {
 
 
         } catch (error) {
-            console.log("logout failed:", error);
+            // console.log("logout failed:", error);
             showToast(`logout failed`, "error")
 
         }
     }
 
-    console.log("RAW NOTIFICATIONS", messageNotifications);
 
     //Get messages form db for private messages
     useEffect(() => {
@@ -116,11 +115,10 @@ function NavBar() {
         try {
             const response = await AuthenticatedAxiosInstance.get('/notifications/get-private-messages/');
             const data = response.data
-            console.log("Saved messages :::", data)
             dispatch(addMessageNotification(data));
 
         } catch (error) {
-            console.error("Failed to fetch private messages:", error);
+            // console.error("Failed to fetch private messages:", error);
         }
     }
 
@@ -133,10 +131,9 @@ function NavBar() {
         try {
             const response = await AuthenticatedAxiosInstance.get('/notifications/get-general-notifications/');
             const data = response.data;
-            console.log("General notifications fetched:", data);
             dispatch(addGeneralNotification(data));
         } catch (error) {
-            console.error("Failed to fetch general notifications:", error);
+            // console.error("Failed to fetch general notifications:", error);
         }
     };
 
@@ -150,7 +147,7 @@ function NavBar() {
                 await markNotificationAsRead(message.id);
                 await getPrivateMessagesFromDb();
             } catch (error) {
-                console.error("Error marking as read:", error);
+                // console.error("Error marking as read:", error);
             }
         }
 
@@ -171,7 +168,7 @@ function NavBar() {
                 await markNotificationAsRead(message.id);
                 await getPrivateMessagesFromDb();
             } catch (error) {
-                console.error("Error marking as read:", error);
+                // console.error("Error marking as read:", error);
             }
         }
         navigate(`/user-dash-board/farmer-community/my-communities/community-chat/${message.community_id}`);
@@ -186,7 +183,7 @@ function NavBar() {
                 await markNotificationAsRead(message.id);
                 // await getPrivateMessagesFromDb();
             } catch (error) {
-                console.error("Error marking as read:", error);
+                // console.error("Error marking as read:", error);
             }
         }
 
@@ -212,7 +209,7 @@ function NavBar() {
         try {
             await AuthenticatedAxiosInstance.patch(`/notifications/mark-as-read-notifications/${notificationId}/`);
         } catch (error) {
-            console.error("Error marking notification as read", error);
+            // console.error("Error marking notification as read", error);
         }
     };
 
@@ -227,7 +224,7 @@ function NavBar() {
             await markNotificationAsRead(notificationId);
             dispatch(markAsRead(notificationId));  // update redux store locally
         } catch (error) {
-            console.error("Failed to mark as read:", error);
+            // console.error("Failed to mark as read:", error);
         }
     };
     //get the count of readed notifications from redux 
@@ -246,7 +243,7 @@ function NavBar() {
                 dispatch(deleteNotificationFromRedux(notificationId));
             }
         } catch (error) {
-            console.error("Error deleting notification:", error);
+            // console.error("Error deleting notification:", error);
         }
     };
 

@@ -54,7 +54,6 @@ function ProfilePage() {
 
   const [errors, setErrors] = useState({});
 
-  console.log("Updated form datas debugg :::::::<><>::::", formData)
   // Handle profile image of user
   const handleProfileImageSelect = (file) => {
     setFormData((prevData) => ({
@@ -99,7 +98,6 @@ function ProfilePage() {
         aadhar_resubmission_message: null,
       }));
     } catch (error) {
-      console.error("Upload error:", error.response?.data || error.message);
       showToast("Error uploading Aadhaar image", "error");
     } finally {
       dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
@@ -146,7 +144,6 @@ function ProfilePage() {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Success:", response.data);
       dispatch(loginSuccess({
         profile_completed: response.data.profile_completed  // Updates only profile_completed
       }));
@@ -154,10 +151,8 @@ function ProfilePage() {
       setErrors({});
       navigate("/user-dash-board");
     } catch (error) {
-      console.error("Error updating profile:", error);
       if (error.response && error.response.status === 400) {
         setErrors(error.response.data); // Store backend validation errors
-        console.log("debug the erros ::::::<><><>:::::", error.response.data)
       }
       showToast("Profile update failed. Please review your information and try again.", "error");
     }
@@ -165,8 +160,7 @@ function ProfilePage() {
       dispatch(hideButtonLoader(buttonId)); // Hide loader afeter process
     }
   };
-
-
+  
   /////////  Set up for the all conditional statement to show the ui part (For debug friendly approach...) ////////////////////
 
   let content;

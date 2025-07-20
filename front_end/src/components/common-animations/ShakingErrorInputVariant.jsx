@@ -1,4 +1,3 @@
-
 //shaking animation for the input field if any error found 
 
 export const shakeErrorInputVariant = {

@@ -49,7 +49,7 @@ const EditPostModalButton = ({ post, onSuccess }) => {
             onSuccess(); // Refresh post list
             closeModal();
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             showToast(error?.response?.data?.[0] || "Something went wrong", "error");
 
         } finally {

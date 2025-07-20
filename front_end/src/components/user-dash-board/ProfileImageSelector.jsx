@@ -4,7 +4,6 @@ import { AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState("");
-  console.log("initial image ::::", initialImage)
 
   useEffect(() => {
     if (reset) {

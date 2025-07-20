@@ -33,7 +33,6 @@ const ProductDetailsPage = () => {
     const navigate = useNavigate();
     //get product Id from the previous page 
     const { productId } = useParams();
-    console.log("PRoduct9898 id is :::: ,", productId)
 
     const [showMapModal, setShowMapModal] = useState();
     const [localProduct, setLocalProduct] = useState({});
@@ -48,7 +47,7 @@ const ProductDetailsPage = () => {
                 const response = await AuthenticatedAxiosInstance.get(`/products/get-single-product-details/${productId}/`);
                 setLocalProduct(response.data);
             } catch (error) {
-                console.error("Failed to fetch product details:", error);
+                // console.error("Failed to fetch product details:", error);
                 showToast("Error loading product details", "error");
             } finally {
                 setLoading(false);
@@ -56,8 +55,6 @@ const ProductDetailsPage = () => {
         };
         fetchProductDetails();
     }, [productId]);
-
-    console.log("Local product is :::::", localProduct)
 
     const images = [localProduct.image1, localProduct.image2, localProduct.image3].filter(Boolean);
 
@@ -98,7 +95,7 @@ const ProductDetailsPage = () => {
                 navigate("/user-dash-board/products/my-products");
 
             } catch (error) {
-                console.error("Error deleting product:", error);
+                // console.error("Error deleting product:", error);
                 showToast("Error deleting product", "error");
             }
         }

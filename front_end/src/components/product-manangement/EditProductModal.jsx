@@ -22,7 +22,6 @@ import ButtonLoader from '../../components/LoaderSpinner/ButtonLoader'
 import { showButtonLoader, hideButtonLoader } from '../../redux/slices/LoaderSpinnerSlice';
 
 const EditProductModal = ({ isOpen, onClose, onSave, product }) => {
-    console.log("product in edit product modal ::: ",product)
     const dispatch = useDispatch();
     const [imagePreviews, setImagePreviews] = useState({
         image1: '',
@@ -124,7 +123,6 @@ const EditProductModal = ({ isOpen, onClose, onSave, product }) => {
         dispatch(showButtonLoader(buttonId));
 
         try {
-            console.log('Edit Form Values:', values);
 
             // Create FormData for file upload
             const formData = new FormData();
@@ -147,8 +145,6 @@ const EditProductModal = ({ isOpen, onClose, onSave, product }) => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            
-            console.log('Product updated:', response.data);
 
             if (onSave) {
                 onSave(response.data);
@@ -157,7 +153,7 @@ const EditProductModal = ({ isOpen, onClose, onSave, product }) => {
             onClose();
             showToast("Product updated successfully", "success");
         } catch (error) {
-            console.error('Error updating product:', error);
+            // console.error('Error updating product:', error);
             if (error.response?.status === 400 && error.response.data) {
                 setErrors(error.response.data);
             }

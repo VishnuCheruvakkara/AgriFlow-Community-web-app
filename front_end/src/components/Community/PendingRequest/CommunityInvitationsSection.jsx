@@ -16,11 +16,10 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
         const fetchInvites = async () => {
             try {
                 const response = await AuthenticatedAxiosInstance.get('community/pending-community-invites/');
-                console.log("Invitation datas :::: ", response.data);
                 setInvitations(response.data);
                 setIsLoaded(true);
             } catch (error) {
-                console.log("Error fetching invitations :", error);
+                // console.error("Error fetching invitations :", error);
             }
         };
         fetchInvites();
@@ -36,20 +35,15 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
         });
         if (result) {
             try {
-                console.log("Sending POST to respond:", {
-                    community_id: communityId,
-                    action: 'accept'
-                });
                 const response = await AuthenticatedAxiosInstance.post('community/respond/', {
                     community_id: communityId,
                     action: 'accept'
                 });
-                console.log("Invitation accepted:", response.data);
                 showToast(`You have successfully joined to community "${communityName}"`, 'success')
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove accepted invite
             } catch (error) {
-                console.error("Error accepting invite:", error);
+                // console.error("Error accepting invite:", error);
                 showToast("Erro happened, try again", "error")
             }
         }
@@ -65,20 +59,15 @@ function CommunityInvitationsSection({ expanded, toggleSection }) {
         });
         if (result) {
             try {
-                console.log("Sending POST to respond:", {
-                    community_id: communityId,
-                    action: 'accept'
-                });
                 const response = await AuthenticatedAxiosInstance.post('community/respond/', {
                     community_id: communityId,
                     action: 'ignore'
                 });
-                console.log("Invitation ignored:", response.data);
                 showToast(`Invitation ignored for the community "${communityName}"`, "success")
                 // Update state to reflect the change
                 setInvitations(invitations.filter(invite => invite.id !== inviteId)); // Remove ignored invite
             } catch (error) {
-                console.error("Error ignoring invite:", error);
+                // console.error("Error ignoring invite:", error);
             }
         }
 

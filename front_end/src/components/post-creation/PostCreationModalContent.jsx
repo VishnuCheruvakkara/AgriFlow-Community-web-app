@@ -3,7 +3,7 @@ import { FaPhotoVideo } from 'react-icons/fa';
 import { BsEmojiSmile } from 'react-icons/bs';
 import { AiOutlineClose } from 'react-icons/ai';
 import { showToast } from '../toast-notification/CustomToast';
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react'; // ✅ emoji-picker-react
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react'; 
 
 const PostCreationModalContent = ({
   postText,

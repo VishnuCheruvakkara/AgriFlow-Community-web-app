@@ -40,7 +40,6 @@ function SideBar() {
 
 
         } catch (error) {
-            console.log("logout failed:", error);
             showToast(`logout failed`, "error")
         }
     }
