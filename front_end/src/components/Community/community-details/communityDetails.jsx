@@ -378,7 +378,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                     </div>
 
                                     <AnimatePresence>
-                                        {openMemberId === member.id && currentUser.id !== member.id && (
+                                        {openMemberId === member.id && currentUser.id !== member.id && (!member?.is_blocker || currentMember?.is_admin) && (
                                             <motion.ul
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -387,12 +387,14 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                                                 className="menu right-16 bg-white shadow-lg shadow-gray-400 dark:shadow-zinc-700 border dark:border-zinc-600 bg-base-200 dark:bg-zinc-800 rounded-md absolute transform -translate-x-1/2 z-20 p-1 with-pointer"
                                             >
                                                 {/* View user option */}
-                                                <Link to={`/user-dash-board/user-profile-view/${member.id}`}
-                                                    className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-t-sm p-2"
-                                                >
-                                                    View {member.username}
-
-                                                </Link>
+                                                {!member?.is_blocker && (
+                                                    <Link
+                                                        to={`/user-dash-board/user-profile-view/${member.id}`}
+                                                        className="hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-zinc-200 transition-colors rounded-t-sm p-2"
+                                                    >
+                                                        View {member.username}
+                                                    </Link>
+                                                )}
 
                                                 {currentMember?.is_admin && (
                                                     <>

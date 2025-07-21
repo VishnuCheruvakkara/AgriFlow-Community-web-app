@@ -438,10 +438,10 @@ class GetCommunityDetailsWithUsers(APIView):
     Custom API View to retrieve a community with its members.
     """
 
-    def get(self, rquest, id):
+    def get(self, request, id):
         try:
             community = Community.objects.get(id=id)
-            serializers = CommunityDeatilsSerializer(community)
+            serializers = CommunityDeatilsSerializer(community,context={'request':request})
             return Response(serializers.data, status=status.HTTP_200_OK)
         except Community.DoesNotExist:
             return Response({"detail": "Community not found ?"}, status=status.HTTP_404_NOT_FOUND)

@@ -37,8 +37,7 @@ function AdminApprovalsSection({ expanded, toggleSection }) {
                 showToast("Cancelled the request successfully")
                 fetchRequest(); // Refresh the list after cancel
             } catch (error) {
-                
-                .error("Error cancelling request:", error);
+                // console.error("Error cancelling request:", error);
                 showToast("Error happened, Try agian", "error")
             }
         }

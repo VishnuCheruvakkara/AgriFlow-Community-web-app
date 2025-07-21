@@ -11,6 +11,7 @@ from notifications.utils import create_and_send_notification
 from common.cloudinary_utils import generate_secure_image_url
 from django.shortcuts import get_object_or_404
 import logging
+from common.blocked_users import get_blocked_user_ids
 logger = logging.getLogger(__name__)
 
 # Create New post View
@@ -58,8 +59,10 @@ class GetAllThePosts(APIView):
         search_query = request.query_params.get('search', '').strip()
         filter_type = request.query_params.get('filter', '').lower()
 
+        blocked_ids = get_blocked_user_ids(request.user)
+
         # Start with all posts
-        posts = Post.objects.select_related('author').filter(is_deleted=False)
+        posts = Post.objects.select_related('author').filter(is_deleted=False).exclude(author__id__in=blocked_ids)
 
         #  Apply search filter (by post content or author username)
         if search_query:
@@ -83,7 +86,7 @@ class GetAllThePosts(APIView):
 
         return paginator.get_paginated_response(serializer.data)
 
-# Hanle Like View
+# Handle Like View
 # Toggle Likes 
 class ToggleLikeAPIView(APIView):
     permission_classes = [IsAuthenticated]

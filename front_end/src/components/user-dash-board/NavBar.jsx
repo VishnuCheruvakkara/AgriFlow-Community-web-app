@@ -83,7 +83,7 @@ function NavBar() {
             await persistor.purge(); //Clear the persisted state
             showToast(`logout successful`, "success")
             //Redirect to the login page
-            navigate("/login")
+            navigate("/")
 
 
         } catch (error) {

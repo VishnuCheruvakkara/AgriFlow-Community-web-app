@@ -20,8 +20,6 @@ function SideBar() {
 
     const handleLogout = async () => {
         try {
-
-
             await PublicAxiosInstance.post("/users/logout/");
             //clear userdata and accesstoken details from the localstorage through the redux-persistor
 
@@ -30,7 +28,7 @@ function SideBar() {
             await persistor.purge(); //Clear the persisted state
             showToast(`logout successful`, "success")
             //Redirect to the login page
-            navigate("/login")
+            navigate("/")
 
 
         } catch (error) {

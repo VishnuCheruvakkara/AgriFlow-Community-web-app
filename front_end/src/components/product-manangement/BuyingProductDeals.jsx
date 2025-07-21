@@ -43,12 +43,12 @@ function BuyingProductDeals() {
         onClick={() => setIsOpen(!isOpen)}
         className={` ripple-parent ripple-white bg-gradient-to-r from-green-700 to-green-400 flex justify-between items-center p-4 cursor-pointer ${isOpen ? 'rounded-t-lg' : 'rounded-lg'}`}
       >
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <div className="bg-white rounded-full mr-3 flex items-center justify-center w-10 h-10">
             <FaHandHoldingUsd className="text-green-600 text-xl" />
           </div>
           <h2 className="text-md font-semibold text-white">Your Buying Products Deals</h2>
-          <span className="ml-3 px-2 py-1 border border-green-600 bg-white text-green-600 font-semibold text-xs rounded-full ">
+          <span className=" ml-3 px-2 py-1 border border-green-600 bg-white text-green-600 font-semibold text-xs rounded-full">
             {deals.length}
           </span>
         </div>

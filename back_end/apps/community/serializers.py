@@ -1,6 +1,7 @@
 from tkinter import Y
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from connections.models import BlockedUser
 from community.models import Community, CommunityMembership, Tag, CommunityMessage
 from apps.common.cloudinary_utils import upload_image_to_cloudinary, generate_secure_image_url
 # import the notificaiton set model from notifications named app
@@ -12,6 +13,7 @@ from channels.layers import get_channel_layer
 from apps.notifications.utils import create_and_send_notification
 User = get_user_model()
 channel_layer = get_channel_layer()
+from django.db.models import Q
 
 # Commuity creation related serializers 
 
@@ -332,10 +334,11 @@ class CommunityMemberSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email')
     is_admin = serializers.BooleanField()
     profile_image = serializers.SerializerMethodField()
+    is_blocker = serializers.SerializerMethodField()
 
     class Meta:
         model = CommunityMembership
-        fields = ['id', 'username', 'email', 'is_admin', 'profile_image']
+        fields = ['id', 'username', 'email', 'is_admin', 'profile_image','is_blocker']
 
     def get_profile_image(self, obj):
         """
@@ -346,6 +349,11 @@ class CommunityMemberSerializer(serializers.ModelSerializer):
             return generate_secure_image_url(user.profile_picture)
         return None
 
+    def get_is_blocker(self,obj):
+        request_user = self.context['request'].user
+        user_in_list = obj.user
+        return BlockedUser.objects.filter(Q(blocker=user_in_list,blocked=request_user) | Q(blocker=request_user,blocked=user_in_list)).exists()
+    
 class CommunityDeatilsSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField()
     community_logo = serializers.SerializerMethodField()
@@ -359,8 +367,9 @@ class CommunityDeatilsSerializer(serializers.ModelSerializer):
         """
         Return only approved members of the community.
         """
+        request=self.context.get('request')
         approved_memberships = obj.memberships.filter(status='approved')
-        return CommunityMemberSerializer(approved_memberships, many=True).data
+        return CommunityMemberSerializer(approved_memberships, many=True,context={'request':request}).data
 
     def get_community_logo(self, obj):
         """
@@ -371,6 +380,7 @@ class CommunityDeatilsSerializer(serializers.ModelSerializer):
         return None
 
 # Admin of a group can add new members to the community (send request) Serializer  class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
+class AddNewCommunityMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMembership
         fields = ['user', 'community', 'status', 'is_admin']

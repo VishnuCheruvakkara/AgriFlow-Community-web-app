@@ -11,8 +11,14 @@ import SearchNotFound from "../../assets/images/connection_no_search_found.png"
 import { showToast } from '../../components/toast-notification/CustomToast';
 import { MdOutlineCancel } from "react-icons/md";
 import { Link } from 'react-router-dom';
+import useSound from 'use-sound';
+import connectionSound from "../../sounds/mixkit-software-interface-start-2574 (1).wav"
 
 const SuggestedFarmers = () => {
+
+    const [playConnectionSound] = useSound(connectionSound, {
+        volume:0.5,
+    })
     const [farmers, setFarmers] = useState([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -22,6 +28,7 @@ const SuggestedFarmers = () => {
 
     const fetchSuggestedFarmers = async () => {
         try {
+            playConnectionSound();
             setLoading(true);
             const response = await AuthenticatedAxiosInstance.get('/connections/get-suggested-farmers/', {
                 params: {
