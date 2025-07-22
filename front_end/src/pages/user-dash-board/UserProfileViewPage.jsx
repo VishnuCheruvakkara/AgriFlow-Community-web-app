@@ -123,7 +123,6 @@ function UserProfileViewPage() {
         setLoading(true);
         try {
             const response = await AuthenticatedAxiosInstance.get(`/users/get-user-profile-data/${userId}/`);
-            console.log("Arrived user data ::::",response.data)
             setUser(response.data);
         } catch (error) {
             // console.error("Error fetching user data:", error);
