@@ -1,0 +1,69 @@
+services:
+  web:
+    container_name : web
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - .:/app #only for developmet, remove while deploying...
+    ports:
+      - "8000:8000"
+    depends_on:
+      - data_base #postgres database 
+      - redis
+    # restart: unless-stopped #only for production 
+    networks:
+      - backend-network
+
+  data_base:
+    image: postgres:latest
+    container_name: data_base
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      DATABASE_HOST: ${DB_HOST}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # restart: unless-stopped #only for production 
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis 
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+    
+  celery-worker:
+    build: .
+    command: ["celery","-A","agri_flow","worker","--loglevel=info"]
+    env_file:
+      - .env 
+    depends_on:
+      - redis 
+      - data_base
+    networks:
+      - backend-network
+    
+  celery-beat:
+    build: .
+    command: ["celery","-A","agri_flow","beat","--loglevel=info"]
+    depends_on:
+      - redis 
+      - data_base
+    env_file:
+      - .env 
+    networks:
+      - backend-network
+     
+volumes:
+  pgdata:
+
+networks:
+  backend-network:
+    driver: bridge
