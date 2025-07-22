@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response 
 from rest_framework.permissions import IsAuthenticated 
 from rest_framework import status
+from common.blocked_users import get_blocked_user_ids
 from notifications.models import Notification 
 from notifications.serializers import NotificationSerializer,GetPrivateMessageSerializer,GeneralNotificationSerializer
 from channels.layers import get_channel_layer 
@@ -34,18 +35,18 @@ class MarkNotificationReadView(APIView):
         except Notification.DoesNotExist:
             return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
     
-# Get messages for private user-to-user meessages
+# Get messages for private/product/community user-to-user meessages
 class PrivateMessageNotificationView(APIView):
     permission_classes= [IsAuthenticated]
 
     def get(self,request):
         user = request.user 
+        blocked_ids = get_blocked_user_ids(user)
         private_msgs = Notification.objects.filter(
-           Q( recipient=user) & Q(is_deleted=False)  & (Q(notification_type="private_message") | Q(notification_type="community_message") | Q(notification_type="product_message"))
+           Q( recipient=user) & Q(is_deleted=False)  & (Q(notification_type="private_message") | Q(notification_type="community_message") | Q(notification_type="product_message")) & ~Q(sender_id__in=blocked_ids)
         ).order_by('-created_at')
 
         serializer = GetPrivateMessageSerializer(private_msgs,many=True)
-
         return Response(serializer.data)
 
 # Mark notifications as read 
@@ -67,9 +68,10 @@ class GeneralNotificationListView(APIView):
 
     def get(self, request):
         user = request.user
+        blocked_ids = get_blocked_user_ids(user)
         general_notifications = Notification.objects.filter(
             recipient=user,is_deleted=False,
-        ).exclude(notification_type__in=["private_message", "community_message","product_message"])
+        ).exclude(notification_type__in=["private_message", "community_message","product_message"]).exclude(sender__id__in=blocked_ids)
         
         serializer = GeneralNotificationSerializer(general_notifications, many=True)
         return Response(serializer.data)
