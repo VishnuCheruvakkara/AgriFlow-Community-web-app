@@ -11,7 +11,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.validators import EmailValidator
 from django.contrib.auth import authenticate
 from community.models import CommunityMembership
-from connections.models import Connection
+from connections.models import BlockedUser, Connection
 from django.db.models import Q
 from apps.common.cloudinary_utils import generate_secure_image_url
 from datetime import timedelta
@@ -552,6 +552,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     connection_status = serializers.SerializerMethodField()
     post_count = serializers.SerializerMethodField()
     product_count = serializers.SerializerMethodField()
+    is_blocker = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = [
@@ -559,7 +560,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'is_verified', 'farming_type', 'experience', 'bio', 'aadhar_card',
             'is_aadhar_verified', 'aadhar_resubmission_message', 'date_of_birth',
             'profile_completed', 'created_at', 'updated_at',
-            'address', 'community_count', 'connection_count', 'connection_status','post_count', 'product_count'
+            'address', 'community_count', 'connection_count', 'connection_status','post_count', 'product_count','is_blocker'
         ]
     
     def get_post_count(self, obj):
@@ -583,6 +584,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     def get_banner_image(self, obj): 
         return generate_secure_image_url(obj.banner_image)
+
+    def get_is_blocker(self, obj):
+        request = self.context.get('request')
+        if not request or not hasattr(request, 'user'):
+            return False
+
+        user = request.user
+        return BlockedUser.objects.filter(
+            Q(blocker=user, blocked=obj) | Q(blocker=obj, blocked=user)
+        ).exists()
 
     def get_connection_status(self, obj):
         request = self.context.get('request')

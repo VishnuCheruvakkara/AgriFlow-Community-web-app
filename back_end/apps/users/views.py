@@ -25,6 +25,7 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 # App utilities
 from apps.common.cloudinary_utils import generate_secure_image_url, upload_image_and_get_url, upload_image_to_cloudinary
 from apps.common.pagination import CustomUserPagination
+from connections.models import BlockedUser
 
 # Serializers
 from .serializers import (
@@ -809,8 +810,19 @@ class UserProfileView(APIView):
     def get(self, request, user_id):
         try:
             user = User.objects.select_related('address').get(id=user_id)
+
+            is_blocked = BlockedUser.objects.filter(
+                Q(blocker=request.user,blocked=user)|Q(blocker=user,blocked=request.user)
+            ).exists()
+
+            is_inactive_or_unverified = not user.is_active or not user.is_aadhar_verified
+
+            if is_blocked or is_inactive_or_unverified:
+                user=request.user
+
             serializer = UserProfileSerializer(user, context={'request':request})
             return Response(serializer.data)
+        
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
         
