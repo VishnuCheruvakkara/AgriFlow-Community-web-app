@@ -66,7 +66,7 @@ function MyConnections() {
     const handleBlockUser = async (userId, userName) => {
         const result = await showConfirmationAlert({
             title: 'Block User?',
-            text: `Are you sure you want to block the user "${userName}"? They will no longer be able to contact you or view your profile.`,
+            text: `Are you sure you want to block the user "${userName}"? They will no longer be able to contact you or view your profile. `,
             confirmButtonText: 'Yes, Block',
             cancelButtonText: 'No, Cancel',
             iconComponent: (

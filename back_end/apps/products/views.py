@@ -13,7 +13,9 @@ from apps.common.pagination import CustomAdminProductPagination, CustomProductPa
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from apps.notifications.utils import create_and_send_notification
+from common.blocked_users import get_blocked_user_ids
 User = get_user_model()
+
 
 # Create Products
 class CreateProductToSell(APIView):
@@ -165,8 +167,11 @@ class GetAllAvailableProducts(APIView):
 
     def get(self, request):
         search_query = request.query_params.get('search', '')
+
+        blocked_user_ids = get_blocked_user_ids(request.user)
+        
         products = Product.objects.filter(
-            is_deleted=False).exclude(seller=request.user)
+            is_deleted=False).exclude(Q(seller=request.user) | Q(seller__id__in=blocked_user_ids))
 
         if search_query:
             products = products.filter(
