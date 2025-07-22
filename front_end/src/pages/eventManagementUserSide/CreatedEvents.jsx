@@ -59,6 +59,7 @@ function CreatedEvents() {
                     search: search
                 }
             });
+            console.log("created events data ::::",response.data.results)
             setEvents(response.data.results);
             setTotalPages(Math.ceil(response.data.count / 6)); // 6 is your page_size
         } catch (error) {

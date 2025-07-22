@@ -326,7 +326,7 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
                     </div>
                     <p className="text-xs text-gray-500 mt-1 dark:text-zinc-400">{participant.email}</p>
                   </div>
-
+                  {!participant?.is_blocker && 
                   <Link
                     to={`/user-dash-board/user-profile-view/${participant.id}`}
                     className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-2 hover:bg-green-300 border border-green-400 cursor-pointer tooltip tooltip-left dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
@@ -334,6 +334,7 @@ const EventDetailsPage = ({ event, onClose, onDelete, onEventStatusUpdate }) => 
                   >
                     <FaEye className="text-green-600 text-xl hover:text-green-800 dark:text-green-400 dark:hover:text-green-200" />
                   </Link>
+                  }
                 </div>
               ))}
             </div>

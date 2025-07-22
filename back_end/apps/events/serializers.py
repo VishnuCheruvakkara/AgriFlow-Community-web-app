@@ -7,6 +7,8 @@ from datetime import timedelta
 from django.utils import timezone
 from events.tasks import send_event_notification
 from apps.notifications.utils import create_and_send_notification
+from connections.models import BlockedUser
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -229,10 +231,10 @@ class EventParticipantSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(
         source='address.location_name', read_only=True)
     profile_picture_url = serializers.SerializerMethodField()
-
+    is_blocker = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ['id', 'username', 'profile_picture_url', 'location_name']
+        fields = ['id', 'username', 'profile_picture_url', 'location_name','is_blocker']
 
     def get_profile_picture_url(self, user):
         if not user.profile_picture:
@@ -241,6 +243,19 @@ class EventParticipantSerializer(serializers.ModelSerializer):
             return generate_secure_image_url(user.profile_picture)
         except Exception as e:
             return None
+    
+    def get_is_blocker(self,participant):
+        """Check if this participant is blocked or blocking the request user"""
+        request_user = self.context.get('request').user
+        if not request_user or not participant:
+            return False
+
+        # Check if this participant is blocked or is a blocker
+        return BlockedUser.objects.filter(
+            Q(blocker=request_user, blocked=participant) |
+            Q(blocked=request_user, blocker=participant)
+        ).exists()
+
 
 # Get Events created by the logged in user
 class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
@@ -290,7 +305,8 @@ class CommunityEventParticipantGetSerializer(serializers.ModelSerializer):
 
     def get_participants(self, obj):
         participations = obj.participations.select_related('user').all()
-        return EventParticipantSerializer([p.user for p in participations], many=True).data
+        request = self.context.get('request')
+        return EventParticipantSerializer([p.user for p in participations], many=True,context={'request':request}).data
 
 # Get the enrolled event history for a user 
 class EventEnrollmentHistorySerializer(serializers.ModelSerializer):

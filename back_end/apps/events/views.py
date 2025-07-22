@@ -131,7 +131,7 @@ class UserCreatedEventsView(APIView):
         paginator = CustomEventPagination()
         paginated_events = paginator.paginate_queryset(events, request)
         serializer = CommunityEventParticipantGetSerializer(
-            paginated_events, many=True)
+            paginated_events, many=True,context={'request':request})
 
         return paginator.get_paginated_response(serializer.data)
 
