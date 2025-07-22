@@ -228,9 +228,11 @@ class SellingProductDealsAPIView(APIView):
 
     def get(self, request):
         user = request.user
+        blocked_ids = get_blocked_user_ids(user)
+        
         user_products = Product.objects.filter(seller=user, is_deleted=False)
         serializer = ProductWithBuyersSerializer(
-            user_products, many=True, context={'request': request})
+            user_products, many=True, context={'request': request,'blocked_ids':blocked_ids})
         return Response(serializer.data)
 
 # Get the Buying product deals view by the current/logged in user 
@@ -239,12 +241,14 @@ class BuyingDealsView(APIView):
 
     def get(self, request):
         user = request.user
+        blocked_user_ids = get_blocked_user_ids(user)
 
         # Get last message per product the user has sent messages for
         latest_messages = (
             ProductChatMessage.objects
             .filter(sender=user)
             .exclude(product__seller=user)
+            .exclude(product__seller__id__in=blocked_user_ids)
             .order_by('product_id', '-timestamp')
             .distinct('product_id')
         )
@@ -331,13 +335,14 @@ class GetMyWishlistProductsAPIView(APIView):
 
     def get(self, request):
         search_query = request.query_params.get('search', '')
+        blocked_ids = get_blocked_user_ids(request.user)
 
         wishlist_qs = Wishlist.objects.filter(
             user=request.user,
             is_active=True,
 
             product__is_deleted=False
-        ).select_related('product')
+        ).exclude(product__seller__id__in=blocked_ids).select_related('product')
 
         if search_query:
             wishlist_qs = wishlist_qs.filter(

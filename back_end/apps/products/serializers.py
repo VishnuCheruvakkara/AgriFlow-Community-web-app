@@ -79,10 +79,11 @@ class ProductWithBuyersSerializer(serializers.ModelSerializer):
 
     def get_buyers(self, obj):
         request_user = self.context['request'].user
+        blocked_ids=self.context.get('blocked_ids',set())
 
         # All messages except from seller (only buyers)
         messages = ProductChatMessage.objects.filter(product=obj).exclude(
-            sender=request_user).order_by('sender', '-timestamp')
+            sender=request_user).exclude(sender__id__in=blocked_ids).order_by('sender', '-timestamp')
 
         # Keep latest message from each buyer
         latest_messages = {}
