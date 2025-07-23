@@ -29,7 +29,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','web']
 
 # path to all apps that are inside the common 'apps' folder.
 APPS_DIR = BASE_DIR / 'apps'
@@ -75,7 +75,6 @@ INSTALLED_APPS = [
 
 ]
 
-
 #Set up for asgi for WebSocket
 ASGI_APPLICATION = 'agri_flow.asgi.application'
 
@@ -85,7 +84,7 @@ CHANNEL_LAYERS = {
         'BACKEND' : 'channels_redis.core.RedisChannelLayer',
         'CONFIG' : {
             # Caution : Use hte WSL ip address here for the redis (currently redis is running in the wsl environment not in windows)
-            "hosts" : [("127.0.0.1",6379)], #Redis default host and port 
+            "hosts" : [("redis",6379)], #Redis default host and port 
         },
     },
 }
@@ -100,8 +99,7 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_CREDENTIALS = True
 # Cross-origins that allowd with django port 8000
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "ws://localhost:8000",  # WebSocket URL
+    "http://localhost:5173"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -224,7 +222,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1", 
+        "LOCATION": "redis://redis:6379/1", 
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
@@ -233,10 +231,10 @@ CACHES = {
 }
 
 # redis set up for define the define Redis URL globally for custom Redis usage (e.g., in WebSocket consumers)
-REDIS_URL = "redis://127.0.0.1:6379/2"
+REDIS_URL = "redis://redis:6379/2"
 
 #clery configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/3'
+CELERY_BROKER_URL = 'redis://redis:6379/3'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
@@ -280,7 +278,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.user_details',
 )
 
-# Login redirect after successful authentication
+# Login redirect after successful authentication | Note : add domain name while hosting here ...
 GOOGLE_REDIRECT_URI = 'http://127.0.0.1:8000/users/auth/callback/'
 
 # Cloudinary configuration for meadia-files access 

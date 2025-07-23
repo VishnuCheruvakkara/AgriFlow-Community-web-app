@@ -903,7 +903,7 @@ class GetDashBoardDataView(APIView):
     def get(self, request):
 
         # Get the card datas
-        total_users = User.objects.count()
+        total_users = User.objects.exclude(is_staff=True).count()
         total_products = Product.objects.count()
         total_communities = Community.objects.count()
         total_events = CommunityEvent.objects.count()

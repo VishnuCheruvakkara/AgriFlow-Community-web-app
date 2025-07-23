@@ -1,4 +1,5 @@
 FROM python:3.11.1
+
 # Avoid .pyc files and enable stdout logs
 ENV PYTHONDONTWRITEBYCODE=1
 ENV PYTHONUNBUFFERED=1
