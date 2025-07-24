@@ -2,7 +2,7 @@ name: AgrFlow Backend CI/CD Deploy
 
 on:
   push:
-    branches: [ production-branch ]  # run every time when push to this branch 
+    branches: [ production-branch ]
 
 jobs:
   deploy:
@@ -28,6 +28,18 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.IMAGE_NAME }}:latest
+
+    - name: Save .env file to disk
+      run: echo "${{ secrets.ENV_FILE }}" > envfile
+
+    - name: Upload .env to EC2 via SCP
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "envfile"
+        target: "/home/ubuntu/.env"
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.0
