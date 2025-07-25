@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    name: Build and Deploy to EC2
+    name: AgriFlow Backend Build and Deploy to EC2
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
         tags: ${{ secrets.IMAGE_NAME }}:latest
 
     - name: Save .env file to disk
-      run: echo "${{ secrets.ENV_FILE }}" > envfile
+      run: echo "${{ vars.ENV_FILE_DATA }}" > envfile
 
     - name: Upload .env to EC2 via SCP
       uses: appleboy/scp-action@v0.1.4
@@ -49,9 +49,63 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           docker pull ${{ secrets.IMAGE_NAME }}:latest
+
+          # Create docker network if not exists, Custom networks for multiple container intraction.
+          docker network inspect backend-network >/dev/null 2>&1 || docker network create backend-network
+          # Create docker volume for pgdata if not exists
+          docker volume inspect pgdata >/dev/null 2>&1 || docker volume create pgdata
+
+          # Stop and remove existing containers
           docker stop web || true && docker rm web || true
+          docker stop data_base || true && docker rm data_base || true
+          docker stop redis || true && docker rm redis || true
+          docker stop celery-worker || true && docker rm celery-worker || true
+          docker stop celery-beat || true && docker rm celery-beat || true
+
+          # Start PostgreSQL
+          docker run -d \
+            --name data_base \
+            -e POSTGRES_DB=${{ secrets.DB_NAME }} \
+            -e POSTGRES_USER=${{ secrets.DB_USER }} \
+            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -v pgdata:/var/lib/postgresql/data \
+            --network backend-network \
+            --restart unless-stopped \
+            postgres:latest
+
+          echo "Waiting 10s for PostgreSQL to initialize..."
+          sleep 10
+
+          # Start Redis
+          docker run -d \
+            --name redis \
+            --network backend-network \
+            --restart unless-stopped \
+            redis:alpine
+
+          # Start web app
           docker run -d \
             --name web \
             -p 8000:8000 \
             --env-file /home/ubuntu/.env \
+            --network backend-network \
+            --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest
+
+          # Start Celery Worker
+          docker run -d \
+            --name celery-worker \
+            --env-file /home/ubuntu/.env \
+            --network backend-network \
+            --restart unless-stopped \
+            ${{ secrets.IMAGE_NAME }}:latest \
+            celery -A agri_flow worker --loglevel=info
+
+          # Start Celery Beat
+          docker run -d \
+            --name celery-beat \
+            --env-file /home/ubuntu/.env \
+            --network backend-network \
+            --restart unless-stopped \
+            ${{ secrets.IMAGE_NAME }}:latest \
+            celery -A agri_flow beat --loglevel=info
