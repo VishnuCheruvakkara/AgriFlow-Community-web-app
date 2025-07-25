@@ -31,7 +31,7 @@ jobs:
         tags: ${{ secrets.IMAGE_NAME }}:latest
 
     - name: Save .env file to disk
-      run: echo "${{ vars.ENV_FILE_DATA }}" > envfile
+      run: echo "${{ vars.ENV_FILE_DATA }}" > .env
 
     - name: Upload .env to EC2 via SCP
       uses: appleboy/scp-action@v0.1.4
@@ -39,8 +39,8 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "envfile"
-        target: "/home/ubuntu/.env"
+        source: ".env"
+        target: "/home/ubuntu"
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.0
