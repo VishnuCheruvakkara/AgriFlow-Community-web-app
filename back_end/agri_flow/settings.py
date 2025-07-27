@@ -98,13 +98,10 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOW_CREDENTIALS = True
 # Cross-origins that allowd with django port 8000
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173"
-]
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-]
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
+
 
 # Djanot rest framerword with jwt setup.
 REST_FRAMEWORK = {
