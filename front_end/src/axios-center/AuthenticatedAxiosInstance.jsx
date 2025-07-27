@@ -3,7 +3,7 @@ import store from "../redux/Store";
 import { loginSuccess, logout } from "../redux/slices/AuthSlice";
 import { showToast } from "../components/toast-notification/CustomToast";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const AuthenticatedAxiosInstance = axios.create({
     baseURL: BASE_URL,

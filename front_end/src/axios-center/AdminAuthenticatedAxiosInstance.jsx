@@ -2,7 +2,7 @@ import axios from "axios";
 import store from "../redux/Store";
 import { adminLoginSuccess, adminLogout } from "../redux/slices/AdminAuthSlice";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const AdminAuthenticatedAxiosInstance = axios.create({
     baseURL: BASE_URL,
