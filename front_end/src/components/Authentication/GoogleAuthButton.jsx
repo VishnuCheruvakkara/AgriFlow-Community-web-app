@@ -32,11 +32,11 @@ const GoogleAuthButton = () => {
             } else {
                 navigate("/user-dash-board/farmer-profile"); // Redirect to home page if profile is incomplete
             }
-            
 
-        }catch (error) {
+
+        } catch (error) {
             // console.error("Google Auth Failed", error);
-    
+
             if (error.response && error.response.status === 403) {
                 // If the user is blocked
                 showToast("Your account has been blocked. Please contact support for assistance.", "error");
@@ -61,6 +61,16 @@ const GoogleAuthButton = () => {
                 text="continue_with"
                 logo_alignment="center"
 
+            />
+            <GoogleLogin
+                onSuccess={handleSuccess}
+                onError={handleFailure}
+                theme="outline"   // or "filled_blue"
+                size="large"      // "small", "medium", "large"
+                text="continue_with" // options: "signin_with", "signup_with", "continue_with", "signin"
+                shape="rectangular" // "rectangular", "pill", "circle"
+                logo_alignment="left" // "left" or "center"
+                width="385"      // string: width in px, e.g., "300"
             />
         </GoogleOAuthProvider>
     );
