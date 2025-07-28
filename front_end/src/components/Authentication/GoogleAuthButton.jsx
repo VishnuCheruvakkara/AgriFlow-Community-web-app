@@ -60,7 +60,6 @@ const GoogleAuthButton = () => {
                     theme="outline"
                     size="large"
                     text="continue_with"
-                    logo_alignment="center"
                     width="100%"   // Make it fill the container
                 />
             </div>
