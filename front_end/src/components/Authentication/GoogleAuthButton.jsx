@@ -53,25 +53,19 @@ const GoogleAuthButton = () => {
 
     return (
         <GoogleOAuthProvider clientId={clientId}>
-            <GoogleLogin
-                onSuccess={handleSuccess}
-                onError={handleFailure}
-                theme="fill"
-                size="large"
-                text="continue_with"
-                logo_alignment="center"
+            <div style={{ width: "100%", maxWidth: "385px" }}>
+                <GoogleLogin
+                    onSuccess={handleSuccess}
+                    onError={handleFailure}
+                    theme="outline"
+                    size="large"
+                    text="continue_with"
+                    logo_alignment="center"
+                    width="100%"   // Make it fill the container
+                />
+            </div>
 
-            />
-            <GoogleLogin
-                onSuccess={handleSuccess}
-                onError={handleFailure}
-                theme="outline"   // or "filled_blue"
-                size="large"      // "small", "medium", "large"
-                text="continue_with" // options: "signin_with", "signup_with", "continue_with", "signin"
-                shape="rectangular" // "rectangular", "pill", "circle"
-                logo_alignment="left" // "left" or "center"
-                width="385"      // string: width in px, e.g., "300"
-            />
+
         </GoogleOAuthProvider>
     );
 };
