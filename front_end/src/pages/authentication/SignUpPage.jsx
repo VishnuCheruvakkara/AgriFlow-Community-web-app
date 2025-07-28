@@ -107,7 +107,7 @@ const SignUp = () => {
                         <h2 className="text-2xl font-bold text-center text-green-700 dark:text-green-400 mb-2">Welcome to AgriFlow</h2>
                         <p className="text-gray-600 dark:text-zinc-400 text-center mb-8">Create your account to get started</p>
 
-                        <div className="items-center justify-center">
+                        <div className="flex items-center justify-center">
                             <div className="space-y-4 mb-6">
                                 {/* Google auth button */}
                                 <GoogleLoginButton />
