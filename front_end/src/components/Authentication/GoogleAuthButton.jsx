@@ -64,7 +64,6 @@ const GoogleAuthButton = () => {
                 />
             </div>
 
-
         </GoogleOAuthProvider>
     );
 };

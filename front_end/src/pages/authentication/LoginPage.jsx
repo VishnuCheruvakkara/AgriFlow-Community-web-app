@@ -75,9 +75,11 @@ const Login = () => {
                         <h2 className="text-2xl font-bold text-center text-green-700 dark:text-green-400 mb-2">Welcome to AgriFlow</h2>
                         <p className="text-gray-600 dark:text-zinc-400 text-center mb-8">Sign in to your account</p>
 
-                        <div className="space-y-4 mb-6">
-                            {/* google sighn in  */}
-                            <GoogleAuthButton />
+                        <div className=" items-center justify-center">
+                            <div className="space-y-4 mb-6">
+                                {/* google sighn in */}
+                                <GoogleAuthButton />
+                            </div>
                         </div>
 
                         <div className="relative my-6">
