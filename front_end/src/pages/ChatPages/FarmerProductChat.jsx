@@ -49,7 +49,7 @@ function FarmerProductChat() {
         if (!productId || !token || !userId || !receiverId) return;
 
         // Setup WebSocket connection
-        socketRef.current = new WebSocket(`ws://localhost:8000/ws/product-chat/${roomName}/?token=${token}`);
+        socketRef.current = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws/product-chat/${roomName}/?token=${token}`);
 
         socketRef.current.onopen = () => {
             // console.log(" WebSocket connected for product chat");

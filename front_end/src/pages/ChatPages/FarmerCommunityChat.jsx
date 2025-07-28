@@ -127,7 +127,7 @@ const FarmerCommunityChat = () => {
   useEffect(() => {
     if (!token) return;
 
-    const wsUrl = `ws://localhost:8000/ws/community-chat/${communityId}/?token=${token}`;
+    const wsUrl = `${import.meta.env.VITE_WS_BASE_URL}/ws/community-chat/${communityId}/?token=${token}`;
     socketRef.current = new WebSocket(wsUrl);
 
     socketRef.current.onopen = () => {

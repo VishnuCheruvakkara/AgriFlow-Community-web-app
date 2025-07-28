@@ -44,7 +44,7 @@ const FarmerSingleChat = () => {
     useEffect(() => {
 
         // create websocket connection  
-        socketRef.current = new WebSocket(`ws://localhost:8000/ws/private-chat/${roomName}/?token=${token}`);
+        socketRef.current = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws/private-chat/${roomName}/?token=${token}`);
 
         //recieve message from backend 
         socketRef.current.onmessage = (e) => {

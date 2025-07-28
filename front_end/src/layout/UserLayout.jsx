@@ -58,7 +58,7 @@ const UserLayout = () => {
     useEffect(() => {
         if (!userId || !token) return;
 
-        socketRef.current = new WebSocket(`ws://localhost:8000/ws/notification/${userId}/?token=${token}`);
+        socketRef.current = new WebSocket(`${import.meta.env.VITE_WS_BASE_URL}/ws/notification/${userId}/?token=${token}`);
 
         socketRef.current.onopen = () => {
             // console.log("WebSocket notification connection established");
