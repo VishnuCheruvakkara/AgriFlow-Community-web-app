@@ -19,6 +19,9 @@ class CreatNewPostAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        print("=== Incoming POST Data ===")
+        print("Request Data:", request.data)
+        print("File Data (media):", request.FILES.get('media'))
         serializer = PostCreateSerializer(
             data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -28,6 +31,7 @@ class CreatNewPostAPIView(APIView):
                 "post_id": post.id,
                 "created_at": post.created_at,
             }, status=status.HTTP_201_CREATED)
+        print("Serializer Errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 # Update or edit post view

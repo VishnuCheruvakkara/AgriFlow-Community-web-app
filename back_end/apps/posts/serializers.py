@@ -1,35 +1,42 @@
 
 from rest_framework import serializers
 from .models import Post, Like, Comment
-from common.cloudinary_utils import upload_to_cloudinary
+from common.cloudinary_utils import upload_to_cloudinary,upload_image_and_get_url
 import mimetypes
-from posts.tasks import upload_post_media_task
+from posts.tasks import upload_media_task
 from users.models import CustomUser
 from common.cloudinary_utils import generate_secure_image_url
 from notifications.utils import create_and_send_notification
+import base64
 
 # post creation serializer
 class PostCreateSerializer(serializers.ModelSerializer):
-    media = serializers.FileField(write_only=True, required=False)
-
     class Meta:
         model = Post
-        fields = ['content', 'media']
+        fields = ['content', 'image_url', 'video_url']
 
     def create(self, validated_data):
-        request = self.context['request']
-        user = request.user
-        media = validated_data.pop('media', None)
+        request = self.context.get('request')
+        media = request.FILES.get('media')
+        content = validated_data.get('content', '')
 
-        # Save post with media file (will be uploaded in background)
-        post = Post.objects.create(author=user, media=media, **validated_data)
+        # 1. Create post with empty media fields
+        post = Post.objects.create(
+            author=request.user,
+            content=content,
+            image_url=None,
+            video_url=None
+        )
 
-        # Upload media and set image_url or video_url
+        # 2. If media is present, send it to Celery
         if media:
-            # Celery task with post ID
-            upload_post_media_task.delay(post.id)
+            media_content = base64.b64encode(media.read()).decode('utf-8')
+            media_name = media.name
+            upload_media_task.delay(post.id, media_name, media_content)
 
-        return post
+        return post 
+
+
 
 # Edit/Update post serializer 
 class PostUpdateSerializer(serializers.ModelSerializer):

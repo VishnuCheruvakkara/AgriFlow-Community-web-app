@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/app #only for developmet, remove while deploying...
+      - .:/app 
     ports:
       - "8000:8000"
     depends_on:
@@ -49,6 +49,7 @@ services:
       - data_base
     networks:
       - backend-network
+   
     
   celery-beat:
     build: .
@@ -60,6 +61,7 @@ services:
       - .env 
     networks:
       - backend-network
+   
      
 volumes:
   pgdata:

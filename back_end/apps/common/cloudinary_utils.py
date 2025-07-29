@@ -46,6 +46,7 @@ def generate_secure_image_url(public_id, expires_in=3600):
     )
     return secure_url
 
+
 def upload_to_cloudinary(file_obj, folder_name):
     """
     Uploads image or video to Cloudinary securely.
