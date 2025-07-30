@@ -15,6 +15,9 @@ RUN python -m pip install --upgrade pip && pip install --no-cache-dir -r require
 # Copy project files
 COPY . .
 
+# Collect static files for production (AFTER code copy)
+RUN python manage.py collectstatic --noinput
+
 EXPOSE 8000
 
 # RUN python manage.py collectstatic --noinput  # for production only
