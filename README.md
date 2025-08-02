@@ -55,12 +55,11 @@
    - Secure media handling and user data protection.
      
 ### ☁️ Media Management
-
-    - Cloudinary integration for optimized image & video storage.
-    - Media uploads supported for:
-        1. Community posts
-        2. Product images
-        3. Chat attachments
+  - Cloudinary integration for optimized image & video storage.
+  - Media uploads supported for 
+      1. Community posts
+      2. Product images
+      3. Chat attachments
         
 ### 🧰 DevOps & Deployment
     
