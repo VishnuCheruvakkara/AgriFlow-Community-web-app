@@ -2,8 +2,10 @@
 
 **AgriFlow** is a modern farmer community platform that helps farmers connect, communicate, collaborate, and grow together. Built with **React**, **Django Rest Framework**, and **WebSockets**, AgriFlow enables real-time messaging, community building, event coordination, and product exchange between farmers.
 <p align="center">
-  <img src="./assets/agri_flow_landing_page.jpg" alt="AgriFlow Logo" width="full"/>
+  <img src="./assets/agri_flow_landing_page.jpg" alt="AgriFlow Logo" width="100%" style="border-radius: 16px;" />
 </p>
+
+
 
 ---
 
