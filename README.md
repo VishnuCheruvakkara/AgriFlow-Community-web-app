@@ -77,7 +77,7 @@ Before you begin, make sure you have the following installed:
    
    > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
    
- 3.  Start the Project :
+ 3. Start the Project :
    ```
    docker-compose up -d
    ```
@@ -99,6 +99,84 @@ Before you begin, make sure you have the following installed:
      ```
      
      > The frontend (Vite server) will now be running at http://localhost:5173.
+
+
+## 🤝 Contributing
+
+Thank you for your interest in contributing to this project — we really appreciate it!
+
+Here’s how you can contribute :
+
+### 🌿 Branching Strategy
+keep in mind that
+- main: Active development happens here.
+- production: Default branch used for deployment. ( ⚠️ Default Branch )
+
+> 🔁 Please create your feature branches from main.
+Our team will take care of reviewing and merging your contributions.
+
+
+### 🚀 Contribution Steps : 
+
+1. Fork the Repository
+    - Click the "Fork" button on the top right of this GitHub page.
+2. Clone Your Fork
+   ```
+    git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
+    cd AgriFlow-Community-web-app
+   ```
+3. Create a New Branch
+   ```
+   git checkout -b feature/your-feature-name
+   ```
+4. Make Your Changes
+   - Implement your feature or fix.
+   - Keep commits clear and meaningful.
+5. Push Your Branch
+  ```
+  git push origin feature/your-feature-name
+  ```
+6. Open a Pull Request
+   - Go to your fork on GitHub.
+   - Click "Compare & pull request".
+   - Target branch: main.
+   - Add a short and clear description of what you’ve done.
+
+###  ✅ A Few Guidelines 
+- Keep your pull request focused on one feature/fix at a time.
+- Please follow the existing project structure and style.
+- If you're unsure about something, feel free to ask by opening a GitHub issue or starting a discussion.
+  
+---
+
+Our team will review your contribution and get back to you as soon as possible. Thanks again for helping improve the project! 🌱
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
