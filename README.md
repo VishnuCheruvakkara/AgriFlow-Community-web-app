@@ -99,23 +99,23 @@ Before you begin, make sure you have the following installed:
   ```
 ### 📀 Backend (Using docker)
 
-1. Navigate to backend directory :
-   ```
-   cd back_end
-   ```
-2. Build All Docker Images :
-   ```
-   docker-compose build
-   ```
-   
-   > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
-   
- 3. Start the Project :
-   ```
-   docker-compose up -d
-   ```
+  1. Navigate to backend directory :
+     ```
+     cd back_end
+     ```
+  2. Build All Docker Images :
+     ```
+     docker-compose build
+     ```
+     
+    > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
+     
+   3. Start the Project :
+     ```
+     docker-compose up -d
+     ```
 
-   > The backend (Django server) will now be running at http://localhost:8000.
+    > The backend (Django server) will now be running at http://localhost:8000.
 
 ### 🌐 Frontend Setup (Manual) : 
 1. Navigate to Frontend Directory :
@@ -126,12 +126,12 @@ Before you begin, make sure you have the following installed:
      ```
     npm install
      ```
-1.  Start Frontend Server:
+ 3.  Start Frontend Server:
      ```
      npm run dev
      ```
-     
-     > The frontend (Vite server) will now be running at http://localhost:5173.
+       
+       > The frontend (Vite server) will now be running at http://localhost:5173.
 
 
 ## 🤝 Contributing
