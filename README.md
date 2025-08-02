@@ -109,7 +109,7 @@ Before you begin, make sure you have the following installed:
    docker-compose build
    ```
    
-  > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
+  > This will read the docker-compose.yml file and build the backend using their respective Dockerfiles.
    
  3. Start the Project :
     
@@ -141,7 +141,7 @@ Before you begin, make sure you have the following installed:
 
 ## Contributing
 
-Thank you for your interest in contributing to this project — we really appreciate it!
+Thank you for your interest in contributing to this project we really appreciate it!
 
 Here’s how you can contribute :
 
