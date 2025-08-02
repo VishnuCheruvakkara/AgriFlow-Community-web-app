@@ -23,12 +23,12 @@
 ### 📅 Event Management
 - Organize **offline** or **online events** (e.g., farming workshops, exhibitions).
 - RSVP and join events within the platform.
+- Online event with Zego Cloud API implimentation
 - Share event links or manage participant lists.
 
 ### 🛒 Product Selling Portal
 - Post products for sale (tools, crops, seeds).
 - In-app product page with seller chat integration.
-- Location-based recommendations and listings.
 
 ### 🔔 Notification System
 - Realtime in-app notifications via WebSockets.
@@ -36,14 +36,18 @@
 - Notification tray and read/unread status.
 
 ---
+### 🧩 Installation & Setup
+- 📁 Clone the Repository
+  
+  ```
+  git clone https://github.com/your-username/agriflow.git
+  https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app/edit/production-branch/README.md
+  
+  cd agriflow
 
-## 🛠️ Tech Stack
+  ```
 
-| Tech        | Purpose                            |
-|-------------|-------------------------------------|
-| 🐍 Python    | Backend logic                      |
-| 🧰 Django    | Core web framework                 |
-| ⚙️ Django REST Framework | API development     |
-| 🌐 React     | Frontend SPA                       |
-| 💨 Tailwind CSS | Utility-first CSS styling     |
-| 🎨 DaisyUI   | UI
+
+
+
+
