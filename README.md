@@ -37,7 +37,27 @@
 - Notification tray and read/unread status.
 
 ---
-### 🧩 Installation & Setup
+## 🧩 Installation & Setup
+
+## ⚙️ Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+### 📦 General
+- [Git](https://git-scm.com/) – for cloning the repository
+
+### 🐳 Backend (Docker)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) – required for running backend containers
+  
+  > ⚠️ Make sure Docker Desktop is running before you start the backend.
+  
+- [Docker Compose](https://docs.docker.com/compose/install/) – usually included with Docker Desktop
+
+### 🌐 Frontend (Vite + React)
+- [Node.js (v16+)](https://nodejs.org/) – runtime environment for running the frontend
+- [npm](https://www.npmjs.com/) – comes with Node.js, for installing packages
+
+
 - 📁 Clone the Repository
   
   ```
@@ -54,18 +74,20 @@
    ```
    docker-compose build
    ```
-   This will read the docker-compose.yml file and build the backend using their respective Dockerfiles.
    
-4.  Start the Project :
+   > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
+   
+ 3.  Start the Project :
    ```
    docker-compose up -d
    ```
-   The backend (Django server) will now be running at http://localhost:8000.
+
+   > The backend (Django server) will now be running at http://localhost:8000.
 
 ### 🌐 Frontend Setup (Manual) : 
 1. Navigate to Frontend Directory :
      ```
-     cd ../front_end 
+     cd front_end 
      ```
 2. Install Frontend Dependencies :
      ```
@@ -75,7 +97,9 @@
      ```
      npm run dev
      ```
-  
+     
+     > The frontend (Vite server) will now be running at http://localhost:5173.
+
 
 
 
