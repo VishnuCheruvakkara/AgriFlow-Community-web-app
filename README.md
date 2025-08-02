@@ -43,7 +43,6 @@
       2. Product listings
       3. Event invitations
       4. Chat messages (1:1, group, product)
-   - Supports read/unread status and in-browser alerts.  
    - Celery – Handles background task queueing (e.g., post notifications).
    - Celery Beat – Triggers scheduled notifications (e.g., event reminders).
    - Redis – Backend used for real-time queue management.
