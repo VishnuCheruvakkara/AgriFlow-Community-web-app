@@ -4,6 +4,11 @@
 <p align="center">
   <img src="./assets/agri_flow_landing_page.jpg" alt="AgriFlow Logo" width="100%" style="border-radius: 16px;" />
 </p>
+<p align="center">
+  <a href="https://agriflow.space" target="_blank">
+    <img alt="Live Demo" src="https://img.shields.io/badge/%20Live%20Demo-00C853?style=for-the-badge&logo=github&logoColor=white" />
+  </a>
+</p>
 
 
 
