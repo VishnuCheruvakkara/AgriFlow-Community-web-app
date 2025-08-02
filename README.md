@@ -43,7 +43,7 @@
   git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
   cd AgriFlow-Community-web-app
   ```
-####  Backend (Using docker)
+### 📀 Backend (Using docker)
 
 1. Navigate to backend directory :
    ```
@@ -53,7 +53,7 @@
    ```
    docker-compose build
    ```
-   This will read the docker-compose.yml file and build the backend using their respective             Dockerfiles.
+   This will read the docker-compose.yml file and build the backend using their respective Dockerfiles.
    
 4.  Start the Project :
    ```
