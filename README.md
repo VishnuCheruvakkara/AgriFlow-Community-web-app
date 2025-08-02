@@ -41,10 +41,40 @@
   
   ```
   git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
-  cd agriflow
-
+  cd AgriFlow-Community-web-app
   ```
+####  Backend (Using docker)
 
+1. Navigate to backend directory :
+   ```
+   cd back_end
+   ```
+2. Build All Docker Images :
+   ```
+   docker-compose build
+   ```
+   This will read the docker-compose.yml file and build the backend using their respective             Dockerfiles.
+   
+4.  Start the Project :
+   ```
+   docker-compose up -d
+   ```
+   The backend (Django server) will now be running at http://localhost:8000.
+
+### 🌐 Frontend Setup (Manual) : 
+1. Navigate to Frontend Directory :
+     ```
+     cd ../front_end 
+     ```
+2. Install Frontend Dependencies :
+     ```
+    npm install
+     ```
+1.  Start Frontend Server:
+     ```
+     npm run dev
+     ```
+  
 
 
 
