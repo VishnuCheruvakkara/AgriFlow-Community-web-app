@@ -10,33 +10,67 @@
 ## 🚀 Features
 
 ### 👨‍🌾 Farmer Community & Social Networking
-- Create and manage user profiles for farmers.
-- Connect with other farmers in your area or across regions.
-- View nearby farmers using location-based services.
+ - Create and manage personalized farmer profiles.
+ - Connect with nearby or regional farmers using location-based suggestions.
+ - Post farming-related content: text, images, and videos.
+ - Like, comment, and engage with the community through interactive feeds.
 
-### 💬 Real-time Chat System (WebSocket Powered)
-- **1:1 Chat** — Farmer to farmer direct messaging.
-- **Group Chat** — Community group creation and interaction.
-- **Product Chat** — OLX-like buyer-seller conversations with media support.
-- **Media Sharing** — Send images, files, and documents in chat.
-- **Typing & Seen indicators**, with socket-based real-time updates.
+### 💬 Real-time Chat System (Powered by Django Channels + WebSockets)
+  - 1:1 Direct Chat – Farmer-to-farmer messaging.
+  - Group Chat / Community Chat – Region or topic-based group conversations.
+  - Product Chat – OLX-style buyer-seller interactions.
+  - Media Sharing – Upload and share images and documents within chats.
+  - Typing & Seen Indicators – Real-time feedback on user actions.
+  - Redis – Used as a message broker to handle socket connections.
 
-### 📅 Event Management
-- Organize **offline** or **online events** (e.g., farming workshops, exhibitions).
-- RSVP and join events within the platform.
-- Online event with Zego Cloud API implimentation
-- Share event links or manage participant lists.
+### 📅 Event Management System
+  - Host and join online or offline events (e.g., workshops, webinars).
+  - RSVP to events and manage attendee lists.
+  - ZegoCloud integration for live virtual events.
+  - Celery Beat – Sends event reminders via notification 10 minutes before start time.
+  - Share event links, view participants, and join seamlessly.
 
-### 🛒 Product Selling Portal
-- Post products for sale (tools, crops, seeds).
-- In-app product page with seller chat integration.
+### 🛒 Product Selling Marketplace
+   - Post, edit, and manage agricultural product listings (tools, seeds, crops).
+   - Browse products by category or search.
+   - Integrated product chat to enable buyer-seller communication.
+   - OLX-like experience optimized for farmers.
 
-### 🔔 Notification System
-- Realtime in-app notifications via WebSockets.
-- Message alerts, event invites, group mentions.
-- Notification tray and read/unread status.
 
+### 🔔 Notification System (WebSocket + Celery + Redis)
+   - Real-time in-app notifications for:
+      1. New posts
+      2. Product listings
+      3. Event invitations
+      4. Chat messages (1:1, group, product)
+   - Supports read/unread status and in-browser alerts.  
+   - Celery – Handles background task queueing (e.g., post notifications).
+   - Celery Beat – Triggers scheduled notifications (e.g., event reminders).
+   - Redis – Backend used for real-time queue management.
+
+### 🔐 Authentication & Security
+   - JWT-based authentication (using Django Rest Framework JWT).
+   - Protected API endpoints with role-based access.  
+   - Session-based fallback login for flexibility.
+   - Secure media handling and user data protection.
+     
+### ☁️ Media Management
+
+    - Cloudinary integration for optimized image & video storage.
+    - Media uploads supported for:
+        1. Community posts
+        2. Product images
+        3. Chat attachments
+        
+### 🧰 DevOps & Deployment
+    
+   -  Dockerized backend for consistent and isolated development.
+   -  CI/CD pipeline set up using GitHub Actions for automated testing & deployment.
+   -  GCP (Google Cloud Platform) used for scalable backend hosting.
+      Vercel used to deploy frontend for fast performance and global CDN.
+      
 ---
+
 ## 🧩 Installation & Setup
 
 ### ⚙️ Prerequisites
