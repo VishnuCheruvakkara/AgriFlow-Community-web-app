@@ -7,15 +7,15 @@
 
 ---
 
-## 🚀 Features
+## Features
 
-### 👨‍🌾 Farmer Community & Social Networking
+### Farmer Community & Social Networking
  - Create and manage personalized farmer profiles.
  - Connect with nearby or regional farmers using location-based suggestions.
  - Post farming-related content: text, images, and videos.
  - Like, comment, and engage with the community through interactive feeds.
 
-### 💬 Real-time Chat System (Powered by Django Channels + WebSockets)
+### Real-time Chat System (Powered by Django Channels + WebSockets)
   - 1:1 Direct Chat – Farmer-to-farmer messaging.
   - Group Chat / Community Chat – Region or topic-based group conversations.
   - Product Chat – OLX-style buyer-seller interactions.
@@ -23,21 +23,21 @@
   - Typing & Seen Indicators – Real-time feedback on user actions.
   - Redis – Used as a message broker to handle socket connections.
 
-### 📅 Event Management System
+### Event Management System
   - Host and join online or offline events (e.g., workshops, webinars).
   - RSVP to events and manage attendee lists.
   - ZegoCloud integration for live virtual events.
   - Celery Beat – Sends event reminders via notification 10 minutes before start time.
   - Share event links, view participants, and join seamlessly.
 
-### 🛒 Product Selling Marketplace
+### Product Selling Marketplace
    - Post, edit, and manage agricultural product listings (tools, seeds, crops).
    - Browse products by category or search.
    - Integrated product chat to enable buyer-seller communication.
    - OLX-like experience optimized for farmers.
 
 
-### 🔔 Notification System (WebSocket + Celery + Redis)
+### Notification System (WebSocket + Celery + Redis)
    - Real-time in-app notifications for:
       1. New posts
       2. Product listings
@@ -47,20 +47,20 @@
    - Celery Beat – Triggers scheduled notifications (e.g., event reminders).
    - Redis – Backend used for real-time queue management.
 
-### 🔐 Authentication & Security
+### Authentication & Security
    - JWT-based authentication (using Django Rest Framework JWT).
    - Protected API endpoints with role-based access.  
    - Session-based fallback login for flexibility.
    - Secure media handling and user data protection.
      
-### ☁️ Media Management
+### Media Management
   - Cloudinary integration for optimized image & video storage.
   - Media uploads supported for 
       1. Community posts
       2. Product images
       3. Chat attachments
         
-### 🧰 DevOps & Deployment
+### DevOps & Deployment
     
    -  Dockerized backend for consistent and isolated development.
    -  CI/CD pipeline set up using GitHub Actions for automated testing & deployment.
@@ -69,63 +69,69 @@
       
 ---
 
-## 🧩 Installation & Setup
+## Installation & Setup
 
-### ⚙️ Prerequisites
+###  Prerequisites
 
 Before you begin, make sure you have the following installed:
 
-### 📦 General
+#### General
 - [Git](https://git-scm.com/) – for cloning the repository
 
-### 🐳 Backend (Docker)
+#### Backend (Docker)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) – required for running backend containers
   
-  > ⚠️ Make sure Docker Desktop is running before you start the backend.
+  > Make sure Docker Desktop is running before you start the backend.
   
 - [Docker Compose](https://docs.docker.com/compose/install/) – usually included with Docker Desktop
 
-### 🌐 Frontend (Vite + React)
+#### Frontend (Vite + React)
 - [Node.js (v16+)](https://nodejs.org/) – runtime environment for running the frontend
 - [npm](https://www.npmjs.com/) – comes with Node.js, for installing packages
 
 
-- 📁 Clone the Repository
+-  Clone the Repository
   
   ```
   git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
   cd AgriFlow-Community-web-app
   ```
-### 📀 Backend (Using docker)
+### Backend (Using docker)
 
-  1. Navigate to backend directory :
-     ```
-     cd back_end
-     ```
-  2. Build All Docker Images :
-     ```
-     docker-compose build
-     ```
-     
-    > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
-     
-   3. Start the Project :
-     ```
-     docker-compose up -d
-     ```
+1. Navigate to backend directory :
+   
+   ```
+   cd back_end
+   ```
+3. Build All Docker Images :
+   
+   ```
+   docker-compose build
+   ```
+   
+  > This will read the docker-compose.yml file and build the backend using their respective     Dockerfiles.
+   
+ 3. Start the Project :
+    
+   ```
+   docker-compose up -d
+   ```
 
-    > The backend (Django server) will now be running at http://localhost:8000.
+  > The backend (Django server) will now be running at http://localhost:8000.
 
-### 🌐 Frontend Setup (Manual) : 
+### Frontend Setup (Manual) : 
 1. Navigate to Frontend Directory :
+   
      ```
      cd front_end 
      ```
-2. Install Frontend Dependencies :
+3. Install Frontend Dependencies :
+   
      ```
     npm install
      ```
- 3.  Start Frontend Server:
+ 5.  Start Frontend Server:
+    
      ```
      npm run dev
      ```
@@ -133,38 +139,41 @@ Before you begin, make sure you have the following installed:
        > The frontend (Vite server) will now be running at http://localhost:5173.
 
 
-## 🤝 Contributing
+## Contributing
 
 Thank you for your interest in contributing to this project — we really appreciate it!
 
 Here’s how you can contribute :
 
-### 🌿 Branching Strategy
+### Branching Strategy
 keep in mind that
 - main: Active development happens here.
-- production: Default branch used for deployment. ( ⚠️ Default Branch )
+- production: Default branch used for deployment.
 
-> 🔁 Please create your feature branches from main.
+> Please create your feature branches from main.
 Our team will take care of reviewing and merging your contributions.
 
 
-### 🚀 Contribution Steps : 
+### Contribution Steps : 
 
 1. Fork the Repository
     - Click the "Fork" button on the top right of this GitHub page.
 2. Clone Your Fork
+   
    ```
     git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
     cd AgriFlow-Community-web-app
    ```
-3. Create a New Branch
+4. Create a New Branch
+   
    ```
    git checkout -b feature/your-feature-name
    ```
-4. Make Your Changes
+6. Make Your Changes
    - Implement your feature or fix.
    - Keep commits clear and meaningful.
-5. Push Your Branch
+7. Push Your Branch
+   
   ```
   git push origin feature/your-feature-name
   ```
@@ -174,14 +183,14 @@ Our team will take care of reviewing and merging your contributions.
    - Target branch: main.
    - Add a short and clear description of what you’ve done.
 
-###  ✅ A Few Guidelines 
+### A Few Guidelines 
 - Keep your pull request focused on one feature/fix at a time.
 - Please follow the existing project structure and style.
 - If you're unsure about something, feel free to ask by opening a GitHub issue or starting a discussion.
   
 ---
 
-Our team will review your contribution and get back to you as soon as possible. Thanks again for helping improve the project! 🌱
+Our team will review your contribution and get back to you as soon as possible. Thanks again for helping improve the project! 
 
 
 
