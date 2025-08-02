@@ -40,9 +40,7 @@
 - 📁 Clone the Repository
   
   ```
-  git clone https://github.com/your-username/agriflow.git
-  https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app/edit/production-branch/README.md
-  
+  git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
   cd agriflow
 
   ```
