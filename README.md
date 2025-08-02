@@ -6,9 +6,10 @@
 </p>
 <p align="center">
   <a href="https://agriflow.space" target="_blank">
-    <img alt="Live Demo" src="https://img.shields.io/badge/%20Live%20Demo-00C853?style=for-the-badge&logo=github&logoColor=white" />
+    <img alt="View Live Project" src="https://img.shields.io/badge/%20View%20Live%20Project-00C853?style=for-the-badge&logo=github&logoColor=white" />
   </a>
 </p>
+
 
 
 
