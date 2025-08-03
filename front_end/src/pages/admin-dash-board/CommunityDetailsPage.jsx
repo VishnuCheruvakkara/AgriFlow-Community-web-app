@@ -37,9 +37,9 @@ const CommunityDetailsPage = () => {
       try {
         const response = await AdminAuthenticatedAxiosInstance.get(`/community/admin/get-community-details/${communityId}`);
         setCommunity(response.data);
-        // console.log("Community data ::", response.data)
+        console.log("Community data ::", response.data)
       } catch (error) {
-        // console.error("Error fetching community:", error);
+        console.error("Error fetching community:", error);
       } finally {
         setLoading(false);
       }
@@ -137,8 +137,8 @@ const CommunityDetailsPage = () => {
                   {/* Main Logo */}
                   <div className="relative bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden shadow-md">
                     <img
-                      src={community.community_logo}
-                      alt={community.name}
+                      src={community?.community_logo}
+                      alt={community?.name}
                       className="w-full h-64 object-cover"
                     />
                     <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded-full text-xs">
@@ -154,10 +154,10 @@ const CommunityDetailsPage = () => {
                   {/* Basic Info */}
                   <div className="border-b border-gray-200 dark:border-zinc-600 ">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
-                      {community.name}
+                      {community?.name}
                     </h2>
                     <p className="text-gray-600 dark:text-zinc-200 mb-3">
-                      {community.description}
+                      {community?.description}
                     </p>
 
                     {/* Community Type & Status */}
@@ -170,7 +170,7 @@ const CommunityDetailsPage = () => {
                       >
                         <span className="text-sm font-medium text-gray-600 dark:text-zinc-300">Status:</span>
 
-                        {community.is_deleted ? (
+                        {community?.is_deleted ? (
                           <span className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-2">
                             <FaTimesCircle className="text-red-600 dark:text-red-400 w-3 h-3" />
                             Deleted
@@ -329,7 +329,7 @@ const CommunityDetailsPage = () => {
                 {/* Toggle Delete / Restore */}
                 {community?.is_deleted ? (
                   <button
-                    onClick={() => toggleDeleteStatus(community.id, community.is_deleted)}
+                    onClick={() => toggleDeleteStatus(community.id, community?.is_deleted)}
                     className="bg-green-500 hover:bg-green-600 rounded-full text-white p-1 flex items-center space-x-2 transition-colors duration-200 shadow-md"
                   >
                     <div className="bg-green-100 rounded-full p-2">
