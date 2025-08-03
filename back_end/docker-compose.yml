@@ -11,7 +11,9 @@ services:
     depends_on:
       - data_base #postgres database 
       - redis
-    # restart: unless-stopped #only for production 
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+      daphne -b 0.0.0.0 -p 8000 agri_flow.asgi:application"
     networks:
       - backend-network
 

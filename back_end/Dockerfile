@@ -15,12 +15,6 @@ RUN python -m pip install --upgrade pip && pip install --no-cache-dir -r require
 # Copy project files
 COPY . .
 
-# Set environment variable for Django settings
-ENV DJANGO_SETTINGS_MODULE=agri_flow.settings
-
-# Collect static files for production
-RUN python manage.py collectstatic --noinput
-
 EXPOSE 8000
 
 # Run the Daphne ASGI server
