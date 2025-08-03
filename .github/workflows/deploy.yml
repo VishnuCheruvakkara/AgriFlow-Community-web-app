@@ -89,6 +89,7 @@ jobs:
             --name web \
             -p 8000:8000 \
             --env-file /home/cheruvakkarav/.env \
+            -v /home/cheruvakkarav/staticfiles:/app/staticfiles \
             --network backend-network \
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest
