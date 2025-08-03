@@ -118,3 +118,4 @@ jobs:
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest \
             celery -A agri_flow beat --loglevel=info
+            
