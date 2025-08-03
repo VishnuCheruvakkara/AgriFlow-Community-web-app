@@ -84,7 +84,14 @@ jobs:
             --restart unless-stopped \
             redis:alpine
 
-          # Start web app
+          # Collect static files to host directory before running the container
+          docker run --rm \
+            --env-file /home/cheruvakkarav/.env \
+            -v /home/cheruvakkarav/staticfiles:/app/staticfiles \
+            ${{ secrets.IMAGE_NAME }}:latest \
+            python manage.py collectstatic --noinput
+
+          # Now start web app container with static mount
           docker run -d \
             --name web \
             -p 8000:8000 \
@@ -93,9 +100,6 @@ jobs:
             --network backend-network \
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest
-
-          # Collect static after container is live
-          docker exec web python manage.py collectstatic --noinput
 
           # Start Celery Worker
           docker run -d \
