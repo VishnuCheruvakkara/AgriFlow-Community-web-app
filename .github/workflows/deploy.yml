@@ -93,6 +93,9 @@ jobs:
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest
 
+          # Collect static after container is live
+          docker exec web python manage.py collectstatic --noinput
+
           # Start Celery Worker
           docker run -d \
             --name celery-worker \
