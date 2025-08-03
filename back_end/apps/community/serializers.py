@@ -536,7 +536,7 @@ class CommunityAdmiSideDetailsSerializer(serializers.ModelSerializer):
     def get_members(self, obj):
         # Get ALL members with approved or pending status
         all_members = obj.memberships.filter(status__in=['approved']).order_by('-joined_at')
-        return CommunityMemberSerializer(all_members, many=True,context=self.context).data
+        return CommunityMemberSerializer(all_members, many=True).data
 
     def get_community_logo(self, obj):
         if obj.community_logo:
