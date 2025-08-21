@@ -111,11 +111,11 @@ jobs:
             celery -A agri_flow worker --loglevel=info
 
           # Start Celery Beat
-          docker run -d \
-            --name celery-beat \
-            --env-file /home/cheruvakkarav/.env \
-            --network backend-network \
-            --restart unless-stopped \
-            ${{ secrets.IMAGE_NAME }}:latest \
-            celery -A agri_flow beat --loglevel=info
+          # docker run -d \
+          #   --name celery-beat \
+          #   --env-file /home/cheruvakkarav/.env \
+          #   --network backend-network \
+          #   --restart unless-stopped \
+          #   ${{ secrets.IMAGE_NAME }}:latest \
+          #   celery -A agri_flow beat --loglevel=info
             

@@ -568,3 +568,4 @@ class CommunityAdmiSideDetailsSerializer(serializers.ModelSerializer):
             "total": total,
             "last_message": last_msg_time
         }
+
