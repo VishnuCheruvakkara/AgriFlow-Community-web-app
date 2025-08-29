@@ -9,8 +9,8 @@ class Address(models.Model):
 
     place_id = models.CharField(max_length=50, unique=True)  # Unique ID from location API
     full_location=models.CharField(max_length=500,null=True, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=15, decimal_places=10)
+    longitude = models.DecimalField(max_digits=15, decimal_places=10)
     location_name=models.CharField(max_length=100,null=True, blank=True,)
     country = models.CharField(max_length=100)
     

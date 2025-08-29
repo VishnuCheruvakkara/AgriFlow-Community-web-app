@@ -12,8 +12,10 @@ services:
       - data_base #postgres database 
       - redis
     command: >
-      sh -c "python manage.py collectstatic --noinput &&
-      daphne -b 0.0.0.0 -p 8000 agri_flow.asgi:application"
+      sh -c "python manage.py makemigrations &&
+        python manage.py migrate && 
+        python manage.py collectstatic --noinput &&
+        daphne -b 0.0.0.0 -p 8000 agri_flow.asgi:application"
     networks:
       - backend-network
 

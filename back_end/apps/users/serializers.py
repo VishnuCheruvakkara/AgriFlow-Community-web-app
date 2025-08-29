@@ -652,6 +652,9 @@ class PrivateMessageSerializer(serializers.ModelSerializer):
 
 # User Profile update serializer
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    location = AddressSerializer(write_only=True, required=False)
+    address = AddressSerializer(read_only=True)  # so you can return address data
+
     class Meta:
         model = User
         fields = [
@@ -660,4 +663,27 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "farming_type",
             "experience",
             "bio",
+            "location",  # input only
+            "address",   # output only
         ]
+
+    def update(self, instance, validated_data):
+        location_data = validated_data.pop("location", None)
+
+        # Update normal user fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Handle location/address
+        if location_data:
+            place_id = location_data.get("place_id")
+
+            # If an address with this place_id exists, reuse it
+            address, created = Address.objects.update_or_create(
+                place_id=place_id,
+                defaults=location_data,
+            )
+            instance.address = address
+
+        instance.save()
+        return instance

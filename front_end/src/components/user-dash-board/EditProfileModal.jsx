@@ -7,6 +7,7 @@ import useModal from "../../custom-hook/useModal";
 import { showToast } from "../toast-notification/CustomToast";
 import AuthenticatedAxiosInstance from "../../axios-center/AuthenticatedAxiosInstance";
 import { FaEdit } from "react-icons/fa";
+import UserLocation from "./UserLocation";
 
 const EditProfileModal = ({ user, onSuccess }) => {
   const { isOpen, openModal, closeModal } = useModal();
@@ -28,8 +29,9 @@ const EditProfileModal = ({ user, onSuccess }) => {
       .required("Username is required"),
 
     phone_number: Yup.string()
-      .matches(/^\d{10,15}$/, "Phone number must be 10 to 15 digits")
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
       .required("Phone number is required"),
+
 
     farming_type: Yup.string()
       .max(100, "Farming type must be at most 100 characters")
@@ -44,6 +46,10 @@ const EditProfileModal = ({ user, onSuccess }) => {
     bio: Yup.string()
       .max(1000, "Bio must be at most 1000 characters")
       .nullable(),
+
+    location: Yup.object()
+      .nullable()
+      .required("Location is required"),
   });
 
   const initialValues = useMemo(
@@ -53,6 +59,7 @@ const EditProfileModal = ({ user, onSuccess }) => {
       farming_type: user?.farming_type || "",
       experience: user?.experience || "",
       bio: user?.bio || "",
+      location: user?.location || null,
     }),
     [user]
   );
@@ -74,20 +81,26 @@ const EditProfileModal = ({ user, onSuccess }) => {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={async (values, { setSubmitting }) => {
+            console.log("Submitting values:", values);   // ✅ Debug here
             try {
-              await AuthenticatedAxiosInstance.patch("/users/edit-profile-details/", values);
+              const response = await AuthenticatedAxiosInstance.patch(
+                "/users/edit-profile-details/",
+                values
+              );
+              console.log("Server response:", response.data);  // ✅ Debug response
               showToast("Profile updated successfully", "success");
               await onSuccess();
               closeModal();
             } catch (error) {
-              // console.error(error);
+              console.error("Error updating profile:", error); // ✅ Debug error
               showToast("Failed to update profile", "error");
             } finally {
               setSubmitting(false);
             }
           }}
+
         >
-          {({ errors, touched, isSubmitting, submitForm, isValid }) => (
+          {({ values, setFieldValue, errors, touched, isSubmitting, submitForm, isValid }) => (
             <ModalSkeleton
               isOpen={isOpen}
               onClose={closeModal}
@@ -110,9 +123,9 @@ const EditProfileModal = ({ user, onSuccess }) => {
                     <Field
                       name="username"
                       className={`w-full px-4 py-3 border border-zinc-400 rounded-md dark:bg-zinc-900 dark:text-white 
-                      ${errors.username && touched.username 
-                        ? "ring-2 ring-red-500 border-none"
-                        : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
+                      ${errors.username && touched.username
+                          ? "ring-2 ring-red-500 border-none"
+                          : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
                     />
                   </motion.div>
                   <ErrorMessage
@@ -133,8 +146,8 @@ const EditProfileModal = ({ user, onSuccess }) => {
                       name="phone_number"
                       className={`w-full px-4 py-3 border border-zinc-400 rounded-md dark:bg-zinc-900 dark:text-white 
                       ${errors.phone_number && touched.phone_number
-                        ? "ring-2 ring-red-500 border-none"
-                        : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
+                          ? "ring-2 ring-red-500 border-none"
+                          : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
                     />
                   </motion.div>
                   <ErrorMessage
@@ -155,8 +168,8 @@ const EditProfileModal = ({ user, onSuccess }) => {
                       name="farming_type"
                       className={`w-full px-4 py-3 border border-zinc-400 rounded-md dark:bg-zinc-900 dark:text-white 
                       ${errors.farming_type && touched.farming_type
-                        ? "ring-2 ring-red-500 border-none"
-                        : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
+                          ? "ring-2 ring-red-500 border-none"
+                          : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
                     />
                   </motion.div>
                   <ErrorMessage
@@ -173,13 +186,13 @@ const EditProfileModal = ({ user, onSuccess }) => {
                     variants={shakeErrorInputVariant}
                     animate={errors.experience && touched.experience ? "shake" : ""}
                   >
-                    <Field 
+                    <Field
                       name="experience"
                       type="number"
                       className={`w-full px-4 py-3 border border-zinc-400 rounded-md dark:bg-zinc-900 dark:text-white 
                       ${errors.experience && touched.experience
-                        ? "ring-2 ring-red-500 border-none"
-                        : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
+                          ? "ring-2 ring-red-500 border-none"
+                          : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
                     />
                   </motion.div>
                   <ErrorMessage
@@ -202,8 +215,8 @@ const EditProfileModal = ({ user, onSuccess }) => {
                       rows="3"
                       className={`w-full px-4 py-3 border border-zinc-400 rounded-md dark:bg-zinc-900 dark:text-white resize-none
                       ${errors.bio && touched.bio
-                        ? "ring-2 ring-red-500 border-none"
-                        : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
+                          ? "ring-2 ring-red-500 border-none"
+                          : "dark:border-zinc-600 focus:ring-2 focus:ring-green-500"}`}
                     />
                   </motion.div>
                   <ErrorMessage
@@ -212,6 +225,23 @@ const EditProfileModal = ({ user, onSuccess }) => {
                     className="text-red-500 text-sm mt-1"
                   />
                 </div>
+                {/* Location */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Location</label>
+                  <UserLocation
+                    formData={values.location}
+                    setFormData={(newFormData) => setFieldValue("location", newFormData.location)}
+                    errors={errors.location}
+                    fieldErrors={touched.location && errors.location}
+                    defaultQuery={values.location?.full_location || ""}
+                  />
+                  <ErrorMessage
+                    name="location"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
               </Form>
             </ModalSkeleton>
           )}
