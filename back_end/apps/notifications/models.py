@@ -40,21 +40,25 @@ class Notification(models.Model):
         ("post_commented","Post Commented"),
     ]
 
-    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
-    sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="sent_notifications")
-    community = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True,related_name="notifications")
-    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default="custom")
+    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications", db_index=True)
+    sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name="sent_notifications", db_index=True)
+    community = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True,related_name="notifications", db_index=True)
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default="custom", db_index=True)
     message = models.TextField(null=True,blank=True)
-    is_read = models.BooleanField(default=False)
+    is_read = models.BooleanField(default=False, db_index=True)
     image_url=models.URLField(null=True,blank=True) # For save image of the sender | optional file
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_deleted = models.BooleanField(default=False)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
-    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications', db_index=True)
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True, related_name='notifications', db_index=True)
     
     class Meta:
         unique_together = ('recipient', 'sender', 'community', 'notification_type')
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient', 'is_read', 'created_at']),  # fetch unread notifications quickly
+            models.Index(fields=['recipient', 'notification_type', 'created_at']),  # filter by type
+        ]
 
     def __str__(self):
         return f"{self.recipient.email} - {self.notification_type}"

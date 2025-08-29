@@ -7,12 +7,12 @@ from cloudinary.utils import cloudinary_url
 class Address(models.Model):
     """Stores address details separately for better normalization."""
 
-    place_id = models.CharField(max_length=50, unique=True)  # Unique ID from location API
-    full_location=models.CharField(max_length=500,null=True, blank=True)
-    latitude = models.DecimalField(max_digits=15, decimal_places=10)
-    longitude = models.DecimalField(max_digits=15, decimal_places=10)
-    location_name=models.CharField(max_length=100,null=True, blank=True,)
-    country = models.CharField(max_length=100)
+    place_id = models.CharField(max_length=50, unique=True ,db_index=True)  # Unique ID from location API
+    full_location=models.CharField(max_length=500,null=True, blank=True ,db_index=True)
+    latitude = models.DecimalField(max_digits=15, decimal_places=10 ,db_index=True)
+    longitude = models.DecimalField(max_digits=15, decimal_places=10 ,db_index=True)
+    location_name=models.CharField(max_length=100,null=True, blank=True ,db_index=True)
+    country = models.CharField(max_length=100, db_index=True)
     
     home_address = models.CharField(max_length=300, null=True, blank=True)
 
@@ -40,14 +40,14 @@ class CustomUser(AbstractUser):
             help_text="Stores the secure Cloudinary URL for the user's banner image."
         )
 
-    is_verified = models.BooleanField(default=False)  # OTP verification status
+    is_verified = models.BooleanField(default=False, db_index=True)  # OTP verification status
 
     # Address (ForeignKey to Address Model)
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True, related_name="users")
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True, related_name="users",db_index=True)
 
     # Farming 
     farming_type = models.CharField(max_length=100, null=True, blank=True, help_text="Type of farming practiced")  # No predefined choices  
-    experience = models.IntegerField(null=True, blank=True, help_text="Years of farming experience")  # Allow null for flexibility
+    experience = models.IntegerField(null=True, blank=True, help_text="Years of farming experience",db_index=True)  # Allow null for flexibility
     bio = models.TextField(null=True, blank=True)
 
     # Aadhar Verification
@@ -57,16 +57,16 @@ class CustomUser(AbstractUser):
         null=True,
         help_text="Stores the Cloudinary public ID for the user's Aadhaar card."
     )
-    is_aadhar_verified = models.BooleanField(default=False)  # Admin verification status for Aadhar
+    is_aadhar_verified = models.BooleanField(default=False,db_index=True)  # Admin verification status for Aadhar
     aadhar_resubmission_message = models.TextField(blank=True, null=True)
    
     # Date of Birth
-    date_of_birth = models.DateField(null=True, blank=True, help_text="User's date of birth")  
+    date_of_birth = models.DateField(null=True, blank=True, help_text="User's date of birth",db_index=True)  
 
     # Access Control
-    profile_completed = models.BooleanField(default=False)  # Restrict app access until True
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    profile_completed = models.BooleanField(default=False,db_index=True)  # Restrict app access until True
+    created_at = models.DateTimeField(auto_now_add=True,db_index=True)
+    updated_at = models.DateTimeField(auto_now=True ,db_index=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -115,3 +115,6 @@ class PrivateMessage(models.Model):
 
     class Meta:
         ordering = ['timestamp']
+        indexes = [
+            models.Index(fields=['sender', 'receiver', 'timestamp']), # composite index for fast lookup
+        ]

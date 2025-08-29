@@ -538,14 +538,6 @@ class RemoveMemberAPIView(APIView):
             membership.status = 'blocked'
             membership.save()
 
-            # Create Notification
-            Notification.objects.create(
-                recipient=member,
-                sender=request.user,
-                community=community,
-                notification_type="community_update",
-                message=f"You have been removed from the community '{community.name}' by an admin."
-            )
 
             return Response({"detail": "Member removed successfully"}, status=status.HTTP_200_OK)
 
