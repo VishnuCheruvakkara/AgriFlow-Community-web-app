@@ -35,6 +35,7 @@ const EditProfileModal = ({ user, onSuccess }) => {
 
     farming_type: Yup.string()
       .max(100, "Farming type must be at most 100 characters")
+      .matches(/^[A-Za-z\s]+$/, "Farming type can only contain letters")
       .nullable(),
 
     experience: Yup.number()

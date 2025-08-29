@@ -594,18 +594,6 @@ class MakeAdminAPIView(APIView):
         target_membership.is_admin = True
         target_membership.save()
 
-        # Create a notification for the new admin
-        community = target_membership.community
-        Notification.objects.create(
-            recipient=target_membership.user,
-            sender=current_user,
-            community=community,
-            notification_type="community_update",
-            message=(
-                f"Congratulations! You are now admin in the community '{community.name}' "
-                f"by {current_user.username or current_user.email}."
-            )
-        )
         return Response({'detail': 'User promoted to admin successfully.'}, status=status.HTTP_200_OK)
 
 # Admin can revoke the other user amdin previlage 
@@ -655,19 +643,6 @@ class RevokeAdminAPIView(APIView):
         # Revoke admin
         target_membership.is_admin = False
         target_membership.save()
-
-        # Send notification
-        community = target_membership.community
-        Notification.objects.create(
-            recipient=target_membership.user,
-            sender=current_user,
-            community=community,
-            notification_type="community_update",
-            message=(
-                f"Your admin privileges in the community '{community.name}' were revoked by "
-                f"{current_user.username or current_user.email}."
-            )
-        )
 
         return Response({'detail': 'Admin privileges revoked successfully.'}, status=status.HTTP_200_OK)
 
