@@ -179,6 +179,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     community_id: communityData?.id,
                     user_id: member.id,
                 });
+                console.log("privilage not revoked :",response.data)
 
                 showToast(`${member.username}'s admin privileges were revoked successfully.`, "success");
 
@@ -189,7 +190,7 @@ const CommunityDrawer = ({ isOpen, closeDrawer, communityData }) => {
                     )
                 );
             } catch (error) {
-                // console.error('Revoke admin error:', error);
+                console.error('Revoke admin error:', error);
                 showToast(`Failed to revoke admin privileges from ${member.username}. Please try again.`, "error");
             }
         }

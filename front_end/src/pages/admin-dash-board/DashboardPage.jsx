@@ -203,33 +203,38 @@ const DashboardPage = () => {
                     Highly Engaged Communities
                   </h4>
 
-                  <table className="w-full text-sm text-left">
-
+                  <table className="w-full text-sm not-prose">
+                    <thead className="bg-gray-100 dark:bg-zinc-800">
+                      <tr>
+                        <th className="p-2 text-left">#</th>
+                        <th className="p-2 text-left">Logo</th>
+                        <th className="p-2 text-left">Name</th>
+                        <th className="p-2 text-center">Message count</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {data?.community_highlights?.most_engaged?.length > 0 ? (
                         data.community_highlights.most_engaged.map((community, index) => (
                           <tr
                             onClick={() => goToCommunity(community?.id)}
                             key={community.id}
-                            className=" cursor-pointer border-b border-t hover:bg-zinc-100 dark:hover:bg-zinc-700 border-gray-200 dark:border-zinc-700"
+                            className="cursor-pointer border-b border-t hover:bg-zinc-100 dark:hover:bg-zinc-700 border-gray-200 dark:border-zinc-700"
                           >
-                            <td className="p-2">{index + 1}</td>
-                            <td className="p-2">
+                            <td className="p-2 text-left">{index + 1}</td>
+                            <td className="p-2 text-left">
                               <img
-                                src={
-                                  community.community_logo ||
-                                  DefautlCommunityImage
-                                }
+                                src={community.community_logo || DefautlCommunityImage}
                                 alt={community.name}
                                 className="rounded-full w-8 h-8"
                               />
                             </td>
-                            <td className="p-2">{community.name}</td>
+                            <td className="p-2 text-left">{community.name}</td>
+                            <td className="p-2 text-center">{community.message_count ?? 0}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td className="p-2 text-gray-500" colSpan="3">
+                          <td className="p-2 text-gray-500 text-center" colSpan="4">
                             No data available
                           </td>
                         </tr>
@@ -243,41 +248,45 @@ const DashboardPage = () => {
                   <h4 className="text-sm font-semibold mb-2 text-green-700 dark:text-green-400">
                     Communities with Most Participants
                   </h4>
-                  <table className="w-full text-sm text-left">
-
+                  <table className="w-full text-sm not-prose">
+                    <thead className="bg-gray-100 dark:bg-zinc-800">
+                      <tr>
+                        <th className="p-2 text-left">#</th>
+                        <th className="p-2 text-left">Logo</th>
+                        <th className="p-2 text-left">Name</th>
+                        <th className="p-2 text-center">Participant Count</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {data?.community_highlights?.most_participants?.length > 0 ? (
-                        data.community_highlights.most_participants.map(
-                          (community, index) => (
-                            <tr
-                              onClick={() => goToCommunity(community?.id)}
-                              key={community.id}
-                              className="cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 border-t border-b border-gray-200 dark:border-zinc-700"
-                            >
-                              <td className="p-2">{index + 1}</td>
-                              <td className="p-2">
-                                <img
-                                  src={
-                                    community.community_logo ||
-                                    DefautlCommunityImage
-                                  }
-                                  alt={community.name}
-                                  className="rounded-full w-8 h-8"
-                                />
-                              </td>
-                              <td className="p-2">{community.name}</td>
-                            </tr>
-                          )
-                        )
+                        data.community_highlights.most_participants.map((community, index) => (
+                          <tr
+                            onClick={() => goToCommunity(community?.id)}
+                            key={community.id}
+                            className="cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 border-t border-b border-gray-200 dark:border-zinc-700"
+                          >
+                            <td className="p-2 text-left">{index + 1}</td>
+                            <td className="p-2 text-left">
+                              <img
+                                src={community.community_logo || DefautlCommunityImage}
+                                alt={community.name}
+                                className="rounded-full w-8 h-8"
+                              />
+                            </td>
+                            <td className="p-2 text-left">{community.name}</td>
+                            <td className="p-2 text-center">{community.participant_count ?? 0}</td>
+                          </tr>
+                        ))
                       ) : (
                         <tr>
-                          <td className="p-2 text-gray-500" colSpan="3">
+                          <td className="p-2 text-gray-500 text-center" colSpan="4">
                             No data available
                           </td>
                         </tr>
                       )}
                     </tbody>
                   </table>
+
                 </div>
               </div>
             </div>
