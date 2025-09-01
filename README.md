@@ -113,15 +113,22 @@ Before you begin, make sure you have the following installed:
    ```
    cd back_end
    ```
-3. Build All Docker Images :
+2. Build All Docker Images :
    
    ```
    docker-compose build
    ```
    
   > This will read the docker-compose.yml file and build the backend using their respective Dockerfiles.
+
+3. Configure environment variables
+       
+    - Create a new `.env` file in the backend folder.  
+    - Copy the contents of `.env.example` into `.env`.  
+    - Update the placeholder values with your actual local configuration (e.g., `SECRET_KEY`, `DEBUG`, `DATABASE_URL`, `REDIS_URL`, etc.).
+      
    
- 3. Start the Project :
+ 4. Start the Project :
     
    ```
    docker-compose up -d
@@ -135,11 +142,18 @@ Before you begin, make sure you have the following installed:
      ```
      cd front_end 
      ```
-3. Install Frontend Dependencies :
+2. Install Frontend Dependencies :
    
      ```
     npm install
      ```
+
+ 3. Configure environment variables:
+    
+      - Create a new `.env` file in the frontend folder.  
+      - Copy the contents of `.env.example` into `.env`.  
+      - Update values (e.g., `VITE_API_BASE_URL`, `VITE_WS_URL`) according to your local backend           setup.
+         
  5.  Start Frontend Server:
     
      ```
