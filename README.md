@@ -15,10 +15,6 @@
   </a>
 </p>
 
-
-
-
-
 ---
 
 ## Features
@@ -85,74 +81,6 @@
 
 ## Installation & Setup
 
-###  Prerequisites
-
-Before you begin, make sure you have the following installed:
-
-#### General
-- [Git](https://git-scm.com/) – for cloning the repository
-
-#### Backend (Docker)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) – required for running backend containers
-  
-  > Make sure Docker Desktop is running before you start the backend.
-  
-- [Docker Compose](https://docs.docker.com/compose/install/) – usually included with Docker Desktop
-
-#### Frontend (Vite + React)
-- [Node.js (v16+)](https://nodejs.org/) – runtime environment for running the frontend
-- [npm](https://www.npmjs.com/) – comes with Node.js, for installing packages
-
-
--  Clone the Repository
-  
-  ```
-  git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
-  cd AgriFlow-Community-web-app
-  ```
-### Backend (Using docker)
-
-1. Navigate to backend directory :
-   
-   ```
-   cd back_end
-   ```
-3. Build All Docker Images :
-   
-   ```
-   docker-compose build
-   ```
-   
-  > This will read the docker-compose.yml file and build the backend using their respective Dockerfiles.
-   
- 3. Start the Project :
-    
-   ```
-   docker-compose up -d
-   ```
-
-  > The backend (Django server) will now be running at http://localhost:8000.
-
-### Frontend Setup (Manual) : 
-1. Navigate to Frontend Directory :
-   
-     ```
-     cd front_end 
-     ```
-3. Install Frontend Dependencies :
-   
-     ```
-    npm install
-     ```
- 5.  Start Frontend Server:
-    
-     ```
-     npm run dev
-     ```
-       
-       > The frontend (Vite server) will now be running at http://localhost:5173.
-
-
 ## Contributing
 
 Thank you for your interest in contributing to this project we really appreciate it!
@@ -206,22 +134,12 @@ Our team will take care of reviewing and merging your contributions.
 
 Our team will review your contribution and get back to you as soon as possible. Thanks again for helping improve the project! 
 
+## License
+Agri Flow - Farmer Community App  
+Copyright (c) 2025 Agri Flow  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+This project is licensed under the Agri Flow Custom License.  
+See the [LICENSE](LICENSE) file for details.
 
 
 
