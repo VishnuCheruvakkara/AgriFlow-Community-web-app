@@ -1,3 +1,4 @@
+import logging
 from tkinter import E
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -16,55 +17,65 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from apps.notifications.utils import create_and_send_notification
 
+logger=logging.getLogger(__name__)
+
 # Get community in the event creation section (only get the community where user is admin ) 
 class GetCommunityForCreateEvent(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        admin_memberships = CommunityMembership.objects.filter(
-            user=user,
-            is_admin=True,
-            status='approved',
-            community__is_deleted=False
-        ).select_related('community')
+        try:
+            user = request.user
+            admin_memberships = CommunityMembership.objects.filter(
+                user=user,
+                is_admin=True,
+                status='approved',
+                community__is_deleted=False
+            ).select_related('community')
 
-        communities = [
-            membership.community for membership in admin_memberships]
+            communities = [
+                membership.community for membership in admin_memberships]
 
-        serializer = CommunitySerializer(communities, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+            serializer = CommunitySerializer(communities, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logging.exception(f"Error fetching communities for event creation: {e}")   
+            return Response({"error": "Something went wrong while fetching communities."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 # Admin User can Create Event View 
 class CommunityEventCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-
-        # Get the community ID and the event title from the request data
-        community_id = request.data.get("community")
-        event_title = request.data.get("title")
-
-        # Check if the user is an admin for the specified community
         try:
-            community_membership = CommunityMembership.objects.get(
-                user=request.user, community_id=community_id)
-            if not community_membership.is_admin:
-                return Response({"error": "You must be an admin of the community to create events."}, status=status.HTTP_403_FORBIDDEN)
-        except CommunityMembership.DoesNotExist:
-            return Response({"error": "You are not a member of this community."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Check for duplicate event title for the same community
-        if CommunityEvent.objects.filter(community_id=community_id, title=event_title).exists():
-            return Response({"error": "An event with this title already exists for the selected community."}, status=status.HTTP_400_BAD_REQUEST)
+            # Get the community ID and the event title from the request data
+            community_id = request.data.get("community")
+            event_title = request.data.get("title")
 
-        serializer = CommunityEventSerializer(
-            data=request.data, context={"request": request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Event created successfully"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Check if the user is an admin for the specified community
+            try:
+                community_membership = CommunityMembership.objects.get(
+                    user=request.user, community_id=community_id)
+                if not community_membership.is_admin:
+                    return Response({"error": "You must be an admin of the community to create events."}, status=status.HTTP_403_FORBIDDEN)
+            except CommunityMembership.DoesNotExist:
+                return Response({"error": "You are not a member of this community."}, status=status.HTTP_403_FORBIDDEN)
 
+            # Check for duplicate event title for the same community
+            if CommunityEvent.objects.filter(community_id=community_id, title=event_title).exists():
+                return Response({"error": "An event with this title already exists for the selected community."}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = CommunityEventSerializer(
+                data=request.data, context={"request": request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Event created successfully"}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logging.exception(f"Error creating event: {e}")
+            return Response({"error": "Something went wrong while creating the event."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Get all community events
 class GetAllCommunityEventsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -102,6 +113,7 @@ class GetAllCommunityEventsView(APIView):
             # Return paginated response
             return paginator.get_paginated_response(serializer.data)
         except Exception as e:
+            logger.exception(f"Error fetching events: {e}")    
             return Response(
                 {"error": "Something went wrong while fetching events."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -112,44 +124,57 @@ class UserCreatedEventsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        search_query = request.query_params.get('search', '')
+        try:
+            user = request.user
+            search_query = request.query_params.get('search', '')
 
-        events = CommunityEvent.objects.filter(
-            created_by=user,
-            is_deleted=False,
-            community__is_deleted=False
-        )
-
-        if search_query:
-            events = events.filter(
-                Q(title__icontains=search_query) |
-                Q(event_type__icontains=search_query) |
-                Q(event_location__location_name__icontains=search_query)
+            events = CommunityEvent.objects.filter(
+                created_by=user,
+                is_deleted=False,
+                community__is_deleted=False
             )
 
-        paginator = CustomEventPagination()
-        paginated_events = paginator.paginate_queryset(events, request)
-        serializer = CommunityEventParticipantGetSerializer(
-            paginated_events, many=True,context={'request':request})
+            if search_query:
+                events = events.filter(
+                    Q(title__icontains=search_query) |
+                    Q(event_type__icontains=search_query) |
+                    Q(event_location__location_name__icontains=search_query)
+                )
 
-        return paginator.get_paginated_response(serializer.data)
+            paginator = CustomEventPagination()
+            paginated_events = paginator.paginate_queryset(events, request)
+            serializer = CommunityEventParticipantGetSerializer(
+                paginated_events, many=True,context={'request':request})
 
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            logger.exception(f"Error fetching user-created events: {e}")
+            return Response(
+                {"error": "Something went wrong while fetching your events."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 # Edit the commmunity event
 class CommunityEventUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
-        event = get_object_or_404(CommunityEvent, pk=pk)
-        serializer = CommunityEventEditSerializer(
-            event, data=request.data, partial=True)
+        try:
+            event = get_object_or_404(CommunityEvent, pk=pk)
+            serializer = CommunityEventEditSerializer(
+                event, data=request.data, partial=True)
 
-        if serializer.is_valid():
-            updated_event = serializer.save()
-            return Response(CommunityEventEditSerializer(updated_event).data, status=status.HTTP_200_OK)
+            if serializer.is_valid():
+                updated_event = serializer.save()
+                return Response(CommunityEventEditSerializer(updated_event).data, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.exception(f"Error updating event: {e}")
+            return Response(
+                {"error": "Something went wrong while updating the event."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
 # Soft delete the community event
 class DeleteCommunityEventView(APIView):
     permission_classes = [IsAuthenticated]
@@ -161,87 +186,102 @@ class DeleteCommunityEventView(APIView):
             return Response({'error': 'Event not found or already deleted.'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the user is an admin in the event's community
-        is_admin = CommunityMembership.objects.filter(
-            user=request.user,
+        try:
+            is_admin = CommunityMembership.objects.filter(
+                user=request.user,
 
-            community=event.community,
-            is_admin=True,
-            status='approved'
-        ).exists()
-
-        if not is_admin:
-            return Response({'error': 'You do not have permission to delete this event.'}, status=status.HTTP_403_FORBIDDEN)
-
-        # Perform soft delete
-        event.is_deleted = True
-        event.save()
-
-        # Send notifications to all participants
-        participations = EventParticipation.objects.filter(event=event)
-
-        for participation in participations:
-            recipient = participation.user
-            create_and_send_notification(
-                recipient=recipient,
-                sender=request.user,
-                type="event_deleted",
-                message=f"The event '{event.title}' has been cancelled by the organizer.",
                 community=event.community,
-                image_url=generate_secure_image_url(event.banner)
-            )
+                is_admin=True,
+                status='approved'
+            ).exists()
 
-        return Response({'message': 'Event deleted successfully.'}, status=status.HTTP_200_OK)
+            if not is_admin:
+                return Response({'error': 'You do not have permission to delete this event.'}, status=status.HTTP_403_FORBIDDEN)
 
+            # Perform soft delete
+            event.is_deleted = True
+            event.save()
+
+            # Send notifications to all participants
+            participations = EventParticipation.objects.filter(event=event)
+
+            for participation in participations:
+                recipient = participation.user
+                create_and_send_notification(
+                    recipient=recipient,
+                    sender=request.user,
+                    type="event_deleted",
+                    message=f"The event '{event.title}' has been cancelled by the organizer.",
+                    community=event.community,
+                    image_url=generate_secure_image_url(event.banner)
+                )
+
+            return Response({'message': 'Event deleted successfully.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(f"Error deleting event: {e}")
+            return Response({'error': 'Something went wrong while deleting the event.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Join to a community event 
 class JoinEventAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = EventParticipationSerializer(
-            data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Successfully enrolled in the event."}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        try:
+            serializer = EventParticipationSerializer(
+                data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Successfully enrolled in the event."}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.exception(f"Error joining event: {e}")
+            return Response({"error": "Something went wrong while joining the event."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # (Enrolled Events section in the Event pages of the user side) all events where the current user is a pariticipant 
 class EnrolledEventsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        search_query = request.query_params.get('search', '')
+        try:
+            user = request.user
+            search_query = request.query_params.get('search', '')
 
-        # Get participations with related events and locations/communities
-        participations = EventParticipation.objects.select_related(
-            'event__event_location', 'event__community'
-        ).filter(user=user, event__is_deleted=False, event__community__is_deleted=False)
+            # Get participations with related events and locations/communities
+            participations = EventParticipation.objects.select_related(
+                'event__event_location', 'event__community'
+            ).filter(user=user, event__is_deleted=False, event__community__is_deleted=False)
 
-        # Extract related events
-        events = [p.event for p in participations]
+            # Extract related events
+            events = [p.event for p in participations]
 
-        # Convert list to queryset for pagination and search
-        from django.db.models import QuerySet
-        if not isinstance(events, QuerySet):
-            from .models import CommunityEvent 
-            event_ids = [e.id for e in events]
-            events = CommunityEvent.objects.filter(id__in=event_ids)
+            # Convert list to queryset for pagination and search
+            from django.db.models import QuerySet
+            if not isinstance(events, QuerySet):
+                from .models import CommunityEvent 
+                event_ids = [e.id for e in events]
+                events = CommunityEvent.objects.filter(id__in=event_ids)
 
-        # Apply search
-        if search_query:
-            events = events.filter(
-                Q(title__icontains=search_query) |
-                Q(event_type__icontains=search_query) |
-                Q(event_location__location_name__icontains=search_query)
+            # Apply search
+            if search_query:
+                events = events.filter(
+                    Q(title__icontains=search_query) |
+                    Q(event_type__icontains=search_query) |
+                    Q(event_location__location_name__icontains=search_query)
+                )
+
+            # Pagination
+            paginator = CustomEventPagination()
+            paginated_events = paginator.paginate_queryset(events, request)
+            serializer = CommunityEventCombinedSerializer(
+                paginated_events, many=True, context={'request': request})
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            logger.exception(f"Error fetching enrolled events: {e}")
+            return Response(
+                {"error": "Something went wrong while fetching your enrolled events."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        # Pagination
-        paginator = CustomEventPagination()
-        paginated_events = paginator.paginate_queryset(events, request)
-        serializer = CommunityEventCombinedSerializer(
-            paginated_events, many=True, context={'request': request})
-        return paginator.get_paginated_response(serializer.data)
-
+        
 # Get the enrolled event history for a user 
 class EventEnrollmentHistoryAPIView(APIView):
     """
@@ -250,15 +290,21 @@ class EventEnrollmentHistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        participations = (
-            EventParticipation.objects
-            .filter(user=request.user)
-            .select_related("event", "event__event_location")
-        )
-        serializer = EventEnrollmentHistorySerializer(
-            participations, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+        try:
+            participations = (
+                EventParticipation.objects
+                .filter(user=request.user)
+                .select_related("event", "event__event_location")
+            )
+            serializer = EventEnrollmentHistorySerializer(
+                participations, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(f"Error fetching event enrollment history: {e}")
+            return Response(
+                {"error": "Something went wrong while fetching your event enrollment history."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 # mark evnent as completed by the creator of the event 
 class MarkEventAsCompletedView(APIView):
@@ -292,8 +338,15 @@ class MarkEventAsCompletedView(APIView):
             return Response({"detail": "Event marked as completed successfully."}, status=status.HTTP_200_OK)
 
         except CommunityEvent.DoesNotExist:
+            logger.exception(f"Event with ID {event_id} not found or user is not the creator.") 
             return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
-
+        except Exception:
+            logger.exception(f"Unexpected error while marking event {event_id} as completed.")
+            return Response(
+                {"detail": "Something went wrong while updating the event."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
 # mark event as cancelled  
 class MarkEventAsCancelledView(APIView):
     permission_classes = [IsAuthenticated]
@@ -326,41 +379,55 @@ class MarkEventAsCancelledView(APIView):
 
             return Response({"detail": "Event has been cancelled successfully."}, status=status.HTTP_200_OK)
         except CommunityEvent.DoesNotExist:
+            logger.exception(f"Event with ID {event_id} not found or user is not the creator.")
             return Response({"detail": "Event not found."}, status=status.HTTP_404_NOT_FOUND)
-
+        except Exception:
+            logger.exception(f"Unexpected error while cancelling event {event_id}.")
+            return Response(
+                {"detail": "Something went wrong while cancelling the event."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
 #  Admin side Event handling 
 # Get all events in the admin page
 class AdminEventListAPIView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, format=None):
-        queryset = CommunityEvent.objects.all().order_by("-start_datetime")
+        try:
+            queryset = CommunityEvent.objects.all().order_by("-start_datetime")
 
-        # Search
-        search = request.query_params.get("search")
-        if search:
-            queryset = queryset.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
+            # Search
+            search = request.query_params.get("search")
+            if search:
+                queryset = queryset.filter(
+                    Q(title__icontains=search) |
+                    Q(description__icontains=search)
+                )
+
+            # Status Filter
+            status = request.query_params.get("status")
+            if status == "upcoming":
+                queryset = queryset.filter(event_status="upcoming", is_deleted=False)
+            elif status == "completed":
+                queryset = queryset.filter(event_status="completed", is_deleted=False)
+            elif status == "cancelled":
+                queryset = queryset.filter(event_status="cancelled", is_deleted=False)
+            elif status == "deleted":
+                queryset = queryset.filter(is_deleted=True)
+
+            paginator = CustomAdminEventPagination()
+            page = paginator.paginate_queryset(queryset, request)
+
+            serializer = CommunityEventAdminSideListSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            logger.exception(f"Error fetching admin event list: {e}")
+            return Response(
+                {"error": "Something went wrong while fetching events."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        # Status Filter
-        status = request.query_params.get("status")
-        if status == "upcoming":
-            queryset = queryset.filter(event_status="upcoming", is_deleted=False)
-        elif status == "completed":
-            queryset = queryset.filter(event_status="completed", is_deleted=False)
-        elif status == "cancelled":
-            queryset = queryset.filter(event_status="cancelled", is_deleted=False)
-        elif status == "deleted":
-            queryset = queryset.filter(is_deleted=True)
-
-        paginator = CustomAdminEventPagination()
-        page = paginator.paginate_queryset(queryset, request)
-
-        serializer = CommunityEventAdminSideListSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
+        
 # Event details amdin side
 
 class CommunityEventDetailView(APIView):
@@ -370,19 +437,25 @@ class CommunityEventDetailView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, id, format=None):
-        event = get_object_or_404(
-            CommunityEvent.objects.prefetch_related(
-                "participations__user"
-            ).select_related(
-                "event_location",
-                "community",
-                "created_by"
-            ),
-            id=id
-        )
-        serializer = CommunityEventDetailAdminSideSerializer(event)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+        try:
+            event = get_object_or_404(
+                CommunityEvent.objects.prefetch_related(
+                    "participations__user"
+                ).select_related(
+                    "event_location",
+                    "community",
+                    "created_by"
+                ),
+                id=id
+            )
+            serializer = CommunityEventDetailAdminSideSerializer(event)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(f"Error fetching event details for admin: {e}")
+            return Response(
+                {"error": "Something went wrong while fetching event details."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 # Event delete status toggling view 
 class ToggleEventDeleteStatusView(APIView):
@@ -393,14 +466,21 @@ class ToggleEventDeleteStatusView(APIView):
     permission_classes = [IsAdminUser]
 
     def patch(self, request, pk):
-        event = get_object_or_404(CommunityEvent, pk=pk)
-        event.is_deleted = not event.is_deleted
-        event.save()
+        try:
+            event = get_object_or_404(CommunityEvent, pk=pk)
+            event.is_deleted = not event.is_deleted
+            event.save()
 
-        return Response(
-            {
-                "message": f"Event marked as {'deleted' if event.is_deleted else 'available'}.",
-                "is_deleted": event.is_deleted,
-            },
-            status=status.HTTP_200_OK,
-        )
+            return Response(
+                {
+                    "message": f"Event marked as {'deleted' if event.is_deleted else 'available'}.",
+                    "is_deleted": event.is_deleted,
+                },
+                status=status.HTTP_200_OK,
+            )     
+        except Exception as e:
+            logger.exception(f"Error toggling event delete status: {e}")
+            return Response(
+                {"error": "Something went wrong while updating the event status."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )                                                                                      
