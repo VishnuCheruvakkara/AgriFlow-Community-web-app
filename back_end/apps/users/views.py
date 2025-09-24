@@ -1,3 +1,6 @@
+import logging
+from math import e
+from os import error
 # Django core
 from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
@@ -73,6 +76,7 @@ import requests
 
 # User model
 User = get_user_model()
+logger=logging.getLogger(__name__)
 
 # User Login
 class LoginView(APIView):
@@ -81,68 +85,71 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data["email"]
-            password = serializer.validated_data["password"]
+        try:
+            serializer = LoginSerializer(data=request.data)
+            if serializer.is_valid():
+                email = serializer.validated_data["email"]
+                password = serializer.validated_data["password"]
 
-            # First, get the user from the database
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                return Response(
-                    {"error": "Invalid email or password!"},
-                    status=status.HTTP_401_UNAUTHORIZED,
+                # First, get the user from the database
+                try:
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    return Response(
+                        {"error": "Invalid email or password!"},
+                        status=status.HTTP_401_UNAUTHORIZED,
+                    )
+
+                # Then check if the user is active
+                if not user.is_active:
+                    return Response(
+                        {"error": "Your account has been blocked. Please contact support for assistance."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    ) 
+
+
+                # Authenticate the user
+                user = authenticate(request, username=email, password=password)
+                if not user:
+                    return Response(
+                        {"error": "Invalid email or password !"},
+                        status=status.HTTP_401_UNAUTHORIZED,
+                    )
+
+                # Generate JWT token (Controlled from services.py)
+                refresh_token, access_token = generate_tokens(user)
+
+                # include users details in response
+                user_data = {
+                    "name": user.username,
+                    "email": user.email,
+                    "profile_completed": user.profile_completed,
+                    "aadhar_verification": user.is_aadhar_verified,
+                }
+
+                # Set access token in the response to handle that with redux state+local storage.
+                response = Response(
+                    {"message": "User Sigin succesfully!",
+                    "access_token": access_token,
+                    "user": user_data,
+                    },
+                    status=status.HTTP_201_CREATED
                 )
-
-            # Then check if the user is active
-            if not user.is_active:
-                return Response(
-                    {"error": "Your account has been blocked. Please contact support for assistance."},
-                    status=status.HTTP_403_FORBIDDEN,
-                ) 
-
-
-            # Authenticate the user
-            user = authenticate(request, username=email, password=password)
-            if not user:
-                return Response(
-                    {"error": "Invalid email or password !"},
-                    status=status.HTTP_401_UNAUTHORIZED,
+                response.set_cookie(
+                    key="refresh_token",
+                    value=refresh_token,
+                    httponly=True,
+                    secure=True,  # Change in production as True.
+                    samesite="None",  # Change as None in production.
+                    max_age=int(
+                        settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
                 )
+                return response
 
-            # Generate JWT token (Controlled from services.py)
-            refresh_token, access_token = generate_tokens(user)
-
-            # include users details in response
-            user_data = {
-                "name": user.username,
-                "email": user.email,
-                "profile_completed": user.profile_completed,
-                "aadhar_verification": user.is_aadhar_verified,
-            }
-
-            # Set access token in the response to handle that with redux state+local storage.
-            response = Response(
-                {"message": "User Sigin succesfully!",
-                 "access_token": access_token,
-                 "user": user_data,
-                 },
-                status=status.HTTP_201_CREATED
-            )
-            response.set_cookie(
-                key="refresh_token",
-                value=refresh_token,
-                httponly=True,
-                secure=True,  # Change in production as True.
-                samesite="None",  # Change as None in production.
-                max_age=int(
-                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
-            )
-            return response
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:   
+            logger.error(f"Error during login: {e}")    
+            return Response({"error": "An error occurred during login."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # User Registration
 class RegisterView(APIView):
@@ -150,47 +157,51 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            validated_data = serializer.validated_data
-            email = validated_data['email']
+        try:
+            serializer = RegisterSerializer(data=request.data)
+            if serializer.is_valid():
+                validated_data = serializer.validated_data
+                email = validated_data['email']
 
-            try:
-                user = User.objects.get(email=email)
-                if user.is_verified:
-                    return Response(
-                        {"error": "Email already exists and is verified. Please log in."},
-                        status=status.HTTP_400_BAD_REQUEST
+                try:
+                    user = User.objects.get(email=email)
+                    if user.is_verified:
+                        return Response(
+                            {"error": "Email already exists and is verified. Please log in."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+
+                    else:
+                        # Generate OTP and send email with celery task delay (Controlled in utils.py)
+                        send_otp_email_task.delay(
+                            email, email_type="registration")
+                        return Response(
+                            {"message": "OTP re-sent to your email. Please verify."},
+                            status=status.HTTP_200_OK
+                        )
+
+                except User.DoesNotExist:
+                    # Create user with is_active=False and is_verified=False
+                    user = User.objects.create_user(
+                        email=email,
+                        username=validated_data['username'],
+                        password=validated_data['password'],
+                        is_active=False,   # User cannot log in before verification
+                        is_verified=False,  # Mark as not verified by OTP
                     )
 
-                else:
-                    # Generate OTP and send email with celery task delay (Controlled in utils.py)
-                    send_otp_email_task.delay(
-                        email, email_type="registration")
-                    return Response(
-                        {"message": "OTP re-sent to your email. Please verify."},
-                        status=status.HTTP_200_OK
-                    )
+                # Generate OTP and send email (Controlled in utils.py)
+                send_otp_email_task.delay(email,email_type="registration")
 
-            except User.DoesNotExist:
-                # Create user with is_active=False and is_verified=False
-                user = User.objects.create_user(
-                    email=email,
-                    username=validated_data['username'],
-                    password=validated_data['password'],
-                    is_active=False,   # User cannot log in before verification
-                    is_verified=False,  # Mark as not verified by OTP
+                return Response(
+                    {"message": "OTP sent successfully to your email."},
+                    status=status.HTTP_201_CREATED,
                 )
-
-            # Generate OTP and send email (Controlled in utils.py)
-            send_otp_email_task.delay(email,email_type="registration")
-
-            return Response(
-                {"message": "OTP sent successfully to your email."},
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.error(f"Error during registration: {e}")    
+            return Response({"error": "An error occurred during registration."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Otp verification
 class VerifyOTPView(APIView):
     """OTP Verification API"""
@@ -198,61 +209,64 @@ class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = VerifyOTPSerializer(data=request.data)
-        if serializer.is_valid():
-            validated_data = serializer.validated_data
-            email = validated_data['email']
+        try:
+            serializer = VerifyOTPSerializer(data=request.data)
+            if serializer.is_valid():
+                validated_data = serializer.validated_data
+                email = validated_data['email']
 
-            try:
-                # Retrieve existing user
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                return Response(
-                    {"error": "User not found."},
-                    status=status.HTTP_404_NOT_FOUND,
+                try:
+                    # Retrieve existing user
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    return Response(
+                        {"error": "User not found."},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                # Mark user as verified and activate the account
+                user.is_verified = True
+                user.is_active = True
+                user.save()
+
+                # Delete OTP after successful verification
+                cache.delete(f"otp_{email}")
+
+                # Generate JWT token (Controlled from services.py)
+                refresh_token, access_token = generate_tokens(user)
+
+                # include users details in response
+                user_data = {
+                    "name": user.username,
+                    "email": user.email,
+                    "profile_completed": user.profile_completed,
+                    "aadhar_verification": user.is_aadhar_verified,
+                }
+
+                # Set access token in the response to handle that with redux state+local storage.
+                response = Response(
+                    {"message": "User registered succesfully!",
+                    "access_token": access_token,
+                    "user": user_data,
+                    },
+                    status=status.HTTP_201_CREATED
                 )
+                # Set refresh token in the HTTP-only cookie
+                response.set_cookie(
+                    key="refresh_token",
+                    value=refresh_token,
+                    httponly=True,
+                    secure=True,  # Change in production as True.
+                    samesite="None",  # Change as None in production.
+                    max_age=int(
+                        settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+                )
+                return response
 
-            # Mark user as verified and activate the account
-            user.is_verified = True
-            user.is_active = True
-            user.save()
-
-            # Delete OTP after successful verification
-            cache.delete(f"otp_{email}")
-
-            # Generate JWT token (Controlled from services.py)
-            refresh_token, access_token = generate_tokens(user)
-
-            # include users details in response
-            user_data = {
-                "name": user.username,
-                "email": user.email,
-                "profile_completed": user.profile_completed,
-                "aadhar_verification": user.is_aadhar_verified,
-            }
-
-            # Set access token in the response to handle that with redux state+local storage.
-            response = Response(
-                {"message": "User registered succesfully!",
-                 "access_token": access_token,
-                 "user": user_data,
-                 },
-                status=status.HTTP_201_CREATED
-            )
-            # Set refresh token in the HTTP-only cookie
-            response.set_cookie(
-                key="refresh_token",
-                value=refresh_token,
-                httponly=True,
-                secure=True,  # Change in production as True.
-                samesite="None",  # Change as None in production.
-                max_age=int(
-                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
-            )
-            return response
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.error(f"Error during OTP verification: {e}")    
+            return Response({"error": "An error occurred during OTP verification."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 # Logout
 class LogoutView(APIView):
     """Logout API to remove refresh token and clear cookies"""
@@ -279,7 +293,8 @@ class LogoutView(APIView):
 
             return response
 
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error during logout: {e}")
             return Response({"message": "Logout failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 # Google authentication 
@@ -289,6 +304,7 @@ class GoogleAuthCallbackView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        
         # Get the token from the frontend
         token = request.data.get("token")
         if not isinstance(token, str) or not token.strip():
@@ -366,8 +382,10 @@ class GoogleAuthCallbackView(APIView):
             return response
 
         except ValueError as e:
+            logger.error(f"Google token verification failed: {e}")
             return Response({"error": "Invalid token", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            logger.error(f"Error during Google authentication: {e}")
             return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -378,33 +396,41 @@ class RefreshTokenView(APIView):
     permission_classes = [AllowAny] 
 
     def post(self, request):
-
-        refresh_token = request.COOKIES.get(
-            'refresh_token')  # Get refresh token from cookies
-
-        if not refresh_token:
-
-            return Response(
-                {'message': 'Refresh token not found!'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
         try:
-            # Decode and validate refresh token
-            refresh = RefreshToken(refresh_token)
-            # Generate new access token
-            access_token = str(refresh.access_token)
 
-            return Response(
-                {'access': access_token},
-                status=status.HTTP_200_OK
-            )
+            refresh_token = request.COOKIES.get(
+                'refresh_token')  # Get refresh token from cookies
+
+            if not refresh_token:
+
+                return Response(
+                    {'message': 'Refresh token not found!'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            try:
+                # Decode and validate refresh token
+                refresh = RefreshToken(refresh_token)
+                # Generate new access token
+                access_token = str(refresh.access_token)
+
+                return Response(
+                    {'access': access_token},
+                    status=status.HTTP_200_OK
+                )
+            except Exception as e:
+
+                return Response(
+                    {'message': 'Invalid or expired refresh token!'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
         except Exception as e:
-
+            logger.critical(f"Unexpected error in RefreshTokenView: {e}", exc_info=True)
             return Response(
-                {'message': 'Invalid or expired refresh token!'},
-                status=status.HTTP_401_UNAUTHORIZED
+                {'message': 'Something went wrong while refreshing token.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
 
 
 # Token creation for Admin 
@@ -414,30 +440,37 @@ class AdminRefreshTokenView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        # Admin refresh token from cookies
-        admin_refresh_token = request.COOKIES.get('admin_refresh_token')
-
-        if not admin_refresh_token:
-            
-            return Response(
-                {'message': 'Admin refresh token not found!'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
         try:
-            # Decode and validate admin refresh token
-            refresh = RefreshToken(admin_refresh_token)
-            # Generate new access token
-            access_token = str(refresh.access_token)
+            # Admin refresh token from cookies
+            admin_refresh_token = request.COOKIES.get('admin_refresh_token')
 
-            return Response(
-                {'access': access_token},
-                status=status.HTTP_200_OK
-            )
+            if not admin_refresh_token:
+                
+                return Response(
+                    {'message': 'Admin refresh token not found!'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            try:
+                # Decode and validate admin refresh token
+                refresh = RefreshToken(admin_refresh_token)
+                # Generate new access token
+                access_token = str(refresh.access_token)
+
+                return Response(
+                    {'access': access_token},
+                    status=status.HTTP_200_OK
+                )
+            except Exception as e:
+                return Response(
+                    {'message': 'Invalid or expired admin refresh token!'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
         except Exception as e:
+            logger.exception(f"Unexpected error in AdminRefreshTokenView: {e}")
             return Response(
-                {'message': 'Invalid or expired admin refresh token!'},
-                status=status.HTTP_401_UNAUTHORIZED
+                {'message': 'Something went wrong while refreshing admin token.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 # Forgot password section
@@ -447,16 +480,20 @@ class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = ForgotPasswordSerialzier(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-           
-            # Generate OTP and send email with celery task delay(Controlled in utils.py)
-            send_otp_email_task.delay(email, email_type="forgot_password")
+        try:
+            serializer = ForgotPasswordSerialzier(data=request.data)
+            if serializer.is_valid():
+                email = serializer.validated_data['email']
+            
+                # Generate OTP and send email with celery task delay(Controlled in utils.py)
+                send_otp_email_task.delay(email, email_type="forgot_password")
 
-            return Response({"message": "OTP sent to you email"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+                return Response({"message": "OTP sent to you email"}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.error(f"Error during forgot password request: {e}")    
+            return Response({"error": "An error occurred during the request."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Forgot password OTP Verifcation View 
 
 class ForgotPasswordOTPVerifyView(APIView):
@@ -464,11 +501,15 @@ class ForgotPasswordOTPVerifyView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = ForgotPasswordVerifyOTPSerializer(data=request.data)
-        if serializer.is_valid():
-            return Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-
+        try:
+            serializer = ForgotPasswordVerifyOTPSerializer(data=request.data)
+            if serializer.is_valid():
+                return Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.error(f"Error during forgot password OTP verification: {e}")    
+            return Response({"error": "An error occurred during OTP verification."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Set new password after OTP verifiction View
 
 class ForgotPasswordSetNewView(APIView):
@@ -477,109 +518,121 @@ class ForgotPasswordSetNewView(APIView):
     permission_classes = [AllowAny]
 
     def put(self, request):
-        serializer = ForgotPasswordSetSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            new_password = serializer.validated_data['new_password']
+        try:
+            serializer = ForgotPasswordSetSerializer(data=request.data)
+            if serializer.is_valid():
+                email = serializer.validated_data['email']
+                new_password = serializer.validated_data['new_password']
 
-            # Find user by email
-            user = User.objects.filter(email=email, is_verified=True).first()
-            if not user:
-                return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+                # Find user by email
+                user = User.objects.filter(email=email, is_verified=True).first()
+                if not user:
+                    return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-            # Blacklist refresh token stored in cookies (if any)
-            refresh_token = request.COOKIES.get("refresh_token")
-            if refresh_token:
-                try:
-                    refresh = RefreshToken(refresh_token)
-                    refresh.blacklist()  # Blacklist the token
-                except Exception:
-                    pass  # Ignore if already blacklisted
+                # Blacklist refresh token stored in cookies (if any)
+                refresh_token = request.COOKIES.get("refresh_token")
+                if refresh_token:
+                    try:
+                        refresh = RefreshToken(refresh_token)
+                        refresh.blacklist()  # Blacklist the token
+                    except Exception:
+                        pass  # Ignore if already blacklisted
 
-            # Update password with new password
-            user.password = make_password(new_password)
-            user.save()
+                # Update password with new password
+                user.password = make_password(new_password)
+                user.save()
 
-            # Remove all active sessions for this user (force logout everywhere)
-            sessions = Session.objects.filter(expire_date__gte=now())
-            for session in sessions:
-                data = session.get_decoded()
-                if str(data.get('_auth_user_id')) == str(user.id):
-                    session.delete()  # Remove session
+                # Remove all active sessions for this user (force logout everywhere)
+                sessions = Session.objects.filter(expire_date__gte=now())
+                for session in sessions:
+                    data = session.get_decoded()
+                    if str(data.get('_auth_user_id')) == str(user.id):
+                        session.delete()  # Remove session
 
-            # Create response and remove refresh token from cookies
-            response = Response(
-                {"message": "Password reset successful! Please log in with your new password."},
-                status=status.HTTP_200_OK
-            )
-            # Remove refresh token from cookies
-            response.delete_cookie("refresh_token")
+                # Create response and remove refresh token from cookies
+                response = Response(
+                    {"message": "Password reset successful! Please log in with your new password."},
+                    status=status.HTTP_200_OK
+                )
+                # Remove refresh token from cookies
+                response.delete_cookie("refresh_token")
 
-            return response
+                return response
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.exception(f"Error during password reset: {e}")    
+            return Response({"error": "An error occurred during password reset."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Resend OTP set-up 
 class ResendOTPView(APIView):
     """Handles OTP resending for user authentication"""
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get("email")
-        # Default to "registration"
-        email_type = request.data.get("email_type", "registration")
-        if not email:
-            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            email = request.data.get("email")
+            # Default to "registration"
+            email_type = request.data.get("email_type", "registration")
+            if not email:
+                return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Call the existing function to generate and send OTP with the given email_type
-        generate_otp_and_send_email(email, email_type=email_type)
+            # Call the existing function to generate and send OTP with the given email_type
+            generate_otp_and_send_email(email, email_type=email_type)
 
-        return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
-
+            return Response({"message": "OTP has been resent successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:  
+            logger.error(f"Error during OTP resend: {e}")    
+            return Response({"error": "An error occurred while resending OTP."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Admin Login View for authentication 
 class AdminLoginView(APIView):
     """JWT-based Admin Login"""
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = AdminLoginSerializer(data=request.data)
-        if serializer.is_valid():
-            admin_user = serializer.validated_data["user"]
+        try:
+            serializer = AdminLoginSerializer(data=request.data)
+            if serializer.is_valid():
+                admin_user = serializer.validated_data["user"]
 
-            # Generate JWT tokens
-            refresh_token, access_token = generate_tokens(admin_user)
+                # Generate JWT tokens
+                refresh_token, access_token = generate_tokens(admin_user)
 
-            admin_data = {
-                "id": admin_user.id,
-                "name": admin_user.username,
-                "email": admin_user.email,
-                "is_admin": admin_user.is_staff,
-            }
+                admin_data = {
+                    "id": admin_user.id,
+                    "name": admin_user.username,
+                    "email": admin_user.email,
+                    "is_admin": admin_user.is_staff,
+                }
 
-            response = Response(
-                {
-                    "message": "Admin Login Successful!",
-                    "access_token": access_token,
-                    "user": admin_data,
-                },
-                status=status.HTTP_200_OK,
-            )
+                response = Response(
+                    {
+                        "message": "Admin Login Successful!",
+                        "access_token": access_token,
+                        "user": admin_data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
 
-            # Set refresh token as HTTP-only cookie
-            response.set_cookie(
-                key="admin_refresh_token",
-                value=refresh_token,
-                httponly=True,
-                secure=True,  # Change to True in production
-                samesite="None",  # Change to None in production
-                max_age=int(
-                    settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
-            )
+                # Set refresh token as HTTP-only cookie
+                response.set_cookie(
+                    key="admin_refresh_token",
+                    value=refresh_token,
+                    httponly=True,
+                    secure=True,  # Change to True in production
+                    samesite="None",  # Change to None in production
+                    max_age=int(
+                        settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+                )
 
-            return response
+                return response
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.error(f"Error during admin login: {e}")    
+            return Response({"error": "An error occurred during admin login."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Admin logout view 
 class AdminLogoutView(APIView):
     """Admin Logout API to remove refresh token and clear cookies"""
@@ -602,7 +655,8 @@ class AdminLogoutView(APIView):
 
             return response
 
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error during admin logout: {e}")
             return Response({"message": "Admin logout failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 # User profile creation section by taking all the relevent data.
@@ -612,35 +666,39 @@ class LocationAutocompleteView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        query = request.GET.get("q", "")
-
-        if len(query) < 2:  # Avoid unnecessary API calls
-            return Response({"error": "Query too short"}, status=status.HTTP_400_BAD_REQUEST)
-
-        api_key = settings.LOCATIONIQ_API_KEY  # Replace with your key
-        url = f"https://api.locationiq.com/v1/autocomplete?key={api_key}&q={query}&limit=10&dedupe=1"
-
         try:
-            response = requests.get(url)
-            data = response.json()
+            query = request.GET.get("q", "")
 
-            # Extract relevant fields
-            results = [
-                {
-                    "place_id": place.get("place_id"),
-                    "display_name": place.get("display_name"),
-                    "latitude": place.get("lat"),
-                    "longitude": place.get("lon"),
-                    "address": place.get("address", {}),
-                }
-                for place in data
-            ]
+            if len(query) < 2:  # Avoid unnecessary API calls
+                return Response({"error": "Query too short"}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response(results, status=status.HTTP_200_OK)
+            api_key = settings.LOCATIONIQ_API_KEY  # Replace with your key
+            url = f"https://api.locationiq.com/v1/autocomplete?key={api_key}&q={query}&limit=10&dedupe=1"
 
+            try:
+                response = requests.get(url)
+                data = response.json()
+
+                # Extract relevant fields
+                results = [
+                    {
+                        "place_id": place.get("place_id"),
+                        "display_name": place.get("display_name"),
+                        "latitude": place.get("lat"),
+                        "longitude": place.get("lon"),
+                        "address": place.get("address", {}),
+                    }
+                    for place in data
+                ]
+
+                return Response(results, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            logger.exception(f"Error during location autocomplete: {e}")
+            return Response({"error": "An error occurred while fetching location data."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # User proflile update view
 class ProfileUpdateView(APIView):
     """API endpoint for updating user profile using POST"""
@@ -651,17 +709,21 @@ class ProfileUpdateView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Handle profile update via POST request"""
-        user = request.user
-        serializer = ProfileUpdateSerializer(
-            user, data=request.data, partial=True)
-      
-        if serializer.is_valid():
+        try:
+            user = request.user
+            serializer = ProfileUpdateSerializer(
+                user, data=request.data, partial=True)
         
-            serializer.save()
-            return Response({"message": "Profile updated successfully", "profile_completed": user.profile_completed}, status=200)
+            if serializer.is_valid():
+            
+                serializer.save()
+                return Response({"message": "Profile updated successfully", "profile_completed": user.profile_completed}, status=200)
 
-        return Response(serializer.errors, status=400)
-
+            return Response(serializer.errors, status=400)
+        except Exception as e:  
+            logger.exception(f"Error during profile update: {e}")    
+            return Response({"error": "An error occurred during profile update."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Get user data view When user login
 class GetUserDataView(RetrieveAPIView):
     """Fetch user data for dashboard."""
@@ -671,10 +733,14 @@ class GetUserDataView(RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         """Return authenticated user's details."""
-        user = request.user  # Get logged-in user
-        serializer = self.get_serializer(user)  # Serialize data
-        return Response(serializer.data)  # Send response
-
+        try:
+            user = request.user  # Get logged-in user
+            serializer = self.get_serializer(user)  # Serialize data
+            return Response(serializer.data)  # Send response
+        except Exception as e:  
+            logger.exception(f"Error fetching user data: {e}")    
+            return Response({"error": "An error occurred while fetching user data."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class GetAllUsersInAdminSideView(generics.ListAPIView):
     """
     API view to fetch all users' data.
@@ -687,29 +753,33 @@ class GetAllUsersInAdminSideView(generics.ListAPIView):
     search_fields = ['username', 'email']
 
     def get_queryset(self):
-        queryset = User.objects.filter(is_superuser=False, is_verified=True).order_by('-created_at')
-        filter_type = self.request.query_params.get('filter', None)
-        search_query = self.request.query_params.get('search', None)
+        try:
+            queryset = User.objects.filter(is_superuser=False, is_verified=True).order_by('-created_at')
+            filter_type = self.request.query_params.get('filter', None)
+            search_query = self.request.query_params.get('search', None)
 
-        # Apply filtering
-        if filter_type == 'profile_not_updated':
-            queryset = queryset.filter(profile_completed=False)
-        elif filter_type == 'aadhaar_not_verified':
-            queryset = queryset.filter(
-                is_aadhar_verified=False, profile_completed=True)
-        elif filter_type == "active":
-            queryset = queryset.filter(is_active=True)  # Active users
-        elif filter_type == "blocked":
-            queryset = queryset.filter(is_active=False)  # Blocked users
+            # Apply filtering
+            if filter_type == 'profile_not_updated':
+                queryset = queryset.filter(profile_completed=False)
+            elif filter_type == 'aadhaar_not_verified':
+                queryset = queryset.filter(
+                    is_aadhar_verified=False, profile_completed=True)
+            elif filter_type == "active":
+                queryset = queryset.filter(is_active=True)  # Active users
+            elif filter_type == "blocked":
+                queryset = queryset.filter(is_active=False)  # Blocked users
 
-        # Apply Search
-        if search_query:
-            queryset = queryset.filter(
-                Q(username__icontains=search_query) | Q(
-                    email__icontains=search_query)
-            )
+            # Apply Search
+            if search_query:
+                queryset = queryset.filter(
+                    Q(username__icontains=search_query) | Q(
+                        email__icontains=search_query)
+                )
 
-        return queryset
+            return queryset
+        except Exception as e:  
+            logger.exception(f"Error fetching users in admin side: {e}")
+            return User.objects.none()  # Return empty queryset on error
 
 # View for handle status of the user shwowed in the admin side user management 
 class UserStatusUpdateView(generics.UpdateAPIView):
@@ -719,31 +789,35 @@ class UserStatusUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def patch(self, request, *args, **kwargs):
-        user = self.get_object()
-        # Ensure that the logged-in user has permission to update the status
-        if not request.user.is_superuser and request.user != user:
-            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            user = self.get_object()
+            # Ensure that the logged-in user has permission to update the status
+            if not request.user.is_superuser and request.user != user:
+                return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+            
+            # First, save is_active
+            response = self.update(request, *args, **kwargs)
         
-        # First, save is_active
-        response = self.update(request, *args, **kwargs)
-    
-        #refresh the db to get the right result for is_active state 
-        user.refresh_from_db()
+            #refresh the db to get the right result for is_active state 
+            user.refresh_from_db()
 
-        if not user.is_active:
-            CommunityEvent.objects.filter(created_by=user).update(is_deleted=True)
-            Post.objects.filter(author=user).update(is_deleted=True)
-            Product.objects.filter(seller=user).update(is_deleted=True)
-            Community.objects.filter(created_by=user).update(is_deleted=True)
-            # Cancel pending sent connections
-            Connection.objects.filter(sender=user, status="pending").update(status="cancelled")
-        else:
-            CommunityEvent.objects.filter(created_by=user).update(is_deleted=False)
-            Post.objects.filter(author=user).update(is_deleted=False)
-            Product.objects.filter(seller=user).update(is_deleted=False)
-            Community.objects.filter(created_by=user).update(is_deleted=False)
+            if not user.is_active:
+                CommunityEvent.objects.filter(created_by=user).update(is_deleted=True)
+                Post.objects.filter(author=user).update(is_deleted=True)
+                Product.objects.filter(seller=user).update(is_deleted=True)
+                Community.objects.filter(created_by=user).update(is_deleted=True)
+                # Cancel pending sent connections
+                Connection.objects.filter(sender=user, status="pending").update(status="cancelled")
+            else:
+                CommunityEvent.objects.filter(created_by=user).update(is_deleted=False)
+                Post.objects.filter(author=user).update(is_deleted=False)
+                Product.objects.filter(seller=user).update(is_deleted=False)
+                Community.objects.filter(created_by=user).update(is_deleted=False)
 
-        return response
+            return response
+        except Exception as e:  
+            logger.exception(f"Error updating user status: {e}")    
+            return Response({"error": "An error occurred while updating user status."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # Admin side user detail page view set up
 class AdminSideUserDetailView(generics.RetrieveAPIView):
@@ -758,51 +832,63 @@ class VerifyAadhaarView(APIView):
     permission_classes = [IsAdminUser]
 
     def patch(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
-        serializer = AadhaarVerificationSerializer(
-            user, data={'is_aadhar_verified': True}, partial=True)
+        try:
+            user = get_object_or_404(User, id=user_id)
+            serializer = AadhaarVerificationSerializer(
+                user, data={'is_aadhar_verified': True}, partial=True)
 
-        if serializer.is_valid():
-            serializer.save()
+            if serializer.is_valid():
+                serializer.save()
 
-            # Send welcome email on Aadhaar verification
-            generate_otp_and_send_email(
-                user.email, email_type="aadhaar_verified")
+                # Send welcome email on Aadhaar verification
+                generate_otp_and_send_email(
+                    user.email, email_type="aadhaar_verified")
 
-            return Response({'message': 'Aadhaar verified successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
+                return Response({'message': 'Aadhaar verified successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.exception(f"Error verifying Aadhaar: {e}")    
+            return Response({"error": "An error occurred while verifying Aadhaar."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+        
 # Add Resubmission message according the user to the aadhar card in Admin side
 class UpdateAadharResubmissionMessageView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def patch(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
-        serializer = AadharResubmissionMessageSerializer(
-            user, data=request.data, partial=True)
+        try:
+            user = get_object_or_404(User, id=user_id)
+            serializer = AadharResubmissionMessageSerializer(
+                user, data=request.data, partial=True)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Aadhar resubmission message updated successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Aadhar resubmission message updated successfully!', 'data': serializer.data}, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.exception(f"Error updating Aadhaar resubmission message: {e}")    
+            return Response({"error": "An error occurred while updating Aadhaar resubmission message."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Aadhar image resubmission view for user resubmission 
 class AadhaarResubmissionUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def patch(self, request):
-        user = request.user
+        try:
+            user = request.user
 
-        serializer = AadhaarResubmissionSerializer(
-            user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Aadhaar resubmission image updated"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            serializer = AadhaarResubmissionSerializer(
+                user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Aadhaar resubmission image updated"}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.exception(f"Error during Aadhaar resubmission: {e}")    
+            return Response({"error": "An error occurred during Aadhaar resubmission."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Get the user details on the profile page of user and other user can see each other profiles
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -824,292 +910,316 @@ class UserProfileView(APIView):
             return Response(serializer.data)
         
         except User.DoesNotExist:
+            logger.exception(f"User with id {user_id} not found.")
             return Response({"error": "User not found"}, status=404)
+        except Exception as e:  
+            logger.exception(f"Error fetching user profile: {e}")    
+            return Response({"error": "An error occurred while fetching user profile."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         
 # Get all the saved messages from the table of private chat message
 class PrivateChatMessagesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self,request,receiver_id):
-        user = request.user 
-        messages= PrivateMessage.objects.filter(
-            sender_id__in = [user.id,receiver_id],
-            receiver_id__in= [user.id,receiver_id]
-        ).order_by('timestamp')
+        try:
+            user = request.user 
+            messages= PrivateMessage.objects.filter(
+                sender_id__in = [user.id,receiver_id],
+                receiver_id__in= [user.id,receiver_id]
+            ).order_by('timestamp')
 
-        serializers = PrivateMessageSerializer(messages,many=True) 
-        return Response(serializers.data,status=status.HTTP_200_OK)
-    
+            serializers = PrivateMessageSerializer(messages,many=True) 
+            return Response(serializers.data,status=status.HTTP_200_OK)
+        except Exception as e:  
+            logger.exception(f"Error fetching private chat messages: {e}")    
+            return Response({"error": "An error occurred while fetching private chat messages."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # User Profile Edit section
 # user side profile picture edit view
 class UpdateUserProfilePictureView(APIView):
     permission_classes = [IsAuthenticated] 
 
     def patch(self,request):
+        try:
+            image_file=request.FILES.get("profile_picture")
+            if not image_file:
+                return Response({"error":"Only image is allowed"},status=status.HTTP_400_BAD_REQUEST)
+            
+            public_id=upload_image_to_cloudinary(image_file,folder_name="user_profile_pictures")
+            if not public_id:
+                return Response({"error":"Image upload failed."},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            request.user.profile_picture = public_id
+            request.user.save()
 
-        image_file=request.FILES.get("profile_picture")
-        if not image_file:
-            return Response({"error":"Only image is allowed"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"Prfoile picture updated successfully."},status=status.HTTP_200_OK)
+        except Exception as e:  
+            logger.exception(f"Error updating profile picture: {e}")    
+            return Response({"error": "An error occurred while updating profile picture."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        public_id=upload_image_to_cloudinary(image_file,folder_name="user_profile_pictures")
-        if not public_id:
-            return Response({"error":"Image upload failed."},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        request.user.profile_picture = public_id
-        request.user.save()
-
-        return Response({"message":"Prfoile picture updated successfully."},status=status.HTTP_200_OK)
-    
 # user side edit banner image
 class UpdateUserBannerImageView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
-        image_file = request.FILES.get("banner_image")
-        if not image_file:
-            return Response({"error": "Only image is allowed"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            image_file = request.FILES.get("banner_image")
+            if not image_file:
+                return Response({"error": "Only image is allowed"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Upload to Cloudinary
-        public_id = upload_image_to_cloudinary(image_file, folder_name="user_banner_images")
-        if not public_id:
-            return Response({"error": "Image upload failed."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Upload to Cloudinary
+            public_id = upload_image_to_cloudinary(image_file, folder_name="user_banner_images")
+            if not public_id:
+                return Response({"error": "Image upload failed."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Save to user model
-        request.user.banner_image = public_id
-        request.user.save()
+            # Save to user model
+            request.user.banner_image = public_id
+            request.user.save()
 
-        return Response({"message": "Banner image updated successfully."}, status=status.HTTP_200_OK)
-
+            return Response({"message": "Banner image updated successfully."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(f"Error updating banner image: {e}")    
+            return Response({"error": "An error occurred while updating banner image."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Update user profile datas
 class UserProfileUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
-        user = request.user
-        serializer = UserProfileUpdateSerializer(
-            user,
-            data=request.data,
-            partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        try:
+            user = request.user
+            serializer = UserProfileUpdateSerializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:  
+            logger.exception(f"Error updating user profile: {e}")    
+            return Response({"error": "An error occurred while updating user profile."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # Admin side get the data in the dash board 
 class GetDashBoardDataView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
+        try:
 
-        # Get the card datas
-        total_users = User.objects.exclude(is_staff=True).count()
-        total_products = Product.objects.count()
-        total_communities = Community.objects.count()
-        total_events = CommunityEvent.objects.count()
-        total_posts = Post.objects.count()
+            # Get the card datas
+            total_users = User.objects.exclude(is_staff=True).count()
+            total_products = Product.objects.count()
+            total_communities = Community.objects.count()
+            total_events = CommunityEvent.objects.count()
+            total_posts = Post.objects.count()
 
-        # Get data for the user details chart
-        profile_completed = User.objects.filter(profile_completed=True).count()
-        aadhaar_verified = User.objects.filter(is_aadhar_verified=True).count()
-        email_verified = User.objects.filter(is_verified=True).count()
-        active_users = User.objects.filter(is_active=True).count()
+            # Get data for the user details chart
+            profile_completed = User.objects.filter(profile_completed=True).count()
+            aadhaar_verified = User.objects.filter(is_aadhar_verified=True).count()
+            email_verified = User.objects.filter(is_verified=True).count()
+            active_users = User.objects.filter(is_active=True).count()
 
-        # Get the data for the poduct metric
-        available_products = Product.objects.filter(
-            is_available=True, is_deleted=False).count()
-        wishlist_items = Wishlist.objects.filter(is_active=True).count()
-        chat_messages = ProductChatMessage.objects.count()
-        # Units counts
-        units_piece = Product.objects.filter(
-            unit="piece", is_deleted=False).count()
-        units_kg = Product.objects.filter(unit="kg", is_deleted=False).count()
-        units_litre = Product.objects.filter(
-            unit="litre", is_deleted=False).count()
+            # Get the data for the poduct metric
+            available_products = Product.objects.filter(
+                is_available=True, is_deleted=False).count()
+            wishlist_items = Wishlist.objects.filter(is_active=True).count()
+            chat_messages = ProductChatMessage.objects.count()
+            # Units counts
+            units_piece = Product.objects.filter(
+                unit="piece", is_deleted=False).count()
+            units_kg = Product.objects.filter(unit="kg", is_deleted=False).count()
+            units_litre = Product.objects.filter(
+                unit="litre", is_deleted=False).count()
 
-        # Get the community details to shwo them in the chart
-        group_by = request.query_params.get("group_by", "month").lower()
+            # Get the community details to shwo them in the chart
+            group_by = request.query_params.get("group_by", "month").lower()
 
-        # Determine truncate function
-        if group_by == "year":
-            trunc_func = TruncYear
-        elif group_by == "week":
-            trunc_func = TruncWeek
-        elif group_by == "day":
-            trunc_func = TruncDay
-        else:
-            trunc_func = TruncMonth
+            # Determine truncate function
+            if group_by == "year":
+                trunc_func = TruncYear
+            elif group_by == "week":
+                trunc_func = TruncWeek
+            elif group_by == "day":
+                trunc_func = TruncDay
+            else:
+                trunc_func = TruncMonth
 
-        # Time window (last 6 months for month/week/day, last 3 years if yearly)
-        today = timezone.now().date()
-        if group_by == "year":
-            since = today - timezone.timedelta(days=365 * 3)
-        elif group_by == "day":
-            since = today - timezone.timedelta(days=29)  # Last 30 days including today
-        else:
-            since = today - timezone.timedelta(days=180)
-            
-        # Commuinities created
-        community_created = (Community.objects.filter(created_at__gte=since).annotate(
-            period=trunc_func("created_at")).values("period").annotate(count=Count("id")).order_by("period"))
-        # Memberships joined
-        membership_joined = (CommunityMembership.objects.filter(joined_at__gte=since, status="approved").annotate(
-            period=trunc_func("joined_at")).values("period").annotate(count=Count("id")).order_by("period"))
-        # Messages_send
-        messages_send = (CommunityMessage.objects.filter(timestamp__gte=since).annotate(
-            period=trunc_func("timestamp")).values("period").annotate(count=Count("id")).order_by("period"))
+            # Time window (last 6 months for month/week/day, last 3 years if yearly)
+            today = timezone.now().date()
+            if group_by == "year":
+                since = today - timezone.timedelta(days=365 * 3)
+            elif group_by == "day":
+                since = today - timezone.timedelta(days=29)  # Last 30 days including today
+            else:
+                since = today - timezone.timedelta(days=180)
+                
+            # Commuinities created
+            community_created = (Community.objects.filter(created_at__gte=since).annotate(
+                period=trunc_func("created_at")).values("period").annotate(count=Count("id")).order_by("period"))
+            # Memberships joined
+            membership_joined = (CommunityMembership.objects.filter(joined_at__gte=since, status="approved").annotate(
+                period=trunc_func("joined_at")).values("period").annotate(count=Count("id")).order_by("period"))
+            # Messages_send
+            messages_send = (CommunityMessage.objects.filter(timestamp__gte=since).annotate(
+                period=trunc_func("timestamp")).values("period").annotate(count=Count("id")).order_by("period"))
 
-        # Helper to format output
-        def format_data(qs):
-            formatted = {}
-            for entry in qs:
-                period = entry["period"]
-                if group_by == "year":
-                    label = period.strftime("%Y")
-                elif group_by == "month":
-                    label = period.strftime("%B %Y")   # e.g., January 2024
-                elif group_by == "week":
-                    week_in_month = ((period.day - 1) // 7) + 1
-                    month = period.strftime("%B")
-                    year = period.strftime("%Y")
-                    label = f"Week {week_in_month} of {month} {year}"
-                else:
-                    label = period.strftime("%d/%m/%Y")
-                formatted[label] = entry["count"]
-            return formatted
+            # Helper to format output
+            def format_data(qs):
+                formatted = {}
+                for entry in qs:
+                    period = entry["period"]
+                    if group_by == "year":
+                        label = period.strftime("%Y")
+                    elif group_by == "month":
+                        label = period.strftime("%B %Y")   # e.g., January 2024
+                    elif group_by == "week":
+                        week_in_month = ((period.day - 1) // 7) + 1
+                        month = period.strftime("%B")
+                        year = period.strftime("%Y")
+                        label = f"Week {week_in_month} of {month} {year}"
+                    else:
+                        label = period.strftime("%d/%m/%Y")
+                    formatted[label] = entry["count"]
+                return formatted
 
-        # Get top engaged communities
-        top_engaged_communities_qs = (
-            Community.objects.annotate(
-                message_count=Count("messages")
-            )
-            .filter(message_count__gt=0)
-            .order_by("-message_count")[:5]
-        )
-
-        # Convert queryset to list of dicts with secure URLs
-        top_engaged_communities = [
-            {
-                "id": c.id,
-                "name": c.name,
-                "community_logo": generate_secure_image_url(c.community_logo),
-                "message_count": c.message_count,
-            }
-            for c in top_engaged_communities_qs
-        ]
-
-        # Get top participant communities
-        top_participant_communities_qs = (
-            Community.objects.annotate(
-                participant_count=Count(
-                    "memberships",
-                    filter=Q(memberships__status="approved")
+            # Get top engaged communities
+            top_engaged_communities_qs = (
+                Community.objects.annotate(
+                    message_count=Count("messages")
                 )
+                .filter(message_count__gt=0)
+                .order_by("-message_count")[:5]
             )
-            .filter(participant_count__gt=0)
-            .order_by("-participant_count")[:5]
-        )
 
-        # Convert queryset to list of dicts with secure URLs
-        top_participant_communities = [
-            {
-                "id": c.id,
-                "name": c.name,
-                "community_logo": generate_secure_image_url(c.community_logo),
-                "participant_count": c.participant_count,
-            }
-            for c in top_participant_communities_qs
-        ]
+            # Convert queryset to list of dicts with secure URLs
+            top_engaged_communities = [
+                {
+                    "id": c.id,
+                    "name": c.name,
+                    "community_logo": generate_secure_image_url(c.community_logo),
+                    "message_count": c.message_count,
+                }
+                for c in top_engaged_communities_qs
+            ]
 
-        # Event type counts (online/offline)
-        event_type_counts = (
-            CommunityEvent.objects
-            .values("event_type")
-            .annotate(count=Count("id"))
-        )
+            # Get top participant communities
+            top_participant_communities_qs = (
+                Community.objects.annotate(
+                    participant_count=Count(
+                        "memberships",
+                        filter=Q(memberships__status="approved")
+                    )
+                )
+                .filter(participant_count__gt=0)
+                .order_by("-participant_count")[:5]
+            )
 
-        # Event status counts (upcoming/completed/cancelled)
-        event_status_counts = (
-            CommunityEvent.objects
-            .values("event_status")
-            .annotate(count=Count("id"))
-        )
+            # Convert queryset to list of dicts with secure URLs
+            top_participant_communities = [
+                {
+                    "id": c.id,
+                    "name": c.name,
+                    "community_logo": generate_secure_image_url(c.community_logo),
+                    "participant_count": c.participant_count,
+                }
+                for c in top_participant_communities_qs
+            ]
 
-        # Posts created over time
-        posts_created = (
-            Post.objects
-            .filter(created_at__gte=since)
-            .annotate(period=trunc_func("created_at"))
-            .values("period")
-            .annotate(count=Count("id"))
-            .order_by("period")
-        )
+            # Event type counts (online/offline)
+            event_type_counts = (
+                CommunityEvent.objects
+                .values("event_type")
+                .annotate(count=Count("id"))
+            )
 
-        # Comments created over time
-        comments_created = (
-            Comment.objects
-            .filter(created_at__gte=since)
-            .annotate(period=trunc_func("created_at"))
-            .values("period")
-            .annotate(count=Count("id"))
-            .order_by("period")
-        )
+            # Event status counts (upcoming/completed/cancelled)
+            event_status_counts = (
+                CommunityEvent.objects
+                .values("event_status")
+                .annotate(count=Count("id"))
+            )
 
-        # Likes created over time
-        likes_created = (
-            Like.objects
-            .filter(created_at__gte=since)
-            .annotate(period=trunc_func("created_at"))
-            .values("period")
-            .annotate(count=Count("id"))
-            .order_by("period")
-        )
+            # Posts created over time
+            posts_created = (
+                Post.objects
+                .filter(created_at__gte=since)
+                .annotate(period=trunc_func("created_at"))
+                .values("period")
+                .annotate(count=Count("id"))
+                .order_by("period")
+            )
 
-        # Format post engagement data
-        formatted_posts_created = format_data(posts_created)
-        formatted_comments_created = format_data(comments_created)
-        formatted_likes_created = format_data(likes_created)
+            # Comments created over time
+            comments_created = (
+                Comment.objects
+                .filter(created_at__gte=since)
+                .annotate(period=trunc_func("created_at"))
+                .values("period")
+                .annotate(count=Count("id"))
+                .order_by("period")
+            )
 
-        return Response({
-            "cards":{
-                "total_users":total_users,
-                "total_products":total_products,
-                "total_communities":total_communities,
-                "total_events":total_events,
-                "total_posts":total_posts,
-            },
-            "user_details":{
-                "total_users":total_users,
-                "profile_completed":profile_completed,
-                "aadhaar_verified":aadhaar_verified,
-                "email_verified":email_verified,
-                "active_users":active_users,
-            },
-            "product_metrics": {
-                "total_products": total_products,
-                "available_products": available_products,
-                "wishlist_items": wishlist_items,
-                "chat_messages": chat_messages,
-                "units_piece": units_piece,
-                "units_kg": units_kg,
-                "units_litre": units_litre,
-            },
-            "community_graph": {
-                "created": format_data(community_created),
-                "joined": format_data(membership_joined),
-                "messages": format_data(messages_send),
-            },
-            "community_highlights": {
-                "most_engaged": list(top_engaged_communities),
-                "most_participants": list(top_participant_communities),
-            },
-            "event_details": {
-                "event_type": list(event_type_counts),
-                "event_status": list(event_status_counts),
-            },
-            "post_engagement": {
-                "posts": formatted_posts_created,
-                "comments": formatted_comments_created,
-                "likes": formatted_likes_created,
-            },
-        })
+            # Likes created over time
+            likes_created = (
+                Like.objects
+                .filter(created_at__gte=since)
+                .annotate(period=trunc_func("created_at"))
+                .values("period")
+                .annotate(count=Count("id"))
+                .order_by("period")
+            )
+
+            # Format post engagement data
+            formatted_posts_created = format_data(posts_created)
+            formatted_comments_created = format_data(comments_created)
+            formatted_likes_created = format_data(likes_created)
+
+            return Response({
+                "cards":{
+                    "total_users":total_users,
+                    "total_products":total_products,
+                    "total_communities":total_communities,
+                    "total_events":total_events,
+                    "total_posts":total_posts,
+                },
+                "user_details":{
+                    "total_users":total_users,
+                    "profile_completed":profile_completed,
+                    "aadhaar_verified":aadhaar_verified,
+                    "email_verified":email_verified,
+                    "active_users":active_users,
+                },
+                "product_metrics": {
+                    "total_products": total_products,
+                    "available_products": available_products,
+                    "wishlist_items": wishlist_items,
+                    "chat_messages": chat_messages,
+                    "units_piece": units_piece,
+                    "units_kg": units_kg,
+                    "units_litre": units_litre,
+                },
+                "community_graph": {
+                    "created": format_data(community_created),
+                    "joined": format_data(membership_joined),
+                    "messages": format_data(messages_send),
+                },
+                "community_highlights": {
+                    "most_engaged": list(top_engaged_communities),
+                    "most_participants": list(top_participant_communities),
+                },
+                "event_details": {
+                    "event_type": list(event_type_counts),
+                    "event_status": list(event_status_counts),
+                },
+                "post_engagement": {
+                    "posts": formatted_posts_created,
+                    "comments": formatted_comments_created,
+                    "likes": formatted_likes_created,
+                },
+            })
+        except Exception as e:
+            logger.error(f"Error fetching dashboard data for admin {request.user.email}: {e}", exc_info=True)
+            return Response({"error": "Unable to fetch dashboard data."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

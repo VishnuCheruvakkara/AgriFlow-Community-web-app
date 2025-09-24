@@ -1,9 +1,12 @@
+import logging
 import time
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
 import mimetypes
 from django.core.exceptions import ValidationError
 import cloudinary.uploader
+
+logger=logging.getLogger(__name__)
 
 # Common image uploading and retrieving functions 
 def upload_image_to_cloudinary(image_file, folder_name):
@@ -25,6 +28,7 @@ def upload_image_to_cloudinary(image_file, folder_name):
         )
         return result["public_id"]
     except Exception as e:
+        logger.exception(f"Cloudinary upload failed for {file_obj}: {e}")
         return None
 
 #from public_id generate the secure URL  
@@ -36,15 +40,18 @@ def generate_secure_image_url(public_id, expires_in=3600):
     """
     if not public_id:
         return ""
-
-    secure_url, _ = cloudinary_url(
-        public_id,
-        type="authenticated",
-        secure=True,
-        sign_url=True,
-        sign_valid_until=int(time.time()) + expires_in
-    )
-    return secure_url
+    try:
+        secure_url, _ = cloudinary_url(
+            public_id,
+            type="authenticated",
+            secure=True,
+            sign_url=True,
+            sign_valid_until=int(time.time()) + expires_in
+        )
+        return secure_url
+    except Exception as e:
+        logger.exception(f"Failed to generate secure URL for {public_id}: {e}")
+        return ""
 
 
 def upload_to_cloudinary(file_obj, folder_name):
@@ -81,10 +88,11 @@ def upload_to_cloudinary(file_obj, folder_name):
         return result.get("secure_url")
 
     except ValidationError as ve:
+        logger.warning(f"Validation error for {file_obj}: {ve}")
         return None
     except Exception as e:
+        logger.exception(f"Cloudinary upload failed for {file_obj}: {e}")
         return None
-
 
 # Upload the image and get the secure url 
 def upload_image_and_get_url(image_file, folder_name):
@@ -105,4 +113,5 @@ def upload_image_and_get_url(image_file, folder_name):
         )
         return result.get("secure_url")
     except Exception as e:
+        logger.exception(f"Cloudinary upload failed for {image_file}: {e}")
         return None
