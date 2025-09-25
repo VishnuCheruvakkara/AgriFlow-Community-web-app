@@ -487,7 +487,7 @@ function Home() {
                       <img
                         src={post.image_url}
                         alt="Post media"
-                        className="max-w-full h-auto object-contain"
+                        className="max-w-full h-[400px] object-contain"
                       />
                     </div>
                   </div>
@@ -502,7 +502,7 @@ function Home() {
                     <div className="relative z-10 flex justify-center items-center">
                       <video
                         controls
-                        className="w-full h-auto max-h-[500px]"
+                        className="w-full h-[400px]"
                         poster={post.image_url}
                       >
                         <source src={post.video_url} type="video/mp4" />
