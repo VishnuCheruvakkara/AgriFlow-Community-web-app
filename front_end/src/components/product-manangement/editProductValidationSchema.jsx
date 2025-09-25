@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 
 const safeTextRegex = /^[a-zA-Z0-9\s.,'-]*$/;
 const imageFormats = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 export const editProductValidationSchema = Yup.object({
     title: Yup.string()
@@ -36,18 +37,27 @@ export const editProductValidationSchema = Yup.object({
         .nullable()
         .test('fileType', 'Only image files are allowed', value =>
             !value || typeof value === 'string' || imageFormats.includes(value.type)
+        )
+        .test('fileSize', 'Image must be less than 5 MB', value =>
+            !value || typeof value === 'string' || value.size <= MAX_IMAGE_SIZE
         ),
 
     image2: Yup.mixed()
         .nullable()
         .test('fileType', 'Only image files are allowed', value =>
             !value || typeof value === 'string' || imageFormats.includes(value.type)
+        )
+        .test('fileSize', 'Image must be less than 5 MB', value =>
+            !value || typeof value === 'string' || value.size <= MAX_IMAGE_SIZE
         ),
 
     image3: Yup.mixed()
         .nullable()
         .test('fileType', 'Only image files are allowed', value =>
             !value || typeof value === 'string' || imageFormats.includes(value.type)
+        )
+        .test('fileSize', 'Image must be less than 5 MB', value =>
+            !value || typeof value === 'string' || value.size <= MAX_IMAGE_SIZE
         ),
 
     closingTime: Yup.date()

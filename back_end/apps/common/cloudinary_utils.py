@@ -26,8 +26,8 @@ def upload_image_to_cloudinary(image_file, folder_name):
             resource_type="image",
             type="authenticated",  # ensures private storage
             transformation=[
-                {"width": 500, "height": 500, "crop": "limit"},
-                {"quality": "auto:good"},
+                {"width": 2000, "height": 2000, "crop": "limit"},
+                {"quality": "auto:best"},
                 {"fetch_format": "auto"}
             ]
         )
@@ -91,8 +91,8 @@ def upload_to_cloudinary(file_obj, folder_name):
             resource_type=resource_type,
             type="authenticated",
             transformation=[
-                {"width": 500, "height": 500, "crop": "limit"},
-                {"quality": "auto:good"},
+                {"width": 2000, "height": 2000, "crop": "limit"},
+                {"quality": "auto:best"},
                 {"fetch_format": "auto"}
             ] if resource_type == "image" else None
         )
@@ -124,8 +124,8 @@ def upload_image_and_get_url(image_file, folder_name):
             resource_type="image",
             type="authenticated",  # private access
             transformation=[
-                {"width": 500, "height": 500, "crop": "limit"},
-                {"quality": "auto:good"},
+                {"width": 2000, "height": 2000, "crop": "limit"},
+                {"quality": "auto:best"},
                 {"fetch_format": "auto"}
             ]
         )

@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 // Regex to prevent scripts (basic XSS protection) and allow only text for name/unit
 const safeTextRegex = /^[a-zA-Z0-9\s.,'-]*$/;
 const imageFormats = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 export const productValidationSchema = Yup.object({
     title: Yup.string()
@@ -34,15 +35,19 @@ export const productValidationSchema = Yup.object({
 
     image1: Yup.mixed()
         .required('Image 1 is required')
-        .test('fileType', 'Only image files are allowed', value => value && imageFormats.includes(value.type)),
+        .test('fileType', 'Only image files are allowed', value => value && imageFormats.includes(value.type))
+        .test('fileSize', 'Image must be less than 5 MB',  value => value && value.size <= MAX_IMAGE_SIZE),
 
     image2: Yup.mixed()
         .required('Image 2 is required')
-        .test('fileType', 'Only image files are allowed', value => value && imageFormats.includes(value.type)),
+        .test('fileType', 'Only image files are allowed', value => value && imageFormats.includes(value.type))
+        .test('fileSize', 'Image must be less than 5 MB',  value => value && value.size <= MAX_IMAGE_SIZE),
 
     image3: Yup.mixed()
         .required('Image 3 is required')
-        .test('fileType', 'Only image files are allowed', value => value && imageFormats.includes(value.type)),
+        .test('fileType', 'Only image files are allowed', value => value && imageFormats.includes(value.type))
+        .test('fileSize', 'Image must be less than 5 MB',  value => value && value.size <= MAX_IMAGE_SIZE),
+    
     closingTime: Yup.date().required('Start date is required').min(new Date(), 'Start date cannot be in the past'),
 });
 

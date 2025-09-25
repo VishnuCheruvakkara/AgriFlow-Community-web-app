@@ -849,11 +849,12 @@ class EditCommunityDetailsView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
 
-            data = request.data.copy()
-            if 'image' in request.FILES:
-                data['community_logo'] = request.FILES['image']
-
-            serializer = CommunityEditSerializer(community, data=data, partial=True)
+            data = dict(request.data)       
+            uploaded_image = request.FILES.get("image")
+            if uploaded_image:
+                data["community_logo"] = uploaded_image
+                
+            serializer = CommunityEditSerializer(community, data=data, partial=True,context={"request": request})
             
             if serializer.is_valid():
                 serializer.save()

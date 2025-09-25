@@ -78,39 +78,37 @@ class GetAllThePosts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            search_query = request.query_params.get('search', '').strip()
-            filter_type = request.query_params.get('filter', '').lower()
+        
+        search_query = request.query_params.get('search', '').strip()
+        filter_type = request.query_params.get('filter', '').lower()
 
-            blocked_ids = get_blocked_user_ids(request.user)
+        blocked_ids = get_blocked_user_ids(request.user)
 
-            # Start with all posts
-            posts = Post.objects.select_related('author').filter(is_deleted=False).exclude(author__id__in=blocked_ids)
+        # Start with all posts
+        posts = Post.objects.select_related('author').filter(is_deleted=False).exclude(author__id__in=blocked_ids)
 
-            #  Apply search filter (by post content or author username)
-            if search_query:
-                posts = posts.filter(
-                    Q(content__icontains=search_query) |
-                    Q(author__username__icontains=search_query)
-                )
+        #  Apply search filter (by post content or author username)
+        if search_query:
+            posts = posts.filter(
+                Q(content__icontains=search_query) |
+                Q(author__username__icontains=search_query)
+            )
 
-            #  Apply media-type filter
-            if filter_type == 'image':
-                posts = posts.filter(image_url__isnull=False).exclude(image_url='')
-            elif filter_type == 'video':
-                posts = posts.filter(video_url__isnull=False).exclude(video_url='')
+        #  Apply media-type filter
+        if filter_type == 'image':
+            posts = posts.filter(image_url__isnull=False).exclude(image_url='')
+        elif filter_type == 'video':
+            posts = posts.filter(video_url__isnull=False).exclude(video_url='')
 
-            #  Order by newest first
-            posts = posts.order_by('-created_at')
+        #  Order by newest first
+        posts = posts.order_by('-created_at')
 
-            paginator = CustomPostPagination()
-            paginated_posts = paginator.paginate_queryset(posts, request)
-            serializer = PostSerializer(paginated_posts, many=True, context={'request': request})
+        paginator = CustomPostPagination()
+        paginated_posts = paginator.paginate_queryset(posts, request)
+        serializer = PostSerializer(paginated_posts, many=True, context={'request': request})
 
-            return paginator.get_paginated_response(serializer.data)
-        except Exception as e:
-            logger.exception(f"Error fetching posts: {e}")
-            return Response({"error": "An error occurred while fetching posts."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return paginator.get_paginated_response(serializer.data)
+        
 # Handle Like View
 # Toggle Likes 
 class ToggleLikeAPIView(APIView):
@@ -235,39 +233,36 @@ class UserPostsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            user_id = request.query_params.get('user_id')
-            search_query = request.query_params.get('search', '').strip()
-            filter_type = request.query_params.get('filter', '').strip().lower()
+       
+        user_id = request.query_params.get('user_id')
+        search_query = request.query_params.get('search', '').strip()
+        filter_type = request.query_params.get('filter', '').strip().lower()
 
-            # Fetch posts for either another user or the logged-in user
-            if user_id:
-                queryset = Post.objects.filter(author__id=user_id).filter(is_deleted=False)
-            else:
-                queryset = Post.objects.filter(author=request.user).filter(is_deleted=False)
+        # Fetch posts for either another user or the logged-in user
+        if user_id:
+            queryset = Post.objects.filter(author__id=user_id).filter(is_deleted=False)
+        else:
+            queryset = Post.objects.filter(author=request.user).filter(is_deleted=False)
 
-            # Apply content-only search filter
-            if search_query:
-                queryset = queryset.filter(content__icontains=search_query)
+        # Apply content-only search filter
+        if search_query:
+            queryset = queryset.filter(content__icontains=search_query)
 
-            # Apply filter
-            if filter_type == 'image':
-                queryset = queryset.filter(image_url__isnull=False).exclude(image_url='')
-            elif filter_type == 'video':
-                queryset = queryset.filter(video_url__isnull=False).exclude(video_url='')
+        # Apply filter
+        if filter_type == 'image':
+            queryset = queryset.filter(image_url__isnull=False).exclude(image_url='')
+        elif filter_type == 'video':
+            queryset = queryset.filter(video_url__isnull=False).exclude(video_url='')
 
-            queryset = queryset.order_by('-created_at')
+        queryset = queryset.order_by('-created_at')
 
-            # Paginate
-            paginator = CustomPostPagination()
-            paginated_posts = paginator.paginate_queryset(queryset, request)
-            serializer = PostSerializer(paginated_posts, many=True)
+        # Paginate
+        paginator = CustomPostPagination()
+        paginated_posts = paginator.paginate_queryset(queryset, request)
+        serializer = PostSerializer(paginated_posts, many=True)
 
-            return paginator.get_paginated_response(serializer.data)
-        except Exception as e:
-            logger.exception(f"Error fetching user posts: {e}")
-            return Response({"error": "An error occurred while fetching user posts."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
-            
+        return paginator.get_paginated_response(serializer.data)
+    
 # Delete post view by the creator user 
 class DeletePostAPIView(APIView):
     permission_classes = [IsAuthenticated]

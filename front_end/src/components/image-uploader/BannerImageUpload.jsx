@@ -29,9 +29,9 @@ const BannerImageUpload = ({ onImageSelect, purpose, defaultImage }) => {
       }
 
       // File size validation (Max: 2MB)
-      const maxSize = 2 * 1024 * 1024; // 2MB
+      const maxSize = 5 * 1024 * 1024; // 2MB
       if (file.size > maxSize) {
-        setError("File size must be less than 2MB.");
+        setError("File size must be less than 5MB.");
         setImage(null);
         onImageSelect(null);
         return;

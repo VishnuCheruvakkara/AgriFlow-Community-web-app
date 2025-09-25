@@ -27,9 +27,9 @@ const ProfileImageSelector = ({ onImageSelect, reset, initialImage }) => {
         return;
       }
 
-      const maxSize = 2 * 1024 * 1024;
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
-        setError("File size must be less than 2MB.");
+        setError("File size must be less than 5MB.");
         setSelectedImage(null);
         onImageSelect(null);
         return;
