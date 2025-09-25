@@ -81,6 +81,89 @@
 
 ## Installation & Setup
 
+###  Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+#### General
+- [Git](https://git-scm.com/) – for cloning the repository
+
+#### Backend (Docker)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) – required for running backend containers
+  
+  > Make sure Docker Desktop is running before you start the backend.
+  
+- [Docker Compose](https://docs.docker.com/compose/install/) – usually included with Docker Desktop
+
+#### Frontend (Vite + React)
+- [Node.js (v16+)](https://nodejs.org/) – runtime environment for running the frontend
+- [npm](https://www.npmjs.com/) – comes with Node.js, for installing packages
+
+
+-  Clone the Repository
+  
+  ```
+  git clone https://github.com/VishnuCheruvakkara/AgriFlow-Community-web-app.git
+  cd AgriFlow-Community-web-app
+  ```
+### Backend (Using docker)
+
+1. Navigate to backend directory :
+   
+   ```
+   cd back_end
+   ```
+2. Build All Docker Images :
+   
+   ```
+   docker-compose build
+   ```
+   
+  > This will read the docker-compose.yml file and build the backend using their respective Dockerfiles.
+
+3. Configure environment variables
+       
+    - Create a new `.env` file in the backend folder.  
+    - Copy the contents of `.env.example` into `.env`.  
+    - Update the placeholder values with your actual local configuration (e.g., `SECRET_KEY`, `DEBUG`, `DATABASE_URL`, `REDIS_URL`, etc.).
+      
+   
+ 4. Start the Project :
+    
+   ```
+   docker-compose up -d
+   ```
+
+  > The backend (Django server) will now be running at http://localhost:8000.
+
+### Frontend Setup (Manual) : 
+1. Navigate to Frontend Directory :
+   
+     ```
+     cd front_end 
+     ```
+2. Install Frontend Dependencies :
+   
+     ```
+    npm install
+     ```
+
+ 3. Configure environment variables:
+    
+      - Create a new `.env` file in the frontend folder.  
+      - Copy the contents of `.env.example` into `.env`.  
+      - Update values (e.g., `VITE_API_BASE_URL`, `VITE_WS_URL`) according to your local backend           setup.
+         
+ 5.  Start Frontend Server:
+    
+     ```
+     npm run dev
+     ```
+       
+       > The frontend (Vite server) will now be running at http://localhost:5173.
+
+
+
 ## Contributing
 
 Thank you for your interest in contributing to this project we really appreciate it!
@@ -94,7 +177,6 @@ keep in mind that
 
 > Please create your feature branches from main.
 Our team will take care of reviewing and merging your contributions.
-
 
 ### Contribution Steps : 
 
