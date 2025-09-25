@@ -3,7 +3,7 @@ import { FaPhotoVideo } from 'react-icons/fa';
 import { BsEmojiSmile } from 'react-icons/bs';
 import { AiOutlineClose } from 'react-icons/ai';
 import { showToast } from '../toast-notification/CustomToast';
-import EmojiPicker, { EmojiStyle } from 'emoji-picker-react'; 
+import EmojiPicker, { EmojiStyle } from 'emoji-picker-react';
 
 const PostCreationModalContent = ({
   postText,
@@ -51,15 +51,34 @@ const PostCreationModalContent = ({
     if (!file) return;
 
     const type = file.type;
+
+    // Type check
     if (!type.startsWith("image/") && !type.startsWith("video/")) {
       showToast("Only image or video allowed", "error");
+      e.target.value = null;
       return;
     }
 
+    // Image size check (5 MB)
+    if (type.startsWith("image/") && file.size > 5 * 1024 * 1024) {
+      showToast("Image size exceeds 5 MB limit.", "error");
+      e.target.value = null;
+      return;
+    }
+
+    // Video size check (20 MB)
+    if (type.startsWith("video/") && file.size > 20 * 1024 * 1024) {
+      showToast("Video size exceeds 20 MB limit.", "error");
+      e.target.value = null;
+      return;
+    }
+
+    // Valid file: set state and preview
     setMediaFile(file);
     setPreviewURL(URL.createObjectURL(file));
     e.target.value = null;
   };
+
 
   const removeMedia = () => {
     setMediaFile(null);
@@ -83,8 +102,6 @@ const PostCreationModalContent = ({
       textarea.focus();
       textarea.setSelectionRange(start + emoji.length, start + emoji.length);
     }, 0);
-
-
   };
 
 
@@ -138,7 +155,7 @@ const PostCreationModalContent = ({
       {showEmojiPicker && (
         <div className="absolute bottom-20 left-4 z-50">
           <EmojiPicker
-            emojiStyle={EmojiStyle.NATIVE} // or use TWITTER / APPLE if desired
+            emojiStyle={EmojiStyle.NATIVE}
             onEmojiClick={handleEmojiClick}
             height={350}
             theme={emojiTheme}

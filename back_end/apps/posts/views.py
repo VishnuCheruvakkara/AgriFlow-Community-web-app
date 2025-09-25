@@ -11,8 +11,8 @@ from django.db.models import Q
 from notifications.utils import create_and_send_notification
 from common.cloudinary_utils import generate_secure_image_url
 from django.shortcuts import get_object_or_404
-import logging
 from common.blocked_users import get_blocked_user_ids
+from rest_framework.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,11 @@ class EditPostAPIView(APIView):
             
             serializer = PostUpdateSerializer(post, data=request.data, partial=True, context={'request': request})
             if serializer.is_valid():
-                updated_post = serializer.save()
+                try:
+                    updated_post = serializer.save()
+                except ValidationError as e:
+                    return Response(e.detail,status=status.HTTP_400_BAD_REQUEST)
+
                 return Response({
                     "message": "Post updated successfully",
                     "post_id": updated_post.id,

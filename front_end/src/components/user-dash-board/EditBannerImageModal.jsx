@@ -28,6 +28,14 @@ const EditBannerImageModal = ({ currentBanner, onSuccess }) => {
             return;
         }
 
+        // Size check: 5 MB max
+        const maxSize = 5 * 1024 * 1024; // 5 MB
+        if (file.size > maxSize) {
+            showToast("Image size exceeds 5 MB limit.", "error");
+            e.target.value = null;
+            return;
+        }
+
         setSelectedBanner(file);
     };
 
@@ -47,7 +55,7 @@ const EditBannerImageModal = ({ currentBanner, onSuccess }) => {
             closeModal();
             onSuccess?.();
         } catch (error) {
-            // console.error(error);
+            console.error(error);
             showToast("Failed to update banner image", "error");
         } finally {
             dispatch(hideButtonLoader("updateBannerImage"));

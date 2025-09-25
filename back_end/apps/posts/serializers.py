@@ -20,7 +20,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
         media = request.FILES.get('media')
         content = validated_data.get('content', '')
 
-        # 1. Create post with empty media fields
+        # Create post with empty media fields
         post = Post.objects.create(
             author=request.user,
             content=content,
@@ -28,13 +28,12 @@ class PostCreateSerializer(serializers.ModelSerializer):
             video_url=None
         )
 
-        # 2. If media is present, send it to Celery
+        # If media is present, send it to Celery
         if media:
             media_content = base64.b64encode(media.read()).decode('utf-8')
             media_name = media.name
             upload_media_task.delay(post.id, media_name, media_content)
-
-        return post 
+        return post
 
 
 
@@ -63,17 +62,25 @@ class PostUpdateSerializer(serializers.ModelSerializer):
 
             if content_type.startswith("image/"):
                 if instance.video_url:
-                    raise serializers.ValidationError("Can't switch media type. Delete the post and create a new one.")
+                    raise serializers.ValidationError("Cannot replace a video with an image. Please create a new post to upload an image.")
                 instance.image_url = None  # Optional: clear old image
                 instance.media = new_media
-                upload_post_media_task.delay(instance.id)
+                upload_media_task.delay(
+                    instance.id,
+                    new_media.name,
+                    base64.b64encode(new_media.read()).decode()
+                )
 
             elif content_type.startswith("video/"):
                 if instance.image_url:
-                    raise serializers.ValidationError("Can't switch media type. Delete the post and create a new one.")
+                    raise serializers.ValidationError("Cannot replace an image with a video. Please create a new post for uploading a video.")
                 instance.video_url = None  # Optional: clear old video
                 instance.media = new_media
-                upload_post_media_task.delay(instance.id)
+                upload_media_task.delay(
+                    instance.id,
+                    new_media.name,
+                    base64.b64encode(new_media.read()).decode()
+                )
 
             else:
                 raise serializers.ValidationError("Unsupported media type.")

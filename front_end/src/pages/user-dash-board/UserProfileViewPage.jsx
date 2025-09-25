@@ -160,7 +160,7 @@ function UserProfileViewPage() {
                 setPosts(prev => page === 1 ? res.data.results : [...prev, ...res.data.results]);
             }
         } catch (err) {
-            // console.error('Error fetching posts:', err);
+            console.error('Error fetching posts:', err);
             if (err.response?.status === 404) {
                 setHasMore(false);
             }

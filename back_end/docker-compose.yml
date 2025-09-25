@@ -12,10 +12,7 @@ services:
       - data_base #postgres database 
       - redis
     command: >
-      sh -c "python manage.py makemigrations &&
-        python manage.py migrate && 
-        python manage.py collectstatic --noinput &&
-        daphne -b 0.0.0.0 -p 8000 agri_flow.asgi:application"
+      sh -c "uvicorn agri_flow.asgi:application --host 0.0.0.0 --port 8000 --reload"
     networks:
       - backend-network
 

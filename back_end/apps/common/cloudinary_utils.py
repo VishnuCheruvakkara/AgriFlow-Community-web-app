@@ -15,6 +15,11 @@ def upload_image_to_cloudinary(image_file, folder_name):
     Returns the public_id for later retrieval.   
     """    
     try:
+
+        max_size = 5 * 1024 * 1024  # 5 MB
+        if image_file.size > max_size:
+            raise ValidationError(f"Image size exceeds 5 MB limit: {image_file.name}")
+        
         result = cloudinary.uploader.upload(
             image_file,
             folder=f"private_files/{folder_name}/",
@@ -28,7 +33,7 @@ def upload_image_to_cloudinary(image_file, folder_name):
         )
         return result["public_id"]
     except Exception as e:
-        logger.exception(f"Cloudinary upload failed for {file_obj}: {e}")
+        logger.exception(f"Cloudinary upload failed : {e}")
         return None
 
 #from public_id generate the secure URL  
@@ -68,10 +73,17 @@ def upload_to_cloudinary(file_obj, folder_name):
 
         if mime_type.startswith("image"):
             resource_type = "image"
+            max_size = 5 * 1024 * 1024
         elif mime_type.startswith("video"):
             resource_type = "video"
+            max_size = 20 * 1024 * 1024
         else:
             raise ValidationError("Only image and video files are allowed.")
+
+        if file_obj.size > max_size:
+            raise ValidationError(
+                f"{resource_type.capitalize()} size exceeds {max_size // (1024 * 1024)} MB limit."
+            )
 
         result = cloudinary.uploader.upload(
             file_obj,
@@ -100,6 +112,12 @@ def upload_image_and_get_url(image_file, folder_name):
     Uploads an image to Cloudinary under a private folder, returns the secure URL.
     """
     try:
+
+        max_size = 5 * 1024 * 1024 
+        if image_file.size > max_size:
+            raise ValidationError(f"Image size exceeds 5 MB limit: {image_file.name}")
+            
+        
         result = cloudinary.uploader.upload(
             image_file,
             folder=f"private_files/{folder_name}/",

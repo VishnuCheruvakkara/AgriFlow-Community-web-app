@@ -31,6 +31,18 @@ const EditPostModalButton = ({ post, onSuccess }) => {
             return;
         }
 
+        if (mediaFile && (post.image_url || post.video_url)) {
+            const existingType = post.image_url ? "image" : "video";
+            const newType = mediaFile.type.startsWith("image/") ? "image" :
+                mediaFile.type.startsWith("video/") ? "video" : null;
+
+            if (newType && newType !== existingType) {
+                showToast(`Cannot replace a ${existingType} with a ${newType}.`, "error");
+                return;
+            }
+        }
+
+
         const buttonId = "postUpdateButton";
         dispatch(showButtonLoader(buttonId));
 
@@ -49,8 +61,8 @@ const EditPostModalButton = ({ post, onSuccess }) => {
             onSuccess(); // Refresh post list
             closeModal();
         } catch (error) {
-            // console.error(error);
-            showToast(error?.response?.data?.[0] || "Something went wrong", "error");
+            console.error(error);
+            showToast(error?.response?.data[0] || "Something went wrong", "error");
 
         } finally {
             dispatch(hideButtonLoader(buttonId));
