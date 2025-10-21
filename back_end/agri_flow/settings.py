@@ -322,7 +322,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['file', 'console'],
-            'level': 'ERROR',  
+            'level': 'INFO', 
             'propagate': True,
         },
     },
