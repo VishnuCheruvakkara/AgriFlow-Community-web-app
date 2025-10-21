@@ -161,9 +161,10 @@ function CreateCommunity() {
             }, 500);
 
         } catch (error) {
-            // console.error("Error submitting community:", error);
+            console.error("Error submitting community:", error);
+            const errorMsg = Object.values(error?.response?.data || {})[0]?.[0] || "Something went wrong";
+            showToast(errorMsg, "error");
 
-            showToast(`Something went wrong, ${error?.response?.data?.name[0]}...`, "error");
         } finally {
             dispatch(hideButtonLoader(buttonId))  // Hide loader afeter process
         }
