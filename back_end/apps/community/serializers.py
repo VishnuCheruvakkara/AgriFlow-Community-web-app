@@ -43,7 +43,7 @@ class CommunitySerializer(serializers.ModelSerializer):
         child=serializers.CharField(), write_only=True)
     members = serializers.ListField(
         child=serializers.IntegerField(), write_only=True)
-    communityImage = serializers.ImageField(write_only=True, required=False)
+    communityImage = serializers.FileField(write_only=True, required=False)
     message = serializers.CharField(write_only=True, required=False)
 
     class Meta:
@@ -109,7 +109,7 @@ class CommunitySerializer(serializers.ModelSerializer):
 
         return community
 
-# Serializer for get the My-community 
+# Serializer for get the My-community
 class GetMyCommunitySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='community.id')
     name = serializers.CharField(source='community.name')

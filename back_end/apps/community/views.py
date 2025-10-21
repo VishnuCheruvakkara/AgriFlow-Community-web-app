@@ -74,11 +74,18 @@ class CreateCommunityView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
+             # Log all request.FILES received
+            for key, file_obj in request.FILES.items():
+                logger.info(f"Received file: field='{key}', name='{file_obj.name}', content_type='{file_obj.content_type}', size={file_obj.size} bytes")
+
+            # Log request.data for debugging
+            logger.info(f"Received request data: {request.data}")
             serializer = CommunitySerializer(
                 data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response({"message": "Community created successfully"}, status=status.HTTP_201_CREATED)
+            logger.warning(f"Serializer errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Error in CreateCommunityView: {e}",exc_info=True)
