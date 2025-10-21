@@ -496,6 +496,25 @@ button:focus {
   background:#4b5563 ;
 }
 
+/* gradient green */
+.gradient-bubble-green {
+  background: linear-gradient(to right, #22c55e, #15803d) !important; /* from-green-500 to-green-700 */
+  position: relative;
+}
+
+.gradient-bubble-green::before {
+  background: #15803d !important;
+}
+/* gradient gray   */
+.gradient-bubble-gray {
+  background: linear-gradient(to right, #4b5563,#9ca3af) !important; /* from-gray-400 to-gray-700 */
+  position: relative;
+}
+
+.gradient-bubble-gray::before {
+  background:#4b5563 ;
+}
+
 
 /* css flying heart when like a post  */
 .flying-heart {
