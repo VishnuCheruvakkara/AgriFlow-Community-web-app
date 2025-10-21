@@ -17,7 +17,9 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
+
     themes: ["light", "dark", "cupcake"], // Forces Light Mode
+    base: true,
    
   },
 }
