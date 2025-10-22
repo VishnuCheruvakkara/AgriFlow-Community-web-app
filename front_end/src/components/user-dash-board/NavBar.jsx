@@ -176,15 +176,11 @@ function NavBar() {
         navigate("/user-dash-board/products/farmer-product-chat/", {
             state: {
                 receiverId: message?.sender_id,
-                username: message?.sender,
+                username: message.sender || "Unknown",
                 profilePicture: message?.image_url,
                 productId: message?.product_id,
                 productName: message?.product_name,
                 productImage: message?.product_image,
-
-                receiverId: message?.sender_id, // send the displayed user id to the next page 
-                username: message.sender || "Unknown",
-                profile_picture: message.image_url,
             }
         })
     };
