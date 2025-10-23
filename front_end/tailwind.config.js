@@ -21,5 +21,8 @@ export default {
     themes: ["light", "dark", "cupcake"], // Forces Light Mode
    
   },
+  safelist: [
+    'chat', 'chat-start', 'chat-end', 'chat-image', 'chat-header', 'chat-bubble', 'chat-footer'
+  ],
 }
 
