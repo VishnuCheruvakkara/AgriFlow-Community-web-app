@@ -57,3 +57,4 @@ jest/
 __snapshots__/
 
 back_end/celerybeat-schedule.dat
+.vercel

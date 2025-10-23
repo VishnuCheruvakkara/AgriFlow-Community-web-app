@@ -392,7 +392,7 @@ const FarmerCommunityChat = () => {
 
                             <div
                               className={`chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[300px] 
-          ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white 
+          ${isOwnMessage ? "gradient-bubble-green rounded-br-none" : "gradient-bubble-gray rounded-bl-none"} text-white 
           ${msg.message && !msg.media_url ? "px-3 py-2" : "p-1"}`}
                             >
                               {/* Media Block */}

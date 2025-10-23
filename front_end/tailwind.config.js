@@ -19,7 +19,6 @@ export default {
   daisyui: {
 
     themes: ["light", "dark", "cupcake"], // Forces Light Mode
-    base: true,
    
   },
 }
