@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        
+
       },
       fontFamily: {
         lora: ['Lora', 'serif'],
@@ -19,10 +19,16 @@ export default {
   daisyui: {
 
     themes: ["light", "dark", "cupcake"], // Forces Light Mode
-   
+
   },
   safelist: [
-    'chat', 'chat-start', 'chat-end', 'chat-image', 'chat-header', 'chat-bubble', 'chat-footer'
+    // Chat bubble classes
+    'chat', 'chat-start', 'chat-end', 'chat-image', 'chat-header', 'chat-bubble', 'chat-footer',
+    'chat-bubble-tail', 'chat-bubble-tail-left', 'chat-bubble-tail-right',
+
+    // Tooltip classes
+    'tooltip', 'tooltip-open', 'tooltip-bottom', 'tooltip-top', 'tooltip-left', 'tooltip-right',
+    'tooltip-content', 'tooltip-primary', 'tooltip-secondary', 'tooltip-accent', 'tooltip-info', 'tooltip-success', 'tooltip-warning', 'tooltip-error'
   ],
 }
 

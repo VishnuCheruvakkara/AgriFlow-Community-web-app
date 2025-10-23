@@ -303,7 +303,7 @@ function FarmerProductChat() {
 
                                             <div
                                                 className={`chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%]
-                                            ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"}
+                                            ${isOwnMessage ? "gradient-bubble-green rounded-br-none" : "gradient-bubble-gray rounded-bl-none"}
                                             text-white px-3 py-2`}
                                             >
                                                 <TwemojiText text={msg.message} />

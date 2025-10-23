@@ -258,7 +258,7 @@ const FarmerSingleChat = () => {
 
                                             <div
                                                 className={`p-1 chat-bubble whitespace-pre-wrap rounded-xl break-words max-w-[80%]
-                    ${isOwnMessage ? "gradient-bubble-green" : "gradient-bubble-gray"} text-white
+                    ${isOwnMessage ? "gradient-bubble-green rounded-br-none" : "gradient-bubble-gray rounded-bl-none"} text-white
                     ${msg.message && !msg.media_url ? "px-3 py-2" : ""}
                 `}
                                             >
