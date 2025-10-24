@@ -15,7 +15,7 @@ export default {
       },
     },
   },
-  plugins: [daisyui],   // ✅ no require()
+  plugins: [daisyui], 
   daisyui: {
     themes: ["light", "dark", "cupcake"],
   },
