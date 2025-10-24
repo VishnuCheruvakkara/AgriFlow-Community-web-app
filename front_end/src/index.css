@@ -4,6 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DaisyUI is automatically loaded via Tailwind plugin in v3 */
+
+
 /* 
 input, textarea, select {
   @apply bg-white text-black  ;

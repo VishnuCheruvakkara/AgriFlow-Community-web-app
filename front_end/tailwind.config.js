@@ -1,34 +1,28 @@
 /** @type {import('tailwindcss').Config} */
+import daisyui from "daisyui";
+
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', //talwind dark modle set up 
+  darkMode: 'class',
   theme: {
     extend: {
-      colors: {
-
-      },
+      colors: {},
       fontFamily: {
         lora: ['Lora', 'serif'],
       },
     },
   },
-  plugins: [require("daisyui")],
+  plugins: [daisyui],   // ✅ no require()
   daisyui: {
-
-    themes: ["light", "dark", "cupcake"], // Forces Light Mode
-
+    themes: ["light", "dark", "cupcake"],
   },
   safelist: [
-    // Chat bubble classes
     'chat', 'chat-start', 'chat-end', 'chat-image', 'chat-header', 'chat-bubble', 'chat-footer',
     'chat-bubble-tail', 'chat-bubble-tail-left', 'chat-bubble-tail-right',
-
-    // Tooltip classes
     'tooltip', 'tooltip-open', 'tooltip-bottom', 'tooltip-top', 'tooltip-left', 'tooltip-right',
     'tooltip-content', 'tooltip-primary', 'tooltip-secondary', 'tooltip-accent', 'tooltip-info', 'tooltip-success', 'tooltip-warning', 'tooltip-error'
   ],
 }
-
