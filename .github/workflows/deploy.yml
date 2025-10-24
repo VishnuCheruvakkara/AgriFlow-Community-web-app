@@ -40,7 +40,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         source: ".env"
-        target: "/home/cheruvakkarav"
+        target: "/home/haiworldworld"
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.0
@@ -86,8 +86,8 @@ jobs:
 
           # Collect static files to host directory before running the container
           docker run --rm \
-            --env-file /home/cheruvakkarav/.env \
-            -v /home/cheruvakkarav/staticfiles:/app/staticfiles \
+            --env-file /home/haiworldworld/.env \
+            -v /home/haiworldworld/staticfiles:/app/staticfiles \
             ${{ secrets.IMAGE_NAME }}:latest \
             python manage.py collectstatic --noinput
 
@@ -95,8 +95,8 @@ jobs:
           docker run -d \
             --name web \
             -p 8000:8000 \
-            --env-file /home/cheruvakkarav/.env \
-            -v /home/cheruvakkarav/staticfiles:/app/staticfiles \
+            --env-file /home/haiworldworld/.env \
+            -v /home/haiworldworld/staticfiles:/app/staticfiles \
             --network backend-network \
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest
@@ -104,7 +104,7 @@ jobs:
           # Start Celery Worker
           docker run -d \
             --name celery-worker \
-            --env-file /home/cheruvakkarav/.env \
+            --env-file /home/haiworldworld/.env \
             --network backend-network \
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest \
@@ -113,7 +113,7 @@ jobs:
           # Start Celery Beat
           # docker run -d \
           #   --name celery-beat \
-          #   --env-file /home/cheruvakkarav/.env \
+          #   --env-file /home/haiworldworld/.env \
           #   --network backend-network \
           #   --restart unless-stopped \
           #   ${{ secrets.IMAGE_NAME }}:latest \
