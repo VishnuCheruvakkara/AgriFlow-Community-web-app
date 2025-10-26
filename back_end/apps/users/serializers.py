@@ -297,6 +297,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             })
 
         return data
+    
+    def validate_username(self, value):
+        user = self.instance  # current logged-in user
+        if get_user_model().objects.exclude(id=user.id).filter(username=value).exists():
+            raise serializers.ValidationError("This username is already taken. Please choose another one.")
+        return value
+    
 
     def update(self, instance, validated_data):
         """Handles updating user profile, address, and file uploads in a single method."""
