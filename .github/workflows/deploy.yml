@@ -69,7 +69,7 @@ jobs:
             -e POSTGRES_DB=${{ secrets.DB_NAME }} \
             -e POSTGRES_USER=${{ secrets.DB_USER }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -v pgdata:/var/lib/postgresql/data \
+            -v pgdata:/var/lib/postgresql \
             --network backend-network \
             --restart unless-stopped \
             postgres:latest
