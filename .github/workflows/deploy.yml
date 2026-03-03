@@ -53,26 +53,12 @@ jobs:
 
           # Create docker network if not exists, Custom networks for multiple container intraction.
           docker network inspect backend-network >/dev/null 2>&1 || docker network create backend-network
-          # Create docker volume for pgdata if not exists
-          docker volume inspect pgdata >/dev/null 2>&1 || docker volume create pgdata
-
+    
           # Stop and remove existing containers
           docker stop web || true && docker rm web || true
-          docker stop data_base || true && docker rm data_base || true
           docker stop redis || true && docker rm redis || true
           docker stop celery-worker || true && docker rm celery-worker || true
           docker stop celery-beat || true && docker rm celery-beat || true
-
-          # Start PostgreSQL
-          docker run -d \
-            --name data_base \
-            -e POSTGRES_DB=${{ secrets.DB_NAME }} \
-            -e POSTGRES_USER=${{ secrets.DB_USER }} \
-            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -v pgdata:/var/lib/postgresql \
-            --network backend-network \
-            --restart unless-stopped \
-            postgres:latest
 
           echo "Waiting 10s for PostgreSQL to initialize..."
           sleep 10

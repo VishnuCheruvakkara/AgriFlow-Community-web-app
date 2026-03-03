@@ -694,8 +694,8 @@ function UserProfileViewPage() {
                                                 </div>
 
                                                 {/* Post Text Content */}
-                                                <div onClick={() => navigateToProductDetails(post?.id)} className="mb-4 cursor-pointer">
-                                                    <p className="text-gray-800 dark:text-gray-200">{post.content}</p>
+                                                <div onClick={() => navigateToProductDetails(post?.id)} className="mb-4 cursor-pointer break-words ">
+                                                    <p className="text-gray-800 dark:text-gray-200 ">{post.content}</p>
                                                 </div>
 
                                                 {/* Post Image or Video */}
