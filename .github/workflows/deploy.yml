@@ -70,6 +70,13 @@ jobs:
             --restart unless-stopped \
             redis:alpine
 
+          # Run migrations (IMPORTANT)
+          docker run --rm \
+            --env-file /home/haiworldworld/.env \
+            --network backend-network \
+            ${{ secrets.IMAGE_NAME }}:latest \
+            python manage.py migrate --noinput
+
           # Collect static files to host directory before running the container
           docker run --rm \
             --env-file /home/haiworldworld/.env \
