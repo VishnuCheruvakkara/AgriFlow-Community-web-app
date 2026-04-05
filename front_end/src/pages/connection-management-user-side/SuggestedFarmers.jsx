@@ -167,7 +167,7 @@ const SuggestedFarmers = () => {
                                     <img
                                         src={farmer.profile_picture || DefaultUserImage}
                                         alt="John Smith"
-                                        className="w-ful h-full object-cover"
+                                        className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="flex flex-col">

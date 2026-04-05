@@ -33,6 +33,7 @@ class PrivateChatConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
+            
             await self.accept()
         except Exception as e:
             logger.exception(f"Exception in connect: {e}")

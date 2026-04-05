@@ -7,7 +7,7 @@ from cloudinary.utils import cloudinary_url
 class Address(models.Model):
     """Stores address details separately for better normalization."""
 
-    place_id = models.CharField(max_length=50, unique=True ,db_index=True)  # Unique ID from location API
+    place_id = models.CharField(max_length=50, db_index=True)  # Unique ID from location API
     full_location=models.CharField(max_length=500,null=True, blank=True ,db_index=True)
     latitude = models.DecimalField(max_digits=15, decimal_places=10 ,db_index=True)
     longitude = models.DecimalField(max_digits=15, decimal_places=10 ,db_index=True)

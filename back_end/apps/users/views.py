@@ -431,8 +431,6 @@ class RefreshTokenView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
-
-
 # Token creation for Admin 
 class AdminRefreshTokenView(APIView):
 
