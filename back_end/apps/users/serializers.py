@@ -254,7 +254,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     aadhaarImage = serializers.ImageField(
         required=False, write_only=True, validators=[validate_aadhaar_image])
     location = serializers.JSONField(
-        required=False)  # Directly handle JSON input
+        required=False,allow_null=True)  # Directly handle JSON input
     home_address = serializers.CharField(
         required=False, allow_blank=True, validators=[validate_home_address])
 
@@ -266,37 +266,16 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'profileImage', 'aadhaarImage', 'location', 'home_address'
         ]
         extra_kwargs = {
-            'first_name': {'required': True, 'label': "First Name", 'validators': [validate_name]},
-            'last_name': {'required': True, 'label': "Last Name", 'validators': [validate_name]},
-            'username': {'required': True, 'label': "Username", 'validators': [validate_name]},
-            'phone_number': {'required': True, 'label': "Phone Number", 'validators': [validate_phone_number]},
-            'email': {'required': True, 'label': "Email", 'validators': [validate_email]},
-            'date_of_birth': {'required': True, 'label': "Date of Birth", 'validators': [validate_date_of_birth]},
-            'farming_type': {'required': True, 'label': "Farming Type"},
-            'experience': {'required': True, 'label': "Experience", 'validators': [validate_experience]},
-            'bio': {'required': True, 'label': "Bio", 'validators': [validate_text_field]}
+            'first_name': {'required': False, 'label': "First Name", 'validators': [validate_name]},
+            'last_name': {'required': False, 'label': "Last Name", 'validators': [validate_name]},
+            'username': {'required': False, 'label': "Username", 'validators': [validate_name]},
+            'phone_number': {'required': False, 'label': "Phone Number", 'validators': [validate_phone_number]},
+            'email': {'required': False, 'label': "Email", 'validators': [validate_email]},
+            'date_of_birth': {'required': False, 'label': "Date of Birth", 'validators': [validate_date_of_birth]},
+            'farming_type': {'required': False, 'label': "Farming Type"},
+            'experience': {'required': False, 'label': "Experience", 'validators': [validate_experience]},
+            'bio': {'required': False, 'label': "Bio", 'validators': [validate_text_field]}
         }
-
-
-    # Validation for every fields are required
-    def validate(self, data):
-        """Ensure all fields are provided and not empty, with readable field names."""
-
-        # Mapping field names to human-readable labels
-        field_labels = {field: self.fields[field].label or field.replace(
-            "_", " ").title() for field in self.fields}
-
-        required_fields = list(field_labels.keys())
-
-        missing_fields = [
-            field for field in required_fields if field not in data or data[field] in [None, '', [], {}]]
-
-        if missing_fields:
-            raise serializers.ValidationError({
-                field: f"{field_labels[field]} is required and cannot be empty." for field in missing_fields
-            })
-
-        return data
     
     def validate_username(self, value):
         user = self.instance  # current logged-in user
@@ -312,20 +291,33 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         home_address = validated_data.pop('home_address', '')
 
         if location_data:
-            # Create or update Address
-            address, created = Address.objects.update_or_create(
-                place_id=location_data.get('place_id'),
-                defaults={
-                    'full_location': location_data.get('full_location'),
-                    'latitude': location_data.get('latitude'),
-                    'longitude': location_data.get('longitude'),
-                    'location_name': location_data.get('location_name'),
-                    'country': location_data.get('country'),
-                    'home_address': home_address
-                }
-            )
-            instance.address = address  # Assign address to user
+            address = getattr(instance, 'address', None)
+            place_id = location_data.get('place_id')
 
+            if address:
+                # Update the user's current address only if place_id is different
+                if address.place_id != place_id:
+                    address.place_id = place_id
+                    address.full_location = location_data.get('full_location')
+                    address.latitude = location_data.get('latitude')
+                    address.longitude = location_data.get('longitude')
+                    address.location_name = location_data.get('location_name')
+                    address.country = location_data.get('country')
+                    address.home_address = home_address
+                    address.save()
+            else:
+                # Only create a new address if it doesn't exist anywhere
+                if not Address.objects.filter(place_id=place_id).exists():
+                    address = Address.objects.create(
+                        place_id=place_id,
+                        full_location=location_data.get('full_location'),
+                        latitude=location_data.get('latitude'),
+                        longitude=location_data.get('longitude'),
+                        location_name=location_data.get('location_name'),
+                        country=location_data.get('country'),
+                        home_address=home_address
+                    )
+                    instance.address = address
 
         if 'profileImage' in validated_data:
             image = validated_data.pop('profileImage')

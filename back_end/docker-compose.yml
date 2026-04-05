@@ -50,7 +50,6 @@ services:
       - data_base
     networks:
       - backend-network
-   
     
   celery-beat:
     build: .
@@ -60,9 +59,8 @@ services:
       - data_base
     env_file:
       - .env 
-    networks:
+    networks: 
       - backend-network
-   
      
 volumes:
   pgdata:
