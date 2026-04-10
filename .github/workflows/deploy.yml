@@ -40,7 +40,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         source: ".env"
-        target: "/home/haiworldworld"
+        target: "/home/tradeclov"
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v1.0.0
@@ -72,15 +72,15 @@ jobs:
 
           # Run migrations (IMPORTANT)
           docker run --rm \
-            --env-file /home/haiworldworld/.env \
+            --env-file /home/tradeclov/.env \
             --network backend-network \
             ${{ secrets.IMAGE_NAME }}:latest \
             python manage.py migrate --noinput
 
           # Collect static files to host directory before running the container
           docker run --rm \
-            --env-file /home/haiworldworld/.env \
-            -v /home/haiworldworld/staticfiles:/app/staticfiles \
+            --env-file /home/tradeclov/.env \
+            -v /home/tradeclov/staticfiles:/app/staticfiles \
             ${{ secrets.IMAGE_NAME }}:latest \
             python manage.py collectstatic --noinput
 
@@ -88,8 +88,8 @@ jobs:
           docker run -d \
             --name web \
             -p 8000:8000 \
-            --env-file /home/haiworldworld/.env \
-            -v /home/haiworldworld/staticfiles:/app/staticfiles \
+            --env-file /home/tradeclov/.env \
+            -v /home/tradeclov/staticfiles:/app/staticfiles \
             --network backend-network \
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest
@@ -97,7 +97,7 @@ jobs:
           # Start Celery Worker
           docker run -d \
             --name celery-worker \
-            --env-file /home/haiworldworld/.env \
+            --env-file /home/tradeclov/.env \
             --network backend-network \
             --restart unless-stopped \
             ${{ secrets.IMAGE_NAME }}:latest \
@@ -106,7 +106,7 @@ jobs:
           # Start Celery Beat
           # docker run -d \
           #   --name celery-beat \
-          #   --env-file /home/haiworldworld/.env \
+          #   --env-file /home/tradeclov/.env \
           #   --network backend-network \
           #   --restart unless-stopped \
           #   ${{ secrets.IMAGE_NAME }}:latest \
