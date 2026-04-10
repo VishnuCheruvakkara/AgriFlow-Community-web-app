@@ -10,9 +10,13 @@
     <img alt="View Live Project" src="https://img.shields.io/badge/%20Live%20Demo-00C853?style=for-the-badge&logo=vercel&logoColor=white" />
   </a>
   &nbsp;
-  <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank">
-    <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
+  <a href="https://youtu.be/1a98RPqxqhk" target="_blank">
+    <img alt="Watch Demo Video" src="https://img.shields.io/badge/%20Demo%20Video%20User%20Side-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
   </a>
+  &nbsp;
+  <a href="https://youtu.be/ADMIN_VIDEO_LINK_HERE" target="_blank">
+  <img alt="Watch Admin Demo Video" src="https://img.shields.io/badge/%20Demo%20Video%20Admin%20Side-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
+</a>
 </p>
 
 ---
